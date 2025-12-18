@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Eye, Moon, Star } from 'lucide-react';
+import { Sparkles, Eye, Moon, Star, Volume2 } from 'lucide-react';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
-import { processAnalysis } from '@/lib/api';
+import { processAnalysis, generateVoiceMessage } from '@/lib/api';
 
 const loadingMessages = [
   { text: "Conectando com sua energia...", icon: Sparkles },
   { text: "Analisando as linhas da sua mão...", icon: Eye },
   { text: "Interpretando padrões espirituais...", icon: Moon },
   { text: "Revelando seus segredos...", icon: Star },
+  { text: "Canalizando sua mensagem espiritual...", icon: Sparkles },
+  { text: "Preparando a voz do oráculo...", icon: Volume2 },
   { text: "Finalizando sua leitura personalizada...", icon: Sparkles },
 ];
 
@@ -25,10 +27,12 @@ const Analise = () => {
     quizAnswers,
     setAnalysisResult,
     setIsAnalyzing,
+    setAudioUrl,
     canAccessAnalysis,
   } = useHandReadingStore();
 
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [phase, setPhase] = useState<'analysis' | 'voice'>('analysis');
 
   useEffect(() => {
     if (!canAccessAnalysis()) {
@@ -43,9 +47,11 @@ const Analise = () => {
       setCurrentMessageIndex((prev) => (prev + 1) % loadingMessages.length);
     }, 2000);
 
-    // Process the analysis
+    // Process the analysis and generate voice
     const runAnalysis = async () => {
       try {
+        // Phase 1: Get AI analysis
+        setPhase('analysis');
         const result = await processAnalysis(
           {
             name,
@@ -58,19 +64,29 @@ const Analise = () => {
         );
 
         setAnalysisResult(result);
+
+        // Phase 2: Generate voice for spiritual message
+        setPhase('voice');
+        setCurrentMessageIndex(5); // Show "Preparando a voz do oráculo..."
+        
+        const audioDataUrl = await generateVoiceMessage(result.spiritualMessage);
+        if (audioDataUrl) {
+          setAudioUrl(audioDataUrl);
+        }
+
         setIsAnalyzing(false);
         navigate('/resultado');
       } catch (error) {
         console.error('Analysis error:', error);
         setIsAnalyzing(false);
-        // Handle error - could show toast or redirect
+        navigate('/resultado'); // Navigate anyway, voice will generate on-demand
       }
     };
 
     // Add minimum delay for better UX
     const minDelay = setTimeout(() => {
       runAnalysis();
-    }, 5000);
+    }, 3000);
 
     return () => {
       clearInterval(messageInterval);
