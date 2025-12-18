@@ -2,3 +2,6 @@ project_id = "ihwjbvzynygkvvbqiths"
 
 [functions.text-to-speech]
 verify_jwt = false
+
+[functions.palm-analysis]
+verify_jwt = false
