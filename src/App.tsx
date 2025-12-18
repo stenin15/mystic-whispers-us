@@ -12,6 +12,7 @@ import Conexao from "./pages/Conexao";
 import Formulario from "./pages/Formulario";
 import Quiz from "./pages/Quiz";
 import Analise from "./pages/Analise";
+import Checkout from "./pages/Checkout";
 import Resultado from "./pages/Resultado";
 import Upsell from "./pages/Upsell";
 import NotFound from "./pages/NotFound";
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/formulario" element={<Formulario />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/analise" element={<Analise />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/resultado" element={<Resultado />} />
           <Route path="/upsell" element={<Upsell />} />
           <Route path="*" element={<NotFound />} />

@@ -75,7 +75,7 @@ const Analise = () => {
         }
 
         setIsAnalyzing(false);
-        navigate('/resultado');
+        navigate('/checkout');
       } catch (error) {
         console.error('Analysis error:', error);
         setIsAnalyzing(false);

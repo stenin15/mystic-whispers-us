@@ -17,6 +17,52 @@ import { Footer } from '@/components/layout/Footer';
 import { generateVoiceMessage } from '@/lib/api';
 import { toast } from 'sonner';
 
+// Ambient audio context for mystical effects
+const createAmbientEffect = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // Create oscillator for subtle ambient drone
+    const oscillator = audioContext.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(85, audioContext.currentTime); // Low frequency drone
+    
+    // Create gain node for volume control
+    const gainNode = audioContext.createGain();
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    
+    // Create filter for warmer sound
+    const filter = audioContext.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(200, audioContext.currentTime);
+    
+    // Connect nodes
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.start();
+    
+    return {
+      fadeIn: () => {
+        gainNode.gain.linearRampToValueAtTime(0.08, audioContext.currentTime + 2);
+      },
+      fadeOut: () => {
+        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1.5);
+      },
+      stop: () => {
+        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.5);
+        setTimeout(() => {
+          oscillator.stop();
+          audioContext.close();
+        }, 600);
+      },
+    };
+  } catch {
+    return null;
+  }
+};
+
 const Resultado = () => {
   const navigate = useNavigate();
   const {
@@ -30,6 +76,7 @@ const Resultado = () => {
   } = useHandReadingStore();
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  const ambientRef = useRef<ReturnType<typeof createAmbientEffect> | null>(null);
   const [audioLoading, setAudioLoading] = useState(false);
   const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
 
@@ -44,28 +91,65 @@ const Resultado = () => {
     if (audioUrl && audioRef.current && !hasAutoPlayed && !isPlayingAudio) {
       // Small delay for better UX
       const timer = setTimeout(() => {
-        audioRef.current?.play();
-        setIsPlayingAudio(true);
+        startAudioWithEffects();
         setHasAutoPlayed(true);
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [audioUrl, hasAutoPlayed, isPlayingAudio, setIsPlayingAudio]);
+  }, [audioUrl, hasAutoPlayed, isPlayingAudio]);
+
+  // Cleanup ambient on unmount
+  useEffect(() => {
+    return () => {
+      if (ambientRef.current) {
+        ambientRef.current.stop();
+      }
+    };
+  }, []);
+
+  const startAudioWithEffects = () => {
+    if (!audioRef.current) return;
+    
+    // Start ambient effect
+    ambientRef.current = createAmbientEffect();
+    if (ambientRef.current) {
+      ambientRef.current.fadeIn();
+    }
+    
+    // Play main audio
+    audioRef.current.play();
+    setIsPlayingAudio(true);
+  };
+
+  const stopAudioWithEffects = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    if (ambientRef.current) {
+      ambientRef.current.fadeOut();
+    }
+    setIsPlayingAudio(false);
+  };
+
+  const handleAudioEnded = () => {
+    if (ambientRef.current) {
+      ambientRef.current.fadeOut();
+    }
+    setIsPlayingAudio(false);
+  };
 
   const handlePlayVoice = async () => {
     if (!analysisResult) return;
 
     // If already playing, pause
-    if (isPlayingAudio && audioRef.current) {
-      audioRef.current.pause();
-      setIsPlayingAudio(false);
+    if (isPlayingAudio) {
+      stopAudioWithEffects();
       return;
     }
 
     // If we already have audio, play it
     if (audioUrl && audioRef.current) {
-      audioRef.current.play();
-      setIsPlayingAudio(true);
+      startAudioWithEffects();
       return;
     }
 
@@ -78,10 +162,7 @@ const Resultado = () => {
         setAudioUrl(generatedUrl);
         // Wait for audio element to update
         setTimeout(() => {
-          if (audioRef.current) {
-            audioRef.current.play();
-            setIsPlayingAudio(true);
-          }
+          startAudioWithEffects();
         }, 100);
       } else {
         toast.error('Não foi possível gerar o áudio. Tente novamente.');
@@ -107,7 +188,7 @@ const Resultado = () => {
       <audio
         ref={audioRef}
         src={audioUrl || undefined}
-        onEnded={() => setIsPlayingAudio(false)}
+        onEnded={handleAudioEnded}
         onPause={() => setIsPlayingAudio(false)}
       />
 
@@ -263,26 +344,52 @@ const Resultado = () => {
                 onClick={handlePlayVoice}
                 disabled={audioLoading}
                 variant="outline"
-                className="border-mystic-gold/30 text-mystic-gold hover:bg-mystic-gold/10"
+                className={`border-mystic-gold/30 text-mystic-gold hover:bg-mystic-gold/10 transition-all duration-300 ${
+                  isPlayingAudio ? 'animate-pulse ring-2 ring-mystic-gold/40' : ''
+                }`}
               >
                 {audioLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-mystic-gold border-t-transparent rounded-full animate-spin mr-2" />
-                    Gerando áudio...
+                    Canalizando áudio...
                   </>
                 ) : isPlayingAudio ? (
                   <>
                     <Pause className="w-4 h-4 mr-2" />
-                    Pausar
+                    Pausar Mensagem
                   </>
                 ) : (
                   <>
                     <Volume2 className="w-4 h-4 mr-2" />
-                    Ouvir Mensagem
+                    Ouvir Mensagem Espiritual
                   </>
                 )}
               </Button>
             </div>
+
+            {/* Playing indicator */}
+            {isPlayingAudio && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center justify-center gap-1 mb-4"
+              >
+                {[...Array(5)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="w-1 bg-mystic-gold/60 rounded-full"
+                    animate={{
+                      height: [8, 20, 8],
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                      delay: i * 0.1,
+                    }}
+                  />
+                ))}
+              </motion.div>
+            )}
 
             <div className="relative">
               <p className="text-foreground/90 leading-relaxed whitespace-pre-line font-serif italic text-center text-lg">
