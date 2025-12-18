@@ -5,67 +5,78 @@ import { Sparkles, Eye, Moon, Star, Volume2, Heart, Brain, Hand, Waves, Fingerpr
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { processAnalysis, generateVoiceMessage } from '@/lib/api';
-
+import { useMysticSounds } from '@/hooks/useMysticSounds';
+// Map each phase to a specific sound type
 const analysisPhases = [
   { 
     text: "Conectando com sua energia espiritual...", 
     subtext: "Estabelecendo canal de comunicação",
     icon: Sparkles,
-    duration: 2500 
+    duration: 2500,
+    sound: 'sparkle' as const
   },
   { 
     text: "Identificando linhas principais...", 
     subtext: "Linha da vida • Linha do coração • Linha da mente",
     icon: Hand,
-    duration: 3000 
+    duration: 3000,
+    sound: 'chime' as const
   },
   { 
     text: "Analisando padrões únicos...", 
     subtext: "Cada mão conta uma história diferente",
     icon: Fingerprint,
-    duration: 2800 
+    duration: 2800,
+    sound: 'whoosh' as const
   },
   { 
     text: "Interpretando sua linha do coração...", 
     subtext: "Revelando aspectos emocionais profundos",
     icon: Heart,
-    duration: 3200 
+    duration: 3200,
+    sound: 'heartPulse' as const
   },
   { 
     text: "Decodificando linha da mente...", 
     subtext: "Compreendendo seus padrões de pensamento",
     icon: Brain,
-    duration: 2600 
+    duration: 2600,
+    sound: 'chime' as const
   },
   { 
     text: "Captando vibrações espirituais...", 
     subtext: "Sintonizando frequências cósmicas",
     icon: Waves,
-    duration: 2400 
+    duration: 2400,
+    sound: 'mysticTone' as const
   },
   { 
     text: "Revelando seus segredos ocultos...", 
     subtext: "O universo está respondendo",
     icon: Eye,
-    duration: 3000 
+    duration: 3000,
+    sound: 'whoosh' as const
   },
   { 
     text: "Consultando o oráculo lunar...", 
     subtext: "A lua ilumina seu caminho",
     icon: Moon,
-    duration: 2800 
+    duration: 2800,
+    sound: 'mysticTone' as const
   },
   { 
     text: "Canalizando mensagem espiritual...", 
     subtext: "Madame Aurora está recebendo sua visão",
     icon: Star,
-    duration: 3500 
+    duration: 3500,
+    sound: 'sparkle' as const
   },
   { 
     text: "Preparando a voz do destino...", 
     subtext: "Sua mensagem está sendo materializada",
     icon: Volume2,
-    duration: 2000 
+    duration: 2000,
+    sound: 'chime' as const
   },
 ];
 
@@ -90,6 +101,38 @@ const Analise = () => {
   const [isApiDone, setIsApiDone] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
   const analysisStarted = useRef(false);
+  
+  const { 
+    playTransitionChime, 
+    playWhoosh, 
+    playMysticTone, 
+    playSparkle, 
+    playHeartPulse, 
+    playCompletion,
+    cleanup 
+  } = useMysticSounds();
+
+  // Function to play the appropriate sound for each phase
+  const playSoundForPhase = (phaseIndex: number) => {
+    const sound = analysisPhases[phaseIndex]?.sound;
+    switch (sound) {
+      case 'chime':
+        playTransitionChime();
+        break;
+      case 'whoosh':
+        playWhoosh();
+        break;
+      case 'mysticTone':
+        playMysticTone();
+        break;
+      case 'sparkle':
+        playSparkle();
+        break;
+      case 'heartPulse':
+        playHeartPulse();
+        break;
+    }
+  };
 
   useEffect(() => {
     if (!canAccessAnalysis()) {
@@ -125,6 +168,9 @@ const Analise = () => {
 
     runAnalysis();
 
+    // Play initial sound
+    playSoundForPhase(0);
+
     // Phase progression with realistic timing
     let phaseIndex = 0;
     const advancePhase = () => {
@@ -132,6 +178,9 @@ const Analise = () => {
         phaseIndex++;
         setCurrentPhaseIndex(phaseIndex);
         setPhaseProgress(0);
+        
+        // Play transition sound for new phase
+        playSoundForPhase(phaseIndex);
         
         // Random pulse effect
         if (Math.random() > 0.5) {
@@ -170,6 +219,9 @@ const Analise = () => {
         clearInterval(progressInterval);
         clearInterval(checkCompletion);
         
+        // Play completion sound
+        playCompletion();
+        
         setTimeout(() => {
           setIsAnalyzing(false);
           navigate('/checkout');
@@ -182,6 +234,7 @@ const Analise = () => {
       setProgress(100);
       clearInterval(progressInterval);
       clearInterval(checkCompletion);
+      playCompletion();
       setIsAnalyzing(false);
       navigate('/checkout');
     }, 45000);
@@ -190,6 +243,7 @@ const Analise = () => {
       clearInterval(progressInterval);
       clearInterval(checkCompletion);
       clearTimeout(maxTimeout);
+      cleanup();
     };
   }, []);
 
@@ -197,12 +251,13 @@ const Analise = () => {
   useEffect(() => {
     if (isApiDone && progress >= 90) {
       setProgress(100);
+      playCompletion();
       setTimeout(() => {
         setIsAnalyzing(false);
         navigate('/checkout');
       }, 1000);
     }
-  }, [isApiDone, progress]);
+  }, [isApiDone, progress, playCompletion]);
 
   const CurrentIcon = analysisPhases[currentPhaseIndex].icon;
   const currentPhase = analysisPhases[currentPhaseIndex];
