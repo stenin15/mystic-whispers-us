@@ -3,10 +3,31 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+// Pages
 import Index from "./pages/Index";
+import Conexao from "./pages/Conexao";
+import Formulario from "./pages/Formulario";
+import Quiz from "./pages/Quiz";
+import Analise from "./pages/Analise";
+import Resultado from "./pages/Resultado";
+import Upsell from "./pages/Upsell";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+// Scroll to top on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -14,9 +35,15 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/conexao" element={<Conexao />} />
+          <Route path="/formulario" element={<Formulario />} />
+          <Route path="/quiz" element={<Quiz />} />
+          <Route path="/analise" element={<Analise />} />
+          <Route path="/resultado" element={<Resultado />} />
+          <Route path="/upsell" element={<Upsell />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

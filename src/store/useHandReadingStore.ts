@@ -1,0 +1,143 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+export interface QuizAnswer {
+  questionId: number;
+  answerId: string;
+  answerText: string;
+}
+
+export interface EnergyType {
+  name: string;
+  description: string;
+  icon: string;
+}
+
+export interface Strength {
+  title: string;
+  desc: string;
+  icon: string;
+}
+
+export interface Block {
+  title: string;
+  desc: string;
+  icon: string;
+}
+
+export interface AnalysisResult {
+  energyType: EnergyType;
+  strengths: Strength[];
+  blocks: Block[];
+  spiritualMessage: string;
+  audioUrl?: string;
+}
+
+interface HandReadingState {
+  // Form data
+  name: string;
+  age: string;
+  emotionalState: string;
+  mainConcern: string;
+  handPhotoURL: string;
+
+  // Quiz
+  quizAnswers: QuizAnswer[];
+  currentQuestionIndex: number;
+
+  // Analysis
+  analysisResult: AnalysisResult | null;
+  isAnalyzing: boolean;
+
+  // Audio
+  audioUrl: string | null;
+  isPlayingAudio: boolean;
+
+  // Actions
+  setFormData: (data: Partial<{
+    name: string;
+    age: string;
+    emotionalState: string;
+    mainConcern: string;
+    handPhotoURL: string;
+  }>) => void;
+  setQuizAnswer: (answer: QuizAnswer) => void;
+  setCurrentQuestionIndex: (index: number) => void;
+  resetQuiz: () => void;
+  setAnalysisResult: (result: AnalysisResult) => void;
+  setIsAnalyzing: (isAnalyzing: boolean) => void;
+  setAudioUrl: (url: string | null) => void;
+  setIsPlayingAudio: (isPlaying: boolean) => void;
+  reset: () => void;
+  canAccessQuiz: () => boolean;
+  canAccessAnalysis: () => boolean;
+  canAccessResult: () => boolean;
+}
+
+const initialState = {
+  name: '',
+  age: '',
+  emotionalState: '',
+  mainConcern: '',
+  handPhotoURL: '',
+  quizAnswers: [],
+  currentQuestionIndex: 0,
+  analysisResult: null,
+  isAnalyzing: false,
+  audioUrl: null,
+  isPlayingAudio: false,
+};
+
+export const useHandReadingStore = create<HandReadingState>()(
+  persist(
+    (set, get) => ({
+      ...initialState,
+
+      setFormData: (data) => set((state) => ({ ...state, ...data })),
+
+      setQuizAnswer: (answer) => set((state) => {
+        const existingIndex = state.quizAnswers.findIndex(
+          (a) => a.questionId === answer.questionId
+        );
+        if (existingIndex >= 0) {
+          const newAnswers = [...state.quizAnswers];
+          newAnswers[existingIndex] = answer;
+          return { quizAnswers: newAnswers };
+        }
+        return { quizAnswers: [...state.quizAnswers, answer] };
+      }),
+
+      setCurrentQuestionIndex: (index) => set({ currentQuestionIndex: index }),
+
+      resetQuiz: () => set({ quizAnswers: [], currentQuestionIndex: 0 }),
+
+      setAnalysisResult: (result) => set({ analysisResult: result }),
+
+      setIsAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
+
+      setAudioUrl: (url) => set({ audioUrl: url }),
+
+      setIsPlayingAudio: (isPlaying) => set({ isPlayingAudio: isPlaying }),
+
+      reset: () => set(initialState),
+
+      canAccessQuiz: () => {
+        const state = get();
+        return !!(state.name && state.age && state.handPhotoURL);
+      },
+
+      canAccessAnalysis: () => {
+        const state = get();
+        return state.canAccessQuiz() && state.quizAnswers.length >= 5;
+      },
+
+      canAccessResult: () => {
+        const state = get();
+        return !!state.analysisResult;
+      },
+    }),
+    {
+      name: 'mystic-hand-storage',
+    }
+  )
+);
