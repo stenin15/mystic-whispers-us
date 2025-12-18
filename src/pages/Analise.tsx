@@ -1,19 +1,72 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Eye, Moon, Star, Volume2 } from 'lucide-react';
+import { Sparkles, Eye, Moon, Star, Volume2, Heart, Brain, Hand, Waves, Fingerprint } from 'lucide-react';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { processAnalysis, generateVoiceMessage } from '@/lib/api';
 
-const loadingMessages = [
-  { text: "Conectando com sua energia...", icon: Sparkles },
-  { text: "Analisando as linhas da sua mão...", icon: Eye },
-  { text: "Interpretando padrões espirituais...", icon: Moon },
-  { text: "Revelando seus segredos...", icon: Star },
-  { text: "Canalizando sua mensagem espiritual...", icon: Sparkles },
-  { text: "Preparando a voz do oráculo...", icon: Volume2 },
-  { text: "Finalizando sua leitura personalizada...", icon: Sparkles },
+const analysisPhases = [
+  { 
+    text: "Conectando com sua energia espiritual...", 
+    subtext: "Estabelecendo canal de comunicação",
+    icon: Sparkles,
+    duration: 2500 
+  },
+  { 
+    text: "Identificando linhas principais...", 
+    subtext: "Linha da vida • Linha do coração • Linha da mente",
+    icon: Hand,
+    duration: 3000 
+  },
+  { 
+    text: "Analisando padrões únicos...", 
+    subtext: "Cada mão conta uma história diferente",
+    icon: Fingerprint,
+    duration: 2800 
+  },
+  { 
+    text: "Interpretando sua linha do coração...", 
+    subtext: "Revelando aspectos emocionais profundos",
+    icon: Heart,
+    duration: 3200 
+  },
+  { 
+    text: "Decodificando linha da mente...", 
+    subtext: "Compreendendo seus padrões de pensamento",
+    icon: Brain,
+    duration: 2600 
+  },
+  { 
+    text: "Captando vibrações espirituais...", 
+    subtext: "Sintonizando frequências cósmicas",
+    icon: Waves,
+    duration: 2400 
+  },
+  { 
+    text: "Revelando seus segredos ocultos...", 
+    subtext: "O universo está respondendo",
+    icon: Eye,
+    duration: 3000 
+  },
+  { 
+    text: "Consultando o oráculo lunar...", 
+    subtext: "A lua ilumina seu caminho",
+    icon: Moon,
+    duration: 2800 
+  },
+  { 
+    text: "Canalizando mensagem espiritual...", 
+    subtext: "Madame Aurora está recebendo sua visão",
+    icon: Star,
+    duration: 3500 
+  },
+  { 
+    text: "Preparando a voz do destino...", 
+    subtext: "Sua mensagem está sendo materializada",
+    icon: Volume2,
+    duration: 2000 
+  },
 ];
 
 const Analise = () => {
@@ -31,8 +84,12 @@ const Analise = () => {
     canAccessAnalysis,
   } = useHandReadingStore();
 
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-  const [phase, setPhase] = useState<'analysis' | 'voice'>('analysis');
+  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [phaseProgress, setPhaseProgress] = useState(0);
+  const [isApiDone, setIsApiDone] = useState(false);
+  const [showPulse, setShowPulse] = useState(false);
+  const analysisStarted = useRef(false);
 
   useEffect(() => {
     if (!canAccessAnalysis()) {
@@ -40,61 +97,115 @@ const Analise = () => {
       return;
     }
 
+    if (analysisStarted.current) return;
+    analysisStarted.current = true;
+
     setIsAnalyzing(true);
 
-    // Cycle through loading messages
-    const messageInterval = setInterval(() => {
-      setCurrentMessageIndex((prev) => (prev + 1) % loadingMessages.length);
-    }, 2000);
-
-    // Process the analysis and generate voice
+    // Start API call immediately
     const runAnalysis = async () => {
       try {
-        // Phase 1: Get AI analysis
-        setPhase('analysis');
         const result = await processAnalysis(
-          {
-            name,
-            age,
-            emotionalState,
-            mainConcern,
-            handPhotoURL,
-          },
+          { name, age, emotionalState, mainConcern, handPhotoURL },
           quizAnswers
         );
-
         setAnalysisResult(result);
 
-        // Phase 2: Generate voice for spiritual message
-        setPhase('voice');
-        setCurrentMessageIndex(5); // Show "Preparando a voz do oráculo..."
-        
         const audioDataUrl = await generateVoiceMessage(result.spiritualMessage);
         if (audioDataUrl) {
           setAudioUrl(audioDataUrl);
         }
 
-        setIsAnalyzing(false);
-        navigate('/checkout');
+        setIsApiDone(true);
       } catch (error) {
         console.error('Analysis error:', error);
-        setIsAnalyzing(false);
-        navigate('/resultado'); // Navigate anyway, voice will generate on-demand
+        setIsApiDone(true);
       }
     };
 
-    // Add minimum delay for better UX
-    const minDelay = setTimeout(() => {
-      runAnalysis();
-    }, 3000);
+    runAnalysis();
+
+    // Phase progression with realistic timing
+    let phaseIndex = 0;
+    const advancePhase = () => {
+      if (phaseIndex < analysisPhases.length - 1) {
+        phaseIndex++;
+        setCurrentPhaseIndex(phaseIndex);
+        setPhaseProgress(0);
+        
+        // Random pulse effect
+        if (Math.random() > 0.5) {
+          setShowPulse(true);
+          setTimeout(() => setShowPulse(false), 500);
+        }
+
+        // Schedule next phase with variable timing
+        const nextDuration = analysisPhases[phaseIndex].duration + (Math.random() * 800 - 400);
+        setTimeout(advancePhase, nextDuration);
+      }
+    };
+
+    setTimeout(advancePhase, analysisPhases[0].duration);
+
+    // Smooth progress bar animation
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        // Slow down near the end, speed up in the middle
+        const speedFactor = prev < 30 ? 0.3 : prev < 70 ? 0.5 : prev < 90 ? 0.2 : 0.05;
+        const increment = Math.random() * speedFactor;
+        return Math.min(prev + increment, 95); // Never reach 100 until done
+      });
+
+      setPhaseProgress(prev => {
+        const increment = Math.random() * 3;
+        return Math.min(prev + increment, 100);
+      });
+    }, 100);
+
+    // Minimum time before navigation (ensures good UX)
+    const minTime = 25000; // 25 seconds minimum
+    const checkCompletion = setInterval(() => {
+      if (isApiDone && progress >= 90) {
+        setProgress(100);
+        clearInterval(progressInterval);
+        clearInterval(checkCompletion);
+        
+        setTimeout(() => {
+          setIsAnalyzing(false);
+          navigate('/checkout');
+        }, 1000);
+      }
+    }, 500);
+
+    // Force complete after max time
+    const maxTimeout = setTimeout(() => {
+      setProgress(100);
+      clearInterval(progressInterval);
+      clearInterval(checkCompletion);
+      setIsAnalyzing(false);
+      navigate('/checkout');
+    }, 45000);
 
     return () => {
-      clearInterval(messageInterval);
-      clearTimeout(minDelay);
+      clearInterval(progressInterval);
+      clearInterval(checkCompletion);
+      clearTimeout(maxTimeout);
     };
   }, []);
 
-  const CurrentIcon = loadingMessages[currentMessageIndex].icon;
+  // Watch for API completion
+  useEffect(() => {
+    if (isApiDone && progress >= 90) {
+      setProgress(100);
+      setTimeout(() => {
+        setIsAnalyzing(false);
+        navigate('/checkout');
+      }, 1000);
+    }
+  }, [isApiDone, progress]);
+
+  const CurrentIcon = analysisPhases[currentPhaseIndex].icon;
+  const currentPhase = analysisPhases[currentPhaseIndex];
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4">
@@ -106,50 +217,68 @@ const Analise = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative mb-10"
+          className="relative mb-8"
         >
           {/* Outer rings */}
-          <div className="relative w-48 h-48 mx-auto">
+          <div className="relative w-52 h-52 mx-auto">
             {/* Pulsing background */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-3xl animate-glow-pulse" />
+            <motion.div 
+              animate={{ 
+                scale: showPulse ? [1, 1.3, 1] : 1,
+                opacity: showPulse ? [0.2, 0.5, 0.2] : 0.2
+              }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-3xl" 
+            />
             
             {/* Spinning ring 1 */}
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-2 rounded-full border border-primary/30"
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20"
             />
             
             {/* Spinning ring 2 (opposite direction) */}
             <motion.div
               animate={{ rotate: -360 }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-6 rounded-full border border-accent/30"
+              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-4 rounded-full border border-accent/30"
+            />
+
+            {/* Spinning ring 3 */}
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-8 rounded-full border border-primary/20"
             />
             
-            {/* Center icon */}
+            {/* Center icon with glow */}
             <div className="absolute inset-0 flex items-center justify-center">
               <motion.div
                 animate={{ 
-                  scale: [1, 1.1, 1],
-                  rotate: [0, 5, -5, 0]
+                  scale: [1, 1.05, 1],
+                  boxShadow: [
+                    '0 0 20px rgba(var(--primary-rgb), 0.3)',
+                    '0 0 40px rgba(var(--primary-rgb), 0.5)',
+                    '0 0 20px rgba(var(--primary-rgb), 0.3)'
+                  ]
                 }}
                 transition={{ 
-                  duration: 3,
+                  duration: 2,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 backdrop-blur-xl border border-primary/40 flex items-center justify-center"
+                className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/40 to-accent/40 backdrop-blur-xl border border-primary/50 flex items-center justify-center shadow-lg"
               >
                 <AnimatePresence mode="wait">
                   <motion.div
-                    key={currentMessageIndex}
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.5 }}
-                    transition={{ duration: 0.3 }}
+                    key={currentPhaseIndex}
+                    initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, rotate: 20 }}
+                    transition={{ duration: 0.4 }}
                   >
-                    <CurrentIcon className="w-10 h-10 text-primary" />
+                    <CurrentIcon className="w-12 h-12 text-primary drop-shadow-glow" />
                   </motion.div>
                 </AnimatePresence>
               </motion.div>
@@ -158,17 +287,24 @@ const Analise = () => {
             {/* Orbiting particles */}
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
               className="absolute inset-0"
             >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-mystic-gold" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-mystic-gold shadow-lg shadow-mystic-gold/50" />
             </motion.div>
             <motion.div
               animate={{ rotate: -360 }}
-              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
               className="absolute inset-0"
             >
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-mystic-lilac" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-mystic-lilac shadow-lg shadow-mystic-lilac/50" />
+            </motion.div>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0"
+            >
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary/70" />
             </motion.div>
           </div>
         </motion.div>
@@ -176,16 +312,19 @@ const Analise = () => {
         {/* Loading Message */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentMessageIndex}
+            key={currentPhaseIndex}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
-            className="mb-6"
+            className="mb-4"
           >
-            <h2 className="text-2xl md:text-3xl font-serif font-bold gradient-text mb-2">
-              {loadingMessages[currentMessageIndex].text}
+            <h2 className="text-xl md:text-2xl font-serif font-bold gradient-text mb-2">
+              {currentPhase.text}
             </h2>
+            <p className="text-sm text-muted-foreground/70 italic">
+              {currentPhase.subtext}
+            </p>
           </motion.div>
         </AnimatePresence>
 
@@ -194,26 +333,55 @@ const Analise = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="text-muted-foreground"
+          className="text-muted-foreground mb-6"
         >
-          {name}, sua leitura está sendo preparada com muito cuidado...
+          {name}, sua leitura está sendo preparada com cuidado especial...
         </motion.p>
 
-        {/* Progress dots */}
-        <div className="flex justify-center gap-2 mt-8">
-          {loadingMessages.map((_, index) => (
+        {/* Main Progress Bar */}
+        <div className="w-full max-w-xs mx-auto mb-4">
+          <div className="h-2 bg-muted/30 rounded-full overflow-hidden backdrop-blur-sm border border-primary/10">
+            <motion.div
+              className="h-full bg-gradient-to-r from-primary via-accent to-primary rounded-full"
+              style={{ width: `${progress}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+            <span>Analisando...</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+        </div>
+
+        {/* Phase Progress dots */}
+        <div className="flex justify-center gap-1.5 mt-6">
+          {analysisPhases.map((_, index) => (
             <motion.div
               key={index}
               animate={{
-                scale: index === currentMessageIndex ? 1.5 : 1,
-                opacity: index === currentMessageIndex ? 1 : 0.3,
+                scale: index === currentPhaseIndex ? 1.3 : 1,
+                opacity: index <= currentPhaseIndex ? 1 : 0.2,
               }}
-              className={`w-2 h-2 rounded-full ${
-                index === currentMessageIndex ? 'bg-primary' : 'bg-muted-foreground'
+              className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
+                index < currentPhaseIndex 
+                  ? 'bg-primary' 
+                  : index === currentPhaseIndex 
+                    ? 'bg-accent' 
+                    : 'bg-muted-foreground/30'
               }`}
             />
           ))}
         </div>
+
+        {/* Mystical quote */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.6 }}
+          transition={{ delay: 3 }}
+          className="text-xs text-muted-foreground/60 mt-8 italic max-w-sm mx-auto"
+        >
+          "As linhas da sua mão guardam segredos que só o universo conhece..."
+        </motion.p>
       </div>
     </div>
   );
