@@ -31,12 +31,26 @@ const Resultado = () => {
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [audioLoading, setAudioLoading] = useState(false);
+  const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
 
   useEffect(() => {
     if (!canAccessResult()) {
       navigate('/formulario');
     }
   }, [canAccessResult, navigate]);
+
+  // Auto-play audio when available
+  useEffect(() => {
+    if (audioUrl && audioRef.current && !hasAutoPlayed && !isPlayingAudio) {
+      // Small delay for better UX
+      const timer = setTimeout(() => {
+        audioRef.current?.play();
+        setIsPlayingAudio(true);
+        setHasAutoPlayed(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [audioUrl, hasAutoPlayed, isPlayingAudio, setIsPlayingAudio]);
 
   const handlePlayVoice = async () => {
     if (!analysisResult) return;
