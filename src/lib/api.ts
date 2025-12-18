@@ -112,26 +112,43 @@ const selectRandom = <T>(arr: T[], count: number): T[] => {
   return shuffled.slice(0, count);
 };
 
-// Main analysis function
+// Main analysis function - now using real AI
 export const processAnalysis = async (
   formData: FormData,
   quizAnswers: QuizAnswer[]
 ): Promise<AnalysisResult> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 3000));
+  try {
+    const { data, error } = await supabase.functions.invoke('palm-analysis', {
+      body: { formData, quizAnswers }
+    });
 
-  const dominantEnergy = calculateDominantEnergy(quizAnswers);
-  const energyType = energyTypes[dominantEnergy];
-  const strengths = selectRandom(strengthsPool, 3);
-  const blocks = selectRandom(blocksPool, 2);
-  const spiritualMessage = generateSpiritualMessage(formData.name, dominantEnergy);
+    if (error) {
+      console.error('Analysis error:', error);
+      throw error;
+    }
 
-  return {
-    energyType,
-    strengths,
-    blocks,
-    spiritualMessage,
-  };
+    if (data?.error) {
+      throw new Error(data.error);
+    }
+
+    return data as AnalysisResult;
+  } catch (error) {
+    console.error('Error in processAnalysis:', error);
+    
+    // Fallback to mock analysis if AI fails
+    const dominantEnergy = calculateDominantEnergy(quizAnswers);
+    const energyType = energyTypes[dominantEnergy];
+    const strengths = selectRandom(strengthsPool, 3);
+    const blocks = selectRandom(blocksPool, 2);
+    const spiritualMessage = generateSpiritualMessage(formData.name, dominantEnergy);
+
+    return {
+      energyType,
+      strengths,
+      blocks,
+      spiritualMessage,
+    };
+  }
 };
 
 // Text-to-Speech function using OpenAI TTS via Edge Function
