@@ -6,18 +6,16 @@ import {
   Quote, 
   ArrowRight,
   Volume2,
-  VolumeX,
-  Play,
-  Pause,
-  AlertTriangle
+  Pause
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
-import { MysticCard } from '@/components/shared/MysticCard';
 import { SectionTitle } from '@/components/shared/SectionTitle';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { getIcon } from '@/lib/iconMapper';
 import { Footer } from '@/components/layout/Footer';
+import { generateVoiceMessage } from '@/lib/api';
+import { toast } from 'sonner';
 
 const Resultado = () => {
   const navigate = useNavigate();
@@ -26,6 +24,7 @@ const Resultado = () => {
     analysisResult,
     canAccessResult,
     audioUrl,
+    setAudioUrl,
     isPlayingAudio,
     setIsPlayingAudio,
   } = useHandReadingStore();
@@ -39,24 +38,45 @@ const Resultado = () => {
     }
   }, [canAccessResult, navigate]);
 
-  // TODO: Implement voice generation with Lovable Cloud + OpenAI TTS
   const handlePlayVoice = async () => {
-    if (audioRef.current) {
-      if (isPlayingAudio) {
-        audioRef.current.pause();
-        setIsPlayingAudio(false);
+    if (!analysisResult) return;
+
+    // If already playing, pause
+    if (isPlayingAudio && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlayingAudio(false);
+      return;
+    }
+
+    // If we already have audio, play it
+    if (audioUrl && audioRef.current) {
+      audioRef.current.play();
+      setIsPlayingAudio(true);
+      return;
+    }
+
+    // Generate audio
+    setAudioLoading(true);
+    try {
+      const generatedUrl = await generateVoiceMessage(analysisResult.spiritualMessage);
+      
+      if (generatedUrl) {
+        setAudioUrl(generatedUrl);
+        // Wait for audio element to update
+        setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.play();
+            setIsPlayingAudio(true);
+          }
+        }, 100);
       } else {
-        // If we have audio URL, play it
-        if (audioUrl) {
-          audioRef.current.play();
-          setIsPlayingAudio(true);
-        } else {
-          // TODO: Generate audio using edge function
-          setAudioLoading(true);
-          console.log('Audio generation will be implemented with Lovable Cloud');
-          setAudioLoading(false);
-        }
+        toast.error('Não foi possível gerar o áudio. Tente novamente.');
       }
+    } catch (error) {
+      console.error('Error generating voice:', error);
+      toast.error('Erro ao gerar áudio. Tente novamente.');
+    } finally {
+      setAudioLoading(false);
     }
   };
 
@@ -223,7 +243,7 @@ const Resultado = () => {
               </p>
             </div>
 
-            {/* Voice Playback Button - Will be enabled with Lovable Cloud */}
+            {/* Voice Playback Button */}
             <div className="flex justify-center mb-6">
               <Button
                 onClick={handlePlayVoice}
