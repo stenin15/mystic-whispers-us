@@ -1,0 +1,216 @@
+import { useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, ArrowRight, Sparkles, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
+import { useHandReadingStore } from '@/store/useHandReadingStore';
+import { quizQuestions } from '@/lib/quizQuestions';
+import { cn } from '@/lib/utils';
+import { useEffect } from 'react';
+
+const Quiz = () => {
+  const navigate = useNavigate();
+  const {
+    name,
+    quizAnswers,
+    currentQuestionIndex,
+    setQuizAnswer,
+    setCurrentQuestionIndex,
+    canAccessQuiz,
+  } = useHandReadingStore();
+
+  // Redirect if coming from wrong place
+  useEffect(() => {
+    if (!canAccessQuiz()) {
+      navigate('/formulario');
+    }
+  }, [canAccessQuiz, navigate]);
+
+  const currentQuestion = quizQuestions[currentQuestionIndex];
+  const totalQuestions = quizQuestions.length;
+  const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+
+  const currentAnswer = quizAnswers.find(
+    (a) => a.questionId === currentQuestion?.id
+  );
+
+  const handleSelectOption = (optionId: string, optionText: string) => {
+    if (!currentQuestion) return;
+    
+    setQuizAnswer({
+      questionId: currentQuestion.id,
+      answerId: optionId,
+      answerText: optionText,
+    });
+  };
+
+  const handleNext = () => {
+    if (currentQuestionIndex < totalQuestions - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      // Quiz completed, go to analysis
+      navigate('/analise');
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    }
+  };
+
+  if (!currentQuestion) return null;
+
+  return (
+    <div className="min-h-screen relative overflow-hidden py-20 px-4">
+      <ParticlesBackground />
+      <FloatingOrbs />
+
+      <div className="container max-w-2xl mx-auto relative">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-4">
+            <span className="text-sm text-primary">Passo 2 de 2</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold mb-2">
+            <span className="gradient-text-mystic">Quiz Energético</span>
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {name}, responda com o coração aberto
+          </p>
+        </motion.div>
+
+        {/* Progress Bar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-8"
+        >
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-muted-foreground">
+              Pergunta {currentQuestionIndex + 1} de {totalQuestions}
+            </span>
+            <span className="text-sm text-primary">{Math.round(progress)}%</span>
+          </div>
+          <div className="h-2 bg-card/50 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full gradient-mystic"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
+        </motion.div>
+
+        {/* Question Card */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentQuestion.id}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3 }}
+            className="p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30"
+          >
+            <h2 className="text-xl md:text-2xl font-serif font-semibold text-foreground mb-6 leading-relaxed">
+              {currentQuestion.question}
+            </h2>
+
+            {/* Options */}
+            <div className="space-y-3">
+              {currentQuestion.options.map((option, index) => (
+                <motion.button
+                  key={option.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  onClick={() => handleSelectOption(option.id, option.text)}
+                  className={cn(
+                    'w-full p-4 rounded-xl text-left transition-all duration-300 border',
+                    currentAnswer?.answerId === option.id
+                      ? 'bg-primary/20 border-primary/50 shadow-lg shadow-primary/10'
+                      : 'bg-card/30 border-border/30 hover:border-primary/30 hover:bg-card/50'
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        'w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all',
+                        currentAnswer?.answerId === option.id
+                          ? 'border-primary bg-primary'
+                          : 'border-muted-foreground/30'
+                      )}
+                    >
+                      {currentAnswer?.answerId === option.id && (
+                        <CheckCircle className="w-4 h-4 text-primary-foreground" />
+                      )}
+                    </div>
+                    <span
+                      className={cn(
+                        'text-sm md:text-base',
+                        currentAnswer?.answerId === option.id
+                          ? 'text-foreground font-medium'
+                          : 'text-muted-foreground'
+                      )}
+                    >
+                      {option.text}
+                    </span>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation Buttons */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex justify-between items-center mt-8"
+        >
+          <Button
+            variant="ghost"
+            onClick={handlePrevious}
+            disabled={currentQuestionIndex === 0}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Anterior
+          </Button>
+
+          <Button
+            onClick={handleNext}
+            disabled={!currentAnswer}
+            className="gradient-mystic text-primary-foreground hover:opacity-90"
+          >
+            {currentQuestionIndex === totalQuestions - 1 ? (
+              <>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Ver Minha Leitura
+              </>
+            ) : (
+              <>
+                Próxima
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </>
+            )}
+          </Button>
+        </motion.div>
+
+        {/* Back to form link */}
+        <div className="text-center mt-6">
+          <Link to="/formulario" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            ← Voltar ao formulário
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Quiz;

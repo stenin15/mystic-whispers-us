@@ -1,0 +1,148 @@
+import { QuizAnswer, AnalysisResult, EnergyType, Strength, Block } from '@/store/useHandReadingStore';
+
+interface FormData {
+  name: string;
+  age: string;
+  emotionalState: string;
+  mainConcern: string;
+  handPhotoURL: string;
+}
+
+// Energy types based on quiz patterns
+const energyTypes: Record<string, EnergyType> = {
+  lunar: {
+    name: "Energia Lunar",
+    description: "Você possui uma conexão profunda com o mundo das emoções e da intuição. Sua energia lunar revela uma alma sensível, empática e com grande capacidade de compreender os mistérios da vida. Você é guiado(a) pela sua intuição e tem um dom natural para perceber o que outros não veem.",
+    icon: "Moon",
+  },
+  solar: {
+    name: "Energia Solar",
+    description: "Sua energia radiante ilumina todos ao seu redor. Você carrega a força do sol dentro de si - determinação, vitalidade e um carisma magnético. Sua presença inspira outros e você tem o poder de transformar ambientes com sua luz interior.",
+    icon: "Sun",
+  },
+  stellar: {
+    name: "Energia Estelar",
+    description: "Você é um ser conectado com o cosmos, carregando a sabedoria ancestral das estrelas. Sua energia transcende o ordinário, trazendo consigo dons especiais de criatividade, visão e uma perspectiva única sobre a existência.",
+    icon: "Star",
+  },
+};
+
+// Strengths pool
+const strengthsPool: Strength[] = [
+  { title: "Intuição Aguçada", desc: "Você possui um sexto sentido desenvolvido que te guia nas decisões importantes da vida.", icon: "Eye" },
+  { title: "Empatia Profunda", desc: "Sua capacidade de sentir e compreender as emoções alheias é um dom raro e valioso.", icon: "Heart" },
+  { title: "Criatividade Abundante", desc: "Sua mente é uma fonte inesgotável de ideias criativas e soluções inovadoras.", icon: "Sparkles" },
+  { title: "Resiliência Interior", desc: "Você possui uma força interior que te permite superar qualquer adversidade.", icon: "Shield" },
+  { title: "Sabedoria Natural", desc: "Existe em você uma sabedoria que transcende sua idade e experiências.", icon: "Brain" },
+  { title: "Poder de Cura", desc: "Sua presença tem o poder de trazer conforto e cura emocional aos outros.", icon: "Leaf" },
+  { title: "Magnetismo Pessoal", desc: "Você atrai naturalmente pessoas e oportunidades para sua vida.", icon: "Magnet" },
+  { title: "Conexão Espiritual", desc: "Sua ligação com o plano espiritual é forte e te protege em sua jornada.", icon: "Flame" },
+];
+
+// Blocks pool
+const blocksPool: Block[] = [
+  { title: "Bloqueio no Chakra do Coração", desc: "Experiências passadas criaram uma proteção excessiva em torno do seu coração, dificultando conexões profundas.", icon: "HeartCrack" },
+  { title: "Sobrecarga Energética", desc: "Você absorve muita energia do ambiente, o que pode causar cansaço e confusão mental.", icon: "Zap" },
+  { title: "Medo do Desconhecido", desc: "O receio de mudanças pode estar limitando seu crescimento e novas oportunidades.", icon: "CloudFog" },
+  { title: "Dificuldade em Receber", desc: "Você dá muito aos outros mas tem dificuldade em permitir-se receber amor e abundância.", icon: "Hand" },
+  { title: "Padrões Repetitivos", desc: "Ciclos kármicos não resolvidos estão criando situações repetitivas em sua vida.", icon: "RefreshCw" },
+  { title: "Desconexão com o Propósito", desc: "Uma sensação de estar perdido(a) indica que você precisa reconectar-se com sua missão de vida.", icon: "Compass" },
+];
+
+// Spiritual messages based on energy type and name
+const generateSpiritualMessage = (name: string, energyType: string): string => {
+  const messages: Record<string, string> = {
+    lunar: `${name}, as linhas da sua mão revelam uma alma antiga, que já percorreu muitos caminhos em vidas passadas. Sua energia lunar é um presente sagrado - ela te conecta com os mistérios do universo e te permite sentir verdades que outros não conseguem alcançar.
+
+Neste momento de sua jornada, o cosmos pede que você honre sua sensibilidade. Ela não é fraqueza, ${name}, é seu maior poder. As águas profundas da sua alma guardam sabedoria infinita.
+
+A lua cheia de cada mês será especialmente poderosa para você. Use esses momentos para meditar, sonhar e receber as mensagens que o universo tem para você. Confie na sua intuição - ela é sua bússola divina.`,
+
+    solar: `${name}, sua mão carrega a marca dos iluminados. Você veio a este mundo com uma missão especial - ser luz onde há escuridão, ser força onde há fraqueza, ser esperança onde há desespero.
+
+A energia solar que pulsa em você é rara e preciosa. Você tem o poder de transformar não apenas sua própria vida, mas a vida de todos que cruzam seu caminho. Não diminua seu brilho por medo de ofuscar outros, ${name}. O mundo precisa da sua luz.
+
+Nos próximos meses, grandes oportunidades surgirão. Esteja aberto(a) a reconhecê-las e abraçá-las. O universo está conspirando a seu favor.`,
+
+    stellar: `${name}, você é um ser das estrelas. Sua alma carrega memórias cósmicas de outras dimensões, outros tempos, outras existências. Não é por acaso que você sempre se sentiu um pouco diferente - você é especial de maneiras que ainda está descobrindo.
+
+Sua energia estelar te conecta com a consciência universal. Os insights que você recebe, os sonhos vívidos, as coincidências significativas - tudo isso são mensagens do cosmos especialmente para você, ${name}.
+
+O momento agora é de despertar. Permita-se explorar sua espiritualidade sem medo. Os guias estão ao seu redor, prontos para revelar seu verdadeiro propósito nesta encarnação.`,
+  };
+
+  return messages[energyType] || messages.lunar;
+};
+
+// Calculate dominant energy based on quiz answers
+const calculateDominantEnergy = (answers: QuizAnswer[]): string => {
+  const scores = { lunar: 0, solar: 0, stellar: 0 };
+  
+  answers.forEach(answer => {
+    switch (answer.answerId) {
+      case 'a':
+        scores.solar += 2;
+        scores.stellar += 1;
+        break;
+      case 'b':
+        scores.lunar += 2;
+        scores.stellar += 1;
+        break;
+      case 'c':
+        scores.stellar += 2;
+        scores.lunar += 1;
+        break;
+      case 'd':
+        scores.lunar += 1;
+        scores.solar += 1;
+        break;
+    }
+  });
+
+  const maxScore = Math.max(scores.lunar, scores.solar, scores.stellar);
+  if (scores.lunar === maxScore) return 'lunar';
+  if (scores.solar === maxScore) return 'solar';
+  return 'stellar';
+};
+
+// Select random items from array
+const selectRandom = <T>(arr: T[], count: number): T[] => {
+  const shuffled = [...arr].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
+
+// Main analysis function
+export const processAnalysis = async (
+  formData: FormData,
+  quizAnswers: QuizAnswer[]
+): Promise<AnalysisResult> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 3000));
+
+  const dominantEnergy = calculateDominantEnergy(quizAnswers);
+  const energyType = energyTypes[dominantEnergy];
+  const strengths = selectRandom(strengthsPool, 3);
+  const blocks = selectRandom(blocksPool, 2);
+  const spiritualMessage = generateSpiritualMessage(formData.name, dominantEnergy);
+
+  return {
+    energyType,
+    strengths,
+    blocks,
+    spiritualMessage,
+  };
+};
+
+// Text-to-Speech function - will be implemented with Lovable Cloud
+export const generateVoiceMessage = async (text: string): Promise<string | null> => {
+  // TODO: Implement with OpenAI TTS via Supabase Edge Function
+  // This will call: supabase.functions.invoke('text-to-speech', { body: { text } })
+  console.log('Voice generation will be implemented with Lovable Cloud');
+  return null;
+};
+
+// VSL tracking
+export const trackVSLView = async (page: string): Promise<void> => {
+  // TODO: Implement analytics tracking
+  console.log(`VSL viewed: ${page}`);
+};

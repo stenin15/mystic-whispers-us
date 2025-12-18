@@ -1,0 +1,178 @@
+import { useState, useCallback } from 'react';
+import { cn } from '@/lib/utils';
+import { Upload, X, Hand, Camera } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface HandImageUploadProps {
+  value?: string;
+  onChange: (url: string) => void;
+  error?: string;
+}
+
+export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleFile = useCallback(async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Convert to base64 for preview (in production, would upload to storage)
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      onChange(result);
+      setIsLoading(false);
+    };
+    reader.readAsDataURL(file);
+  }, [onChange]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handleFile(file);
+    }
+  }, [handleFile]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFile(file);
+    }
+  }, [handleFile]);
+
+  const handleRemove = useCallback(() => {
+    onChange('');
+  }, [onChange]);
+
+  return (
+    <div className="w-full">
+      <AnimatePresence mode="wait">
+        {value ? (
+          <motion.div
+            key="preview"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative rounded-2xl overflow-hidden aspect-square max-w-xs mx-auto"
+          >
+            <img
+              src={value}
+              alt="Sua mão"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+            <button
+              onClick={handleRemove}
+              className="absolute top-3 right-3 p-2 rounded-full bg-destructive/90 text-destructive-foreground hover:bg-destructive transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="absolute bottom-3 left-3 right-3 text-center">
+              <p className="text-sm text-foreground/80">Foto carregada ✓</p>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.label
+            key="upload"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            className={cn(
+              'relative flex flex-col items-center justify-center w-full aspect-square max-w-xs mx-auto rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-300',
+              isDragging
+                ? 'border-primary bg-primary/10 scale-105'
+                : 'border-border hover:border-primary/50 hover:bg-card/50',
+              error && 'border-destructive',
+              isLoading && 'pointer-events-none opacity-70'
+            )}
+          >
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleInputChange}
+              className="hidden"
+            />
+            
+            <div className="flex flex-col items-center gap-4 p-6 text-center">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                  {isLoading ? (
+                    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Hand className="w-10 h-10 text-primary" />
+                  )}
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-accent flex items-center justify-center">
+                  <Camera className="w-4 h-4 text-accent-foreground" />
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-foreground font-medium mb-1">
+                  {isDragging ? 'Solte a imagem aqui' : 'Envie a foto da sua mão'}
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  Arraste ou clique para selecionar
+                </p>
+                <p className="text-muted-foreground/60 text-xs mt-2">
+                  JPG, PNG ou WebP • Máx. 5MB
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 text-primary text-sm">
+                <Upload className="w-4 h-4" />
+                <span>Escolher arquivo</span>
+              </div>
+            </div>
+          </motion.label>
+        )}
+      </AnimatePresence>
+
+      {error && (
+        <motion.p
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-2 text-sm text-destructive text-center"
+        >
+          {error}
+        </motion.p>
+      )}
+
+      {/* Instructions */}
+      <div className="mt-4 p-4 rounded-xl bg-card/30 border border-border/30">
+        <p className="text-xs text-muted-foreground text-center mb-2">
+          📸 Dicas para a melhor leitura:
+        </p>
+        <ul className="text-xs text-muted-foreground/80 space-y-1">
+          <li>• Use boa iluminação natural</li>
+          <li>• Fotografe a palma da mão aberta</li>
+          <li>• Mantenha a mão relaxada</li>
+        </ul>
+      </div>
+    </div>
+  );
+};
