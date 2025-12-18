@@ -1,4 +1,5 @@
 import { QuizAnswer, AnalysisResult, EnergyType, Strength, Block } from '@/store/useHandReadingStore';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FormData {
   name: string;
@@ -133,12 +134,31 @@ export const processAnalysis = async (
   };
 };
 
-// Text-to-Speech function - will be implemented with Lovable Cloud
+// Text-to-Speech function using OpenAI TTS via Edge Function
 export const generateVoiceMessage = async (text: string): Promise<string | null> => {
-  // TODO: Implement with OpenAI TTS via Supabase Edge Function
-  // This will call: supabase.functions.invoke('text-to-speech', { body: { text } })
-  console.log('Voice generation will be implemented with Lovable Cloud');
-  return null;
+  try {
+    const { data, error } = await supabase.functions.invoke('text-to-speech', {
+      body: { 
+        text,
+        voice: 'nova' // Warm, feminine voice for mystical content
+      }
+    });
+
+    if (error) {
+      console.error('TTS error:', error);
+      throw error;
+    }
+
+    if (data?.audioContent) {
+      // Create a data URL from the base64 audio
+      return `data:audio/mpeg;base64,${data.audioContent}`;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error generating voice message:', error);
+    return null;
+  }
 };
 
 // VSL tracking
