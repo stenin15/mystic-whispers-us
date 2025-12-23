@@ -1,24 +1,36 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { format, differenceInYears } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { Sparkles, ArrowRight, User, Calendar, Heart, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { HandImageUpload } from '@/components/shared/HandImageUpload';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
+import { cn } from '@/lib/utils';
+
+// Helper function to calculate age from birth date
+const calculateAge = (birthDate: Date): number => {
+  return differenceInYears(new Date(), birthDate);
+};
 
 const formSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  age: z.string().refine((val) => {
-    const num = parseInt(val);
-    return !isNaN(num) && num >= 1 && num <= 120;
-  }, 'Idade deve ser entre 1 e 120'),
+  birthDate: z.date({
+    required_error: 'Por favor, selecione sua data de nascimento',
+  }).refine((date) => {
+    const age = calculateAge(date);
+    return age >= 1 && age <= 120;
+  }, 'Data de nascimento inválida'),
   emotionalState: z.string().min(3, 'Descreva seu estado emocional'),
   mainConcern: z.string().min(10, 'Compartilhe mais sobre sua preocupação (mín. 10 caracteres)'),
 });
@@ -33,16 +45,21 @@ const Formulario = () => {
   const {
     register,
     handleSubmit,
+    control,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: useHandReadingStore.getState().name,
-      age: useHandReadingStore.getState().age,
       emotionalState: useHandReadingStore.getState().emotionalState,
       mainConcern: useHandReadingStore.getState().mainConcern,
     },
   });
+
+  // Watch birthDate to calculate age
+  const birthDate = watch('birthDate');
+  const calculatedAge = birthDate ? calculateAge(birthDate) : null;
 
   const handlePhotoChange = (url: string) => {
     setFormData({ handPhotoURL: url });
@@ -55,7 +72,14 @@ const Formulario = () => {
       return;
     }
 
-    setFormData(data);
+    // Calculate age from birthDate and save to store
+    const age = calculateAge(data.birthDate).toString();
+    setFormData({
+      name: data.name,
+      age,
+      emotionalState: data.emotionalState,
+      mainConcern: data.mainConcern,
+    });
     navigate('/quiz');
   };
 
@@ -113,19 +137,56 @@ const Formulario = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="age" className="flex items-center gap-2">
+                <Label className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
-                  Sua Idade
+                  Data de Nascimento
                 </Label>
-                <Input
-                  id="age"
-                  type="number"
-                  placeholder="Sua idade atual"
-                  {...register('age')}
-                  className="bg-input/50 border-border/50 focus:border-primary"
+                <Controller
+                  control={control}
+                  name="birthDate"
+                  render={({ field }) => (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal bg-input/50 border-border/50 hover:bg-input/70",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <Calendar className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(field.value, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                          ) : (
+                            <span>Selecione sua data de nascimento</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                          captionLayout="dropdown-buttons"
+                          fromYear={1920}
+                          toYear={new Date().getFullYear()}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  )}
                 />
-                {errors.age && (
-                  <p className="text-sm text-destructive">{errors.age.message}</p>
+                {calculatedAge !== null && (
+                  <p className="text-sm text-primary">
+                    ✨ Você tem {calculatedAge} anos
+                  </p>
+                )}
+                {errors.birthDate && (
+                  <p className="text-sm text-destructive">{errors.birthDate.message}</p>
                 )}
               </div>
             </div>
