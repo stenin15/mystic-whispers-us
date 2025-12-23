@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format, differenceInYears } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Sparkles, ArrowRight, User, Calendar, Heart, MessageCircle } from 'lucide-react';
+import { Sparkles, ArrowRight, User, Calendar, Heart, MessageCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,6 +17,8 @@ import { ParticlesBackground, FloatingOrbs } from '@/components/shared/Particles
 import { HandImageUpload } from '@/components/shared/HandImageUpload';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 // Helper function to calculate age from birth date
 const calculateAge = (birthDate: Date): number => {
@@ -25,6 +27,7 @@ const calculateAge = (birthDate: Date): number => {
 
 const formSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
+  email: z.string().email('Por favor, insira um email válido'),
   birthDate: z.date({
     required_error: 'Por favor, selecione sua data de nascimento',
   }).refine((date) => {
@@ -66,21 +69,50 @@ const Formulario = () => {
     setPhotoError('');
   };
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     if (!handPhotoURL) {
       setPhotoError('Por favor, envie uma foto da sua mão');
       return;
     }
 
-    // Calculate age from birthDate and save to store
-    const age = calculateAge(data.birthDate).toString();
-    setFormData({
-      name: data.name,
-      age,
-      emotionalState: data.emotionalState,
-      mainConcern: data.mainConcern,
-    });
-    navigate('/quiz');
+    try {
+      // Send welcome email
+      toast.loading('Enviando confirmação para seu email...', { id: 'email-sending' });
+      
+      const { data: emailResult, error } = await supabase.functions.invoke('send-welcome-email', {
+        body: { name: data.name, email: data.email }
+      });
+
+      if (error) {
+        console.error('Error sending email:', error);
+        toast.error('Não foi possível enviar o email, mas você pode continuar.', { id: 'email-sending' });
+      } else {
+        toast.success('✨ Email enviado! Sua consulta foi iniciada.', { id: 'email-sending' });
+      }
+
+      // Calculate age from birthDate and save to store
+      const age = calculateAge(data.birthDate).toString();
+      setFormData({
+        name: data.name,
+        age,
+        emotionalState: data.emotionalState,
+        mainConcern: data.mainConcern,
+      });
+      navigate('/quiz');
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Ocorreu um erro, mas você pode continuar.', { id: 'email-sending' });
+      
+      // Still allow navigation even if email fails
+      const age = calculateAge(data.birthDate).toString();
+      setFormData({
+        name: data.name,
+        age,
+        emotionalState: data.emotionalState,
+        mainConcern: data.mainConcern,
+      });
+      navigate('/quiz');
+    }
   };
 
   return (
@@ -136,6 +168,25 @@ const Formulario = () => {
                 )}
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="email" className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  Seu Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seuemail@exemplo.com"
+                  {...register('email')}
+                  className="bg-input/50 border-border/50 focus:border-primary"
+                />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
