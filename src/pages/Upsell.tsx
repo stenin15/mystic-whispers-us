@@ -150,7 +150,6 @@ const Upsell = () => {
                 { icon: Heart, text: "Meditação de Cura para Cada Bloqueio Identificado" },
                 { icon: Star, text: "Mapa de Manifestação Personalizado (PDF)" },
                 { icon: Shield, text: "Técnicas de Proteção Energética" },
-                { icon: Crown, text: "Acesso ao Grupo VIP de Suporte" },
                 { icon: Gift, text: "Bônus: Leitura de Tarot de 3 Cartas" },
               ].map((item, index) => (
                 <motion.div
