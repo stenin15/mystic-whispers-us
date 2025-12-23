@@ -42,11 +42,11 @@ const Quiz = () => {
     (a) => a.questionId === currentQuestion?.id
   );
 
-  // Get short name (first name + last name only)
+  // Get short name (first + second name only)
   const getShortName = useCallback((fullName: string) => {
     const parts = fullName.trim().split(/\s+/);
     if (parts.length <= 2) return fullName;
-    return `${parts[0]} ${parts[parts.length - 1]}`;
+    return `${parts[0]} ${parts[1]}`;
   }, []);
 
   const shortName = getShortName(name || 'Querida');
