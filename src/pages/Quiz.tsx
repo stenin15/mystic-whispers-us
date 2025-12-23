@@ -1,12 +1,13 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, CheckCircle, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { quizQuestions } from '@/lib/quizQuestions';
 import { cn } from '@/lib/utils';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { generateVoiceMessage } from '@/lib/api';
 
 const Quiz = () => {
   const navigate = useNavigate();
@@ -18,6 +19,12 @@ const Quiz = () => {
     setCurrentQuestionIndex,
     canAccessQuiz,
   } = useHandReadingStore();
+
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playedQuestionsRef = useRef<Set<number>>(new Set());
 
   // Redirect if coming from wrong place
   useEffect(() => {
@@ -34,6 +41,81 @@ const Quiz = () => {
     (a) => a.questionId === currentQuestion?.id
   );
 
+  // Get personalized voice text
+  const getVoiceText = useCallback((questionId: number) => {
+    const question = quizQuestions.find(q => q.id === questionId);
+    if (!question) return '';
+    return question.voiceIntro.replace('{name}', name || 'querida');
+  }, [name]);
+
+  // Play question audio
+  const playQuestionAudio = useCallback(async () => {
+    if (!currentQuestion || !audioEnabled) return;
+    
+    // Don't replay if already played for this question
+    if (playedQuestionsRef.current.has(currentQuestion.id)) return;
+    
+    setIsLoadingAudio(true);
+    
+    try {
+      const voiceText = getVoiceText(currentQuestion.id);
+      const audioDataUrl = await generateVoiceMessage(voiceText);
+      
+      if (audioDataUrl) {
+        // Stop any currently playing audio
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
+
+        const audio = new Audio(audioDataUrl);
+        audioRef.current = audio;
+        audio.volume = 0.85;
+        
+        audio.onplay = () => setIsPlayingAudio(true);
+        audio.onended = () => setIsPlayingAudio(false);
+        audio.onerror = () => setIsPlayingAudio(false);
+        
+        await audio.play();
+        playedQuestionsRef.current.add(currentQuestion.id);
+      }
+    } catch (error) {
+      console.error('Error playing question audio:', error);
+    } finally {
+      setIsLoadingAudio(false);
+    }
+  }, [currentQuestion, audioEnabled, getVoiceText]);
+
+  // Play audio when question changes
+  useEffect(() => {
+    if (currentQuestion && audioEnabled) {
+      // Small delay to let the UI transition complete
+      const timer = setTimeout(() => {
+        playQuestionAudio();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentQuestionIndex, audioEnabled]);
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  const toggleAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPlayingAudio(false);
+    }
+    setAudioEnabled(!audioEnabled);
+  };
+
   const handleSelectOption = (optionId: string, optionText: string) => {
     if (!currentQuestion) return;
     
@@ -45,6 +127,13 @@ const Quiz = () => {
   };
 
   const handleNext = () => {
+    // Stop current audio when navigating
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPlayingAudio(false);
+    }
+    
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
@@ -54,6 +143,13 @@ const Quiz = () => {
   };
 
   const handlePrevious = () => {
+    // Stop current audio when navigating
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPlayingAudio(false);
+    }
+    
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
     }
@@ -116,8 +212,44 @@ const Quiz = () => {
             transition={{ duration: 0.3 }}
             className="p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30"
           >
+            {/* Audio indicator and toggle */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                {isLoadingAudio && (
+                  <div className="flex items-center gap-2 text-primary text-sm">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Carregando áudio...</span>
+                  </div>
+                )}
+                {isPlayingAudio && !isLoadingAudio && (
+                  <div className="flex items-center gap-2 text-primary text-sm">
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 1 }}
+                    >
+                      <Volume2 className="w-4 h-4" />
+                    </motion.div>
+                    <span>Madame Aurora está falando...</span>
+                  </div>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleAudio}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                {audioEnabled ? (
+                  <Volume2 className="w-4 h-4" />
+                ) : (
+                  <VolumeX className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+
+            {/* Question with personalized intro */}
             <h2 className="text-xl md:text-2xl font-serif font-semibold text-foreground mb-6 leading-relaxed">
-              {currentQuestion.question}
+              <span className="text-primary">{name}</span>, {currentQuestion.question.charAt(0).toLowerCase() + currentQuestion.question.slice(1)}
             </h2>
 
             {/* Options */}
