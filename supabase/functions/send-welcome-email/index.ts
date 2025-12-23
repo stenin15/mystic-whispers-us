@@ -111,26 +111,28 @@ const handler = async (req: Request): Promise<Response> => {
     const emailData = await emailResponse.json();
 
     if (!emailResponse.ok) {
-      console.error("Resend API error:", emailData);
-      throw new Error(emailData.message || "Failed to send email");
+      console.warn("Resend API warning:", emailData);
+      // Return success anyway to not block user flow - email is optional
+      return new Response(JSON.stringify({ success: true, emailSent: false, reason: emailData.message }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     console.log("Email sent successfully:", emailData);
 
-    return new Response(JSON.stringify({ success: true, data: emailResponse }), {
+    return new Response(JSON.stringify({ success: true, emailSent: true, data: emailData }), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
+      headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Error sending welcome email:", errorMessage);
+    console.warn("Email sending skipped:", errorMessage);
+    // Return success anyway - email is optional feature
     return new Response(
-      JSON.stringify({ success: false, error: errorMessage }),
+      JSON.stringify({ success: true, emailSent: false, reason: errorMessage }),
       {
-        status: 500,
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
