@@ -1,24 +1,38 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format, differenceInYears } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { differenceInYears } from 'date-fns';
 import { Sparkles, ArrowRight, User, Calendar, Heart, MessageCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { HandImageUpload } from '@/components/shared/HandImageUpload';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+// Portuguese month names
+const months = [
+  { value: '1', label: 'Janeiro' },
+  { value: '2', label: 'Fevereiro' },
+  { value: '3', label: 'Março' },
+  { value: '4', label: 'Abril' },
+  { value: '5', label: 'Maio' },
+  { value: '6', label: 'Junho' },
+  { value: '7', label: 'Julho' },
+  { value: '8', label: 'Agosto' },
+  { value: '9', label: 'Setembro' },
+  { value: '10', label: 'Outubro' },
+  { value: '11', label: 'Novembro' },
+  { value: '12', label: 'Dezembro' },
+];
 
 // Helper function to calculate age from birth date
 const calculateAge = (birthDate: Date): number => {
@@ -28,12 +42,9 @@ const calculateAge = (birthDate: Date): number => {
 const formSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Por favor, insira um email válido'),
-  birthDate: z.date({
-    required_error: 'Por favor, selecione sua data de nascimento',
-  }).refine((date) => {
-    const age = calculateAge(date);
-    return age >= 1 && age <= 120;
-  }, 'Data de nascimento inválida'),
+  birthDay: z.string().min(1, 'Selecione o dia'),
+  birthMonth: z.string().min(1, 'Selecione o mês'),
+  birthYear: z.string().min(1, 'Selecione o ano'),
   emotionalState: z.string().min(3, 'Descreva seu estado emocional'),
   mainConcern: z.string().min(10, 'Compartilhe mais sobre sua preocupação (mín. 10 caracteres)'),
 });
@@ -44,12 +55,14 @@ const Formulario = () => {
   const navigate = useNavigate();
   const { setFormData, handPhotoURL } = useHandReadingStore();
   const [photoError, setPhotoError] = useState('');
+  const [birthDay, setBirthDay] = useState('');
+  const [birthMonth, setBirthMonth] = useState('');
+  const [birthYear, setBirthYear] = useState('');
 
   const {
     register,
     handleSubmit,
-    control,
-    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -60,9 +73,23 @@ const Formulario = () => {
     },
   });
 
-  // Watch birthDate to calculate age
-  const birthDate = watch('birthDate');
-  const calculatedAge = birthDate ? calculateAge(birthDate) : null;
+  // Generate years from 1920 to current year
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i);
+  }, []);
+
+  // Generate days 1-31
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
+  // Calculate age from selected values
+  const calculatedAge = useMemo(() => {
+    if (birthDay && birthMonth && birthYear) {
+      const date = new Date(parseInt(birthYear), parseInt(birthMonth) - 1, parseInt(birthDay));
+      return calculateAge(date);
+    }
+    return null;
+  }, [birthDay, birthMonth, birthYear]);
 
   const handlePhotoChange = (url: string) => {
     setFormData({ handPhotoURL: url });
@@ -90,8 +117,9 @@ const Formulario = () => {
         toast.success('✨ Email enviado! Sua consulta foi iniciada.', { id: 'email-sending' });
       }
 
-      // Calculate age from birthDate and save to store
-      const age = calculateAge(data.birthDate).toString();
+      // Calculate age from birth date fields
+      const birthDate = new Date(parseInt(data.birthYear), parseInt(data.birthMonth) - 1, parseInt(data.birthDay));
+      const age = calculateAge(birthDate).toString();
       setFormData({
         name: data.name,
         age,
@@ -104,7 +132,8 @@ const Formulario = () => {
       toast.error('Ocorreu um erro, mas você pode continuar.', { id: 'email-sending' });
       
       // Still allow navigation even if email fails
-      const age = calculateAge(data.birthDate).toString();
+      const birthDate = new Date(parseInt(data.birthYear), parseInt(data.birthMonth) - 1, parseInt(data.birthDay));
+      const age = calculateAge(birthDate).toString();
       setFormData({
         name: data.name,
         age,
@@ -186,60 +215,80 @@ const Formulario = () => {
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  Data de Nascimento
-                </Label>
-                <Controller
-                  control={control}
-                  name="birthDate"
-                  render={({ field }) => (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal bg-input/50 border-border/50 hover:bg-input/70",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <Calendar className="mr-2 h-4 w-4" />
-                          {field.value ? (
-                            format(field.value, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-                          ) : (
-                            <span>Selecione sua data de nascimento</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <CalendarComponent
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                          captionLayout="dropdown-buttons"
-                          fromYear={1920}
-                          toYear={new Date().getFullYear()}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                />
-                {calculatedAge !== null && (
-                  <p className="text-sm text-primary">
-                    ✨ Você tem {calculatedAge} anos
-                  </p>
-                )}
-                {errors.birthDate && (
-                  <p className="text-sm text-destructive">{errors.birthDate.message}</p>
-                )}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                Data de Nascimento
+              </Label>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Day Select */}
+                <Select
+                  value={birthDay}
+                  onValueChange={(value) => {
+                    setBirthDay(value);
+                    setValue('birthDay', value);
+                  }}
+                >
+                  <SelectTrigger className="bg-input/50 border-border/50">
+                    <SelectValue placeholder="Dia" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border max-h-60">
+                    {days.map((day) => (
+                      <SelectItem key={day} value={day.toString()}>
+                        {day}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Month Select */}
+                <Select
+                  value={birthMonth}
+                  onValueChange={(value) => {
+                    setBirthMonth(value);
+                    setValue('birthMonth', value);
+                  }}
+                >
+                  <SelectTrigger className="bg-input/50 border-border/50">
+                    <SelectValue placeholder="Mês" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border max-h-60">
+                    {months.map((month) => (
+                      <SelectItem key={month.value} value={month.value}>
+                        {month.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Year Select */}
+                <Select
+                  value={birthYear}
+                  onValueChange={(value) => {
+                    setBirthYear(value);
+                    setValue('birthYear', value);
+                  }}
+                >
+                  <SelectTrigger className="bg-input/50 border-border/50">
+                    <SelectValue placeholder="Ano" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border max-h-60">
+                    {years.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              {calculatedAge !== null && calculatedAge > 0 && (
+                <p className="text-sm text-primary">
+                  ✨ Você tem {calculatedAge} anos
+                </p>
+              )}
+              {(errors.birthDay || errors.birthMonth || errors.birthYear) && (
+                <p className="text-sm text-destructive">Por favor, preencha sua data de nascimento completa</p>
+              )}
             </div>
           </div>
 
