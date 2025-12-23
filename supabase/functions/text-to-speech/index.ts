@@ -27,7 +27,7 @@ serve(async (req) => {
     console.log('Generating speech for text:', text.substring(0, 100) + '...');
     console.log('Using voice:', voice || 'nova');
 
-    // Generate speech from text using OpenAI TTS
+    // Generate speech from text using OpenAI TTS HD for more natural, intimate sound
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
       headers: {
@@ -35,11 +35,11 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'tts-1',
+        model: 'tts-1-hd', // HD model for more natural, expressive voice
         input: text,
-        voice: voice || 'nova', // nova is a warm, feminine voice - good for mystical content
+        voice: voice || 'shimmer', // shimmer is warm and mystical, perfect for Madame Aurora
         response_format: 'mp3',
-        speed: 0.95, // Slightly slower for mystical effect
+        speed: 0.9, // Slower for intimate, conversational feel
       }),
     });
 

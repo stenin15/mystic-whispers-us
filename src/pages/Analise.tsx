@@ -6,87 +6,87 @@ import { ParticlesBackground, FloatingOrbs } from '@/components/shared/Particles
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { processAnalysis, generateVoiceMessage } from '@/lib/api';
 import { useMysticSounds } from '@/hooks/useMysticSounds';
-// Map each phase to a specific sound type and voice narration
-const analysisPhases = [
+// Generate personalized voice texts for each phase
+const getAnalysisPhases = (name: string) => [
   { 
     text: "Conectando com sua energia espiritual...", 
     subtext: "Estabelecendo canal de comunicação",
     icon: Sparkles,
-    duration: 4500,
-    sound: 'sparkle' as const,
-    voiceText: "Estou conectando com sua energia espiritual. Sinto uma presença muito especial aqui."
-  },
-  { 
-    text: "Identificando linhas principais...", 
-    subtext: "Linha da vida • Linha do coração • Linha da mente",
-    icon: Hand,
-    duration: 5000,
-    sound: 'chime' as const,
-    voiceText: "Agora estou identificando as linhas principais da sua mão. Vejo a linha da vida, do coração e da mente."
-  },
-  { 
-    text: "Analisando padrões únicos...", 
-    subtext: "Cada mão conta uma história diferente",
-    icon: Fingerprint,
-    duration: 4800,
-    sound: 'whoosh' as const,
-    voiceText: "Seus padrões são únicos e revelam muito sobre quem você é."
-  },
-  { 
-    text: "Interpretando sua linha do coração...", 
-    subtext: "Revelando aspectos emocionais profundos",
-    icon: Heart,
-    duration: 5200,
-    sound: 'heartPulse' as const,
-    voiceText: "Sua linha do coração mostra uma profundidade emocional impressionante."
-  },
-  { 
-    text: "Decodificando linha da mente...", 
-    subtext: "Compreendendo seus padrões de pensamento",
-    icon: Brain,
-    duration: 4600,
-    sound: 'chime' as const,
-    voiceText: "A linha da sua mente revela uma grande capacidade de intuição."
-  },
-  { 
-    text: "Captando vibrações espirituais...", 
-    subtext: "Sintonizando frequências cósmicas",
-    icon: Waves,
-    duration: 4400,
-    sound: 'mysticTone' as const,
-    voiceText: "Estou captando vibrações muito intensas do universo sobre você."
-  },
-  { 
-    text: "Revelando seus segredos ocultos...", 
-    subtext: "O universo está respondendo",
-    icon: Eye,
-    duration: 5000,
-    sound: 'whoosh' as const,
-    voiceText: "O universo está me revelando segredos importantes sobre seu caminho."
-  },
-  { 
-    text: "Consultando o oráculo lunar...", 
-    subtext: "A lua ilumina seu caminho",
-    icon: Moon,
-    duration: 4800,
-    sound: 'mysticTone' as const,
-    voiceText: "A lua ilumina seu destino com mensagens de esperança e transformação."
-  },
-  { 
-    text: "Canalizando mensagem espiritual...", 
-    subtext: "Madame Aurora está recebendo sua visão",
-    icon: Star,
     duration: 5500,
     sound: 'sparkle' as const,
-    voiceText: "Estou canalizando uma mensagem espiritual muito poderosa para você."
+    voiceText: `Olá ${name}... Eu sou Madame Aurora. Feche os olhos por um momento e respire fundo. Estou me conectando com sua energia agora.`
   },
   { 
-    text: "Preparando a voz do destino...", 
-    subtext: "Sua mensagem está sendo materializada",
+    text: "Sentindo sua presença...", 
+    subtext: "Captando sua essência única",
+    icon: Hand,
+    duration: 6000,
+    sound: 'chime' as const,
+    voiceText: `Sim... consigo sentir você, ${name}. Sua energia é muito especial. Vejo que você passou por muita coisa ultimamente.`
+  },
+  { 
+    text: "Analisando as linhas da sua mão...", 
+    subtext: "Cada linha conta uma história",
+    icon: Fingerprint,
+    duration: 5800,
+    sound: 'whoosh' as const,
+    voiceText: `Estou olhando atentamente para as linhas da sua mão. Cada marca, cada curva... elas me contam histórias profundas sobre quem você é.`
+  },
+  { 
+    text: "Lendo sua linha do coração...", 
+    subtext: "Revelando seus sentimentos mais profundos",
+    icon: Heart,
+    duration: 6200,
+    sound: 'heartPulse' as const,
+    voiceText: `${name}, sua linha do coração me fala muito sobre você. Vejo que você ama intensamente... mas também carrega algumas feridas emocionais. Isso vai mudar.`
+  },
+  { 
+    text: "Interpretando sua mente...", 
+    subtext: "Compreendendo seus pensamentos",
+    icon: Brain,
+    duration: 5600,
+    sound: 'chime' as const,
+    voiceText: `Sua mente é brilhante, ${name}. Você pensa demais às vezes, não é? Eu entendo. Mas essa sensibilidade também é seu maior dom.`
+  },
+  { 
+    text: "Recebendo mensagens do universo...", 
+    subtext: "Sintonizando frequências cósmicas",
+    icon: Waves,
+    duration: 5400,
+    sound: 'mysticTone' as const,
+    voiceText: `O universo está me mostrando coisas importantes sobre seu futuro. Há mudanças chegando, ${name}. Mudanças muito positivas.`
+  },
+  { 
+    text: "Desvendando seus segredos...", 
+    subtext: "O que está oculto se revela",
+    icon: Eye,
+    duration: 6000,
+    sound: 'whoosh' as const,
+    voiceText: `Você tem guardado muita coisa dentro de você, não é? Eu sei... Eu vejo. Não precisa carregar esse peso sozinha. As respostas estão vindo.`
+  },
+  { 
+    text: "Consultando as estrelas...", 
+    subtext: "Os astros iluminam seu caminho",
+    icon: Moon,
+    duration: 5800,
+    sound: 'mysticTone' as const,
+    voiceText: `As estrelas me dizem que você está num momento de transformação, ${name}. Um novo ciclo está começando na sua vida.`
+  },
+  { 
+    text: "Preparando sua revelação...", 
+    subtext: "A mensagem está se formando",
+    icon: Star,
+    duration: 6500,
+    sound: 'sparkle' as const,
+    voiceText: `Estou canalizando uma mensagem muito poderosa para você. Tudo está ficando claro agora. Prepare seu coração, ${name}.`
+  },
+  { 
+    text: "Finalizando sua leitura...", 
+    subtext: "Sua revelação está pronta",
     icon: Volume2,
     duration: 4000,
     sound: 'chime' as const,
-    voiceText: "Sua leitura está quase pronta. Prepare-se para receber sua mensagem."
+    voiceText: `Pronto, ${name}. Sua leitura está completa. O que eu descobri vai te surpreender. Vamos ver juntos o que o destino reserva para você.`
   },
 ];
 
@@ -104,6 +104,9 @@ const Analise = () => {
     setAudioUrl,
     canAccessAnalysis,
   } = useHandReadingStore();
+
+  // Generate personalized phases based on user's name
+  const analysisPhases = getAnalysisPhases(name || 'querida');
 
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [progress, setProgress] = useState(0);
