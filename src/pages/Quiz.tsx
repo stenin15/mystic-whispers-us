@@ -42,12 +42,21 @@ const Quiz = () => {
     (a) => a.questionId === currentQuestion?.id
   );
 
+  // Get short name (first name + last name only)
+  const getShortName = useCallback((fullName: string) => {
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length <= 2) return fullName;
+    return `${parts[0]} ${parts[parts.length - 1]}`;
+  }, []);
+
+  const shortName = getShortName(name || 'Querida');
+
   // Get personalized voice text
   const getVoiceText = useCallback((questionId: number) => {
     const question = quizQuestions.find(q => q.id === questionId);
     if (!question) return '';
-    return question.voiceIntro.replace('{name}', name || 'querida');
-  }, [name]);
+    return question.voiceIntro.replace('{name}', shortName);
+  }, [shortName]);
 
   // Preload audio for a specific question
   const preloadAudio = useCallback(async (questionId: number) => {
