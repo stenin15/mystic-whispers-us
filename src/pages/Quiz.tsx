@@ -24,7 +24,8 @@ const Quiz = () => {
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const playedQuestionsRef = useRef<Set<number>>(new Set());
+  const audioCacheRef = useRef<Map<number, string>>(new Map());
+  const preloadingRef = useRef<Set<number>>(new Set());
 
   // Redirect if coming from wrong place
   useEffect(() => {
@@ -48,54 +49,108 @@ const Quiz = () => {
     return question.voiceIntro.replace('{name}', name || 'querida');
   }, [name]);
 
-  // Play question audio
-  const playQuestionAudio = useCallback(async () => {
-    if (!currentQuestion || !audioEnabled) return;
-    
-    // Don't replay if already played for this question
-    if (playedQuestionsRef.current.has(currentQuestion.id)) return;
-    
-    setIsLoadingAudio(true);
-    
+  // Preload audio for a specific question
+  const preloadAudio = useCallback(async (questionId: number) => {
+    // Skip if already cached or currently preloading
+    if (audioCacheRef.current.has(questionId) || preloadingRef.current.has(questionId)) {
+      return;
+    }
+
+    preloadingRef.current.add(questionId);
+
     try {
-      const voiceText = getVoiceText(currentQuestion.id);
+      const voiceText = getVoiceText(questionId);
       const audioDataUrl = await generateVoiceMessage(voiceText);
       
       if (audioDataUrl) {
-        // Stop any currently playing audio
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current = null;
-        }
-
-        const audio = new Audio(audioDataUrl);
-        audioRef.current = audio;
-        audio.volume = 0.85;
-        
-        audio.onplay = () => setIsPlayingAudio(true);
-        audio.onended = () => setIsPlayingAudio(false);
-        audio.onerror = () => setIsPlayingAudio(false);
-        
-        await audio.play();
-        playedQuestionsRef.current.add(currentQuestion.id);
+        audioCacheRef.current.set(questionId, audioDataUrl);
       }
     } catch (error) {
-      console.error('Error playing question audio:', error);
+      console.error('Error preloading audio for question', questionId, error);
     } finally {
+      preloadingRef.current.delete(questionId);
+    }
+  }, [getVoiceText]);
+
+  // Play audio from cache or generate it
+  const playQuestionAudio = useCallback(async (questionId: number) => {
+    if (!audioEnabled) return;
+
+    // Stop any currently playing audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPlayingAudio(false);
+    }
+
+    let audioDataUrl = audioCacheRef.current.get(questionId);
+
+    // If not cached, generate it now (show loading)
+    if (!audioDataUrl) {
+      setIsLoadingAudio(true);
+      try {
+        const voiceText = getVoiceText(questionId);
+        audioDataUrl = await generateVoiceMessage(voiceText);
+        if (audioDataUrl) {
+          audioCacheRef.current.set(questionId, audioDataUrl);
+        }
+      } catch (error) {
+        console.error('Error generating audio:', error);
+        setIsLoadingAudio(false);
+        return;
+      }
       setIsLoadingAudio(false);
     }
-  }, [currentQuestion, audioEnabled, getVoiceText]);
 
-  // Play audio when question changes
+    if (audioDataUrl) {
+      const audio = new Audio(audioDataUrl);
+      audioRef.current = audio;
+      audio.volume = 0.85;
+
+      audio.onplay = () => setIsPlayingAudio(true);
+      audio.onended = () => setIsPlayingAudio(false);
+      audio.onerror = () => setIsPlayingAudio(false);
+
+      try {
+        await audio.play();
+      } catch (error) {
+        console.error('Error playing audio:', error);
+        setIsPlayingAudio(false);
+      }
+    }
+  }, [audioEnabled, getVoiceText]);
+
+  // Preload next questions when current question changes
+  useEffect(() => {
+    if (!audioEnabled) return;
+
+    // Preload next 2 questions
+    for (let i = 1; i <= 2; i++) {
+      const nextIndex = currentQuestionIndex + i;
+      if (nextIndex < quizQuestions.length) {
+        const nextQuestionId = quizQuestions[nextIndex].id;
+        preloadAudio(nextQuestionId);
+      }
+    }
+  }, [currentQuestionIndex, audioEnabled, preloadAudio]);
+
+  // Play current question audio immediately
   useEffect(() => {
     if (currentQuestion && audioEnabled) {
-      // Small delay to let the UI transition complete
+      // Small delay for UI transition, then play immediately
       const timer = setTimeout(() => {
-        playQuestionAudio();
-      }, 500);
+        playQuestionAudio(currentQuestion.id);
+      }, 200);
       return () => clearTimeout(timer);
     }
   }, [currentQuestionIndex, audioEnabled]);
+
+  // Preload first question's audio on mount
+  useEffect(() => {
+    if (audioEnabled && quizQuestions.length > 0) {
+      preloadAudio(quizQuestions[0].id);
+    }
+  }, [audioEnabled, preloadAudio]);
 
   // Cleanup audio on unmount
   useEffect(() => {
