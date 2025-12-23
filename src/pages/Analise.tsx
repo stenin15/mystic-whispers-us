@@ -6,77 +6,87 @@ import { ParticlesBackground, FloatingOrbs } from '@/components/shared/Particles
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { processAnalysis, generateVoiceMessage } from '@/lib/api';
 import { useMysticSounds } from '@/hooks/useMysticSounds';
-// Map each phase to a specific sound type
+// Map each phase to a specific sound type and voice narration
 const analysisPhases = [
   { 
     text: "Conectando com sua energia espiritual...", 
     subtext: "Estabelecendo canal de comunicação",
     icon: Sparkles,
-    duration: 2500,
-    sound: 'sparkle' as const
+    duration: 4500,
+    sound: 'sparkle' as const,
+    voiceText: "Estou conectando com sua energia espiritual. Sinto uma presença muito especial aqui."
   },
   { 
     text: "Identificando linhas principais...", 
     subtext: "Linha da vida • Linha do coração • Linha da mente",
     icon: Hand,
-    duration: 3000,
-    sound: 'chime' as const
+    duration: 5000,
+    sound: 'chime' as const,
+    voiceText: "Agora estou identificando as linhas principais da sua mão. Vejo a linha da vida, do coração e da mente."
   },
   { 
     text: "Analisando padrões únicos...", 
     subtext: "Cada mão conta uma história diferente",
     icon: Fingerprint,
-    duration: 2800,
-    sound: 'whoosh' as const
+    duration: 4800,
+    sound: 'whoosh' as const,
+    voiceText: "Seus padrões são únicos e revelam muito sobre quem você é."
   },
   { 
     text: "Interpretando sua linha do coração...", 
     subtext: "Revelando aspectos emocionais profundos",
     icon: Heart,
-    duration: 3200,
-    sound: 'heartPulse' as const
+    duration: 5200,
+    sound: 'heartPulse' as const,
+    voiceText: "Sua linha do coração mostra uma profundidade emocional impressionante."
   },
   { 
     text: "Decodificando linha da mente...", 
     subtext: "Compreendendo seus padrões de pensamento",
     icon: Brain,
-    duration: 2600,
-    sound: 'chime' as const
+    duration: 4600,
+    sound: 'chime' as const,
+    voiceText: "A linha da sua mente revela uma grande capacidade de intuição."
   },
   { 
     text: "Captando vibrações espirituais...", 
     subtext: "Sintonizando frequências cósmicas",
     icon: Waves,
-    duration: 2400,
-    sound: 'mysticTone' as const
+    duration: 4400,
+    sound: 'mysticTone' as const,
+    voiceText: "Estou captando vibrações muito intensas do universo sobre você."
   },
   { 
     text: "Revelando seus segredos ocultos...", 
     subtext: "O universo está respondendo",
     icon: Eye,
-    duration: 3000,
-    sound: 'whoosh' as const
+    duration: 5000,
+    sound: 'whoosh' as const,
+    voiceText: "O universo está me revelando segredos importantes sobre seu caminho."
   },
   { 
     text: "Consultando o oráculo lunar...", 
     subtext: "A lua ilumina seu caminho",
     icon: Moon,
-    duration: 2800,
-    sound: 'mysticTone' as const
+    duration: 4800,
+    sound: 'mysticTone' as const,
+    voiceText: "A lua ilumina seu destino com mensagens de esperança e transformação."
   },
   { 
     text: "Canalizando mensagem espiritual...", 
     subtext: "Madame Aurora está recebendo sua visão",
     icon: Star,
-    duration: 3500,
-    sound: 'sparkle' as const
+    duration: 5500,
+    sound: 'sparkle' as const,
+    voiceText: "Estou canalizando uma mensagem espiritual muito poderosa para você."
   },
   { 
     text: "Preparando a voz do destino...", 
     subtext: "Sua mensagem está sendo materializada",
     icon: Volume2,
-    duration: 2000,
-    sound: 'chime' as const
+    duration: 4000,
+    sound: 'chime' as const,
+    voiceText: "Sua leitura está quase pronta. Prepare-se para receber sua mensagem."
   },
 ];
 
@@ -101,6 +111,8 @@ const Analise = () => {
   const [isApiDone, setIsApiDone] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
   const analysisStarted = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const currentPhaseAudioPlayed = useRef<Set<number>>(new Set());
   
   const { 
     playTransitionChime, 
@@ -131,6 +143,34 @@ const Analise = () => {
       case 'heartPulse':
         playHeartPulse();
         break;
+    }
+  };
+
+  // Function to play voice narration for each phase
+  const playPhaseVoice = async (phaseIndex: number) => {
+    // Only play if not already played for this phase
+    if (currentPhaseAudioPlayed.current.has(phaseIndex)) return;
+    currentPhaseAudioPlayed.current.add(phaseIndex);
+
+    const voiceText = analysisPhases[phaseIndex]?.voiceText;
+    if (!voiceText) return;
+
+    try {
+      const audioDataUrl = await generateVoiceMessage(voiceText);
+      if (audioDataUrl) {
+        // Stop any currently playing audio
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
+
+        const audio = new Audio(audioDataUrl);
+        audioRef.current = audio;
+        audio.volume = 0.8;
+        await audio.play();
+      }
+    } catch (error) {
+      console.error('Error playing phase voice:', error);
     }
   };
 
@@ -168,8 +208,9 @@ const Analise = () => {
 
     runAnalysis();
 
-    // Play initial sound
+    // Play initial sound and voice
     playSoundForPhase(0);
+    playPhaseVoice(0);
 
     // Phase progression with realistic timing
     let phaseIndex = 0;
@@ -179,8 +220,9 @@ const Analise = () => {
         setCurrentPhaseIndex(phaseIndex);
         setPhaseProgress(0);
         
-        // Play transition sound for new phase
+        // Play transition sound and voice for new phase
         playSoundForPhase(phaseIndex);
+        playPhaseVoice(phaseIndex);
         
         // Random pulse effect
         if (Math.random() > 0.5) {
@@ -244,6 +286,10 @@ const Analise = () => {
       clearInterval(checkCompletion);
       clearTimeout(maxTimeout);
       cleanup();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
   }, []);
 
