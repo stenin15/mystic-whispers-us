@@ -196,18 +196,18 @@ const Index = () => {
 
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             <TestimonialCard
-              name="Ana Carolina, 34"
-              text="A leitura foi incrivelmente precisa. Finalmente entendi por que eu sentia tanta ansiedade. Agora tenho ferramentas para trabalhar isso."
+              name="Carla Medeiros, 32"
+              text="Fiz por curiosidade, mas me surpreendi. A análise identificou um padrão de autossabotagem que eu venho repetindo há anos. Foi um despertar."
               delay={0}
             />
             <TestimonialCard
-              name="Marcos Paulo, 28"
-              text="Cético no início, mas fiquei impressionado com a profundidade da análise. Revelou coisas sobre mim que nem eu sabia conscientemente."
+              name="Rafael Souza, 29"
+              text="Achei que seria algo genérico, mas não. Descreveu situações específicas da minha vida com uma precisão que me deixou sem palavras."
               delay={0.1}
             />
             <TestimonialCard
-              name="Juliana Santos, 41"
-              text="A mensagem espiritual me tocou profundamente. Era exatamente o que eu precisava ouvir neste momento da minha vida."
+              name="Patricia Lopes, 45"
+              text="Recebi orientações sobre minha carreira que eu precisava ouvir. Tomei decisões que estavam travadas há meses. Valeu cada centavo."
               delay={0.2}
             />
           </div>
