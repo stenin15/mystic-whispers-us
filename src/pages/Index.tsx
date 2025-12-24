@@ -19,6 +19,9 @@ import { ParticlesBackground, FloatingOrbs } from '@/components/shared/Particles
 import { FeatureCard } from '@/components/shared/MysticCard';
 import { SectionTitle } from '@/components/shared/SectionTitle';
 import { TestimonialCard } from '@/components/shared/TestimonialCard';
+import avatarCarla from '@/assets/avatar-carla.jpg';
+import avatarRafael from '@/assets/avatar-rafael.jpg';
+import avatarPatricia from '@/assets/avatar-patricia.jpg';
 
 const Index = () => {
   return (
@@ -198,16 +201,19 @@ const Index = () => {
             <TestimonialCard
               name="Carla Medeiros, 32"
               text="Fiz por curiosidade, mas me surpreendi. A análise identificou um padrão de autossabotagem que eu venho repetindo há anos. Foi um despertar."
+              avatar={avatarCarla}
               delay={0}
             />
             <TestimonialCard
               name="Rafael Souza, 29"
               text="Achei que seria algo genérico, mas não. Descreveu situações específicas da minha vida com uma precisão que me deixou sem palavras."
+              avatar={avatarRafael}
               delay={0.1}
             />
             <TestimonialCard
               name="Patricia Lopes, 45"
               text="Recebi orientações sobre minha carreira que eu precisava ouvir. Tomei decisões que estavam travadas há meses. Valeu cada centavo."
+              avatar={avatarPatricia}
               delay={0.2}
             />
           </div>
