@@ -18,53 +18,7 @@ import { Footer } from '@/components/layout/Footer';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { FeatureCard } from '@/components/shared/MysticCard';
 import { SectionTitle } from '@/components/shared/SectionTitle';
-import { TestimonialCard } from '@/components/shared/TestimonialCard';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
-import avatarCarla from '@/assets/avatar-carla.jpg';
-import avatarRafael from '@/assets/avatar-rafael.jpg';
-import avatarPatricia from '@/assets/avatar-patricia.jpg';
-import avatarFernanda from '@/assets/avatar-fernanda.jpg';
-import avatarEduardo from '@/assets/avatar-eduardo.jpg';
-import avatarMariana from '@/assets/avatar-mariana.jpg';
-
-const testimonials = [
-  {
-    name: "Carla Medeiros, 32",
-    text: "Fiz por curiosidade, mas me surpreendi. A análise identificou um padrão de autossabotagem que eu venho repetindo há anos. Foi um despertar.",
-    avatar: avatarCarla,
-  },
-  {
-    name: "Rafael Souza, 29",
-    text: "Achei que seria algo genérico, mas não. Descreveu situações específicas da minha vida com uma precisão que me deixou sem palavras.",
-    avatar: avatarRafael,
-  },
-  {
-    name: "Patricia Lopes, 45",
-    text: "Recebi orientações sobre minha carreira que eu precisava ouvir. Tomei decisões que estavam travadas há meses. Valeu cada centavo.",
-    avatar: avatarPatricia,
-  },
-  {
-    name: "Fernanda Costa, 38",
-    text: "A leitura trouxe clareza sobre meu relacionamento. Entendi dinâmicas que eu não conseguia enxergar sozinha. Recomendo muito.",
-    avatar: avatarFernanda,
-  },
-  {
-    name: "Eduardo Silva, 42",
-    text: "Empresário cético, mas precisava de uma nova perspectiva. A análise me ajudou a entender bloqueios que afetavam meus negócios.",
-    avatar: avatarEduardo,
-  },
-  {
-    name: "Mariana Oliveira, 27",
-    text: "Estava perdida na vida, sem saber que caminho seguir. A leitura me deu direção e confiança para tomar decisões importantes.",
-    avatar: avatarMariana,
-  },
-];
+import { InfiniteTestimonialCarousel } from '@/components/shared/InfiniteTestimonialCarousel';
 
 const Index = () => {
   return (
@@ -240,30 +194,7 @@ const Index = () => {
             subtitle="Veja o que outros descobriram sobre si mesmos"
           />
 
-          <div className="max-w-6xl mx-auto px-12">
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-4">
-                {testimonials.map((testimonial, index) => (
-                  <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                    <TestimonialCard
-                      name={testimonial.name}
-                      text={testimonial.text}
-                      avatar={testimonial.avatar}
-                      delay={index * 0.1}
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-0 bg-card/60 border-border/50 hover:bg-card" />
-              <CarouselNext className="right-0 bg-card/60 border-border/50 hover:bg-card" />
-            </Carousel>
-          </div>
+          <InfiniteTestimonialCarousel />
         </div>
       </section>
 
