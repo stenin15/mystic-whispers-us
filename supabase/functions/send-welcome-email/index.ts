@@ -30,7 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "Madame Aurora <onboarding@resend.dev>",
+      from: "Madame Aurora <contato@madameaurora.blog>",
       to: [email],
       subject: "✨ Sua Consulta Espiritual Foi Iniciada",
       html: `
