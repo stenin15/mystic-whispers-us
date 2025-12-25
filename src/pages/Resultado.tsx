@@ -17,10 +17,18 @@ import { Footer } from '@/components/layout/Footer';
 import { generateVoiceMessage } from '@/lib/api';
 import { toast } from 'sonner';
 
+type WebkitAudioContextWindow = Window & {
+  webkitAudioContext?: typeof AudioContext;
+};
+
 // Ambient audio context for mystical effects
 const createAmbientEffect = () => {
   try {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioContextCtor =
+      window.AudioContext || (window as WebkitAudioContextWindow).webkitAudioContext;
+    if (!AudioContextCtor) return null;
+
+    const audioContext = new AudioContextCtor();
     
     // Create oscillator for subtle ambient drone
     const oscillator = audioContext.createOscillator();

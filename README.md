@@ -64,6 +64,24 @@ This project is built with:
 
 Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
 
+## Deploy no Vercel (recomendado)
+
+### Build settings
+
+- **Framework preset**: Vite
+- **Build command**: `npm run build`
+- **Output directory**: `dist`
+
+### Variáveis de ambiente
+
+Configure no Vercel (Project → Settings → Environment Variables) usando o `.env.example` como referência:
+
+- `VITE_SUPABASE_PROJECT_ID`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_SUPABASE_URL`
+
+> Observação: o app usa React Router; o arquivo `vercel.json` já inclui rewrite para SPA (rotas como `/quiz`, `/checkout`, etc.).
+
 ## Can I connect a custom domain to my Lovable project?
 
 Yes, you can!

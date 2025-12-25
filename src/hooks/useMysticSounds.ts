@@ -1,11 +1,20 @@
 import { useCallback, useRef } from 'react';
 
+type WebkitAudioContextWindow = Window & {
+  webkitAudioContext?: typeof AudioContext;
+};
+
 export const useMysticSounds = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const getAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextCtor =
+        window.AudioContext || (window as WebkitAudioContextWindow).webkitAudioContext;
+      if (!AudioContextCtor) {
+        throw new Error("AudioContext not supported");
+      }
+      audioContextRef.current = new AudioContextCtor();
     }
     return audioContextRef.current;
   }, []);
