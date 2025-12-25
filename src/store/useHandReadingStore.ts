@@ -36,6 +36,9 @@ export interface AnalysisResult {
 export type SelectedPlan = 'basic' | 'complete';
 
 interface HandReadingState {
+  // Funnel gate
+  hasSeenVsl: boolean;
+
   // Form data
   name: string;
   age: string;
@@ -74,6 +77,7 @@ interface HandReadingState {
   setAudioUrl: (url: string | null) => void;
   setIsPlayingAudio: (isPlaying: boolean) => void;
   setSelectedPlan: (plan: SelectedPlan | null) => void;
+  setHasSeenVsl: (hasSeen: boolean) => void;
   reset: () => void;
   canAccessQuiz: () => boolean;
   canAccessAnalysis: () => boolean;
@@ -81,6 +85,7 @@ interface HandReadingState {
 }
 
 const initialState = {
+  hasSeenVsl: false,
   name: '',
   age: '',
   emotionalState: '',
@@ -99,6 +104,8 @@ export const useHandReadingStore = create<HandReadingState>()(
   persist(
     (set, get) => ({
       ...initialState,
+
+      setHasSeenVsl: (hasSeen) => set({ hasSeenVsl: hasSeen }),
 
       setFormData: (data) => set((state) => ({ ...state, ...data })),
 
@@ -148,6 +155,7 @@ export const useHandReadingStore = create<HandReadingState>()(
     {
       name: 'mystic-hand-storage',
       partialize: (state) => ({
+        hasSeenVsl: state.hasSeenVsl,
         name: state.name,
         age: state.age,
         emotionalState: state.emotionalState,

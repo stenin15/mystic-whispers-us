@@ -28,11 +28,14 @@ export const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
+            <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+              VSL
+            </Link>
             <Link
-              to="/"
+              to="/leitura"
               className="text-muted-foreground hover:text-foreground transition-colors text-sm"
             >
-              Início
+              Página
             </Link>
             <Link
               to="/conexao"
@@ -68,7 +71,14 @@ export const Navbar = () => {
                 onClick={() => setIsOpen(false)}
                 className="text-muted-foreground hover:text-foreground transition-colors text-sm py-2"
               >
-                Início
+                VSL
+              </Link>
+              <Link
+                to="/leitura"
+                onClick={() => setIsOpen(false)}
+                className="text-muted-foreground hover:text-foreground transition-colors text-sm py-2"
+              >
+                Página
               </Link>
               <Link
                 to="/conexao"
