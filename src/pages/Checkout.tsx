@@ -16,10 +16,11 @@ import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
+import { toast } from 'sonner';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { name, canAccessResult } = useHandReadingStore();
+  const { name, canAccessResult, setSelectedPlan } = useHandReadingStore();
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -28,10 +29,17 @@ const Checkout = () => {
   }, [canAccessResult, navigate]);
 
   const handleSelectPlan = (plan: 'basic' | 'complete') => {
-    // TODO: Redirect to external checkout (Kirvano, Kiwify, Hotmart)
-    console.log(`Selected plan: ${plan}`);
-    // For now, navigate to resultado
-    navigate('/resultado');
+    const basicUrl = import.meta.env.VITE_CARTPANDA_CHECKOUT_BASIC_URL as string | undefined;
+    const completeUrl = import.meta.env.VITE_CARTPANDA_CHECKOUT_COMPLETE_URL as string | undefined;
+
+    const checkoutUrl = plan === 'basic' ? basicUrl : completeUrl;
+    if (!checkoutUrl) {
+      toast.error('Checkout indisponível no momento. Tente novamente em instantes.');
+      return;
+    }
+
+    setSelectedPlan(plan);
+    window.location.href = checkoutUrl;
   };
 
   return (

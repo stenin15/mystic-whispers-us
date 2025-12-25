@@ -1,18 +1,63 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const rateState = new Map<string, { count: number; resetAt: number }>();
+
+const getClientIp = (req: Request) => {
+  const xff = req.headers.get("x-forwarded-for");
+  if (!xff) return "unknown";
+  return xff.split(",")[0].trim() || "unknown";
 };
+
+const isRateLimited = (ip: string, limit: number, windowMs: number) => {
+  const now = Date.now();
+  const entry = rateState.get(ip);
+  if (!entry || entry.resetAt <= now) {
+    rateState.set(ip, { count: 1, resetAt: now + windowMs });
+    return false;
+  }
+  entry.count += 1;
+  rateState.set(ip, entry);
+  return entry.count > limit;
+};
+
+const getAllowedOrigin = (req: Request) => {
+  const origin = req.headers.get("origin") ?? "";
+  const raw = (Deno.env.get("ALLOWED_ORIGINS") ?? "").trim();
+  if (!raw) return "*";
+  const allowed = raw.split(",").map((s) => s.trim()).filter(Boolean);
+  if (!origin) return allowed[0] ?? "*";
+  return allowed.includes(origin) ? origin : allowed[0] ?? "*";
+};
+
+const corsHeaders = (req: Request) => ({
+  "Access-Control-Allow-Origin": getAllowedOrigin(req),
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+});
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders(req) });
   }
 
   try {
-    const { text, voice } = await req.json();
+    const ip = getClientIp(req);
+    if (isRateLimited(ip, 30, 60_000)) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+        status: 429,
+        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+
+    const rawBody = await req.text();
+    if (rawBody.length > 8000) {
+      return new Response(JSON.stringify({ error: "Payload too large" }), {
+        status: 413,
+        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+
+    const { text, voice } = JSON.parse(rawBody);
 
     if (!text) {
       throw new Error('Text is required');
@@ -67,7 +112,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ audioContent: base64Audio }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       },
     );
   } catch (error: unknown) {
@@ -77,7 +122,7 @@ serve(async (req) => {
       JSON.stringify({ error: errorMessage }),
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       },
     );
   }

@@ -53,8 +53,9 @@ type FormData = z.infer<typeof formSchema>;
 
 const Formulario = () => {
   const navigate = useNavigate();
-  const { setFormData, handPhotoURL } = useHandReadingStore();
+  const { setFormData } = useHandReadingStore();
   const [photoError, setPhotoError] = useState('');
+  const [handPhotoPreview, setHandPhotoPreview] = useState<string>('');
   const [birthDay, setBirthDay] = useState('');
   const [birthMonth, setBirthMonth] = useState('');
   const [birthYear, setBirthYear] = useState('');
@@ -92,12 +93,13 @@ const Formulario = () => {
   }, [birthDay, birthMonth, birthYear]);
 
   const handlePhotoChange = (url: string) => {
-    setFormData({ handPhotoURL: url });
-    setPhotoError('');
+    setHandPhotoPreview(url);
+    setFormData({ hasHandPhoto: !!url });
+    if (url) setPhotoError('');
   };
 
   const onSubmit = async (data: FormData) => {
-    if (!handPhotoURL) {
+    if (!handPhotoPreview) {
       setPhotoError('Por favor, envie uma foto da sua mão');
       return;
     }
@@ -337,7 +339,7 @@ const Formulario = () => {
             </h2>
             
             <HandImageUpload
-              value={handPhotoURL}
+              value={handPhotoPreview}
               onChange={handlePhotoChange}
               error={photoError}
             />

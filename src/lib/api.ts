@@ -6,7 +6,6 @@ interface FormData {
   age: string;
   emotionalState: string;
   mainConcern: string;
-  handPhotoURL: string;
 }
 
 // Energy types based on quiz patterns

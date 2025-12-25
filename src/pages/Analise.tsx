@@ -97,7 +97,6 @@ const Analise = () => {
     age,
     emotionalState,
     mainConcern,
-    handPhotoURL,
     quizAnswers,
     setAnalysisResult,
     setIsAnalyzing,
@@ -192,7 +191,7 @@ const Analise = () => {
     const runAnalysis = async () => {
       try {
         const result = await processAnalysis(
-          { name, age, emotionalState, mainConcern, handPhotoURL },
+          { name, age, emotionalState, mainConcern },
           quizAnswers
         );
         setAnalysisResult(result);

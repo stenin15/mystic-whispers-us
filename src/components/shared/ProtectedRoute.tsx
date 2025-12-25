@@ -4,7 +4,7 @@ import { useHandReadingStore } from '@/store/useHandReadingStore';
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredFields?: ('name' | 'age' | 'handPhotoURL' | 'quizAnswers' | 'analysisResult')[];
+  requiredFields?: ('name' | 'age' | 'hasHandPhoto' | 'quizAnswers' | 'analysisResult')[];
   redirectTo?: string;
 }
 
@@ -21,8 +21,8 @@ export const ProtectedRoute = ({
         return !!store.name;
       case 'age':
         return !!store.age;
-      case 'handPhotoURL':
-        return !!store.handPhotoURL;
+      case 'hasHandPhoto':
+        return !!store.hasHandPhoto;
       case 'quizAnswers':
         return store.quizAnswers.length >= 5;
       case 'analysisResult':

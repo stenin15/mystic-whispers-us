@@ -15,6 +15,8 @@ import Analise from "./pages/Analise";
 import Checkout from "./pages/Checkout";
 import Resultado from "./pages/Resultado";
 import Upsell from "./pages/Upsell";
+import Sucesso from "./pages/Sucesso";
+import Cancelado from "./pages/Cancelado";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +46,8 @@ const App = () => (
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/analise" element={<Analise />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/sucesso" element={<Sucesso />} />
+          <Route path="/cancelado" element={<Cancelado />} />
           <Route path="/resultado" element={<Resultado />} />
           <Route path="/upsell" element={<Upsell />} />
           <Route path="*" element={<NotFound />} />

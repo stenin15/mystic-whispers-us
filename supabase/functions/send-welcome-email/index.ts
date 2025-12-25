@@ -4,11 +4,39 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+const rateState = new Map<string, { count: number; resetAt: number }>();
+
+const getClientIp = (req: Request) => {
+  const xff = req.headers.get("x-forwarded-for");
+  if (!xff) return "unknown";
+  return xff.split(",")[0].trim() || "unknown";
 };
+
+const isRateLimited = (ip: string, limit: number, windowMs: number) => {
+  const now = Date.now();
+  const entry = rateState.get(ip);
+  if (!entry || entry.resetAt <= now) {
+    rateState.set(ip, { count: 1, resetAt: now + windowMs });
+    return false;
+  }
+  entry.count += 1;
+  rateState.set(ip, entry);
+  return entry.count > limit;
+};
+
+const getAllowedOrigin = (req: Request) => {
+  const origin = req.headers.get("origin") ?? "";
+  const raw = (Deno.env.get("ALLOWED_ORIGINS") ?? "").trim();
+  if (!raw) return "*";
+  const allowed = raw.split(",").map((s) => s.trim()).filter(Boolean);
+  if (!origin) return allowed[0] ?? "*";
+  return allowed.includes(origin) ? origin : allowed[0] ?? "*";
+};
+
+const corsHeaders = (req: Request) => ({
+  "Access-Control-Allow-Origin": getAllowedOrigin(req),
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+});
 
 interface WelcomeEmailRequest {
   name: string;
@@ -18,11 +46,27 @@ interface WelcomeEmailRequest {
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders(req) });
   }
 
   try {
-    const { name, email }: WelcomeEmailRequest = await req.json();
+    const ip = getClientIp(req);
+    if (isRateLimited(ip, 10, 60_000)) {
+      return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Rate limit exceeded" }), {
+        status: 429,
+        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+      });
+    }
+
+    const rawBody = await req.text();
+    if (rawBody.length > 8000) {
+      return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Payload too large" }), {
+        status: 413,
+        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+      });
+    }
+
+    const { name, email }: WelcomeEmailRequest = JSON.parse(rawBody);
     
     console.log(`Sending welcome email to ${email} for ${name}`);
 
@@ -115,7 +159,7 @@ const handler = async (req: Request): Promise<Response> => {
       // Return success anyway to not block user flow - email is optional
       return new Response(JSON.stringify({ success: true, emailSent: false, reason: emailData.message }), {
         status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
       });
     }
 
@@ -123,7 +167,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify({ success: true, emailSent: true, data: emailData }), {
       status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
+      headers: { "Content-Type": "application/json", ...corsHeaders(req) },
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
@@ -133,7 +177,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ success: true, emailSent: false, reason: errorMessage }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
       }
     );
   }

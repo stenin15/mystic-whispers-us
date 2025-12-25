@@ -33,13 +33,15 @@ export interface AnalysisResult {
   audioUrl?: string;
 }
 
+export type SelectedPlan = 'basic' | 'complete';
+
 interface HandReadingState {
   // Form data
   name: string;
   age: string;
   emotionalState: string;
   mainConcern: string;
-  handPhotoURL: string;
+  hasHandPhoto: boolean;
 
   // Quiz
   quizAnswers: QuizAnswer[];
@@ -53,13 +55,16 @@ interface HandReadingState {
   audioUrl: string | null;
   isPlayingAudio: boolean;
 
+  // Checkout
+  selectedPlan: SelectedPlan | null;
+
   // Actions
   setFormData: (data: Partial<{
     name: string;
     age: string;
     emotionalState: string;
     mainConcern: string;
-    handPhotoURL: string;
+    hasHandPhoto: boolean;
   }>) => void;
   setQuizAnswer: (answer: QuizAnswer) => void;
   setCurrentQuestionIndex: (index: number) => void;
@@ -68,6 +73,7 @@ interface HandReadingState {
   setIsAnalyzing: (isAnalyzing: boolean) => void;
   setAudioUrl: (url: string | null) => void;
   setIsPlayingAudio: (isPlaying: boolean) => void;
+  setSelectedPlan: (plan: SelectedPlan | null) => void;
   reset: () => void;
   canAccessQuiz: () => boolean;
   canAccessAnalysis: () => boolean;
@@ -79,13 +85,14 @@ const initialState = {
   age: '',
   emotionalState: '',
   mainConcern: '',
-  handPhotoURL: '',
+  hasHandPhoto: false,
   quizAnswers: [],
   currentQuestionIndex: 0,
   analysisResult: null,
   isAnalyzing: false,
   audioUrl: null,
   isPlayingAudio: false,
+  selectedPlan: null,
 };
 
 export const useHandReadingStore = create<HandReadingState>()(
@@ -119,11 +126,13 @@ export const useHandReadingStore = create<HandReadingState>()(
 
       setIsPlayingAudio: (isPlaying) => set({ isPlayingAudio: isPlaying }),
 
+      setSelectedPlan: (plan) => set({ selectedPlan: plan }),
+
       reset: () => set(initialState),
 
       canAccessQuiz: () => {
         const state = get();
-        return !!(state.name && state.age && state.handPhotoURL);
+        return !!(state.name && state.age && state.hasHandPhoto);
       },
 
       canAccessAnalysis: () => {
@@ -138,6 +147,15 @@ export const useHandReadingStore = create<HandReadingState>()(
     }),
     {
       name: 'mystic-hand-storage',
+      partialize: (state) => ({
+        name: state.name,
+        age: state.age,
+        emotionalState: state.emotionalState,
+        mainConcern: state.mainConcern,
+        quizAnswers: state.quizAnswers,
+        currentQuestionIndex: state.currentQuestionIndex,
+        selectedPlan: state.selectedPlan,
+      }),
     }
   )
 );
