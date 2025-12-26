@@ -8,6 +8,8 @@ import { quizQuestions } from '@/lib/quizQuestions';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { generateVoiceMessage } from '@/lib/api';
+import { useMicroCoach } from '@/lib/useMicroCoach';
+import SocialProofRail from '@/components/SocialProofRail';
 
 const Quiz = () => {
   const navigate = useNavigate();
@@ -219,6 +221,13 @@ const Quiz = () => {
     }
   };
 
+  // Micro Coach feedback (non-blocking, local rules only)
+  const { text: coachText } = useMicroCoach(
+    currentQuestionIndex,
+    currentAnswer?.answerText,
+    name || undefined
+  );
+
   if (!currentQuestion) return null;
 
   return (
@@ -316,6 +325,21 @@ const Quiz = () => {
               <span className="text-primary">{name}</span>, {currentQuestion.question.charAt(0).toLowerCase() + currentQuestion.question.slice(1)}
             </h2>
 
+            {/* Micro Coach Feedback - Non-blocking */}
+            <AnimatePresence>
+              {coachText && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="mb-4 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 inline-flex items-center gap-2"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                  <span className="text-xs text-primary/90 italic">{coachText}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Options */}
             <div className="space-y-3">
               {currentQuestion.options.map((option, index) => (
@@ -399,12 +423,16 @@ const Quiz = () => {
         </motion.div>
 
         {/* Back to form link */}
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 mb-28 lg:mb-6">
           <Link to="/formulario" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             ← Voltar ao formulário
           </Link>
         </div>
       </div>
+
+      {/* Social Proof Rail */}
+      <SocialProofRail variant="right" />
+      <SocialProofRail variant="bottom" />
     </div>
   );
 };

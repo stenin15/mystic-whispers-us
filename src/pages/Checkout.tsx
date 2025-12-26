@@ -10,13 +10,15 @@ import {
   Heart,
   Shield,
   Gift,
-  ArrowRight
+  ArrowRight,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
 import { toast } from 'sonner';
+import SocialProofRail from '@/components/SocialProofRail';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -60,9 +62,45 @@ const Checkout = () => {
         </div>
       </section>
 
+      {/* Emotional Anchoring Block */}
+      <section className="py-6 px-4">
+        <div className="container max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="p-6 rounded-2xl bg-card/40 backdrop-blur-xl border border-primary/20"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <Eye className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-serif font-semibold text-foreground">
+                Antes de revelar tudo…
+              </h3>
+            </div>
+            <ul className="space-y-2 mb-4">
+              <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Existe um padrão energético recorrente ligado a ciclos que se repetem.</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Algumas respostas indicam um ponto de decisão não concluído.</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <span className="text-primary mt-0.5">•</span>
+                <span>A leitura completa mostra onde isso começa e como destravar.</span>
+              </li>
+            </ul>
+            <p className="text-xs text-muted-foreground/70 italic">
+              Leitura simbólica e de autoconhecimento.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Pricing Cards */}
       <section className="py-10 px-4">
-        <div className="container max-w-5xl mx-auto">
+        <div className="container max-w-5xl mx-auto lg:pr-80">
           <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
             
             {/* Basic Plan - Just Reading */}
@@ -76,11 +114,14 @@ const Checkout = () => {
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
                   <Star className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-serif font-bold text-foreground mb-2">
+                <h3 className="text-xl font-serif font-bold text-foreground mb-1">
                   Leitura da Mão
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  Sua análise espiritual básica
+                <p className="text-sm text-muted-foreground mb-1">
+                  Visão inicial da sua energia atual
+                </p>
+                <p className="text-xs text-muted-foreground/60 italic">
+                  Ideal para uma primeira confirmação.
                 </p>
               </div>
 
@@ -151,11 +192,14 @@ const Checkout = () => {
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-mystic-gold/20 flex items-center justify-center">
                   <Crown className="w-8 h-8 text-mystic-gold" />
                 </div>
-                <h3 className="text-xl font-serif font-bold gradient-text mb-2">
+                <h3 className="text-xl font-serif font-bold gradient-text mb-1">
                   Pacote Completo
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  Leitura + Ritual de Desbloqueio
+                <p className="text-sm text-muted-foreground mb-1">
+                  Mapa completo + desbloqueio guiado
+                </p>
+                <p className="text-xs text-muted-foreground/60 italic">
+                  Evita interpretações incompletas.
                 </p>
               </div>
 
@@ -263,6 +307,10 @@ const Checkout = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Social Proof Rail */}
+      <SocialProofRail variant="right" />
+      <SocialProofRail variant="bottom" />
 
       <Footer />
     </div>
