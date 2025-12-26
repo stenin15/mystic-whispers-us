@@ -45,10 +45,8 @@ const VSL = () => {
     }
   };
 
-  const handleCta = () => {
-    setHasSeenVsl(true);
-    navigate("/formulario");
-  };
+  // CTA pode ir direto para checkout se configurado, senão para formulário
+  const caktoUrl = import.meta.env.VITE_CAKTO_CHECKOUT_URL as string | undefined;
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -73,6 +71,7 @@ const VSL = () => {
                 playsInline
                 controls={false}
                 preload="auto"
+                aria-label="Vídeo de apresentação de Madame Aurora"
               />
 
               {/* Sound button */}
@@ -82,15 +81,16 @@ const VSL = () => {
                   variant="secondary"
                   onClick={handleToggleSound}
                   className="bg-background/70 backdrop-blur border border-border/40 hover:bg-background/80"
+                  aria-label={muted ? "Ativar som do vídeo" : "Silenciar vídeo"}
                 >
                   {muted ? (
                     <>
-                      <Volume2 className="w-4 h-4 mr-2" />
+                      <Volume2 className="w-4 h-4 mr-2" aria-hidden="true" />
                       Ativar som
                     </>
                   ) : (
                     <>
-                      <VolumeX className="w-4 h-4 mr-2" />
+                      <VolumeX className="w-4 h-4 mr-2" aria-hidden="true" />
                       Silenciar
                     </>
                   )}
@@ -116,13 +116,28 @@ const VSL = () => {
             </h1>
 
             <div className="mt-6">
-              <Button
-                onClick={handleCta}
-                size="lg"
-                className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-10 py-6 text-lg"
-              >
-                🔮 Quero minha leitura agora
-              </Button>
+              {caktoUrl ? (
+                <Button
+                  asChild
+                  size="lg"
+                  className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-10 py-6 text-lg"
+                >
+                  <a href={caktoUrl} className="cta-button">
+                    🔮 Quero minha leitura agora
+                  </a>
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    setHasSeenVsl(true);
+                    navigate("/formulario");
+                  }}
+                  size="lg"
+                  className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-10 py-6 text-lg"
+                >
+                  🔮 Quero minha leitura agora
+                </Button>
+              )}
             </div>
 
             <p className="mt-4 text-xs text-muted-foreground">

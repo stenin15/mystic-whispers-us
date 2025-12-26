@@ -142,28 +142,62 @@ ${quizContext}
 
 Crie uma análise profunda, personalizada e esperançosa que ressoe com a pessoa. A mensagem espiritual deve ser especialmente tocante e usar o nome ${formData.name} várias vezes.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.8,
-        max_tokens: 2000,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenAI error:', response.status, errorText);
-      throw new Error(`OpenAI error: ${response.status}`);
-    }
+    // Timeout: 20s + Retry com backoff
+    const TIMEOUT_MS = 20000; // 20 segundos
+    const MAX_RETRIES = 1;
+    
+    const callOpenAI = async (retryCount = 0): Promise<Response> => {
+      try {
+        // Usar Promise.race para timeout (Deno não tem AbortController nativo)
+        const fetchPromise = fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+            temperature: 0.8,
+            max_tokens: 2000,
+          }),
+        });
+        
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Request timeout')), TIMEOUT_MS);
+        });
+        
+        const response = await Promise.race([fetchPromise, timeoutPromise]);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('OpenAI error:', response.status, errorText);
+          
+          // Retry se for erro 5xx e ainda tiver tentativas
+          if (response.status >= 500 && retryCount < MAX_RETRIES) {
+            await new Promise(resolve => setTimeout(resolve, 500 + (retryCount * 300))); // Backoff
+            return callOpenAI(retryCount + 1);
+          }
+          
+          throw new Error(`OpenAI error: ${response.status}`);
+        }
+        
+        return response;
+      } catch (error: unknown) {
+        // Retry se for timeout/network error e ainda tiver tentativas
+        if ((error instanceof Error && (error.message.includes('timeout') || error.message.includes('network'))) && retryCount < MAX_RETRIES) {
+          await new Promise(resolve => setTimeout(resolve, 500 + (retryCount * 300))); // Backoff
+          return callOpenAI(retryCount + 1);
+        }
+        
+        throw error;
+      }
+    };
+    
+    const response = await callOpenAI();
 
     const data = await response.json();
     const content = data.choices[0].message.content;

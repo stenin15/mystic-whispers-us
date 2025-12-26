@@ -111,30 +111,51 @@ const selectRandom = <T>(arr: T[], count: number): T[] => {
   return shuffled.slice(0, count);
 };
 
-// Main analysis function - now using real AI
+// Main analysis function - now using real AI with timeout and retry
 export const processAnalysis = async (
   formData: FormData,
   quizAnswers: QuizAnswer[]
 ): Promise<AnalysisResult> => {
+  const TIMEOUT_MS = 25000; // 25 segundos (maior que server timeout)
+  
   try {
-    const { data, error } = await supabase.functions.invoke('palm-analysis', {
-      body: { formData, quizAnswers }
-    });
+    // Create AbortController for client-side timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('palm-analysis', {
+        body: { formData, quizAnswers },
+        signal: controller.signal as any, // Supabase may not support signal, but we try
+      });
 
-    if (error) {
-      console.error('Analysis error:', error);
-      throw error;
+      clearTimeout(timeoutId);
+
+      if (error) {
+        console.error('Analysis error:', error);
+        throw error;
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      return data as AnalysisResult;
+    } catch (fetchError: unknown) {
+      clearTimeout(timeoutId);
+      
+      // Se foi timeout ou erro de rede, usar fallback
+      if (fetchError instanceof Error && (fetchError.name === 'AbortError' || fetchError.message.includes('timeout'))) {
+        console.warn('Analysis timeout, using fallback');
+        throw new Error('TIMEOUT');
+      }
+      
+      throw fetchError;
     }
-
-    if (data?.error) {
-      throw new Error(data.error);
-    }
-
-    return data as AnalysisResult;
   } catch (error) {
     console.error('Error in processAnalysis:', error);
     
-    // Fallback to mock analysis if AI fails
+    // Fallback to mock analysis if AI fails (sempre funciona)
     const dominantEnergy = calculateDominantEnergy(quizAnswers);
     const energyType = energyTypes[dominantEnergy];
     const strengths = selectRandom(strengthsPool, 3);

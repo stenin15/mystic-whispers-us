@@ -187,28 +187,38 @@ const Analise = () => {
 
     setIsAnalyzing(true);
 
-    // Start API call immediately
+    // Start API call immediately with loading state
     const runAnalysis = async () => {
       try {
+        // Mostrar loading imediato (já está sendo feito pelo setIsAnalyzing(true))
         const result = await processAnalysis(
           { name, age, emotionalState, mainConcern },
           quizAnswers
         );
         setAnalysisResult(result);
 
-        const audioDataUrl = await generateVoiceMessage(result.spiritualMessage);
-        if (audioDataUrl) {
-          setAudioUrl(audioDataUrl);
-        }
+        // Gerar áudio em background (não bloqueia)
+        generateVoiceMessage(result.spiritualMessage).then(audioDataUrl => {
+          if (audioDataUrl) {
+            setAudioUrl(audioDataUrl);
+          }
+        }).catch(err => {
+          console.warn('Audio generation failed, continuing without audio:', err);
+        });
 
         setIsApiDone(true);
       } catch (error) {
         console.error('Analysis error:', error);
+        // Mesmo com erro, usar fallback (já retornado pelo processAnalysis)
+        // Mas marcar como done para não travar
         setIsApiDone(true);
       }
     };
 
-    runAnalysis();
+    // Delay mínimo de 200ms para garantir que loading aparece
+    setTimeout(() => {
+      runAnalysis();
+    }, 200);
 
     // Play initial sound and voice
     playSoundForPhase(0);

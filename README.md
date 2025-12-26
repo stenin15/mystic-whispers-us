@@ -1,91 +1,183 @@
-# Welcome to your Lovable project
+# 🔮 Sussurros Místicos - Leitura de Mãos Espiritual
 
-## Project info
+Uma aplicação moderna e imersiva para leitura de mãos (quiromancia) que combina tecnologia com espiritualidade, oferecendo uma experiência personalizada e envolvente para autoconhecimento.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## ✨ Sobre o Projeto
 
-## How can I edit this code?
+**Sussurros Místicos** é uma plataforma completa de leitura de mãos que oferece:
 
-There are several ways of editing your application.
+- 🎥 **VSL (Video Sales Letter)** - Apresentação inicial
+- 📝 **Formulário Personalizado** - Coleta de informações do usuário
+- 🧩 **Quiz Energético** - Questionário interativo com áudio
+- 🔮 **Análise Espiritual** - Processamento com IA e geração de leitura personalizada
+- 💳 **Checkout** - Integração com CartPanda para pagamentos
+- 🎨 **Interface Mística** - Design moderno com animações e efeitos visuais
 
-**Use Lovable**
+## 🚀 Tecnologias Utilizadas
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- **Frontend:**
+  - React 18 + TypeScript
+  - Vite (build tool)
+  - React Router (roteamento)
+  - Framer Motion (animações)
+  - Tailwind CSS (estilização)
+  - shadcn/ui (componentes UI)
+  - Zustand (gerenciamento de estado)
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Backend:**
+  - Supabase (banco de dados, autenticação, edge functions)
+  - Edge Functions para:
+    - Análise de palma da mão (IA)
+    - Text-to-Speech (geração de áudio)
+    - Envio de emails de boas-vindas
 
-**Use your preferred IDE**
+- **Integrações:**
+  - CartPanda (checkout/pagamentos)
+  - Google Fonts (Playfair Display, Inter)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 📋 Pré-requisitos
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Node.js 18+ e npm/yarn/pnpm
+- Conta no Supabase
+- Conta no CartPanda (para checkout)
 
-Follow these steps:
+## 🛠️ Instalação e Configuração
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 1. Clone o repositório
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```bash
+git clone https://github.com/stenin15/mystic-whispers.git
+cd mystic-whispers
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 2. Instale as dependências
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
+# ou
+yarn install
+# ou
+pnpm install
+```
+
+### 3. Configure as variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto baseado no `.env.example`:
+
+```env
+# Supabase
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+VITE_SUPABASE_PROJECT_ID=your_project_id
+
+# CartPanda (Checkout)
+VITE_CARTPANDA_CHECKOUT_BASIC_URL=your_basic_checkout_url
+VITE_CARTPANDA_CHECKOUT_COMPLETE_URL=your_complete_checkout_url
+
+# VSL Video (opcional)
+VITE_VSL_VIDEO_URL=your_video_url
+```
+
+### 4. Configure o Supabase
+
+1. Crie um projeto no [Supabase](https://supabase.com)
+2. Configure as Edge Functions necessárias:
+   - `palm-analysis` - Para análise de palma da mão
+   - `text-to-speech` - Para geração de áudio
+   - `send-welcome-email` - Para envio de emails
+
+### 5. Execute o projeto
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+O projeto estará disponível em `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📦 Scripts Disponíveis
 
-**Use GitHub Codespaces**
+```bash
+# Desenvolvimento
+npm run dev          # Inicia servidor de desenvolvimento
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Build
+npm run build        # Build para produção
+npm run build:dev    # Build em modo desenvolvimento
 
-## What technologies are used for this project?
+# Qualidade de código
+npm run lint         # Executa ESLint
 
-This project is built with:
+# Preview
+npm run preview      # Preview do build de produção
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🚀 Deploy
 
-## How can I deploy this project?
+### Vercel (Recomendado)
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+1. Conecte seu repositório GitHub à Vercel
+2. Configure as variáveis de ambiente no painel da Vercel
+3. Build settings:
+   - **Framework preset**: Vite
+   - **Build command**: `npm run build`
+   - **Output directory**: `dist`
+4. O arquivo `vercel.json` já está configurado para SPA routing
 
-## Deploy no Vercel (recomendado)
+### Outras plataformas
 
-### Build settings
+O projeto pode ser deployado em qualquer plataforma que suporte aplicações Vite/React:
+- Netlify
+- Cloudflare Pages
+- AWS Amplify
+- Railway
 
-- **Framework preset**: Vite
-- **Build command**: `npm run build`
-- **Output directory**: `dist`
+## 📁 Estrutura do Projeto
 
-### Variáveis de ambiente
+```
+src/
+├── components/          # Componentes reutilizáveis
+│   ├── layout/         # Navbar, Footer
+│   ├── shared/         # Componentes compartilhados
+│   └── ui/             # Componentes shadcn/ui
+├── pages/              # Páginas da aplicação
+│   ├── VSL.tsx         # Video Sales Letter
+│   ├── Formulario.tsx  # Formulário de dados
+│   ├── Quiz.tsx         # Quiz energético
+│   ├── Analise.tsx     # Análise em tempo real
+│   ├── Checkout.tsx    # Seleção de planos
+│   └── ...
+├── hooks/              # Custom hooks
+├── lib/                # Utilitários e helpers
+├── store/              # Zustand store
+├── integrations/      # Integrações (Supabase)
+└── assets/            # Imagens e recursos estáticos
+```
 
-Configure no Vercel (Project → Settings → Environment Variables) usando o `.env.example` como referência:
+## 🎨 Características Principais
 
-- `VITE_SUPABASE_PROJECT_ID`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`
-- `VITE_SUPABASE_URL`
+- ✨ **Design Místico**: Interface moderna com gradientes, animações e efeitos visuais
+- 🎵 **Áudio Personalizado**: Text-to-speech com mensagens personalizadas
+- 📸 **Upload de Fotos**: Análise de palma da mão via IA
+- 🔒 **Proteção de Rotas**: Sistema de gate para controlar fluxo do usuário
+- 📱 **Responsivo**: Totalmente adaptado para mobile e desktop
+- ⚡ **Performance**: Otimizado com lazy loading e code splitting
 
-> Observação: o app usa React Router; o arquivo `vercel.json` já inclui rewrite para SPA (rotas como `/quiz`, `/checkout`, etc.).
+## 🤝 Contribuindo
 
-## Can I connect a custom domain to my Lovable project?
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-Yes, you can!
+## 📄 Licença
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Este projeto é privado e proprietário. Todos os direitos reservados.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📞 Suporte
+
+Para suporte, entre em contato através do repositório ou email.
+
+---
+
+**Desenvolvido com ❤️ e magia** ✨

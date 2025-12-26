@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { name, canAccessResult, setSelectedPlan } = useHandReadingStore();
+  const { name, canAccessResult } = useHandReadingStore();
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -28,19 +28,8 @@ const Checkout = () => {
     }
   }, [canAccessResult, navigate]);
 
-  const handleSelectPlan = (plan: 'basic' | 'complete') => {
-    const basicUrl = import.meta.env.VITE_CARTPANDA_CHECKOUT_BASIC_URL as string | undefined;
-    const completeUrl = import.meta.env.VITE_CARTPANDA_CHECKOUT_COMPLETE_URL as string | undefined;
-
-    const checkoutUrl = plan === 'basic' ? basicUrl : completeUrl;
-    if (!checkoutUrl) {
-      toast.error('Checkout indisponível no momento. Tente novamente em instantes.');
-      return;
-    }
-
-    setSelectedPlan(plan);
-    window.location.href = checkoutUrl;
-  };
+  const basicUrl = import.meta.env.VITE_CAKTO_CHECKOUT_BASIC_URL as string | undefined;
+  const completeUrl = import.meta.env.VITE_CAKTO_CHECKOUT_COMPLETE_URL as string | undefined;
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -118,15 +107,29 @@ const Checkout = () => {
                 <span className="text-sm text-muted-foreground">pagamento único</span>
               </div>
 
-              <Button
-                onClick={() => handleSelectPlan('basic')}
-                variant="outline"
-                size="lg"
-                className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6"
-              >
-                Quero Apenas a Leitura
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              {basicUrl ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6"
+                >
+                  <a href={basicUrl} className="cta-button">
+                    Quero Apenas a Leitura
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </a>
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6"
+                  disabled
+                >
+                  Checkout em breve
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              )}
             </motion.div>
 
             {/* Complete Plan - Full Package */}
@@ -182,15 +185,29 @@ const Checkout = () => {
                 <span className="text-sm text-muted-foreground">ou 5x de R$ 10,98</span>
               </div>
 
-              <Button
-                onClick={() => handleSelectPlan('complete')}
-                size="lg"
-                className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg"
-              >
-                <Sparkles className="w-5 h-5 mr-2" />
-                Quero o Pacote Completo
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              {completeUrl ? (
+                <Button
+                  asChild
+                  size="lg"
+                  className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg"
+                >
+                  <a href={completeUrl} className="cta-button">
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Quero o Pacote Completo
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </a>
+                </Button>
+              ) : (
+                <Button
+                  size="lg"
+                  className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg"
+                  disabled
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Checkout em breve
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              )}
 
               {/* Guarantee */}
               <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">

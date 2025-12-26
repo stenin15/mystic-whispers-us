@@ -52,6 +52,9 @@ export const Navbar = () => {
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 text-foreground"
+            aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -60,10 +63,13 @@ export const Navbar = () => {
         {/* Mobile Navigation */}
         {isOpen && (
           <motion.div
+            id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden pb-4"
+            role="navigation"
+            aria-label="Menu de navegação mobile"
           >
             <div className="flex flex-col gap-3">
               <Link
