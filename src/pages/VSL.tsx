@@ -13,8 +13,7 @@ const VSL = () => {
   const [muted, setMuted] = useState(true);
 
   const videoSrc = useMemo(() => {
-    // Primary: Bunny CDN URL, fallback to env var, then to local file
-    return "https://vsl-adoravel.b-cdn.net/IMG_2694.mp4";
+    return "https://vsl-lovable.b-cdn.net/IMG_2694.mp4";
   }, []);
 
   const setHasSeenVsl = useHandReadingStore((s) => s.setHasSeenVsl);
