@@ -13,8 +13,8 @@ const VSL = () => {
   const [muted, setMuted] = useState(true);
 
   const videoSrc = useMemo(() => {
-    // Prefer env var; fallback to a file in /public (ex: public/vsl.mp4)
-    return (import.meta.env.VITE_VSL_VIDEO_URL as string | undefined) ?? "/vsl.mp4";
+    // Primary: Bunny CDN URL, fallback to env var, then to local file
+    return "https://vsl-adoravel.b-cdn.net/IMG_2694.mp4";
   }, []);
 
   const setHasSeenVsl = useHandReadingStore((s) => s.setHasSeenVsl);
