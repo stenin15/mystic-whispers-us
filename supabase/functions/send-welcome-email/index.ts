@@ -5,6 +5,14 @@ const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const rateState = new Map<string, { count: number; resetAt: number }>();
 
+// Default allowed origins for this application
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://madameaurora.blog",
+  "https://www.madameaurora.blog",
+  "https://preview--madame-aurora-quiromancia.lovable.app",
+  "https://madame-aurora-quiromancia.lovable.app"
+];
+
 const getClientIp = (req: Request) => {
   const xff = req.headers.get("x-forwarded-for");
   if (!xff) return "unknown";
@@ -25,17 +33,48 @@ const isRateLimited = (ip: string, limit: number, windowMs: number) => {
 
 const getAllowedOrigin = (req: Request) => {
   const origin = req.headers.get("origin") ?? "";
-  const raw = (Deno.env.get("ALLOWED_ORIGINS") ?? "").trim();
-  if (!raw) return "*";
-  const allowed = raw.split(",").map((s) => s.trim()).filter(Boolean);
-  if (!origin) return allowed[0] ?? "*";
-  return allowed.includes(origin) ? origin : allowed[0] ?? "*";
+  const envOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "").trim();
+  
+  // Use environment variable if set, otherwise use defaults
+  const allowedOrigins = envOrigins 
+    ? envOrigins.split(",").map((s) => s.trim()).filter(Boolean)
+    : DEFAULT_ALLOWED_ORIGINS;
+  
+  // If origin matches allowed list, return it
+  if (origin && allowedOrigins.includes(origin)) {
+    return origin;
+  }
+  
+  // For development/preview environments with lovable.app domain
+  if (origin && origin.includes(".lovable.app")) {
+    return origin;
+  }
+  
+  // Return first allowed origin as fallback (not wildcard)
+  return allowedOrigins[0] ?? "https://madameaurora.blog";
 };
 
 const corsHeaders = (req: Request) => ({
   "Access-Control-Allow-Origin": getAllowedOrigin(req),
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 });
+
+// Input validation helpers
+const isValidString = (value: unknown, maxLength: number): value is string => {
+  return typeof value === "string" && value.length > 0 && value.length <= maxLength;
+};
+
+const isValidEmail = (email: unknown): email is string => {
+  if (typeof email !== "string") return false;
+  // Basic email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 254;
+};
+
+const sanitizeName = (name: string): string => {
+  // Remove potential HTML/script injection, keep only safe characters
+  return name.replace(/[<>{}]/g, "").trim().substring(0, 100);
+};
 
 interface WelcomeEmailRequest {
   name: string;
@@ -51,6 +90,7 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const ip = getClientIp(req);
     if (isRateLimited(ip, 10, 60_000)) {
+      console.log(`Rate limited IP: ${ip}`);
       return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Rate limit exceeded" }), {
         status: 429,
         headers: { "Content-Type": "application/json", ...corsHeaders(req) },
@@ -65,13 +105,37 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const { name, email }: WelcomeEmailRequest = JSON.parse(rawBody);
-    
-    console.log(`Sending welcome email to ${email} for ${name}`);
-
-    if (!email || !name) {
-      throw new Error("Email and name are required");
+    let parsedBody: { name: unknown; email: unknown };
+    try {
+      parsedBody = JSON.parse(rawBody);
+    } catch {
+      return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Invalid JSON" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+      });
     }
+
+    const { name, email } = parsedBody;
+    
+    // Validate inputs
+    if (!isValidString(name, 100)) {
+      return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Invalid name" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Invalid email format" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+      });
+    }
+
+    // Sanitize name for use in HTML
+    const sanitizedName = sanitizeName(name);
+    
+    console.log(`Sending welcome email to ${email} for ${sanitizedName}`);
 
     const { data, error } = await resend.emails.send({
       from: "Madame Aurora <contato@madameaurora.blog>",
@@ -97,7 +161,7 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="background: linear-gradient(135deg, #1a1225 0%, #2d1f42 100%); border-radius: 16px; padding: 30px; border: 1px solid #9b87f580;">
               
               <h2 style="color: #f4e6ff; font-size: 22px; margin-top: 0;">
-                Olá, ${name}! 🌙
+                Olá, ${sanitizedName}! 🌙
               </h2>
               
               <p style="color: #d4c4e3; font-size: 16px; line-height: 1.6;">
