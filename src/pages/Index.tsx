@@ -19,6 +19,7 @@ import { ParticlesBackground, FloatingOrbs } from '@/components/shared/Particles
 import { FeatureCard } from '@/components/shared/MysticCard';
 import { SectionTitle } from '@/components/shared/SectionTitle';
 import { InfiniteTestimonialCarousel } from '@/components/shared/InfiniteTestimonialCarousel';
+import SocialProofRail from '@/components/SocialProofRail';
 
 const Index = () => {
   return (
@@ -227,6 +228,10 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Social Proof Rail */}
+      <SocialProofRail variant="right" />
+      <SocialProofRail variant="bottom" />
 
       <Footer />
     </div>
