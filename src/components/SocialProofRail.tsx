@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // TODO: substituir imageUrl por fotos reais autorizadas (com consentimento) quando disponíveis.
 const TESTIMONIALS = [
@@ -24,9 +25,10 @@ const getAvatarUrl = (name: string, city: string) => {
 
 interface SocialProofRailProps {
   variant?: 'right' | 'bottom';
+  isInteracting?: boolean; // Reduce distraction when user is making a choice
 }
 
-const SocialProofRail = ({ variant = 'right' }: SocialProofRailProps) => {
+const SocialProofRail = ({ variant = 'right', isInteracting = false }: SocialProofRailProps) => {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,10 +59,10 @@ const SocialProofRail = ({ variant = 'right' }: SocialProofRailProps) => {
           100% { transform: translateX(-50%); }
         }
         .animate-scroll-vertical {
-          animation: scroll-vertical 40s linear infinite;
+          animation: scroll-vertical 60s linear infinite;
         }
         .animate-scroll-horizontal {
-          animation: scroll-horizontal 35s linear infinite;
+          animation: scroll-horizontal 50s linear infinite;
         }
         .animate-scroll-vertical:hover,
         .animate-scroll-horizontal:hover {
@@ -69,12 +71,19 @@ const SocialProofRail = ({ variant = 'right' }: SocialProofRailProps) => {
         .paused {
           animation-play-state: paused !important;
         }
+        .interacting {
+          opacity: 0.4;
+          animation-play-state: paused !important;
+        }
       `}</style>
       
       {isRight ? (
         /* Desktop: Fixed right sidebar */
         <div 
-          className="fixed right-4 top-24 bottom-24 w-72 z-40 hidden lg:block"
+          className={cn(
+            "fixed right-4 top-24 bottom-24 w-72 z-40 hidden lg:block transition-opacity duration-500",
+            isInteracting && "opacity-40"
+          )}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
@@ -85,9 +94,12 @@ const SocialProofRail = ({ variant = 'right' }: SocialProofRailProps) => {
               </p>
             </div>
             <div className="h-[calc(100%-40px)] overflow-hidden">
-              <div 
+            <div 
                 ref={containerRef}
-                className={`${prefersReducedMotion || isPaused ? 'paused' : ''} animate-scroll-vertical`}
+                className={cn(
+                  "animate-scroll-vertical",
+                  (prefersReducedMotion || isPaused || isInteracting) && "paused"
+                )}
               >
                 {duplicatedTestimonials.map((testimonial, index) => (
                   <div 
@@ -126,11 +138,18 @@ const SocialProofRail = ({ variant = 'right' }: SocialProofRailProps) => {
         </div>
       ) : (
         /* Mobile: Fixed bottom bar */
-        <div className="fixed bottom-3 left-3 right-3 h-24 z-40 lg:hidden">
+        <div className={cn(
+          "fixed bottom-3 left-3 right-3 h-24 z-40 lg:hidden transition-opacity duration-500",
+          isInteracting && "opacity-40"
+        )}>
           <div className="h-full rounded-xl bg-card/80 backdrop-blur-xl border border-border/30 overflow-hidden">
             <div className="h-full overflow-hidden px-2 py-2">
               <div 
-                className={`flex gap-3 ${prefersReducedMotion ? '' : 'animate-scroll-horizontal'}`}
+                className={cn(
+                  "flex gap-3",
+                  !prefersReducedMotion && !isInteracting && "animate-scroll-horizontal",
+                  isInteracting && "paused"
+                )}
                 style={{ width: 'max-content' }}
               >
                 {duplicatedTestimonials.map((testimonial, index) => (
