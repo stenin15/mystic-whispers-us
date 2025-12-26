@@ -2,6 +2,14 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const rateState = new Map<string, { count: number; resetAt: number }>();
 
+// Default allowed origins for this application
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://madameaurora.blog",
+  "https://www.madameaurora.blog",
+  "https://preview--madame-aurora-quiromancia.lovable.app",
+  "https://madame-aurora-quiromancia.lovable.app"
+];
+
 const getClientIp = (req: Request) => {
   const xff = req.headers.get("x-forwarded-for");
   if (!xff) return "unknown";
@@ -22,17 +30,42 @@ const isRateLimited = (ip: string, limit: number, windowMs: number) => {
 
 const getAllowedOrigin = (req: Request) => {
   const origin = req.headers.get("origin") ?? "";
-  const raw = (Deno.env.get("ALLOWED_ORIGINS") ?? "").trim();
-  if (!raw) return "*";
-  const allowed = raw.split(",").map((s) => s.trim()).filter(Boolean);
-  if (!origin) return allowed[0] ?? "*";
-  return allowed.includes(origin) ? origin : allowed[0] ?? "*";
+  const envOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "").trim();
+  
+  // Use environment variable if set, otherwise use defaults
+  const allowedOrigins = envOrigins 
+    ? envOrigins.split(",").map((s) => s.trim()).filter(Boolean)
+    : DEFAULT_ALLOWED_ORIGINS;
+  
+  // If origin matches allowed list, return it
+  if (origin && allowedOrigins.includes(origin)) {
+    return origin;
+  }
+  
+  // For development/preview environments with lovable.app domain
+  if (origin && origin.includes(".lovable.app")) {
+    return origin;
+  }
+  
+  // Return first allowed origin as fallback (not wildcard)
+  return allowedOrigins[0] ?? "https://madameaurora.blog";
 };
 
 const corsHeaders = (req: Request) => ({
   "Access-Control-Allow-Origin": getAllowedOrigin(req),
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 });
+
+// Input validation helpers
+const isValidString = (value: unknown, maxLength: number): value is string => {
+  return typeof value === "string" && value.length > 0 && value.length <= maxLength;
+};
+
+const VALID_VOICES = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"];
+
+const isValidVoice = (voice: unknown): voice is string => {
+  return typeof voice === "string" && VALID_VOICES.includes(voice);
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -43,6 +76,7 @@ serve(async (req) => {
   try {
     const ip = getClientIp(req);
     if (isRateLimited(ip, 30, 60_000)) {
+      console.log(`Rate limited IP: ${ip}`);
       return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
         status: 429,
         headers: { ...corsHeaders(req), "Content-Type": "application/json" },
@@ -57,11 +91,28 @@ serve(async (req) => {
       });
     }
 
-    const { text, voice } = JSON.parse(rawBody);
-
-    if (!text) {
-      throw new Error('Text is required');
+    let parsedBody: { text: unknown; voice: unknown };
+    try {
+      parsedBody = JSON.parse(rawBody);
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+        status: 400,
+        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+      });
     }
+
+    const { text, voice } = parsedBody;
+
+    // Validate text input
+    if (!isValidString(text, 4096)) {
+      return new Response(JSON.stringify({ error: "Text is required and must be under 4096 characters" }), {
+        status: 400,
+        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate voice if provided
+    const selectedVoice = voice && isValidVoice(voice) ? voice : "shimmer";
 
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     
@@ -70,7 +121,7 @@ serve(async (req) => {
     }
 
     console.log('Generating speech for text:', text.substring(0, 100) + '...');
-    console.log('Using voice:', voice || 'nova');
+    console.log('Using voice:', selectedVoice);
 
     // Generate speech from text using OpenAI TTS HD for more natural, intimate sound
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
@@ -82,7 +133,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'tts-1-hd', // HD model for more natural, expressive voice
         input: text,
-        voice: voice || 'shimmer', // shimmer is warm and mystical, perfect for Madame Aurora
+        voice: selectedVoice,
         response_format: 'mp3',
         speed: 0.9, // Slower for intimate, conversational feel
       }),

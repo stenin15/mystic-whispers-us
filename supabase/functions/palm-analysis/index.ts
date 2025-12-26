@@ -3,6 +3,14 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const rateState = new Map<string, { count: number; resetAt: number }>();
 
+// Default allowed origins for this application
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://madameaurora.blog",
+  "https://www.madameaurora.blog",
+  "https://preview--madame-aurora-quiromancia.lovable.app",
+  "https://madame-aurora-quiromancia.lovable.app"
+];
+
 const getClientIp = (req: Request) => {
   const xff = req.headers.get("x-forwarded-for");
   if (!xff) return "unknown";
@@ -23,11 +31,25 @@ const isRateLimited = (ip: string, limit: number, windowMs: number) => {
 
 const getAllowedOrigin = (req: Request) => {
   const origin = req.headers.get("origin") ?? "";
-  const raw = (Deno.env.get("ALLOWED_ORIGINS") ?? "").trim();
-  if (!raw) return "*";
-  const allowed = raw.split(",").map((s) => s.trim()).filter(Boolean);
-  if (!origin) return allowed[0] ?? "*";
-  return allowed.includes(origin) ? origin : allowed[0] ?? "*";
+  const envOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "").trim();
+  
+  // Use environment variable if set, otherwise use defaults
+  const allowedOrigins = envOrigins 
+    ? envOrigins.split(",").map((s) => s.trim()).filter(Boolean)
+    : DEFAULT_ALLOWED_ORIGINS;
+  
+  // If origin matches allowed list, return it
+  if (origin && allowedOrigins.includes(origin)) {
+    return origin;
+  }
+  
+  // For development/preview environments with lovable.app domain
+  if (origin && origin.includes(".lovable.app")) {
+    return origin;
+  }
+  
+  // Return first allowed origin as fallback (not wildcard)
+  return allowedOrigins[0] ?? "https://madameaurora.blog";
 };
 
 const corsHeaders = (req: Request) => ({
@@ -48,6 +70,43 @@ interface FormData {
   mainConcern: string;
 }
 
+// Input validation helpers
+const isValidString = (value: unknown, maxLength: number): value is string => {
+  return typeof value === "string" && value.length > 0 && value.length <= maxLength;
+};
+
+const sanitizeString = (str: string): string => {
+  // Remove potential injection patterns, keep only safe characters
+  return str.replace(/[<>{}]/g, "").trim();
+};
+
+const validateFormData = (data: unknown): data is FormData => {
+  if (!data || typeof data !== "object") return false;
+  const d = data as Record<string, unknown>;
+  return (
+    isValidString(d.name, 100) &&
+    isValidString(d.age, 20) &&
+    isValidString(d.emotionalState, 200) &&
+    isValidString(d.mainConcern, 500)
+  );
+};
+
+const validateQuizAnswers = (answers: unknown): answers is QuizAnswer[] => {
+  if (!Array.isArray(answers)) return false;
+  if (answers.length > 20) return false; // Max 20 questions
+  return answers.every((a) => {
+    if (!a || typeof a !== "object") return false;
+    const answer = a as Record<string, unknown>;
+    return (
+      typeof answer.questionId === "number" &&
+      answer.questionId >= 0 &&
+      answer.questionId < 100 &&
+      isValidString(answer.answerId, 50) &&
+      isValidString(answer.answerText, 500)
+    );
+  });
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders(req) });
@@ -56,6 +115,7 @@ serve(async (req) => {
   try {
     const ip = getClientIp(req);
     if (isRateLimited(ip, 20, 60_000)) {
+      console.log(`Rate limited IP: ${ip}`);
       return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
         status: 429,
         headers: { ...corsHeaders(req), "Content-Type": "application/json" },
@@ -70,10 +130,46 @@ serve(async (req) => {
       });
     }
 
-    const { formData, quizAnswers } = JSON.parse(rawBody) as {
-      formData: FormData;
-      quizAnswers: QuizAnswer[];
+    let parsedBody: { formData: unknown; quizAnswers: unknown };
+    try {
+      parsedBody = JSON.parse(rawBody);
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+        status: 400,
+        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+
+    const { formData, quizAnswers } = parsedBody;
+
+    // Validate inputs
+    if (!validateFormData(formData)) {
+      return new Response(JSON.stringify({ error: "Invalid form data" }), {
+        status: 400,
+        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+
+    if (!validateQuizAnswers(quizAnswers)) {
+      return new Response(JSON.stringify({ error: "Invalid quiz answers" }), {
+        status: 400,
+        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+
+    // Sanitize inputs before use
+    const sanitizedFormData: FormData = {
+      name: sanitizeString(formData.name),
+      age: sanitizeString(formData.age),
+      emotionalState: sanitizeString(formData.emotionalState),
+      mainConcern: sanitizeString(formData.mainConcern),
     };
+
+    const sanitizedQuizAnswers: QuizAnswer[] = quizAnswers.map((a) => ({
+      questionId: a.questionId,
+      answerId: sanitizeString(a.answerId),
+      answerText: sanitizeString(a.answerText),
+    }));
 
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     
@@ -81,9 +177,9 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not configured');
     }
 
-    console.log('Generating palm analysis for:', formData.name);
+    console.log('Generating palm analysis for:', sanitizedFormData.name);
 
-    const quizContext = quizAnswers.map(a => `- ${a.answerText}`).join('\n');
+    const quizContext = sanitizedQuizAnswers.map(a => `- ${a.answerText}`).join('\n');
 
     const systemPrompt = `Você é uma quiromante mística experiente e espiritual chamada Madame Aurora. Você faz leituras de mão profundas e reveladoras.
 
@@ -132,15 +228,15 @@ O JSON deve ter exatamente esta estrutura:
 
     const userPrompt = `Crie uma leitura de mão mística para:
 
-Nome: ${formData.name}
-Idade: ${formData.age}
-Estado emocional atual: ${formData.emotionalState}
-Principal preocupação: ${formData.mainConcern}
+Nome: ${sanitizedFormData.name}
+Idade: ${sanitizedFormData.age}
+Estado emocional atual: ${sanitizedFormData.emotionalState}
+Principal preocupação: ${sanitizedFormData.mainConcern}
 
 Respostas do quiz espiritual:
 ${quizContext}
 
-Crie uma análise profunda, personalizada e esperançosa que ressoe com a pessoa. A mensagem espiritual deve ser especialmente tocante e usar o nome ${formData.name} várias vezes.`;
+Crie uma análise profunda, personalizada e esperançosa que ressoe com a pessoa. A mensagem espiritual deve ser especialmente tocante e usar o nome ${sanitizedFormData.name} várias vezes.`;
 
     // Timeout: 20s + Retry com backoff
     const TIMEOUT_MS = 20000; // 20 segundos
@@ -215,7 +311,7 @@ Crie uma análise profunda, personalizada e esperançosa que ressoe com a pessoa
       throw new Error('Failed to parse AI response');
     }
 
-    console.log('Analysis generated successfully for:', formData.name);
+    console.log('Analysis generated successfully for:', sanitizedFormData.name);
 
     return new Response(
       JSON.stringify(analysisResult),
