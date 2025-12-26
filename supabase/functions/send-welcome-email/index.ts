@@ -10,7 +10,8 @@ const DEFAULT_ALLOWED_ORIGINS = [
   "https://madameaurora.blog",
   "https://www.madameaurora.blog",
   "https://preview--madame-aurora-quiromancia.lovable.app",
-  "https://madame-aurora-quiromancia.lovable.app"
+  "https://madame-aurora-quiromancia.lovable.app",
+  "https://mystic-whispers.vercel.app"
 ];
 
 const getClientIp = (req: Request) => {
