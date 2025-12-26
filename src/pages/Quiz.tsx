@@ -447,9 +447,13 @@ const Quiz = () => {
         </div>
       </div>
 
-      {/* Social Proof Rail */}
-      <SocialProofRail variant="right" />
-      <SocialProofRail variant="bottom" />
+      {/* Social Proof Rail - Only shows from question 2+ */}
+      {currentQuestionIndex >= 1 && (
+        <>
+          <SocialProofRail variant="right" isInteracting={!!currentAnswer} />
+          <SocialProofRail variant="bottom" isInteracting={!!currentAnswer} />
+        </>
+      )}
     </div>
   );
 };
