@@ -10,6 +10,8 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { generateVoiceMessage } from '@/lib/api';
 import { useMicroCoach } from '@/lib/useMicroCoach';
 import SocialProofRail from '@/components/SocialProofRail';
+import AudioWaveVisualizer from '@/components/shared/AudioWaveVisualizer';
+import AudioPromptModal from '@/components/shared/AudioPromptModal';
 
 const Quiz = () => {
   const navigate = useNavigate();
@@ -25,6 +27,8 @@ const Quiz = () => {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [showAudioPrompt, setShowAudioPrompt] = useState(true);
+  const [quizStarted, setQuizStarted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCacheRef = useRef<Map<number, string>>(new Map());
   const preloadingRef = useRef<Set<number>>(new Set());
@@ -145,16 +149,16 @@ const Quiz = () => {
     }
   }, [currentQuestionIndex, audioEnabled, preloadAudio]);
 
-  // Play current question audio immediately
+  // Play current question audio immediately (only after quiz started)
   useEffect(() => {
-    if (currentQuestion && audioEnabled) {
+    if (currentQuestion && audioEnabled && quizStarted) {
       // Small delay for UI transition, then play immediately
       const timer = setTimeout(() => {
         playQuestionAudio(currentQuestion.id);
       }, 200);
       return () => clearTimeout(timer);
     }
-  }, [currentQuestionIndex, audioEnabled]);
+  }, [currentQuestionIndex, audioEnabled, quizStarted]);
 
   // Preload first question's audio on mount
   useEffect(() => {
@@ -180,6 +184,11 @@ const Quiz = () => {
       setIsPlayingAudio(false);
     }
     setAudioEnabled(!audioEnabled);
+  };
+
+  const handleAudioPromptConfirm = () => {
+    setShowAudioPrompt(false);
+    setQuizStarted(true);
   };
 
   const handleSelectOption = (optionId: string, optionText: string) => {
@@ -234,6 +243,13 @@ const Quiz = () => {
     <div className="min-h-screen relative overflow-hidden py-20 px-4">
       <ParticlesBackground />
       <FloatingOrbs />
+      
+      {/* Audio Prompt Modal */}
+      <AudioPromptModal 
+        isOpen={showAudioPrompt} 
+        onConfirm={handleAudioPromptConfirm}
+        userName={name}
+      />
 
       <div className="container max-w-2xl mx-auto relative">
         {/* Header */}
@@ -287,7 +303,7 @@ const Quiz = () => {
           >
             {/* Audio indicator and toggle */}
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {isLoadingAudio && (
                   <div className="flex items-center gap-2 text-primary text-sm">
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -295,14 +311,15 @@ const Quiz = () => {
                   </div>
                 )}
                 {isPlayingAudio && !isLoadingAudio && (
-                  <div className="flex items-center gap-2 text-primary text-sm">
-                    <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ repeat: Infinity, duration: 1 }}
-                    >
-                      <Volume2 className="w-4 h-4" />
-                    </motion.div>
-                    <span>Madame Aurora está falando...</span>
+                  <div className="flex items-center gap-3 text-primary text-sm px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30">
+                    <AudioWaveVisualizer isPlaying={isPlayingAudio} barCount={5} />
+                    <span className="font-medium">Madame Aurora está falando...</span>
+                  </div>
+                )}
+                {!isPlayingAudio && !isLoadingAudio && audioEnabled && (
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                    <Volume2 className="w-3 h-3" />
+                    <span>Áudio ativo</span>
                   </div>
                 )}
               </div>
