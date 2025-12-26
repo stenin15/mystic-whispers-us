@@ -12,7 +12,7 @@ export const Footer = () => {
               <Sparkles className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="font-serif font-semibold gradient-text-mystic">
-              Mystic Hand Insights
+              Madame Aurora
             </span>
           </div>
 

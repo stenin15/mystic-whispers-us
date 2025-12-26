@@ -22,7 +22,7 @@ export const Navbar = () => {
               <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="text-lg font-serif font-semibold gradient-text-mystic hidden sm:block">
-              Mystic Hand
+              Madame Aurora
             </span>
           </Link>
 
