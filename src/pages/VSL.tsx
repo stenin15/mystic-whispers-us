@@ -103,8 +103,8 @@ const VSL = () => {
                 </motion.div>
               )}
 
-              {/* Sound button - só aparece depois de iniciar */}
-              {hasStarted && (
+              {/* Sound button - só aparece depois de iniciar e quando NÃO está mutado */}
+              {hasStarted && !muted && (
                 <div className="absolute bottom-3 right-3 z-10">
                   <Button
                     type="button"
@@ -112,19 +112,10 @@ const VSL = () => {
                     size="sm"
                     onClick={handleToggleSound}
                     className="bg-background/70 backdrop-blur border border-border/40 hover:bg-background/80"
-                    aria-label={muted ? "Ativar som do vídeo" : "Silenciar vídeo"}
+                    aria-label="Silenciar vídeo"
                   >
-                    {muted ? (
-                      <>
-                        <Volume2 className="w-4 h-4 mr-2" aria-hidden="true" />
-                        <span className="hidden sm:inline">Ativar som</span>
-                      </>
-                    ) : (
-                      <>
-                        <VolumeX className="w-4 h-4 mr-2" aria-hidden="true" />
-                        <span className="hidden sm:inline">Silenciar</span>
-                      </>
-                    )}
+                    <VolumeX className="w-4 h-4 mr-2" aria-hidden="true" />
+                    <span className="hidden sm:inline">Silenciar</span>
                   </Button>
                 </div>
               )}
