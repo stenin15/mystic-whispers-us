@@ -1,76 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-
-const rateState = new Map<string, { count: number; resetAt: number }>();
-
-// Allowed origins using Set for O(1) lookup
-const allowedOrigins = new Set([
-  "https://auroramadame.com",
-  "https://www.auroramadame.com",
-  "https://madameaurora.blog",
-  "https://www.madameaurora.blog",
-  "https://preview--madame-aurora-quiromancia.lovable.app",
-  "https://madame-aurora-quiromancia.lovable.app",
-  "https://madameaurorablog.lovable.app"
-]);
-
-const getClientIp = (req: Request) => {
-  const xff = req.headers.get("x-forwarded-for");
-  if (!xff) return "unknown";
-  return xff.split(",")[0].trim() || "unknown";
-};
-
-const isRateLimited = (ip: string, limit: number, windowMs: number) => {
-  const now = Date.now();
-  const entry = rateState.get(ip);
-  if (!entry || entry.resetAt <= now) {
-    rateState.set(ip, { count: 1, resetAt: now + windowMs });
-    return false;
-  }
-  entry.count += 1;
-  rateState.set(ip, entry);
-  return entry.count > limit;
-};
-
-function corsHeaders(req: Request) {
-  const origin = req.headers.get("origin") ?? "";
-  
-  // Check if origin is in allowed list or is a lovable.app domain
-  let allowOrigin: string;
-  if (allowedOrigins.has(origin)) {
-    allowOrigin = origin;
-  } else if (origin.includes(".lovable.app")) {
-    allowOrigin = origin;
-  } else {
-    allowOrigin = "https://madameaurora.blog";
-  }
-
-  return {
-    "Access-Control-Allow-Origin": allowOrigin,
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Credentials": "true",
-    "Vary": "Origin",
-  };
-}
-
-// Input validation helpers
-const isValidString = (value: unknown, maxLength: number): value is string => {
-  return typeof value === "string" && value.length > 0 && value.length <= maxLength;
-};
-
-const isValidEmail = (email: unknown): email is string => {
-  if (typeof email !== "string") return false;
-  // Basic email validation regex
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email) && email.length <= 254;
-};
-
-const sanitizeName = (name: string): string => {
-  // Remove potential HTML/script injection, keep only safe characters
-  return name.replace(/[<>{}]/g, "").trim().substring(0, 100);
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 interface WelcomeEmailRequest {
@@ -79,60 +12,32 @@ interface WelcomeEmailRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log("send-welcome-email function called");
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response("ok", { status: 200, headers: corsHeaders(req) });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const ip = getClientIp(req);
-    if (isRateLimited(ip, 10, 60_000)) {
-      console.log(`Rate limited IP: ${ip}`);
-      return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Rate limit exceeded" }), {
-        status: 429,
-        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
-      });
-    }
-
-    const rawBody = await req.text();
-    if (rawBody.length > 8000) {
-      return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Payload too large" }), {
-        status: 413,
-        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
-      });
-    }
-
-    let parsedBody: { name: unknown; email: unknown };
-    try {
-      parsedBody = JSON.parse(rawBody);
-    } catch {
-      return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Invalid JSON" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
-      });
-    }
-
-    const { name, email } = parsedBody;
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     
-    // Validate inputs
-    if (!isValidString(name, 100)) {
-      return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Invalid name" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
-      });
+    if (!RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ success: false, emailSent: false, reason: "RESEND_API_KEY not configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    if (!isValidEmail(email)) {
-      return new Response(JSON.stringify({ success: false, emailSent: false, reason: "Invalid email format" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
-      });
-    }
+    const resend = new Resend(RESEND_API_KEY);
+    
+    const { name, email }: WelcomeEmailRequest = await req.json();
+    
+    console.log(`Attempting to send welcome email to: ${email} for: ${name}`);
 
     // Sanitize name for use in HTML
-    const sanitizedName = sanitizeName(name);
-    
-    console.log(`Sending welcome email to ${email} for ${sanitizedName}`);
+    const sanitizedName = name.replace(/[<>{}]/g, "").trim().substring(0, 100);
 
     const { data, error } = await resend.emails.send({
       from: "Madame Aurora <contato@madameaurora.blog>",
@@ -206,28 +111,25 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (error) {
-      console.error("Resend API error:", error);
-      return new Response(JSON.stringify({ success: true, emailSent: false, reason: error.message }), {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
-      });
+      console.error("Resend API error:", JSON.stringify(error));
+      return new Response(
+        JSON.stringify({ success: true, emailSent: false, reason: error.message }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    console.log("Email sent successfully:", data);
+    console.log("Email sent successfully:", JSON.stringify(data));
 
-    return new Response(JSON.stringify({ success: true, emailSent: true, data }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders(req) },
-    });
+    return new Response(
+      JSON.stringify({ success: true, emailSent: true, data }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Email sending error:", errorMessage);
     return new Response(
       JSON.stringify({ success: true, emailSent: false, reason: errorMessage }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders(req) },
-      }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 };
