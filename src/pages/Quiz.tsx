@@ -298,8 +298,8 @@ const Quiz = () => {
             className="p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30"
           >
             {/* Audio indicator and toggle */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center justify-center">
                 {isLoadingAudio && (
                   <div className="flex items-center gap-2 text-primary text-sm">
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -307,7 +307,7 @@ const Quiz = () => {
                   </div>
                 )}
                 {isPlayingAudio && !isLoadingAudio && (
-                  <div className="relative flex items-center gap-3 text-primary text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/15 via-primary/10 to-primary/15 border border-primary/40 backdrop-blur-sm shadow-lg shadow-primary/20">
+                  <div className="relative flex items-center justify-center gap-3 text-primary text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/15 via-primary/10 to-primary/15 border border-primary/40 backdrop-blur-sm shadow-lg shadow-primary/20">
                     <motion.div
                       animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
@@ -325,7 +325,7 @@ const Quiz = () => {
                   </div>
                 )}
                 {!isPlayingAudio && !isLoadingAudio && audioEnabled && (
-                  <div className="relative flex items-center gap-3 text-primary/70 text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 backdrop-blur-sm">
+                  <div className="relative flex items-center justify-center gap-3 text-primary/70 text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 backdrop-blur-sm">
                     <Volume2 className="w-4 h-4 text-primary/60" />
                     <span className="font-medium opacity-80">Áudio ativo</span>
                     <AudioWaveVisualizer isPlaying={true} barCount={16} variant="futuristic" className="opacity-60" />
