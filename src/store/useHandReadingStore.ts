@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 export interface QuizAnswer {
   questionId: number;
@@ -100,66 +99,53 @@ const initialState = {
   selectedPlan: null,
 };
 
-export const useHandReadingStore = create<HandReadingState>()(
-  persist(
-    (set, get) => ({
-      ...initialState,
+export const useHandReadingStore = create<HandReadingState>()((set, get) => ({
+  ...initialState,
 
-      setHasSeenVsl: (hasSeen) => set({ hasSeenVsl: hasSeen }),
+  setHasSeenVsl: (hasSeen) => set({ hasSeenVsl: hasSeen }),
 
-      setFormData: (data) => set((state) => ({ ...state, ...data })),
+  setFormData: (data) => set((state) => ({ ...state, ...data })),
 
-      setQuizAnswer: (answer) => set((state) => {
-        const existingIndex = state.quizAnswers.findIndex(
-          (a) => a.questionId === answer.questionId
-        );
-        if (existingIndex >= 0) {
-          const newAnswers = [...state.quizAnswers];
-          newAnswers[existingIndex] = answer;
-          return { quizAnswers: newAnswers };
-        }
-        return { quizAnswers: [...state.quizAnswers, answer] };
-      }),
-
-      setCurrentQuestionIndex: (index) => set({ currentQuestionIndex: index }),
-
-      resetQuiz: () => set({ quizAnswers: [], currentQuestionIndex: 0 }),
-
-      setAnalysisResult: (result) => set({ analysisResult: result }),
-
-      setIsAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
-
-      setAudioUrl: (url) => set({ audioUrl: url }),
-
-      setIsPlayingAudio: (isPlaying) => set({ isPlayingAudio: isPlaying }),
-
-      setSelectedPlan: (plan) => set({ selectedPlan: plan }),
-
-      reset: () => set(initialState),
-
-      canAccessQuiz: () => {
-        const state = get();
-        return !!(state.name && state.age && state.hasHandPhoto);
-      },
-
-      canAccessAnalysis: () => {
-        const state = get();
-        return state.canAccessQuiz() && state.quizAnswers.length >= 5;
-      },
-
-      canAccessResult: () => {
-        const state = get();
-        return !!state.analysisResult;
-      },
-    }),
-    {
-      name: 'mystic-hand-storage',
-      partialize: (state) => ({
-        hasSeenVsl: state.hasSeenVsl,
-        name: state.name,
-        age: state.age,
-        selectedPlan: state.selectedPlan,
-      }),
+  setQuizAnswer: (answer) => set((state) => {
+    const existingIndex = state.quizAnswers.findIndex(
+      (a) => a.questionId === answer.questionId
+    );
+    if (existingIndex >= 0) {
+      const newAnswers = [...state.quizAnswers];
+      newAnswers[existingIndex] = answer;
+      return { quizAnswers: newAnswers };
     }
-  )
-);
+    return { quizAnswers: [...state.quizAnswers, answer] };
+  }),
+
+  setCurrentQuestionIndex: (index) => set({ currentQuestionIndex: index }),
+
+  resetQuiz: () => set({ quizAnswers: [], currentQuestionIndex: 0 }),
+
+  setAnalysisResult: (result) => set({ analysisResult: result }),
+
+  setIsAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
+
+  setAudioUrl: (url) => set({ audioUrl: url }),
+
+  setIsPlayingAudio: (isPlaying) => set({ isPlayingAudio: isPlaying }),
+
+  setSelectedPlan: (plan) => set({ selectedPlan: plan }),
+
+  reset: () => set(initialState),
+
+  canAccessQuiz: () => {
+    const state = get();
+    return !!(state.name && state.age && state.hasHandPhoto);
+  },
+
+  canAccessAnalysis: () => {
+    const state = get();
+    return state.canAccessQuiz() && state.quizAnswers.length >= 5;
+  },
+
+  canAccessResult: () => {
+    const state = get();
+    return !!state.analysisResult;
+  },
+}));
