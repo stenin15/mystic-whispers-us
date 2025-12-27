@@ -39,7 +39,7 @@ const Checkout = () => {
       <FloatingOrbs />
 
       {/* Header Section */}
-      <section className="pt-20 pb-10 px-4">
+      <section className="pt-12 md:pt-20 pb-6 md:pb-10 px-4">
         <div className="container max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -50,7 +50,7 @@ const Checkout = () => {
               <span className="text-sm text-mystic-gold">Análise Pronta!</span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold mb-4">
+            <h1 className="text-2xl md:text-3xl lg:text-5xl font-serif font-bold mb-4">
               <span className="text-foreground">{name}, sua leitura está </span>
               <span className="gradient-text">pronta para ser revelada</span>
             </h1>
@@ -100,7 +100,7 @@ const Checkout = () => {
 
       {/* Pricing Cards */}
       <section className="py-10 px-4">
-        <div className="container max-w-5xl mx-auto lg:pr-80">
+        <div className="container max-w-5xl mx-auto px-2 md:px-4">
           <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
             
             {/* Basic Plan - Just Reading */}
