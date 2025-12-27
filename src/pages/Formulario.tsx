@@ -69,8 +69,8 @@ const Formulario = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: useHandReadingStore.getState().name,
-      emotionalState: useHandReadingStore.getState().emotionalState,
-      mainConcern: useHandReadingStore.getState().mainConcern,
+      emotionalState: '',
+      mainConcern: '',
     },
   });
 
