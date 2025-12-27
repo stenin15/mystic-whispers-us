@@ -149,16 +149,12 @@ const Quiz = () => {
     }
   }, [currentQuestionIndex, audioEnabled, preloadAudio]);
 
-  // Play current question audio immediately (only after quiz started)
+  // Play current question audio immediately (only after quiz started) - ZERO DELAY
   useEffect(() => {
     if (currentQuestion && audioEnabled && quizStarted) {
-      // Small delay for UI transition, then play immediately
-      const timer = setTimeout(() => {
-        playQuestionAudio(currentQuestion.id);
-      }, 200);
-      return () => clearTimeout(timer);
+      playQuestionAudio(currentQuestion.id);
     }
-  }, [currentQuestionIndex, audioEnabled, quizStarted]);
+  }, [currentQuestionIndex, audioEnabled, quizStarted, playQuestionAudio]);
 
   // Preload first question's audio on mount
   useEffect(() => {
