@@ -53,7 +53,7 @@ type FormData = z.infer<typeof formSchema>;
 
 const Formulario = () => {
   const navigate = useNavigate();
-  const { setFormData } = useHandReadingStore();
+  const { setFormData, resetQuiz } = useHandReadingStore();
   const [photoError, setPhotoError] = useState('');
   const [handPhotoPreview, setHandPhotoPreview] = useState<string>('');
   const [birthDay, setBirthDay] = useState('');
@@ -128,6 +128,8 @@ const Formulario = () => {
         emotionalState: data.emotionalState,
         mainConcern: data.mainConcern,
       });
+      // Reset quiz para começar do zero
+      resetQuiz();
       navigate('/quiz');
     } catch (error) {
       console.error('Error:', error);
@@ -142,6 +144,8 @@ const Formulario = () => {
         emotionalState: data.emotionalState,
         mainConcern: data.mainConcern,
       });
+      // Reset quiz para começar do zero
+      resetQuiz();
       navigate('/quiz');
     }
   };
