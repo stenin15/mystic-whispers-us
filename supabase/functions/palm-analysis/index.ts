@@ -5,10 +5,13 @@ const rateState = new Map<string, { count: number; resetAt: number }>();
 
 // Default allowed origins for this application
 const DEFAULT_ALLOWED_ORIGINS = [
+  "https://auroramadame.com",
+  "https://www.auroramadame.com",
   "https://madameaurora.blog",
   "https://www.madameaurora.blog",
   "https://preview--madame-aurora-quiromancia.lovable.app",
-  "https://madame-aurora-quiromancia.lovable.app"
+  "https://madame-aurora-quiromancia.lovable.app",
+  "https://madameaurorablog.lovable.app"
 ];
 
 const getClientIp = (req: Request) => {
