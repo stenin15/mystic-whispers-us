@@ -3,8 +3,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const rateState = new Map<string, { count: number; resetAt: number }>();
 
-// Default allowed origins for this application
-const DEFAULT_ALLOWED_ORIGINS = [
+// Allowed origins using Set for O(1) lookup
+const allowedOrigins = new Set([
   "https://auroramadame.com",
   "https://www.auroramadame.com",
   "https://madameaurora.blog",
@@ -12,7 +12,7 @@ const DEFAULT_ALLOWED_ORIGINS = [
   "https://preview--madame-aurora-quiromancia.lovable.app",
   "https://madame-aurora-quiromancia.lovable.app",
   "https://madameaurorablog.lovable.app"
-];
+]);
 
 const getClientIp = (req: Request) => {
   const xff = req.headers.get("x-forwarded-for");
@@ -32,33 +32,27 @@ const isRateLimited = (ip: string, limit: number, windowMs: number) => {
   return entry.count > limit;
 };
 
-const getAllowedOrigin = (req: Request) => {
+function corsHeaders(req: Request) {
   const origin = req.headers.get("origin") ?? "";
-  const envOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "").trim();
   
-  // Use environment variable if set, otherwise use defaults
-  const allowedOrigins = envOrigins 
-    ? envOrigins.split(",").map((s) => s.trim()).filter(Boolean)
-    : DEFAULT_ALLOWED_ORIGINS;
-  
-  // If origin matches allowed list, return it
-  if (origin && allowedOrigins.includes(origin)) {
-    return origin;
+  // Check if origin is in allowed list or is a lovable.app domain
+  let allowOrigin: string;
+  if (allowedOrigins.has(origin)) {
+    allowOrigin = origin;
+  } else if (origin.includes(".lovable.app")) {
+    allowOrigin = origin;
+  } else {
+    allowOrigin = "https://madameaurora.blog";
   }
-  
-  // For development/preview environments with lovable.app domain
-  if (origin && origin.includes(".lovable.app")) {
-    return origin;
-  }
-  
-  // Return first allowed origin as fallback (not wildcard)
-  return allowedOrigins[0] ?? "https://madameaurora.blog";
-};
 
-const corsHeaders = (req: Request) => ({
-  "Access-Control-Allow-Origin": getAllowedOrigin(req),
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-});
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Credentials": "true",
+    "Vary": "Origin",
+  };
+}
 
 interface QuizAnswer {
   questionId: number;
@@ -112,7 +106,7 @@ const validateQuizAnswers = (answers: unknown): answers is QuizAnswer[] => {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders(req) });
+    return new Response("ok", { status: 200, headers: corsHeaders(req) });
   }
 
   try {
