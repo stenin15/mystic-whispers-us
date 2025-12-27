@@ -307,19 +307,29 @@ const Quiz = () => {
                   </div>
                 )}
                 {isPlayingAudio && !isLoadingAudio && (
-                  <div className="flex items-center gap-3 text-primary text-sm px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30">
-                    <Volume2 className="w-4 h-4" />
-                    <span className="font-medium">Áudio ativo</span>
-                    <AudioWaveVisualizer isPlaying={isPlayingAudio} barCount={5} />
-                    <Volume2 className="w-4 h-4" />
+                  <div className="relative flex items-center gap-3 text-primary text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/15 via-primary/10 to-primary/15 border border-primary/40 backdrop-blur-sm shadow-lg shadow-primary/20">
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <Volume2 className="w-4 h-4 text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]" />
+                    </motion.div>
+                    <span className="font-medium tracking-wide">Áudio ativo</span>
+                    <AudioWaveVisualizer isPlaying={isPlayingAudio} barCount={16} variant="futuristic" />
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
+                    >
+                      <Volume2 className="w-4 h-4 text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]" />
+                    </motion.div>
                   </div>
                 )}
                 {!isPlayingAudio && !isLoadingAudio && audioEnabled && (
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs px-3 py-1.5 rounded-full bg-muted/30 border border-border/30">
-                    <Volume2 className="w-3 h-3" />
-                    <span>Áudio ativo</span>
-                    <AudioWaveVisualizer isPlaying={false} barCount={5} className="opacity-50" />
-                    <Volume2 className="w-3 h-3" />
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs px-3 py-1.5 rounded-full bg-muted/20 border border-border/20 backdrop-blur-sm">
+                    <Volume2 className="w-3 h-3 opacity-50" />
+                    <span className="opacity-70">Áudio ativo</span>
+                    <AudioWaveVisualizer isPlaying={false} barCount={12} variant="futuristic" className="opacity-30" />
+                    <Volume2 className="w-3 h-3 opacity-50" />
                   </div>
                 )}
               </div>
