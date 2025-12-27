@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { generateVoiceMessage } from '@/lib/api';
 import { useMicroCoach } from '@/lib/useMicroCoach';
-import SocialProofRail from '@/components/SocialProofRail';
+
 import AudioWaveVisualizer from '@/components/shared/AudioWaveVisualizer';
 import AudioPromptModal from '@/components/shared/AudioPromptModal';
 
@@ -451,13 +451,6 @@ const Quiz = () => {
         </div>
       </div>
 
-      {/* Social Proof Rail - Only shows from question 2+ */}
-      {currentQuestionIndex >= 1 && (
-        <>
-          <SocialProofRail variant="right" isInteracting={!!currentAnswer} />
-          <SocialProofRail variant="bottom" isInteracting={!!currentAnswer} />
-        </>
-      )}
     </div>
   );
 };
