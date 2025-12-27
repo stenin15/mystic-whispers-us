@@ -105,8 +105,80 @@ export const AudioWaveVisualizer = ({
   }
 
   if (variant === 'futuristic') {
+    // Generate particle positions
+    const particles = Array.from({ length: 8 }).map((_, i) => ({
+      id: i,
+      angle: (i * 45) * Math.PI / 180,
+      delay: i * 0.15,
+      size: 2 + Math.random() * 2,
+    }));
+
     return (
-      <div className={cn("flex items-center justify-center gap-[3px] py-2", className)}>
+      <div className={cn("relative flex items-center justify-center gap-[3px] py-2", className)}>
+        {/* Floating particles around the visualizer */}
+        {particles.map((particle) => (
+          <motion.div
+            key={`particle-${particle.id}`}
+            className="absolute rounded-full"
+            style={{
+              width: particle.size,
+              height: particle.size,
+              background: `radial-gradient(circle, hsl(280, 90%, 70%) 0%, hsl(320, 80%, 60%) 100%)`,
+              boxShadow: '0 0 6px hsl(280, 90%, 60% / 0.8)',
+            }}
+            animate={isPlaying ? {
+              x: [
+                Math.cos(particle.angle) * 30,
+                Math.cos(particle.angle + Math.PI) * 35,
+                Math.cos(particle.angle) * 30,
+              ],
+              y: [
+                Math.sin(particle.angle) * 12 - 5,
+                Math.sin(particle.angle + Math.PI) * 15,
+                Math.sin(particle.angle) * 12 - 5,
+              ],
+              opacity: [0.4, 1, 0.4],
+              scale: [0.8, 1.2, 0.8],
+            } : {
+              x: Math.cos(particle.angle) * 25,
+              y: Math.sin(particle.angle) * 8,
+              opacity: 0.3,
+              scale: 0.6,
+            }}
+            transition={{
+              duration: 2 + Math.random() * 1,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: particle.delay,
+            }}
+          />
+        ))}
+
+        {/* Sparkle effects */}
+        {isPlaying && Array.from({ length: 4 }).map((_, i) => (
+          <motion.div
+            key={`sparkle-${i}`}
+            className="absolute w-1 h-1 rounded-full bg-white"
+            style={{
+              boxShadow: '0 0 4px white, 0 0 8px hsl(280, 90%, 70%)',
+            }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{
+              x: [0, (Math.random() - 0.5) * 60],
+              y: [0, -20 - Math.random() * 15],
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0],
+            }}
+            transition={{
+              duration: 1.2,
+              repeat: Infinity,
+              ease: "easeOut",
+              delay: i * 0.3,
+            }}
+          />
+        ))}
+
+        {/* Audio bars */}
         {amplitudes.map((amplitude, index) => {
           const centerDistance = Math.abs(index - (barCount - 1) / 2);
           const maxCenterDistance = (barCount - 1) / 2;
@@ -119,7 +191,7 @@ export const AudioWaveVisualizer = ({
           return (
             <motion.div
               key={index}
-              className="relative"
+              className="relative z-10"
               style={{ 
                 width: 3,
                 background: `linear-gradient(to top, 
@@ -131,13 +203,13 @@ export const AudioWaveVisualizer = ({
                 boxShadow: isPlaying 
                   ? `0 0 ${8 + amplitude * 12}px hsl(${hue}, 80%, ${lightness}% / ${0.4 + amplitude * 0.4}),
                      0 0 ${4 + amplitude * 8}px hsl(${hue}, 90%, 70% / ${0.3 + amplitude * 0.3})`
-                  : 'none',
+                  : `0 0 4px hsl(${hue}, 80%, ${lightness}% / 0.3)`,
               }}
               animate={{
                 height: isPlaying 
                   ? 6 + amplitude * 28
                   : 6,
-                opacity: isPlaying ? 0.7 + amplitude * 0.3 : 0.4,
+                opacity: isPlaying ? 0.7 + amplitude * 0.3 : 0.5,
               }}
               transition={{
                 height: { duration: 0.08, ease: "easeOut" },
@@ -151,13 +223,26 @@ export const AudioWaveVisualizer = ({
         <motion.div
           className="absolute inset-0 -z-10 rounded-full blur-xl"
           style={{
-            background: 'radial-gradient(ellipse, hsl(var(--primary) / 0.15) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse, hsl(var(--primary) / 0.2) 0%, transparent 70%)',
+          }}
+          animate={isPlaying ? {
+            opacity: [0.4, 0.8, 0.4],
+            scale: [0.9, 1.2, 0.9],
+          } : { opacity: 0.2, scale: 0.9 }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        {/* Outer glow ring */}
+        <motion.div
+          className="absolute -inset-4 -z-20 rounded-full"
+          style={{
+            background: 'radial-gradient(ellipse, hsl(280, 80%, 50% / 0.1) 0%, transparent 60%)',
           }}
           animate={isPlaying ? {
             opacity: [0.3, 0.6, 0.3],
-            scale: [0.9, 1.1, 0.9],
-          } : { opacity: 0.1, scale: 0.9 }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            scale: [1, 1.15, 1],
+          } : { opacity: 0.1, scale: 1 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
     );
