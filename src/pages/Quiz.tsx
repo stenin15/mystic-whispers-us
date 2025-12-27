@@ -314,7 +314,7 @@ const Quiz = () => {
                     >
                       <Volume2 className="w-4 h-4 text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]" />
                     </motion.div>
-                    <span className="font-medium tracking-wide">Áudio ativo</span>
+                    <span className="font-medium tracking-wide text-xs sm:text-sm">MADAME AURORA FALANDO COM VOCÊ</span>
                     <AudioWaveVisualizer isPlaying={isPlayingAudio} barCount={16} variant="futuristic" />
                     <motion.div
                       animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
@@ -327,7 +327,7 @@ const Quiz = () => {
                 {!isPlayingAudio && !isLoadingAudio && audioEnabled && (
                   <div className="relative flex items-center justify-center gap-3 text-primary/70 text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 backdrop-blur-sm">
                     <Volume2 className="w-4 h-4 text-primary/60" />
-                    <span className="font-medium opacity-80">Áudio ativo</span>
+                    <span className="font-medium opacity-80 text-xs sm:text-sm">MADAME AURORA FALANDO COM VOCÊ</span>
                     <AudioWaveVisualizer isPlaying={true} barCount={16} variant="futuristic" className="opacity-60" />
                     <Volume2 className="w-4 h-4 text-primary/60" />
                   </div>
