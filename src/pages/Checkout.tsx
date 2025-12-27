@@ -205,12 +205,11 @@ const Checkout = () => {
 
               <div className="space-y-3 mb-8">
                 {[
-                  { text: "Tudo da Leitura Básica", icon: Star },
+                  { text: "Leitura da Mão Completa", icon: Star },
                   { text: "7 Rituais de Ativação Energética", icon: Zap },
                   { text: "Meditações Guiadas de Cura", icon: Heart },
                   { text: "Mapa de Manifestação (PDF)", icon: Gift },
                   { text: "Proteção Energética Diária", icon: Shield },
-                  { text: "Acesso ao Grupo VIP", icon: Crown },
                   { text: "Bônus: Leitura de Tarot", icon: Sparkles },
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
