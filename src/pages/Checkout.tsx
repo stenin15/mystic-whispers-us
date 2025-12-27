@@ -18,7 +18,7 @@ import { ParticlesBackground, FloatingOrbs } from '@/components/shared/Particles
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
 import { toast } from 'sonner';
-import SocialProofRail from '@/components/SocialProofRail';
+import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -308,9 +308,8 @@ const Checkout = () => {
         </div>
       </section>
 
-      {/* Social Proof Rail */}
-      <SocialProofRail variant="right" />
-      <SocialProofRail variant="bottom" />
+      {/* Social Proof Carousel - Bottom */}
+      <SocialProofCarousel />
 
       <Footer />
     </div>
