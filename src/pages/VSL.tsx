@@ -60,11 +60,11 @@ const VSL = () => {
             animate={{ opacity: 1, y: 0 }}
             className="relative rounded-2xl overflow-hidden border border-border/40 bg-card/30 backdrop-blur-xl"
           >
-            <div className="relative aspect-video bg-black">
+            <div className="relative aspect-[9/16] sm:aspect-video bg-black max-h-[70vh] mx-auto">
               <video
                 ref={videoRef}
                 src={videoSrc}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 autoPlay
                 muted
                 playsInline
