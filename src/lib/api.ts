@@ -1,5 +1,6 @@
+// API module for Madame Aurora spiritual analysis
 import { QuizAnswer, AnalysisResult, EnergyType, Strength, Block } from '@/store/useHandReadingStore';
-import { supabase } from '@/integrations/supabase/client';
+import { supabaseClient as supabase } from '@/integrations/supabase/supabaseClient';
 
 interface FormData {
   name: string;

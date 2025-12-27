@@ -15,7 +15,7 @@ import { ParticlesBackground, FloatingOrbs } from '@/components/shared/Particles
 import { HandImageUpload } from '@/components/shared/HandImageUpload';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
+import { supabaseClient as supabase } from '@/integrations/supabase/supabaseClient';
 import { toast } from 'sonner';
 
 // Portuguese month names
