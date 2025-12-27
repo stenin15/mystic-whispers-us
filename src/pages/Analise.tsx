@@ -441,6 +441,19 @@ const Analise = () => {
           </motion.div>
         </AnimatePresence>
 
+        {/* Palavras flutuantes sincronizadas com a voz */}
+        <motion.div
+          key={`voice-${currentPhaseIndex}`}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          className="min-h-[80px] flex items-center justify-center mb-4"
+        >
+          <p className="text-base md:text-lg text-center text-foreground/90 font-serif italic max-w-sm px-4 leading-relaxed">
+            "{currentPhase.voiceText}"
+          </p>
+        </motion.div>
+
         {/* User name acknowledgment */}
         <motion.p
           initial={{ opacity: 0 }}
