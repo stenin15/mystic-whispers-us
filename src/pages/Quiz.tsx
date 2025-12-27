@@ -325,11 +325,11 @@ const Quiz = () => {
                   </div>
                 )}
                 {!isPlayingAudio && !isLoadingAudio && audioEnabled && (
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs px-3 py-1.5 rounded-full bg-muted/20 border border-border/20 backdrop-blur-sm">
-                    <Volume2 className="w-3 h-3 opacity-50" />
-                    <span className="opacity-70">Áudio ativo</span>
-                    <AudioWaveVisualizer isPlaying={false} barCount={12} variant="futuristic" className="opacity-30" />
-                    <Volume2 className="w-3 h-3 opacity-50" />
+                  <div className="relative flex items-center gap-3 text-primary/70 text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 backdrop-blur-sm">
+                    <Volume2 className="w-4 h-4 text-primary/60" />
+                    <span className="font-medium opacity-80">Áudio ativo</span>
+                    <AudioWaveVisualizer isPlaying={true} barCount={16} variant="futuristic" className="opacity-60" />
+                    <Volume2 className="w-4 h-4 text-primary/60" />
                   </div>
                 )}
               </div>
