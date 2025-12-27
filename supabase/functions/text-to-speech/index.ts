@@ -2,17 +2,19 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 const VALID_VOICES = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"];
 
 serve(async (req) => {
-  console.log("text-to-speech function called");
+  console.log("text-to-speech function called, method:", req.method);
   
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    console.log("Handling OPTIONS preflight request");
+    return new Response("ok", { status: 200, headers: corsHeaders });
   }
 
   try {
@@ -81,7 +83,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ audioContent: base64Audio }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";

@@ -3,6 +3,7 @@ import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
@@ -12,11 +13,12 @@ interface WelcomeEmailRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  console.log("send-welcome-email function called");
+  console.log("send-welcome-email function called, method:", req.method);
   
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    console.log("Handling OPTIONS preflight request");
+    return new Response("ok", { status: 200, headers: corsHeaders });
   }
 
   try {
