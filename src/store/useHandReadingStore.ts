@@ -158,10 +158,6 @@ export const useHandReadingStore = create<HandReadingState>()(
         hasSeenVsl: state.hasSeenVsl,
         name: state.name,
         age: state.age,
-        emotionalState: state.emotionalState,
-        mainConcern: state.mainConcern,
-        quizAnswers: state.quizAnswers,
-        currentQuestionIndex: state.currentQuestionIndex,
         selectedPlan: state.selectedPlan,
       }),
     }
