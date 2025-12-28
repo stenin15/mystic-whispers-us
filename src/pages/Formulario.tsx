@@ -68,7 +68,11 @@ const Formulario = () => {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: useHandReadingStore.getState().name,
+      name: '',
+      email: '',
+      birthDay: '',
+      birthMonth: '',
+      birthYear: '',
       emotionalState: '',
       mainConcern: '',
     },
@@ -191,11 +195,12 @@ const Formulario = () => {
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Seu Nome</Label>
+                <Label htmlFor="name">Nome e Sobrenome</Label>
                 <Input
                   id="name"
-                  placeholder="Como você gosta de ser chamado(a)?"
+                  placeholder="Seu nome completo"
                   {...register('name')}
+                  autoComplete="off"
                   className="bg-input/50 border-border/50 focus:border-primary"
                 />
                 {errors.name && (
