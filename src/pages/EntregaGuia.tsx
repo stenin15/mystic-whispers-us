@@ -4,8 +4,8 @@ import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import DownloadCard from "@/components/delivery/DownloadCard";
 import LegalFooter from "@/components/delivery/LegalFooter";
 
-// PLACEHOLDER: Substitua pela URL do PDF hospedado
-const PDF_GUIA_URL = "https://SEU-LINK-DO-PDF.com/guia-sagrado.pdf";
+// PDF hospedado no projeto
+const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
 
 const EntregaGuia = () => {
   const steps = [
