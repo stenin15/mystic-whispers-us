@@ -19,6 +19,10 @@ import Upsell from "./pages/Upsell";
 import Sucesso from "./pages/Sucesso";
 import Cancelado from "./pages/Cancelado";
 import NotFound from "./pages/NotFound";
+import EntregaLeitura from "./pages/EntregaLeitura";
+import EntregaCombo from "./pages/EntregaCombo";
+import EntregaGuia from "./pages/EntregaGuia";
+import OfertaGuiaExclusivo from "./pages/OfertaGuiaExclusivo";
 import { VslGate } from "./components/shared/VslGate";
 
 const queryClient = new QueryClient();
@@ -81,6 +85,10 @@ const App = () => (
           <Route path="/cancelado" element={<Cancelado />} />
           <Route path="/resultado" element={<Resultado />} />
           <Route path="/upsell" element={<Upsell />} />
+          <Route path="/entrega/leitura" element={<EntregaLeitura />} />
+          <Route path="/entrega/combo" element={<EntregaCombo />} />
+          <Route path="/entrega/guia" element={<EntregaGuia />} />
+          <Route path="/oferta/guia-exclusivo" element={<OfertaGuiaExclusivo />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

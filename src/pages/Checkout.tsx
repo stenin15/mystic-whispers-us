@@ -19,6 +19,7 @@ import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
 import { toast } from 'sonner';
 import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
+import CountdownTimer from '@/components/delivery/CountdownTimer';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -35,6 +36,9 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Countdown Timer */}
+      <CountdownTimer minutes={15} />
+      
       <ParticlesBackground />
       <FloatingOrbs />
 
