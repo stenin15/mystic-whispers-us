@@ -8,7 +8,7 @@ import DeliveryFAQ from "@/components/delivery/DeliveryFAQ";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabaseClient as supabase } from "@/integrations/supabase/supabaseClient";
 import ReactMarkdown from "react-markdown";
 
 const EntregaLeitura = () => {
