@@ -1,29 +1,58 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+const ALLOWED_ORIGINS = [
+  "https://madameaurora.blog",
+  "https://www.madameaurora.blog",
+  "https://mystic-whispers.lovable.app",
+  "http://localhost:5173",
+  "http://localhost:8910",
+];
+
+const getCorsHeaders = (origin: string | null) => {
+  const allowedOrigin = origin && ALLOWED_ORIGINS.some(o => origin === o || origin.endsWith(".lovable.app"))
+    ? origin
+    : ALLOWED_ORIGINS[0];
+
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
 };
 
 const VALID_VOICES = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"];
 
 serve(async (req) => {
-  console.log("text-to-speech function called, method:", req.method);
-  
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    console.log("Handling OPTIONS preflight request");
-    return new Response("ok", { status: 200, headers: corsHeaders });
+    return new Response(null, { status: 200, headers: corsHeaders });
+  }
+
+  // Validate origin for actual requests
+  if (!origin || (!ALLOWED_ORIGINS.includes(origin) && !origin.endsWith(".lovable.app"))) {
+    return new Response(
+      JSON.stringify({ error: "Origin not allowed" }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 
   try {
     const { text, voice } = await req.json();
 
     if (!text || typeof text !== "string" || text.length === 0) {
-      console.error("Text is required");
       return new Response(
         JSON.stringify({ error: "Text is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Limit text length to prevent abuse
+    if (text.length > 5000) {
+      return new Response(
+        JSON.stringify({ error: "Text too long" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -33,15 +62,11 @@ serve(async (req) => {
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     
     if (!OPENAI_API_KEY) {
-      console.error("OPENAI_API_KEY is not configured");
       return new Response(
-        JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
+        JSON.stringify({ error: "Service unavailable" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    console.log("Generating speech for text:", text.substring(0, 50) + "...");
-    console.log("Using voice:", selectedVoice);
 
     const response = await fetch("https://api.openai.com/v1/audio/speech", {
       method: "POST",
@@ -59,10 +84,8 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("OpenAI TTS error:", response.status, errorText);
       return new Response(
-        JSON.stringify({ error: `OpenAI TTS error: ${response.status} - ${errorText}` }),
+        JSON.stringify({ error: "Speech generation failed" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -79,17 +102,13 @@ serve(async (req) => {
     }
     const base64Audio = btoa(binary);
 
-    console.log("Speech generated successfully, audio size:", arrayBuffer.byteLength);
-
     return new Response(
       JSON.stringify({ audioContent: base64Audio }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Error in text-to-speech function:", errorMessage);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "An error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
