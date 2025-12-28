@@ -1,10 +1,24 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+const ALLOWED_ORIGINS = [
+  "https://madameaurora.blog",
+  "https://www.madameaurora.blog",
+  "https://mystic-whispers.lovable.app",
+  "http://localhost:5173",
+  "http://localhost:8910",
+];
+
+const getCorsHeaders = (origin: string | null) => {
+  const allowedOrigin = origin && ALLOWED_ORIGINS.some(o => origin === o || origin.endsWith(".lovable.app"))
+    ? origin
+    : ALLOWED_ORIGINS[0];
+
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
 };
 
 interface WelcomeEmailRequest {
@@ -13,21 +27,28 @@ interface WelcomeEmailRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  console.log("send-welcome-email function called, method:", req.method);
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
   
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    console.log("Handling OPTIONS preflight request");
-    return new Response("ok", { status: 200, headers: corsHeaders });
+    return new Response(null, { status: 200, headers: corsHeaders });
+  }
+
+  // Validate origin for actual requests
+  if (!origin || (!ALLOWED_ORIGINS.includes(origin) && !origin.endsWith(".lovable.app"))) {
+    return new Response(
+      JSON.stringify({ error: "Origin not allowed" }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 
   try {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     
     if (!RESEND_API_KEY) {
-      console.error("RESEND_API_KEY is not configured");
       return new Response(
-        JSON.stringify({ success: false, emailSent: false, reason: "RESEND_API_KEY not configured" }),
+        JSON.stringify({ success: false, emailSent: false, reason: "Service unavailable" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -36,7 +57,22 @@ const handler = async (req: Request): Promise<Response> => {
     
     const { name, email }: WelcomeEmailRequest = await req.json();
     
-    console.log(`Attempting to send welcome email to: ${email} for: ${name}`);
+    // Validate inputs
+    if (!name || typeof name !== "string" || !email || typeof email !== "string") {
+      return new Response(
+        JSON.stringify({ success: false, emailSent: false, reason: "Invalid input" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email) || email.length > 255) {
+      return new Response(
+        JSON.stringify({ success: false, emailSent: false, reason: "Invalid email" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Sanitize name for use in HTML
     const sanitizedName = name.replace(/[<>{}]/g, "").trim().substring(0, 100);
@@ -113,24 +149,19 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (error) {
-      console.error("Resend API error:", JSON.stringify(error));
       return new Response(
-        JSON.stringify({ success: true, emailSent: false, reason: error.message }),
+        JSON.stringify({ success: true, emailSent: false, reason: "Email delivery failed" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Email sent successfully:", JSON.stringify(data));
-
     return new Response(
-      JSON.stringify({ success: true, emailSent: true, data }),
+      JSON.stringify({ success: true, emailSent: true }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Email sending error:", errorMessage);
     return new Response(
-      JSON.stringify({ success: true, emailSent: false, reason: errorMessage }),
+      JSON.stringify({ success: true, emailSent: false, reason: "An error occurred" }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
