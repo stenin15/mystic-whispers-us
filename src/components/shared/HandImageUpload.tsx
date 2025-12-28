@@ -14,11 +14,13 @@ export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFile = useCallback(async (file: File) => {
+    // Aceita qualquer tipo de imagem
     if (!file.type.startsWith('image/')) {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    // Limite aumentado para 20MB para suportar diferentes dispositivos
+    if (file.size > 20 * 1024 * 1024) {
       return;
     }
 
@@ -112,7 +114,7 @@ export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps
           >
             <input
               type="file"
-              accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/*"
+              accept="image/*"
               capture="environment"
               onChange={handleInputChange}
               className="hidden"
@@ -140,7 +142,7 @@ export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps
                   Arraste ou clique para selecionar
                 </p>
                 <p className="text-muted-foreground/60 text-xs mt-2">
-                  JPG, PNG ou WebP • Máx. 5MB
+                  Qualquer formato de imagem
                 </p>
               </div>
 
@@ -166,12 +168,12 @@ export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps
       {/* Instructions */}
       <div className="mt-4 p-4 rounded-xl bg-card/30 border border-border/30">
         <p className="text-xs text-muted-foreground text-center mb-2">
-          📸 Dicas para a melhor leitura:
+          Dicas para a melhor leitura:
         </p>
         <ul className="text-xs text-muted-foreground/80 space-y-1">
-          <li>• Use boa iluminação natural</li>
-          <li>• Fotografe a palma da mão aberta</li>
-          <li>• Mantenha a mão relaxada</li>
+          <li>· Use boa iluminação natural</li>
+          <li>· Fotografe a palma da mão aberta</li>
+          <li>· Mantenha a mão relaxada</li>
         </ul>
       </div>
     </div>
