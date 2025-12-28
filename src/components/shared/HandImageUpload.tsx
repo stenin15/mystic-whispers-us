@@ -112,7 +112,8 @@ export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps
           >
             <input
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/*"
+              capture="environment"
               onChange={handleInputChange}
               className="hidden"
             />
