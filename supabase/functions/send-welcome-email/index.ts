@@ -11,10 +11,16 @@ const ALLOWED_ORIGINS = [
   "http://localhost:8910",
 ];
 
-const getCorsHeaders = (origin: string | null) => {
-  const allowedOrigin = origin && ALLOWED_ORIGINS.some(o => origin === o || origin.endsWith(".lovable.app"))
-    ? origin
-    : ALLOWED_ORIGINS[0];
+const isAllowedOrigin = (origin: string | null): boolean => {
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  if (origin.endsWith(".lovable.app")) return true;
+  if (origin.endsWith(".lovableproject.com")) return true;
+  return false;
+};
+
+const getCorsHeaders = (origin: string | null): Record<string, string> => {
+  const allowedOrigin = isAllowedOrigin(origin) ? origin! : ALLOWED_ORIGINS[0];
 
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
@@ -38,7 +44,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   // Validate origin for actual requests
-  if (!origin || (!ALLOWED_ORIGINS.includes(origin) && !origin.endsWith(".lovable.app"))) {
+  if (!isAllowedOrigin(origin)) {
     return new Response(
       JSON.stringify({ error: "Origin not allowed" }),
       { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
