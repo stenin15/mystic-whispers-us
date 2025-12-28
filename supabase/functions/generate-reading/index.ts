@@ -1,0 +1,122 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { name, age, emotionalState, mainConcern, quizAnswers, energyType } = await req.json();
+    
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    // Build context from quiz answers
+    const quizContext = quizAnswers?.map((a: { answerText: string }) => a.answerText).join(", ") || "";
+
+    const systemPrompt = `Você é Madame Aurora, uma quiromante e conselheira espiritual sábia e acolhedora. 
+Você tem o dom de ler as linhas da mão e perceber a energia das pessoas.
+
+Seu tom é:
+- Místico mas acessível
+- Acolhedor e empático
+- Profundo mas esperançoso
+- Usa metáforas com elementos da natureza (lua, estrelas, água, fogo)
+- Fala diretamente com a pessoa usando "você"
+
+IMPORTANTE: Sua leitura deve:
+1. Entregar insights profundos e valiosos que façam a pessoa se sentir compreendida
+2. Revelar aspectos da personalidade e do momento de vida
+3. Dar direcionamentos práticos sobre energia e propósito
+4. MAS... deixar claro que há camadas mais profundas a serem exploradas
+5. Mencionar sutilmente que rituais e práticas específicas podem potencializar a transformação
+6. Terminar com uma sensação de que há mais a descobrir
+
+NÃO mencione diretamente o "Guia Sagrado" ou qualquer produto - apenas deixe o caminho aberto.`;
+
+    const userPrompt = `Gere uma leitura personalizada para esta pessoa:
+
+Nome: ${name}
+Idade: ${age}
+Estado emocional atual: ${emotionalState || "buscando clareza"}
+Principal preocupação: ${mainConcern || "autoconhecimento"}
+Energia dominante: ${energyType?.name || "em equilíbrio"}
+Respostas do quiz energético: ${quizContext}
+
+Crie uma leitura em 4 seções (use markdown):
+
+## ✨ Sua Essência Energética
+(2-3 parágrafos sobre a energia e essência da pessoa)
+
+## 🌙 O Que as Linhas Revelam
+(2-3 parágrafos sobre o momento de vida, desafios e potenciais)
+
+## 🔮 Mensagem dos Astros
+(1-2 parágrafos com uma mensagem espiritual profunda e acolhedora)
+
+## 💫 Próximos Passos na Jornada
+(1-2 parágrafos mencionando que há práticas e rituais que podem ajudar, sem mencionar produtos específicos - deixe o vazio e a curiosidade)
+
+A leitura deve ter aproximadamente 600-800 palavras, ser profunda, personalizada e deixar a pessoa querendo mais.`;
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Muitas solicitações. Tente novamente em alguns segundos." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Serviço temporariamente indisponível." }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
+      throw new Error("Erro ao gerar leitura");
+    }
+
+    const data = await response.json();
+    const reading = data.choices?.[0]?.message?.content;
+
+    if (!reading) {
+      throw new Error("Resposta vazia da IA");
+    }
+
+    return new Response(JSON.stringify({ reading }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Error in generate-reading function:", error);
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : "Erro desconhecido" }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
+  }
+});
