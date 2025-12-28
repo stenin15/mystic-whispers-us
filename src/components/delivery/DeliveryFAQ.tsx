@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { forwardRef } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -35,12 +36,13 @@ const defaultFAQItems: FAQItem[] = [
   },
 ];
 
-const DeliveryFAQ = ({
+const DeliveryFAQ = forwardRef<HTMLDivElement, DeliveryFAQProps>(({
   items = defaultFAQItems,
   title = "Perguntas Frequentes",
-}: DeliveryFAQProps) => {
+}, ref) => {
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
@@ -71,6 +73,8 @@ const DeliveryFAQ = ({
       </Accordion>
     </motion.div>
   );
-};
+});
+
+DeliveryFAQ.displayName = "DeliveryFAQ";
 
 export default DeliveryFAQ;

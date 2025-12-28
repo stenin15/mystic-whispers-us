@@ -1,13 +1,15 @@
 import { motion } from "framer-motion";
+import { forwardRef } from "react";
 import { Shield, FileText, Lock } from "lucide-react";
 
 interface LegalFooterProps {
   showLinks?: boolean;
 }
 
-const LegalFooter = ({ showLinks = true }: LegalFooterProps) => {
+const LegalFooter = forwardRef<HTMLElement, LegalFooterProps>(({ showLinks = true }, ref) => {
   return (
     <motion.footer
+      ref={ref}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.7 }}
@@ -54,6 +56,8 @@ const LegalFooter = ({ showLinks = true }: LegalFooterProps) => {
       </div>
     </motion.footer>
   );
-};
+});
+
+LegalFooter.displayName = "LegalFooter";
 
 export default LegalFooter;
