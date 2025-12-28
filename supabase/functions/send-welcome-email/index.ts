@@ -2,6 +2,8 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const ALLOWED_ORIGINS = [
+  "https://auroramadame.com",
+  "https://www.auroramadame.com",
   "https://madameaurora.blog",
   "https://www.madameaurora.blog",
   "https://mystic-whispers.lovable.app",
