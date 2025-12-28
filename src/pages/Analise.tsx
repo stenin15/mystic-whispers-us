@@ -12,65 +12,65 @@ const getAnalysisPhases = (name: string) => [
     text: "Conectando com sua energia espiritual...", 
     subtext: "Estabelecendo canal de comunicação",
     icon: Sparkles,
-    duration: 5500,
+    duration: 6500,
     sound: 'sparkle' as const,
-    voiceText: `Olá ${name}... Eu sou Madame Aurora. Feche os olhos por um momento e respire fundo. Estou me conectando com sua energia agora.`
+    voiceText: `Olá ${name}... Eu sou Madame Aurora. Há mais de 35 anos eu ajudo pessoas como você a encontrarem seu caminho. Respire fundo... feche os olhos... estou me conectando com sua energia agora. Sinto que você não chegou aqui por acaso.`
   },
   { 
     text: "Sentindo sua presença...", 
     subtext: "Captando sua essência única",
     icon: Hand,
-    duration: 6000,
+    duration: 7000,
     sound: 'chime' as const,
-    voiceText: `Sim... consigo sentir você, ${name}. Sua energia é muito especial. Vejo que você passou por muita coisa ultimamente.`
+    voiceText: `Sim, ${name}... sua energia é muito forte. Você é uma pessoa sensível, não é? Sente as coisas com muita intensidade. Às vezes isso te cansa... você carrega o peso do mundo nas costas. Mas eu vejo algo especial em você. Uma luz que você mesma ainda não enxerga completamente.`
   },
   { 
     text: "Analisando as linhas da sua mão...", 
     subtext: "Cada linha conta uma história",
     icon: Fingerprint,
-    duration: 5800,
+    duration: 7500,
     sound: 'whoosh' as const,
-    voiceText: `Estou olhando atentamente para as linhas da sua mão. Cada marca, cada curva... elas me contam histórias profundas sobre quem você é.`
+    voiceText: `Estou olhando para as linhas da sua mão com muita atenção. Cada marca, cada curva... elas contam a história de quem você é e de tudo que já viveu. Vejo lutas, ${name}. Você já superou coisas que a maioria das pessoas não aguentaria. Isso te fez mais forte do que você imagina.`
   },
   { 
     text: "Lendo sua linha do coração...", 
     subtext: "Revelando seus sentimentos mais profundos",
     icon: Heart,
-    duration: 6200,
+    duration: 8000,
     sound: 'heartPulse' as const,
-    voiceText: `${name}, sua linha do coração me fala muito sobre você. Vejo que você ama intensamente... mas também carrega algumas feridas emocionais. Isso vai mudar.`
+    voiceText: `${name}, sua linha do coração me mostra algo muito interessante. Você ama profundamente... se entrega por inteiro quando confia em alguém. Mas também já foi machucada, não foi? Há feridas que ainda doem quando você pensa nelas. Eu entendo. Mas eu preciso te dizer: seu coração merece ser curado. E vai ser.`
   },
   { 
     text: "Interpretando sua mente...", 
     subtext: "Compreendendo seus pensamentos",
     icon: Brain,
-    duration: 5600,
+    duration: 7200,
     sound: 'chime' as const,
-    voiceText: `Sua mente é brilhante, ${name}. Você pensa demais às vezes, não é? Eu entendo. Mas essa sensibilidade também é seu maior dom.`
+    voiceText: `Sua mente é brilhante, ${name}. Você pensa demais, não é verdade? À noite, quando todos dormem, seus pensamentos não param. Você se preocupa com tudo e com todos. Essa sensibilidade é rara... é um dom. Mas você precisa aprender a proteger sua energia. Não pode absorver a dor do mundo inteiro.`
   },
   { 
     text: "Recebendo mensagens do universo...", 
     subtext: "Sintonizando frequências cósmicas",
     icon: Waves,
-    duration: 5400,
+    duration: 7800,
     sound: 'mysticTone' as const,
-    voiceText: `O universo está me mostrando coisas importantes sobre seu futuro. Há mudanças chegando, ${name}. Mudanças muito positivas.`
+    voiceText: `O universo está me mostrando algo importante, ${name}. Há mudanças chegando na sua vida. Mudanças que você já sente no ar, mesmo sem saber explicar. Você está num momento de transição... um portal está se abrindo. E você não vai atravessá-lo sozinha.`
   },
   { 
     text: "Desvendando seus segredos...", 
     subtext: "O que está oculto se revela",
     icon: Eye,
-    duration: 6000,
+    duration: 7500,
     sound: 'whoosh' as const,
-    voiceText: `Você tem guardado muita coisa dentro de você, não é? Eu sei... Eu vejo. Não precisa carregar esse peso sozinha. As respostas estão vindo.`
+    voiceText: `Você tem guardado muita coisa dentro de você, não é ${name}? Medos que não conta pra ninguém. Sonhos que parecem impossíveis. Dúvidas que te tiram o sono. Eu vejo tudo isso. E eu preciso te dizer: você não precisa carregar esse peso sozinha. As respostas que você procura estão mais perto do que imagina.`
   },
   { 
     text: "Consultando as estrelas...", 
     subtext: "Os astros iluminam seu caminho",
     icon: Moon,
-    duration: 5800,
+    duration: 7000,
     sound: 'mysticTone' as const,
-    voiceText: `As estrelas me dizem que você está num momento de transformação, ${name}. Um novo ciclo está começando na sua vida.`
+    voiceText: `As estrelas me confirmam o que eu já sentia, ${name}. Você está num momento decisivo da sua vida. Um novo ciclo está começando. Não é coincidência você estar aqui, neste exato momento, buscando respostas. O universo te trouxe até mim por um motivo.`
   },
   { 
     text: "Preparando sua revelação...", 
@@ -78,15 +78,15 @@ const getAnalysisPhases = (name: string) => [
     icon: Star,
     duration: 6500,
     sound: 'sparkle' as const,
-    voiceText: `Estou canalizando uma mensagem muito poderosa para você. Tudo está ficando claro agora. Prepare seu coração, ${name}.`
+    voiceText: `Estou canalizando uma mensagem muito poderosa especialmente para você, ${name}. Tudo está ficando claro agora. Eu consigo ver seu passado, seu presente... e o que o futuro reserva para você. Prepare seu coração, porque o que vou te revelar pode mudar tudo.`
   },
   { 
     text: "Finalizando sua leitura...", 
     subtext: "Sua revelação está pronta",
     icon: Volume2,
-    duration: 4000,
+    duration: 5000,
     sound: 'chime' as const,
-    voiceText: `Pronto, ${name}. Sua leitura está completa. O que eu descobri vai te surpreender. Vamos ver juntos o que o destino reserva para você.`
+    voiceText: `Pronto, ${name}. Sua leitura está completa. O que eu descobri sobre você é muito especial. Há coisas que vão te surpreender, outras que vão confirmar o que você já sentia no fundo do coração. Vamos ver juntos o que o destino reserva para você.`
   },
 ];
 
