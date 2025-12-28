@@ -62,15 +62,15 @@ const Conexao = () => {
           className="space-y-4 mb-10"
         >
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Este é um momento sagrado de conexão com sua essência mais profunda.
+            Este é um momento de conexão com sua essência.
           </p>
           <p className="text-muted-foreground leading-relaxed">
-            Nos próximos minutos, você irá compartilhar algumas informações 
-            sobre você e sua energia atual. Responda com sinceridade e coração aberto 
-            — quanto mais verdadeiro for, mais precisa será sua leitura.
+            Nos próximos minutos, você compartilhará algumas informações 
+            sobre você e sua energia atual. Quanto mais sincero, mais precisa será sua leitura.
           </p>
-          <p className="text-lg text-foreground font-medium">
-            ✨ Respire fundo... Você está pronto(a)?
+          <p className="text-lg text-foreground font-medium flex items-center justify-center gap-2">
+            <Star className="w-4 h-4 text-mystic-gold" />
+            Respire fundo. Você está pronto(a)?
           </p>
         </motion.div>
 

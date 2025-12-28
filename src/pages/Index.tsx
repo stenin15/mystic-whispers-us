@@ -69,7 +69,7 @@ const Index = () => {
 
             <PrimaryCTA 
               route={QUIZ_ROUTE} 
-              buttonText="✋ Quero minha leitura da mão"
+              buttonText="Quero minha leitura da mão"
             />
           </motion.div>
         </div>
@@ -224,7 +224,7 @@ const Index = () => {
           <div className="mt-10">
             <PrimaryCTA 
               route={QUIZ_ROUTE} 
-              buttonText="✋ Quero minha leitura da mão"
+              buttonText="Quero minha leitura da mão"
               size="default"
             />
           </div>
@@ -274,7 +274,7 @@ const Index = () => {
             >
               <Link to={QUIZ_ROUTE} className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5" />
-                ✋ Continuar para minha leitura
+                Continuar para minha leitura
                 <ChevronRight className="w-5 h-5" />
               </Link>
             </Button>

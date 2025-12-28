@@ -14,7 +14,7 @@ interface PrimaryCTAProps {
 
 export const PrimaryCTA = ({
   route,
-  buttonText = "✋ Quero minha leitura da mão",
+  buttonText = "Quero minha leitura da mão",
   showMicrotrust = true,
   showTime = true,
   className = "",
@@ -44,8 +44,8 @@ export const PrimaryCTA = ({
       </Button>
 
       {showMicrotrust && (
-        <p className="text-sm text-muted-foreground text-center">
-          Conteúdo simbólico • Processo individual • Confidencial
+        <p className="text-sm text-muted-foreground/80 text-center tracking-wide">
+          Leitura confidencial · Processo individual · Sem julgamentos
         </p>
       )}
 

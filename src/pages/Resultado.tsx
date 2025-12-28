@@ -6,7 +6,8 @@ import {
   Quote, 
   ArrowRight,
   Volume2,
-  Pause
+  Pause,
+  Gift
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
@@ -269,12 +270,12 @@ const Resultado = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
-                  className="p-6 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30 hover:border-primary/40 transition-all duration-300"
+                  className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 hover:border-primary/30 transition-all duration-300"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4">
-                    <StrengthIcon className="w-6 h-6 text-primary" />
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mb-4">
+                    <StrengthIcon className="w-5 h-5 text-primary" />
                   </div>
-                  <h3 className="text-lg font-serif font-semibold text-foreground mb-2">
+                  <h3 className="text-lg font-serif font-medium text-foreground mb-2">
                     {strength.title}
                   </h3>
                   <p className="text-sm text-muted-foreground">
@@ -304,14 +305,14 @@ const Resultado = () => {
                   initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
-                  className="p-5 rounded-xl bg-card/40 backdrop-blur-xl border border-destructive/20 hover:border-destructive/40 transition-all duration-300"
+                  className="p-5 rounded-xl bg-card/30 backdrop-blur-xl border border-destructive/10 hover:border-destructive/20 transition-all duration-300"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center flex-shrink-0">
-                      <BlockIcon className="w-5 h-5 text-destructive" />
+                    <div className="w-9 h-9 rounded-lg bg-destructive/5 flex items-center justify-center flex-shrink-0">
+                      <BlockIcon className="w-4 h-4 text-destructive/80" />
                     </div>
                     <div>
-                      <h3 className="font-serif font-semibold text-foreground mb-1">
+                      <h3 className="font-serif font-medium text-foreground mb-1">
                         {block.title}
                       </h3>
                       <p className="text-sm text-muted-foreground">
@@ -333,7 +334,7 @@ const Resultado = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="relative p-8 md:p-10 rounded-3xl bg-card/40 backdrop-blur-xl border border-mystic-gold/30"
+            className="relative p-8 md:p-10 rounded-3xl bg-card/30 backdrop-blur-xl border border-mystic-gold/20"
           >
             <Quote className="absolute top-6 left-6 w-10 h-10 text-mystic-gold/20" />
             
@@ -415,17 +416,16 @@ const Resultado = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
-            className="text-center p-10 rounded-3xl bg-gradient-to-br from-mystic-gold/20 to-accent/20 border border-mystic-gold/40 glow-gold"
+            className="text-center p-10 rounded-3xl bg-gradient-to-br from-mystic-gold/10 to-accent/10 border border-mystic-gold/30"
           >
             <Sparkles className="w-12 h-12 text-mystic-gold mx-auto mb-4" />
             
-            <h2 className="text-2xl md:text-3xl font-serif font-bold mb-4 text-foreground">
+            <h2 className="text-2xl md:text-3xl font-serif font-semibold mb-4 text-foreground">
               Complete Sua Transformação
             </h2>
             
-            <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-              Receba um ritual energético personalizado para desbloquear seu potencial 
-              e acelerar sua jornada de evolução espiritual.
+            <p className="text-muted-foreground/80 mb-6 max-w-xl mx-auto">
+              Receba um ritual energético personalizado para desbloquear seu potencial.
             </p>
 
             <Button
@@ -438,8 +438,9 @@ const Resultado = () => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
 
-            <p className="mt-4 text-sm text-muted-foreground">
-              🎁 Oferta especial por tempo limitado
+            <p className="mt-4 text-sm text-muted-foreground flex items-center justify-center gap-2">
+              <Gift className="w-4 h-4" />
+              Oferta especial por tempo limitado
             </p>
           </motion.div>
         </div>
