@@ -264,50 +264,6 @@ const Checkout = () => {
             </motion.div>
           </div>
 
-          {/* Trust Indicators */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mt-12 text-center"
-          >
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-green-500" />
-                <span>Pagamento Seguro</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span>Acesso Imediato</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Heart className="w-4 h-4 text-primary" />
-                <span>+5.000 Clientes</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Testimonial */}
-      <section className="py-10 px-4">
-        <div className="container max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="p-6 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30 text-center"
-          >
-            <div className="flex justify-center gap-1 mb-3">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-mystic-gold text-mystic-gold" />
-              ))}
-            </div>
-            <p className="text-muted-foreground italic mb-3">
-              "A leitura foi incrivelmente precisa! Recomendo o pacote completo para quem quer realmente transformar sua vida."
-            </p>
-            <p className="text-foreground font-medium text-sm">— Maria C.</p>
-          </motion.div>
         </div>
       </section>
 
