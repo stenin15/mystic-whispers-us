@@ -37,7 +37,7 @@ const EntregaCombo = () => {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            Combo confirmado ✅
+            Combo confirmado
           </h1>
           <p className="text-lg text-muted-foreground">
             Você garantiu a experiência completa! Sua leitura está sendo preparada 
@@ -51,7 +51,7 @@ const EntregaCombo = () => {
             title="Guia Sagrado"
             description="Seu material exclusivo está pronto! Clique para baixar agora."
             downloadUrl={PDF_GUIA_URL}
-            buttonText="⬇️ Baixar Guia Sagrado"
+            buttonText="Baixar Guia Sagrado"
           />
         </div>
 
