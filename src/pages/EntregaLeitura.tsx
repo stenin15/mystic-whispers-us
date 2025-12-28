@@ -235,7 +235,7 @@ const EntregaLeitura = () => {
             </div>
 
             <p className="text-mystic-gold font-semibold mb-6">
-              🎁 Preço especial de pós-compra: apenas R$ 27,00
+              🎁 Preço especial de pós-compra: apenas R$ 29,90
             </p>
 
             <Link to="/oferta/guia-exclusivo">

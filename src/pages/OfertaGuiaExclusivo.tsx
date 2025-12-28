@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button";
 import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import LegalFooter from "@/components/delivery/LegalFooter";
 
-// PLACEHOLDER: Substitua pelo link de checkout do Guia na Cakto
-const CHECKOUT_GUIA_29 = "https://SEU-CHECKOUT-CAKTO.com/guia-29";
+// Link de checkout do Guia na Cakto
+const CHECKOUT_GUIA_URL = import.meta.env.VITE_CAKTO_CHECKOUT_GUIA_URL as string || "https://pay.cakto.com.br/7kityvs_701674";
 
 const OfertaGuiaExclusivo = () => {
   const benefits = [
@@ -51,7 +51,7 @@ const OfertaGuiaExclusivo = () => {
     // if (typeof window !== 'undefined' && window.fbq) {
     //   window.fbq('track', 'InitiateCheckout', { value: 29.90, currency: 'BRL', content_name: 'GuiaSagrado' });
     // }
-    window.location.href = CHECKOUT_GUIA_29;
+    window.location.href = CHECKOUT_GUIA_URL;
   };
 
   return (
