@@ -120,7 +120,7 @@ const Formulario = () => {
         console.error('Error sending email:', error);
         toast.error('Não foi possível enviar o email, mas você pode continuar.', { id: 'email-sending' });
       } else {
-        toast.success('✨ Email enviado! Sua consulta foi iniciada.', { id: 'email-sending' });
+        toast.success('Email enviado. Sua consulta foi iniciada.', { id: 'email-sending' });
       }
 
       // Calculate age from birth date fields
@@ -173,8 +173,8 @@ const Formulario = () => {
           <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3">
             <span className="gradient-text">Conte-nos Sobre Você</span>
           </h1>
-          <p className="text-muted-foreground">
-            Suas respostas são essenciais para uma leitura precisa e personalizada
+          <p className="text-muted-foreground/80">
+            Suas respostas são essenciais para uma leitura precisa
           </p>
         </motion.div>
 
@@ -187,8 +187,8 @@ const Formulario = () => {
           className="space-y-8"
         >
           {/* Personal Info Card */}
-          <div className="p-6 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30 space-y-6">
-            <h2 className="text-lg font-serif font-semibold text-foreground flex items-center gap-2">
+          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-6">
+            <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
               <User className="w-5 h-5 text-primary" />
               Informações Pessoais
             </h2>
@@ -293,8 +293,9 @@ const Formulario = () => {
                 </Select>
               </div>
               {calculatedAge !== null && calculatedAge > 0 && (
-                <p className="text-sm text-primary">
-                  ✨ Você tem {calculatedAge} anos
+                <p className="text-sm text-primary flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  Você tem {calculatedAge} anos
                 </p>
               )}
               {(errors.birthDay || errors.birthMonth || errors.birthYear) && (
@@ -304,8 +305,8 @@ const Formulario = () => {
           </div>
 
           {/* Emotional State Card */}
-          <div className="p-6 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30 space-y-6">
-            <h2 className="text-lg font-serif font-semibold text-foreground flex items-center gap-2">
+          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-6">
+            <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
               <Heart className="w-5 h-5 text-accent" />
               Seu Momento Atual
             </h2>
@@ -341,8 +342,8 @@ const Formulario = () => {
           </div>
 
           {/* Hand Photo Upload Card */}
-          <div className="p-6 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30 space-y-6">
-            <h2 className="text-lg font-serif font-semibold text-foreground flex items-center gap-2">
+          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-6">
+            <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-mystic-gold" />
               Foto da Sua Mão
             </h2>

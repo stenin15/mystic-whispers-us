@@ -59,9 +59,9 @@ const Upsell = () => {
               <span className="gradient-text">Transformação Espiritual</span>
             </h1>
 
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg mb-6">
+            <p className="text-muted-foreground/80 max-w-2xl mx-auto text-lg mb-6">
               Você descobriu seus bloqueios energéticos. Agora é hora de liberar 
-              todo seu potencial com um ritual personalizado.
+              seu potencial com um ritual personalizado.
             </p>
           </motion.div>
         </div>
@@ -91,25 +91,25 @@ const Upsell = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="p-8 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30"
+            className="p-8 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20"
           >
-            <h2 className="text-2xl font-serif font-bold text-center mb-6">
-              <span className="text-foreground">Você Identificou </span>
-              <span className="text-destructive">{analysisResult.blocks.length} Bloqueios</span>
+            <h2 className="text-2xl font-serif font-semibold text-center mb-6">
+              <span className="text-foreground">Identificamos </span>
+              <span className="text-destructive/90">{analysisResult.blocks.length} bloqueios</span>
             </h2>
 
-            <div className="space-y-4 mb-6">
+            <div className="space-y-3 mb-6">
               {analysisResult.blocks.map((block, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-destructive/10">
-                  <div className="w-2 h-2 rounded-full bg-destructive" />
-                  <span className="text-foreground">{block.title}</span>
+                <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-destructive/5">
+                  <div className="w-2 h-2 rounded-full bg-destructive/70" />
+                  <span className="text-foreground/90">{block.title}</span>
                 </div>
               ))}
             </div>
 
-            <p className="text-muted-foreground text-center">
-              Sem o tratamento adequado, esses bloqueios continuarão limitando 
-              sua energia, seus relacionamentos e seu sucesso...
+            <p className="text-muted-foreground/80 text-center text-sm">
+              Sem o tratamento adequado, esses bloqueios continuam limitando 
+              sua energia, relacionamentos e realizações.
             </p>
           </motion.div>
         </div>
@@ -138,10 +138,10 @@ const Upsell = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="p-8 rounded-3xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/30 mb-10"
+            className="p-8 rounded-3xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 mb-10"
           >
-            <h3 className="text-xl font-serif font-semibold text-center mb-6 text-foreground">
-              O Que Você Receberá:
+            <h3 className="text-xl font-serif font-medium text-center mb-6 text-foreground">
+              O Que Você Receberá
             </h3>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -159,10 +159,10 @@ const Upsell = () => {
                   transition={{ delay: 0.6 + index * 0.1 }}
                   className="flex items-center gap-3"
                 >
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                    <item.icon className="w-5 h-5 text-primary" />
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <item.icon className="w-4 h-4 text-primary" />
                   </div>
-                  <span className="text-foreground">{item.text}</span>
+                  <span className="text-foreground/90 text-sm">{item.text}</span>
                 </motion.div>
               ))}
             </div>
@@ -173,15 +173,15 @@ const Upsell = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
-            className="max-w-lg mx-auto p-8 rounded-3xl bg-gradient-to-br from-mystic-gold/20 to-accent/20 border border-mystic-gold/40 glow-gold text-center"
+            className="max-w-lg mx-auto p-8 rounded-3xl bg-gradient-to-br from-mystic-gold/10 to-accent/10 border border-mystic-gold/30 text-center"
           >
             {/* Timer */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/20 border border-destructive/40 mb-6">
-              <Clock className="w-4 h-4 text-destructive" />
-              <span className="text-sm text-destructive font-medium">Oferta expira em 24 horas</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 mb-6">
+              <Clock className="w-4 h-4 text-destructive/80" />
+              <span className="text-sm text-destructive/80 font-medium">Oferta expira em 24 horas</span>
             </div>
 
-            <h3 className="text-2xl font-serif font-bold mb-2 text-foreground">
+            <h3 className="text-2xl font-serif font-semibold mb-2 text-foreground">
               Ritual Completo de Desbloqueio
             </h3>
 
@@ -252,7 +252,7 @@ const Upsell = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.1 + index * 0.1 }}
-                className="p-6 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30"
+                className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20"
               >
                 <div className="flex gap-1 mb-3">
                   {[...Array(5)].map((_, i) => (

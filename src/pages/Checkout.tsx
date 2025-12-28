@@ -73,26 +73,26 @@ const Checkout = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="p-6 rounded-2xl bg-card/40 backdrop-blur-xl border border-primary/20"
+            className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-primary/10"
           >
             <div className="flex items-center gap-2 mb-4">
               <Eye className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-serif font-semibold text-foreground">
-                Antes de revelar tudo…
+              <h3 className="text-lg font-serif font-medium text-foreground">
+                O que identificamos
               </h3>
             </div>
             <ul className="space-y-2 mb-4">
-              <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Existe um padrão energético recorrente ligado a ciclos que se repetem.</span>
+              <li className="flex items-start gap-2 text-sm text-muted-foreground/90">
+                <span className="text-primary/80 mt-0.5">•</span>
+                <span>Padrão energético ligado a ciclos recorrentes.</span>
               </li>
-              <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Algumas respostas indicam um ponto de decisão não concluído.</span>
+              <li className="flex items-start gap-2 text-sm text-muted-foreground/90">
+                <span className="text-primary/80 mt-0.5">•</span>
+                <span>Indicativo de ponto de decisão não concluído.</span>
               </li>
-              <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                <span className="text-primary mt-0.5">•</span>
-                <span>A leitura completa mostra onde isso começa e como destravar.</span>
+              <li className="flex items-start gap-2 text-sm text-muted-foreground/90">
+                <span className="text-primary/80 mt-0.5">•</span>
+                <span>A leitura completa mostra onde isso começa.</span>
               </li>
             </ul>
             <p className="text-xs text-muted-foreground/70 italic">
@@ -112,20 +112,20 @@ const Checkout = () => {
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="relative p-8 rounded-3xl bg-card/40 backdrop-blur-xl border border-border/30 hover:border-primary/40 transition-all duration-300"
+              className="relative p-8 rounded-3xl bg-card/30 backdrop-blur-xl border border-border/20 hover:border-primary/30 transition-all duration-300"
             >
               <div className="text-center mb-6">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Star className="w-8 h-8 text-primary" />
+                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Star className="w-7 h-7 text-primary" />
                 </div>
-                <h3 className="text-xl font-serif font-bold text-foreground mb-1">
+                <h3 className="text-xl font-serif font-semibold text-foreground mb-1">
                   Leitura da Mão
                 </h3>
-                <p className="text-sm text-muted-foreground mb-1">
-                  Visão inicial da sua energia atual
+                <p className="text-sm text-muted-foreground/80 mb-1">
+                  Visão inicial da sua energia
                 </p>
                 <p className="text-xs text-muted-foreground/60 italic">
-                  Ideal para uma primeira confirmação.
+                  Para uma primeira orientação.
                 </p>
               </div>
 
@@ -182,28 +182,28 @@ const Checkout = () => {
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className="relative p-8 rounded-3xl bg-gradient-to-br from-mystic-gold/20 to-accent/20 border-2 border-mystic-gold/50 glow-gold"
+              className="relative p-8 rounded-3xl bg-gradient-to-br from-mystic-gold/10 to-accent/10 border border-mystic-gold/30"
             >
               {/* Popular Badge */}
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <div className="px-4 py-1.5 rounded-full bg-mystic-gold text-background text-sm font-semibold flex items-center gap-1.5">
+                <div className="px-4 py-1.5 rounded-full bg-mystic-gold text-background text-sm font-medium flex items-center gap-1.5 shadow-lg shadow-mystic-gold/20">
                   <Crown className="w-4 h-4" />
                   Mais Escolhido
                 </div>
               </div>
 
               <div className="text-center mb-6 mt-2">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-mystic-gold/20 flex items-center justify-center">
-                  <Crown className="w-8 h-8 text-mystic-gold" />
+                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-mystic-gold/10 flex items-center justify-center">
+                  <Crown className="w-7 h-7 text-mystic-gold" />
                 </div>
-                <h3 className="text-xl font-serif font-bold gradient-text mb-1">
+                <h3 className="text-xl font-serif font-semibold gradient-text mb-1">
                   Pacote Completo
                 </h3>
-                <p className="text-sm text-muted-foreground mb-1">
+                <p className="text-sm text-muted-foreground/80 mb-1">
                   Mapa completo + desbloqueio guiado
                 </p>
                 <p className="text-xs text-muted-foreground/60 italic">
-                  Evita interpretações incompletas.
+                  Orientação mais aprofundada.
                 </p>
               </div>
 
