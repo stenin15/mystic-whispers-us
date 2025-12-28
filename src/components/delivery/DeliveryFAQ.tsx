@@ -20,14 +20,19 @@ interface DeliveryFAQProps {
 
 const defaultFAQItems: FAQItem[] = [
   {
-    question: "Qual o prazo para receber minha leitura?",
+    question: "Minha leitura é única e personalizada?",
     answer:
-      "Sua leitura simbólica será preparada com todo o cuidado e enviada em até 48 horas úteis. Você receberá uma notificação assim que estiver pronta.",
+      "Sim! Madame Aurora analisa profundamente as linhas da sua mão, seu perfil energético e suas respostas do quiz para criar uma leitura 100% personalizada para você. Cada revelação é única.",
   },
   {
-    question: "Como vou receber minha leitura?",
+    question: "Posso acessar minha leitura novamente?",
     answer:
-      "Sua leitura será enviada pelo canal que você informou no cadastro (e-mail ou WhatsApp). Fique atenta às suas mensagens!",
+      "Sim! Sua leitura fica disponível nesta página sempre que precisar revisitar. Recomendamos salvar nos favoritos para consultas futuras.",
+  },
+  {
+    question: "O que está incluído na minha leitura?",
+    answer:
+      "Sua leitura inclui: análise do seu tipo energético, revelação dos seus dons e pontos fortes, identificação de bloqueios a serem superados, mensagem espiritual canalizada especialmente para você, e orientações práticas para sua transformação.",
   },
   {
     question: "Preciso de suporte ou tenho dúvidas?",

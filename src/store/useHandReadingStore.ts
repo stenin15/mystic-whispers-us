@@ -60,6 +60,10 @@ interface HandReadingState {
   // Checkout
   selectedPlan: SelectedPlan | null;
 
+  // Payment validation
+  paymentCompleted: boolean;
+  paymentToken: string | null;
+
   // Actions
   setFormData: (data: Partial<{
     name: string;
@@ -77,10 +81,12 @@ interface HandReadingState {
   setIsPlayingAudio: (isPlaying: boolean) => void;
   setSelectedPlan: (plan: SelectedPlan | null) => void;
   setHasSeenVsl: (hasSeen: boolean) => void;
+  setPaymentCompleted: (completed: boolean, token?: string) => void;
   reset: () => void;
   canAccessQuiz: () => boolean;
   canAccessAnalysis: () => boolean;
   canAccessResult: () => boolean;
+  canAccessDelivery: () => boolean;
 }
 
 const initialState = {
@@ -97,6 +103,13 @@ const initialState = {
   audioUrl: null,
   isPlayingAudio: false,
   selectedPlan: null,
+  paymentCompleted: false,
+  paymentToken: null,
+};
+
+// Generate a unique payment token
+const generatePaymentToken = () => {
+  return `pay_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
 };
 
 export const useHandReadingStore = create<HandReadingState>()((set, get) => ({
@@ -132,6 +145,11 @@ export const useHandReadingStore = create<HandReadingState>()((set, get) => ({
 
   setSelectedPlan: (plan) => set({ selectedPlan: plan }),
 
+  setPaymentCompleted: (completed, token) => set({ 
+    paymentCompleted: completed, 
+    paymentToken: token || generatePaymentToken() 
+  }),
+
   reset: () => set(initialState),
 
   canAccessQuiz: () => {
@@ -147,5 +165,10 @@ export const useHandReadingStore = create<HandReadingState>()((set, get) => ({
   canAccessResult: () => {
     const state = get();
     return !!state.analysisResult;
+  },
+
+  canAccessDelivery: () => {
+    const state = get();
+    return state.paymentCompleted && !!state.paymentToken;
   },
 }));
