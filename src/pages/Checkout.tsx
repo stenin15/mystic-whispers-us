@@ -31,8 +31,8 @@ const Checkout = () => {
     }
   }, [canAccessResult, navigate]);
 
-  const basicUrl = import.meta.env.VITE_CAKTO_CHECKOUT_BASIC_URL as string | undefined;
-  const completeUrl = import.meta.env.VITE_CAKTO_CHECKOUT_COMPLETE_URL as string | undefined;
+  const basicUrl = "https://pay.cakto.com.br/3drniqx_701391";
+  const completeUrl = "https://pay.cakto.com.br/gkt4gy6_701681";
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -152,29 +152,17 @@ const Checkout = () => {
                 <span className="text-sm text-muted-foreground">pagamento único</span>
               </div>
 
-              {basicUrl ? (
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6"
-                >
-                  <a href={basicUrl} className="cta-button">
-                    Quero Apenas a Leitura
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </a>
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6"
-                  disabled
-                >
-                  Checkout em breve
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6"
+              >
+                <a href={basicUrl} className="cta-button">
+                  Quero Apenas a Leitura
                   <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              )}
+                </a>
+              </Button>
             </motion.div>
 
             {/* Complete Plan - Full Package */}
@@ -232,29 +220,17 @@ const Checkout = () => {
                 <span className="text-sm text-muted-foreground">ou 5x de R$ 10,98</span>
               </div>
 
-              {completeUrl ? (
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg"
-                >
-                  <a href={completeUrl} className="cta-button">
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Quero o Pacote Completo
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </a>
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg"
-                  disabled
-                >
+              <Button
+                asChild
+                size="lg"
+                className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg"
+              >
+                <a href={completeUrl} className="cta-button">
                   <Sparkles className="w-5 h-5 mr-2" />
-                  Checkout em breve
+                  Quero o Pacote Completo
                   <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              )}
+                </a>
+              </Button>
 
               {/* Guarantee */}
               <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
