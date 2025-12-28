@@ -56,7 +56,7 @@ const EntregaGuia = () => {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            Seu Guia Sagrado está disponível ✅
+            Seu Guia Sagrado está disponível
           </h1>
           <p className="text-lg text-muted-foreground">
             Parabéns por dar mais um passo em sua jornada de autoconhecimento.

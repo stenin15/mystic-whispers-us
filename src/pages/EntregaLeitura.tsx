@@ -82,7 +82,7 @@ const EntregaLeitura = () => {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            {name ? `${name}, sua leitura está pronta` : "Sua leitura está pronta"} ✨
+            {name ? `${name}, sua leitura está pronta` : "Sua leitura está pronta"}
           </h1>
           <p className="text-lg text-muted-foreground">
             Madame Aurora canalizou as energias das suas linhas. Leia com o coração aberto.
@@ -186,7 +186,7 @@ const EntregaLeitura = () => {
                   <p className="text-mystic-gold/80 italic font-serif text-lg">
                     "Que as estrelas iluminem seu caminho."
                   </p>
-                  <p className="text-muted-foreground mt-2">— Madame Aurora ✨</p>
+                  <p className="text-muted-foreground mt-2">— Madame Aurora</p>
                 </div>
               </div>
             </div>
@@ -235,7 +235,7 @@ const EntregaLeitura = () => {
             </div>
 
             <p className="text-mystic-gold font-semibold mb-6">
-              🎁 Preço especial de pós-compra: apenas R$ 29,90
+              Preço especial de pós-compra: apenas R$ 29,90
             </p>
 
             <Link to="/oferta/guia-exclusivo">
