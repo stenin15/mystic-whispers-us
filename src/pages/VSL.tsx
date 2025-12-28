@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, Volume2, VolumeX, Sparkles } from "lucide-react";
+import { Play, Volume2, VolumeX, Sparkles, Eye, Hand, Shield, Clock, Heart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
 import { Footer } from "@/components/layout/Footer";
@@ -46,12 +46,17 @@ const VSL = () => {
 
   const caktoUrl = import.meta.env.VITE_CAKTO_CHECKOUT_URL as string | undefined;
 
+  const handleCTA = () => {
+    setHasSeenVsl(true);
+    navigate("/formulario");
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <ParticlesBackground />
       <FloatingOrbs />
 
-      <section className="pt-8 md:pt-16 pb-10 px-4">
+      <section className="pt-8 md:pt-16 pb-6 px-4">
         <div className="container max-w-2xl mx-auto">
           {/* Video Container */}
           <motion.div
@@ -151,10 +156,7 @@ const VSL = () => {
                 </Button>
               ) : (
                 <Button
-                  onClick={() => {
-                    setHasSeenVsl(true);
-                    navigate("/formulario");
-                  }}
+                  onClick={handleCTA}
                   size="lg"
                   className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-6 md:px-10 py-5 md:py-6 text-base md:text-lg"
                 >
@@ -165,6 +167,178 @@ const VSL = () => {
 
             <p className="mt-3 md:mt-4 text-xs text-muted-foreground">
               Leitura confidencial • Sem julgamentos • Resultado imediato
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Seção: O que está acontecendo aqui */}
+      <section className="py-10 md:py-14 px-4">
+        <div className="container max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-8"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-4">
+              <Eye className="w-4 h-4 text-primary" />
+              <span className="text-sm text-primary">O que acontece aqui</span>
+            </div>
+            <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-3">
+              Uma leitura única, feita para você
+            </h2>
+            <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto">
+              Madame Aurora utiliza a antiga arte da quiromancia, combinada com intuição 
+              espiritual, para revelar mensagens ocultas nas linhas da sua mão.
+            </p>
+          </motion.div>
+
+          {/* Cards de explicação */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="p-5 rounded-xl bg-card/40 backdrop-blur-sm border border-border/30 text-center"
+            >
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/20 flex items-center justify-center">
+                <Hand className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-serif font-semibold text-foreground mb-2 text-sm">
+                Envie sua mão
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Uma foto simples da palma da sua mão é tudo que preciso para iniciar a conexão.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="p-5 rounded-xl bg-card/40 backdrop-blur-sm border border-border/30 text-center"
+            >
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-accent/20 flex items-center justify-center">
+                <Heart className="w-6 h-6 text-accent" />
+              </div>
+              <h3 className="font-serif font-semibold text-foreground mb-2 text-sm">
+                Responda com o coração
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Algumas perguntas simples me ajudam a sintonizar melhor com sua energia atual.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="p-5 rounded-xl bg-card/40 backdrop-blur-sm border border-border/30 text-center"
+            >
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-mystic-gold/20 flex items-center justify-center">
+                <Star className="w-6 h-6 text-mystic-gold" />
+              </div>
+              <h3 className="font-serif font-semibold text-foreground mb-2 text-sm">
+                Receba sua revelação
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Uma leitura personalizada com insights sobre seus dons, bloqueios e caminho.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Separador visual */}
+      <div className="container max-w-2xl mx-auto px-4">
+        <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      </div>
+
+      {/* Seção: Por que funciona */}
+      <section className="py-10 md:py-14 px-4">
+        <div className="container max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-primary" />
+              </div>
+              <h2 className="text-lg md:text-xl font-serif font-bold text-foreground">
+                Por que as pessoas confiam em Madame Aurora?
+              </h2>
+            </div>
+
+            <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+              Há mais de duas décadas, dedico minha vida ao estudo das linhas da mão e dos 
+              sinais energéticos que cada pessoa carrega. Minha missão não é prever o futuro 
+              de forma absoluta, mas sim iluminar o caminho que você já está trilhando.
+            </p>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-card/50">
+                <Shield className="w-5 h-5 text-primary flex-shrink-0" />
+                <span className="text-sm text-foreground">100% confidencial e respeitoso</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-card/50">
+                <Clock className="w-5 h-5 text-accent flex-shrink-0" />
+                <span className="text-sm text-foreground">Resultado em poucos minutos</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-card/50">
+                <Heart className="w-5 h-5 text-mystic-gold flex-shrink-0" />
+                <span className="text-sm text-foreground">Linguagem acolhedora e sem julgamentos</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-card/50">
+                <Eye className="w-5 h-5 text-mystic-lilac flex-shrink-0" />
+                <span className="text-sm text-foreground">Leitura para autoconhecimento</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Final */}
+      <section className="py-8 md:py-12 px-4">
+        <div className="container max-w-2xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <p className="text-muted-foreground text-sm mb-4">
+              Pronta para descobrir o que suas mãos revelam?
+            </p>
+            {caktoUrl ? (
+              <Button
+                asChild
+                size="lg"
+                className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-6 md:px-10 py-5 md:py-6 text-base md:text-lg"
+              >
+                <a href={caktoUrl} className="cta-button">
+                  🔮 Iniciar minha leitura
+                </a>
+              </Button>
+            ) : (
+              <Button
+                onClick={handleCTA}
+                size="lg"
+                className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-6 md:px-10 py-5 md:py-6 text-base md:text-lg"
+              >
+                🔮 Iniciar minha leitura
+              </Button>
+            )}
+            <p className="mt-3 text-xs text-muted-foreground/70 italic">
+              Leitura simbólica para fins de entretenimento e autoconhecimento.
             </p>
           </motion.div>
         </div>
