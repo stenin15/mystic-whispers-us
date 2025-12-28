@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      palm_readings: {
+        Row: {
+          age: string | null
+          blocks: Json | null
+          created_at: string
+          email: string | null
+          emotional_state: string | null
+          energy_type: Json | null
+          id: string
+          main_concern: string | null
+          name: string
+          quiz_answers: Json | null
+          spiritual_message: string | null
+          strengths: Json | null
+        }
+        Insert: {
+          age?: string | null
+          blocks?: Json | null
+          created_at?: string
+          email?: string | null
+          emotional_state?: string | null
+          energy_type?: Json | null
+          id?: string
+          main_concern?: string | null
+          name: string
+          quiz_answers?: Json | null
+          spiritual_message?: string | null
+          strengths?: Json | null
+        }
+        Update: {
+          age?: string | null
+          blocks?: Json | null
+          created_at?: string
+          email?: string | null
+          emotional_state?: string | null
+          energy_type?: Json | null
+          id?: string
+          main_concern?: string | null
+          name?: string
+          quiz_answers?: Json | null
+          spiritual_message?: string | null
+          strengths?: Json | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

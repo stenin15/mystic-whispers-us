@@ -112,6 +112,37 @@ const selectRandom = <T>(arr: T[], count: number): T[] => {
   return shuffled.slice(0, count);
 };
 
+// Save analysis result to database
+const saveAnalysisToDatabase = async (
+  formData: FormData,
+  quizAnswers: QuizAnswer[],
+  result: AnalysisResult
+): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('palm_readings')
+      .insert([{
+        name: formData.name,
+        age: formData.age,
+        emotional_state: formData.emotionalState,
+        main_concern: formData.mainConcern,
+        energy_type: JSON.parse(JSON.stringify(result.energyType)),
+        strengths: JSON.parse(JSON.stringify(result.strengths)),
+        blocks: JSON.parse(JSON.stringify(result.blocks)),
+        spiritual_message: result.spiritualMessage,
+        quiz_answers: JSON.parse(JSON.stringify(quizAnswers)),
+      }]);
+
+    if (error) {
+      console.error('Error saving to database:', error);
+    } else {
+      console.log('Palm reading saved successfully');
+    }
+  } catch (err) {
+    console.error('Error saving analysis:', err);
+  }
+};
+
 // Main analysis function - now using real AI with timeout and retry
 export const processAnalysis = async (
   formData: FormData,
@@ -141,7 +172,12 @@ export const processAnalysis = async (
         throw new Error(data.error);
       }
 
-      return data as AnalysisResult;
+      const result = data as AnalysisResult;
+      
+      // Save to database in background (don't await)
+      saveAnalysisToDatabase(formData, quizAnswers, result);
+      
+      return result;
     } catch (fetchError: unknown) {
       clearTimeout(timeoutId);
       
@@ -163,12 +199,17 @@ export const processAnalysis = async (
     const blocks = selectRandom(blocksPool, 2);
     const spiritualMessage = generateSpiritualMessage(formData.name, dominantEnergy);
 
-    return {
+    const fallbackResult = {
       energyType,
       strengths,
       blocks,
       spiritualMessage,
     };
+    
+    // Save fallback result to database too
+    saveAnalysisToDatabase(formData, quizAnswers, fallbackResult);
+    
+    return fallbackResult;
   }
 };
 
