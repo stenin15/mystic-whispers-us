@@ -59,7 +59,7 @@ serve(async (req) => {
       );
     }
 
-    const selectedVoice = voice && VALID_VOICES.includes(voice) ? voice : "shimmer";
+    const selectedVoice = voice && VALID_VOICES.includes(voice) ? voice : "nova";
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     
