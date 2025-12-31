@@ -51,6 +51,13 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+// Declare fbq type for TypeScript
+declare global {
+  interface Window {
+    fbq?: (...args: unknown[]) => void;
+  }
+}
+
 const Formulario = () => {
   const navigate = useNavigate();
   const { setFormData, resetQuiz } = useHandReadingStore();
@@ -132,6 +139,15 @@ const Formulario = () => {
         emotionalState: data.emotionalState,
         mainConcern: data.mainConcern,
       });
+      
+      // Meta Pixel - Lead event
+      if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('track', 'Lead', {
+          content_name: 'Formulario Leitura de Mão',
+          content_category: 'Quiromancia'
+        });
+      }
+      
       // Reset quiz para começar do zero
       resetQuiz();
       navigate('/quiz');

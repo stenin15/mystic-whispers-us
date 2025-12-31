@@ -7,16 +7,36 @@ import { ParticlesBackground, FloatingOrbs } from "@/components/shared/Particles
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Footer } from "@/components/layout/Footer";
 
+// Declare fbq type for TypeScript
+declare global {
+  interface Window {
+    fbq?: (...args: unknown[]) => void;
+  }
+}
+
 const Sucesso = () => {
   const navigate = useNavigate();
-  const { canAccessResult, name } = useHandReadingStore();
+  const { canAccessResult, name, setPaymentCompleted } = useHandReadingStore();
 
   useEffect(() => {
     // Se o usuário cair aqui direto sem ter feito o fluxo, manda para o início
     if (!canAccessResult()) {
       navigate("/");
+      return;
     }
-  }, [canAccessResult, navigate]);
+    
+    // Mark payment as completed
+    setPaymentCompleted(true);
+    
+    // Meta Pixel - Purchase event
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'Purchase', {
+        content_name: 'Leitura de Mão',
+        currency: 'BRL',
+        value: 9.90
+      });
+    }
+  }, [canAccessResult, navigate, setPaymentCompleted]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
