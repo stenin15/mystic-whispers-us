@@ -21,6 +21,13 @@ import { toast } from 'sonner';
 import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 import CountdownTimer from '@/components/delivery/CountdownTimer';
 
+// Declare fbq type for TypeScript
+declare global {
+  interface Window {
+    fbq?: (...args: unknown[]) => void;
+  }
+}
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { name, canAccessResult } = useHandReadingStore();
@@ -28,6 +35,15 @@ const Checkout = () => {
   useEffect(() => {
     if (!canAccessResult()) {
       navigate('/formulario');
+    }
+    
+    // Meta Pixel - InitiateCheckout event
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'InitiateCheckout', {
+        content_name: 'Leitura de Mão',
+        currency: 'BRL',
+        value: 9.90
+      });
     }
   }, [canAccessResult, navigate]);
 
