@@ -46,8 +46,8 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<VSL />} />
-          <Route path="/leitura" element={<Index />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/vsl" element={<VSL />} />
           <Route path="/conexao" element={<Conexao />} />
           <Route
             path="/formulario"
