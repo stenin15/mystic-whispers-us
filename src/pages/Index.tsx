@@ -55,9 +55,21 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed text-center"
+            className="text-base md:text-lg text-muted-foreground mb-4 leading-relaxed text-center"
           >
             Em menos de 1 minuto, você pode verificar esse sinal enviando uma foto da sua palma e receber uma leitura direta sobre o momento que você está vivendo.
+          </motion.p>
+
+          {/* Urgência emocional */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="text-sm text-muted-foreground/80 mb-8 text-center italic"
+          >
+            Esse tipo de sinal costuma aparecer apenas em períodos específicos da vida.
+            <br />
+            Quando ignorado, o momento passa.
           </motion.p>
 
           {/* Benefícios rápidos */}
@@ -98,35 +110,32 @@ const Index = () => {
               </Link>
             </Button>
             
-            {/* Microcopy */}
-            <p className="mt-4 text-sm text-muted-foreground flex items-center gap-3 flex-wrap justify-center">
-              <span className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                Leva 1 minuto
-              </span>
-              <span className="hidden sm:inline">•</span>
-              <span>Processo simples</span>
-              <span className="hidden sm:inline">•</span>
-              <span>Valor acessível</span>
+            {/* Microcopy com prova social temporal */}
+            <p className="mt-4 text-sm text-muted-foreground text-center">
+              A maioria das pessoas faz a leitura no mesmo dia em que sente o chamado.
             </p>
           </motion.div>
 
-          {/* Vídeo opcional */}
+          {/* Bloco de redução de risco - abaixo do CTA */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-10 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="mt-8 p-5 rounded-xl bg-card/30 border border-border/20"
           >
-            <p className="text-sm text-muted-foreground mb-4">
-              Prefere entender antes? Assista 40 segundos.
+            <p className="text-xs font-medium text-foreground/70 mb-3 text-center">
+              Antes de continuar, é importante você saber:
             </p>
-            <div className="aspect-video w-full max-w-xl mx-auto rounded-2xl bg-card/50 border border-border/30 flex items-center justify-center">
-              <div className="text-muted-foreground text-sm">
-                [Espaço para vídeo opcional]
-              </div>
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+              <span>• Não é assinatura</span>
+              <span>• Não é consulta longa</span>
+              <span>• Não é promessa de riqueza</span>
             </div>
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              É uma leitura simbólica, direta e pontual sobre o momento atual.
+            </p>
           </motion.div>
+
         </div>
       </section>
 
@@ -188,6 +197,23 @@ const Index = () => {
           >
             Você não precisa acreditar em nada. Apenas enviar a palma.
           </motion.p>
+
+          {/* Vídeo opcional - movido para após Como Funciona */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="mt-10 text-center"
+          >
+            <p className="text-sm text-muted-foreground mb-4">
+              Prefere entender antes? Assista 40 segundos.
+            </p>
+            <div className="aspect-video w-full max-w-xl mx-auto rounded-2xl bg-card/50 border border-border/30 flex items-center justify-center">
+              <div className="text-muted-foreground text-sm">
+                [Espaço para vídeo opcional]
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -231,6 +257,29 @@ const Index = () => {
                 </motion.div>
               ))}
             </div>
+          </motion.div>
+
+          {/* CTA Intermediário */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center mt-10"
+          >
+            <Button 
+              asChild 
+              size="lg" 
+              className="gradient-mystic text-primary-foreground hover:opacity-90 glow-mystic px-6 py-6 text-base font-semibold transition-all hover:scale-105 w-full sm:w-auto"
+            >
+              <Link to={QUIZ_ROUTE} className="flex items-center justify-center gap-2">
+                <Hand className="w-5 h-5" />
+                Quero entender o que esse sinal diz sobre mim agora
+                <ChevronRight className="w-5 h-5" />
+              </Link>
+            </Button>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Leva menos de 1 minuto
+            </p>
           </motion.div>
         </div>
       </section>
@@ -353,7 +402,7 @@ const Index = () => {
             >
               <Link to={QUIZ_ROUTE} className="flex items-center gap-2">
                 <Hand className="w-5 h-5" />
-                Descobrir agora antes de perder o momento
+                Descobrir agora (antes que esse ciclo se feche)
                 <ChevronRight className="w-5 h-5" />
               </Link>
             </Button>
