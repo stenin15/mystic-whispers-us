@@ -1,171 +1,178 @@
-# RELATÓRIO DE AUDITORIA COMPLETA - Madame Aurora
+# 📋 RELATÓRIO DE AUDITORIA COMPLETA DO PROJETO
 
-**Data:** 2025-12-28  
-**Versão:** 1.0
-
----
-
-## RESUMO EXECUTIVO
-
-O projeto Madame Aurora é uma plataforma de leitura de mão que utiliza IA (OpenAI) para gerar análises espirituais personalizadas. O sistema está **funcional e pronto para tráfego**, com algumas observações menores.
+**Data:** Janeiro 2025  
+**Status:** ✅ PRODUÇÃO ATIVA
 
 ---
 
-## ✅ O QUE ESTÁ FUNCIONANDO CORRETAMENTE
+## PARTE 1 — INFRAESTRUTURA ATUAL
 
-### 1. FORMULÁRIOS
-- ✅ **Validação com Zod**: Todos os campos obrigatórios são validados corretamente
-- ✅ **Campos começam vazios**: Formulário reseta para valores em branco
-- ✅ **Nome e Sobrenome**: Campo renomeado conforme solicitado
-- ✅ **Data de nascimento**: Selects funcionais com cálculo de idade automático
-- ✅ **Upload de imagem**: Aceita múltiplos formatos (JPEG, PNG, WebP, HEIC)
-- ✅ **Atributo `capture="environment"`**: Habilitado para câmera traseira em mobile
+### 1) Onde o site está publicado?
 
-### 2. IA (Madame Aurora)
-- ✅ **Edge Function `palm-analysis`**: Corretamente configurada com OpenAI GPT-4o-mini
-- ✅ **Prompt bem estruturado**: Gera JSON com energyType, strengths, blocks e spiritualMessage
-- ✅ **Fallback local**: Se IA falhar, sistema usa análise local baseada em quiz
-- ✅ **Timeout configurado**: 25 segundos no cliente, protege contra travamentos
-- ✅ **Sanitização de inputs**: Proteção contra injeção de código
+| Item | Resposta |
+|------|----------|
+| **Hosting** | Lovable Cloud (hosting interno gerenciado pelo Lovable) |
+| **URL de Produção** | https://madameaurorablog.lovable.app |
+| **URL de Preview** | https://id-preview--65de5f59-c367-4d1b-9980-aaad48441c3b.lovable.app |
+| **Backend** | Lovable Cloud (Supabase gerenciado) |
+| **Edge Functions** | 4 funções ativas (generate-reading, palm-analysis, send-welcome-email, text-to-speech) |
 
-### 3. TEXT-TO-SPEECH (Áudio)
-- ✅ **Edge Function `text-to-speech`**: OpenAI TTS-1-HD com voz "shimmer"
-- ✅ **Reprodução de áudio**: Funciona no Quiz e na página de Resultado
-- ✅ **Fallback silencioso**: Se áudio falhar, continua sem interromper fluxo
+### 2) Status do Deploy
 
-### 4. EMAIL
-- ✅ **Edge Function `send-welcome-email`**: Configurada com Resend
-- ✅ **Template HTML bonito**: Email místico e personalizado
-- ✅ **Domínio verificado**: `contato@madameaurora.blog`
-- ✅ **Fallback gracioso**: Se email falhar, usuário continua o fluxo
+| Item | Status |
+|------|--------|
+| **Tipo de Deploy** | ✅ PRODUÇÃO |
+| **Ambiente** | Publicado e acessível publicamente |
+| **Domínio** | Lovable subdomain (*.lovable.app) |
 
-### 5. CHECKOUT / CAKTO
-- ✅ **3 Links configurados como secrets**:
-  - `VITE_CAKTO_CHECKOUT_BASIC_URL` (Leitura R$9,90)
-  - `VITE_CAKTO_CHECKOUT_COMPLETE_URL` (Pacote Completo R$49,90)
-  - `VITE_CAKTO_CHECKOUT_GUIA_URL` (Guia Sagrado R$29,90)
-- ✅ **Página de Checkout**: Dois planos bem apresentados
-- ✅ **Oferta Guia Exclusivo**: Página de upsell pós-leitura funcional
+### 3) Como as alterações funcionam?
 
-### 6. FLUXO DO FUNIL
-- ✅ **VSL → Formulário → Quiz → Análise → Checkout**: Fluxo completo funcionando
-- ✅ **Proteção de rotas**: `canAccessQuiz()`, `canAccessAnalysis()`, `canAccessResult()`
-- ✅ **Estado persistido**: Zustand mantém dados entre páginas
-- ✅ **Animações suaves**: Framer Motion em todas as transições
+| Cenário | Comportamento |
+|---------|---------------|
+| **Alterações no Frontend** | Requerem clicar em **"Publish"** para ir ao ar |
+| **Alterações no Backend** | Deploy automático imediato (Edge Functions, DB) |
+| **Cache** | Mínimo - alterações publicadas aparecem em segundos |
+| **Preview** | Alterações aparecem instantaneamente na janela de preview |
 
-### 7. DATABASE
-- ✅ **Tabela `palm_readings`**: Estrutura correta com RLS
-- ✅ **Dados sendo salvos**: 2 registros encontrados no banco
-- ✅ **Linter Supabase**: Sem issues de segurança
+### 4) O domínio aponta para onde?
 
-### 8. PERFORMANCE
-- ✅ **Mobile-first**: Design responsivo em todas as páginas
-- ✅ **Lazy loading implícito**: React Router carrega páginas sob demanda
-- ✅ **Otimização de imagens**: Avatares em formato JPEG comprimido
-- ✅ **Edge Functions leves**: Código otimizado sem dependências pesadas
+O domínio `madameaurorablog.lovable.app` aponta para o **deploy gerenciado pelo Lovable**.  
+Não há deploy externo configurado.
+
+### 5) Risco de sobrescrever algo?
+
+**Risco: BAIXO**  
+- O Lovable mantém histórico de versões
+- Alterações são incrementais
+- Possível reverter via histórico se necessário
 
 ---
 
-## ⚠️ O QUE ESTÁ FUNCIONANDO PARCIALMENTE
+## PARTE 2 — CONEXÕES FUNCIONAIS
 
-### 1. UPLOAD DE IMAGEM EM MOBILE
-- **Status**: Funcional com limitações
-- **Detalhes**: 
-  - `capture="environment"` pode não funcionar em todos os navegadores
-  - Alguns dispositivos iOS podem ter problemas com HEIC
-- **Mitigação já aplicada**: Accept expandido para `image/*`
+### Checklist de Funcionamento
 
-### 2. UPSELL PAGE
-- **Status**: UI pronta, lógica de pagamento não implementada
-- **Detalhes**: Botão "Quero Meu Ritual Agora" apenas faz console.log
-- **Impacto**: Baixo - usuário é direcionado para Checkout principal
+| Item | Status | Detalhes |
+|------|--------|----------|
+| **CTAs levam ao checkout** | ✅ FUNCIONAL | Links configurados para Cakto |
+| **Checkout ativo** | ✅ FUNCIONAL | URLs Cakto configuradas (Basic: R$9,90 / Completo: R$49,90) |
+| **WhatsApp conectado** | ⚠️ NÃO IDENTIFICADO | Não há integração WhatsApp visível no código |
+| **Página de entrega protegida** | ✅ FUNCIONAL | `canAccessDelivery()` verifica `paymentCompleted && paymentToken` |
+| **Upsell após compra** | ✅ FUNCIONAL | Aparece na página `/entrega/leitura` e `/oferta/guia-exclusivo` |
+| **Páginas protegidas** | ✅ FUNCIONAL | VslGate protege `/formulario`, `/quiz`, `/analise`, `/checkout` |
 
-### 3. LOGS DE EDGE FUNCTIONS
-- **Status**: Vazios
-- **Detalhes**: Nenhum log encontrado (funções podem não ter sido chamadas recentemente)
-- **Impacto**: Nenhum - logs aparecem quando há requisições
+### Fluxo do Funil
 
----
-
-## ❌ O QUE ESTÁ QUEBRADO
-
-### 1. AVISOS NO CONSOLE (Não Críticos)
 ```
-⚠️ React Router Future Flag Warning: v7_startTransition
-⚠️ React Router Future Flag Warning: v7_relativeSplatPath
-⚠️ Function components cannot be given refs (VSL, Footer)
-```
-- **Impacto**: Zero funcional - são apenas avisos de deprecação
-- **Solução**: Atualizar para React Router v7 quando migrar
-
-### 2. VARIÁVEL VITE_CAKTO_CHECKOUT_URL NA VSL
-- **Status**: Referenciada mas não usada
-- **Detalhes**: A VSL usa `VITE_CAKTO_CHECKOUT_URL` que não existe nos secrets
-- **Impacto**: Nenhum - botão usa fallback para navegação interna
-- **Correção já aplicada**: Código usa `handleCTA()` quando URL não existe
-
----
-
-## 🔧 O QUE FALTA PARA RODAR ANÚNCIOS COM SEGURANÇA
-
-### CRÍTICO (Obrigatório antes de anúncios)
-1. ✅ **Checkout funcionando** - OK
-2. ✅ **Email disparando** - OK
-3. ✅ **IA gerando análises** - OK
-4. ✅ **Fluxo completo testado** - OK
-
-### RECOMENDADO (Pode rodar sem, mas melhora conversão)
-1. ⚠️ **Testar upload mobile em dispositivos reais** - Recomendado
-2. ⚠️ **Configurar webhooks pós-pagamento Cakto** - Para entrega automática
-3. ⚠️ **Pixel Facebook/Google** - Para tracking de conversões
-
-### OPCIONAL (Melhorias futuras)
-1. 📋 **Implementar pagamento no Upsell** - Se quiser usar essa página
-2. 📋 **Remover avisos React Router** - Quando migrar para v7
-3. 📋 **Adicionar mais testimonials reais** - Para social proof
-
----
-
-## 🧩 SUGESTÕES TÉCNICAS (Sem Executar)
-
-### 1. MELHORAR RASTREAMENTO
-```typescript
-// Adicionar eventos para Facebook Pixel
-fbq('track', 'Lead'); // No submit do formulário
-fbq('track', 'InitiateCheckout'); // Ao clicar no checkout
+Landing (/) 
+  → Conexao (/conexao) 
+    → Formulário (/formulario) [VslGate]
+      → Quiz (/quiz) [VslGate]
+        → Análise (/analise) [VslGate]
+          → Checkout (/checkout) [VslGate]
+            → [PAGAMENTO CAKTO]
+              → Sucesso (/sucesso) [seta paymentCompleted=true]
+                → Entrega Leitura (/entrega/leitura) [protegida]
+                  → Oferta Guia (/oferta/guia-exclusivo)
 ```
 
-### 2. WEBHOOKS CAKTO
-- Configurar webhook no painel Cakto para:
-  - `payment.approved` → Redirecionar para `/entrega-leitura` ou `/entrega-combo`
-  - Isso permite entrega automática após pagamento
+### URLs de Checkout (Cakto)
 
-### 3. CACHE DE ÁUDIO
-- Considerar salvar áudios gerados no Supabase Storage para evitar regeneração
-
-### 4. ANALYTICS
-- Implementar eventos de analytics para medir:
-  - Taxa de conclusão do quiz
-  - Tempo médio na análise
-  - Taxa de conversão VSL → Formulário → Checkout
+| Produto | URL | Preço |
+|---------|-----|-------|
+| Leitura Básica | https://pay.cakto.com.br/3drniqx_701391 | R$ 9,90 |
+| Pacote Completo | https://pay.cakto.com.br/gkt4gy6_701681 | R$ 49,90 |
+| Guia Exclusivo | https://pay.cakto.com.br/7kityvs_701674 | R$ 29,90 |
 
 ---
 
-## CONCLUSÃO
+## PARTE 3 — AJUSTES DE COPY APLICADOS ✅
 
-**O projeto está PRONTO PARA TRÁFEGO.**
+### Página Principal (`/`) - Index.tsx
 
-Todos os componentes críticos estão funcionando:
-- ✅ Captura de leads (formulário + quiz)
-- ✅ Geração de análise personalizada (IA)
-- ✅ Experiência imersiva (áudio + animações)
-- ✅ Checkout integrado (Cakto)
-- ✅ Email de boas-vindas (Resend)
+| Elemento | Copy Aplicada |
+|----------|---------------|
+| **Headline** | "O que você está vivendo agora deixa sinais ativos na sua mão." |
+| **Subheadline** | "Se você sente que decisões estão se repetindo, este é o próximo passo: enviar a foto da palma e receber a leitura do que está ativo agora." |
+| **Bloco emocional** | • Decisões travam no mesmo ponto • Algo parece se repetir • Você quer clareza pra agir agora |
+| **CTA Principal (hero)** | "Quero continuar agora" |
+| **CTA Final** | "Quero ver minha leitura agora" |
+| **Sticky CTA Mobile** | "Quero continuar agora" |
+| **Vídeo** | Marcado claramente como OPCIONAL |
 
-Os avisos no console são de deprecação e não afetam funcionalidade.
+### Regras Aplicadas
 
-**Próximo passo recomendado:** Testar o fluxo completo em dispositivo mobile real antes de iniciar campanhas de anúncios.
+- ✅ Não usa: "entender", "descobrir", "aprender", "como funciona"
+- ✅ Não é educativo - é continuação do WhatsApp
+- ✅ Vídeo claramente opcional
+- ✅ Layout e identidade visual preservados
 
 ---
 
-*Relatório gerado automaticamente em 2025-12-28*
+## PARTE 4 — UPSELL DO GUIA
+
+### Configuração Atual
+
+| Item | Status |
+|------|--------|
+| **Aparece após compra** | ✅ Sim, na página `/entrega/leitura` |
+| **Não concorre com funil** | ✅ Correto - aparece APÓS o pagamento da leitura |
+| **Página dedicada** | ✅ `/oferta/guia-exclusivo` |
+
+### Copy do Upsell (Ajustada) ✅
+
+| Elemento | Copy |
+|----------|------|
+| **Título** | "A leitura mostrou pontos importantes." |
+| **Descrição** | "Este guia aprofunda exatamente como lidar com isso no dia a dia." |
+| **CTA** | "Quero aprofundar agora" |
+
+---
+
+## PARTE 5 — CONFIRMAÇÃO FINAL
+
+### Status Geral
+
+| Pergunta | Resposta |
+|----------|----------|
+| **Site atualizado?** | ✅ SIM - Alterações aplicadas |
+| **Site em produção?** | ✅ SIM - Requer clicar "Publish" para publicar |
+| **Pronto para tráfego pago?** | ✅ SIM - Após publicar |
+| **Bloqueios técnicos?** | ⚠️ Ver observações abaixo |
+
+### Observações Importantes
+
+1. **Integração WhatsApp**: Não foi identificada integração direta com WhatsApp no código. O funil atual começa na landing page.
+
+2. **Para publicar as alterações**:
+   - Clique no botão **"Publish"** no canto superior direito
+   - Selecione **"Update"** para aplicar as mudanças
+
+3. **Pixel Meta**: Configurado e rastreando eventos (InitiateCheckout, Purchase)
+
+4. **Proteção de páginas**: Funcionando corretamente via VslGate e verificações de payment
+
+---
+
+## Secrets Configurados
+
+| Secret | Status |
+|--------|--------|
+| OPENAI_API_KEY | ✅ Configurado |
+| RESEND_API_KEY | ✅ Configurado |
+| VITE_CAKTO_CHECKOUT_GUIA_URL | ✅ Configurado |
+| VITE_CAKTO_CHECKOUT_BASIC_URL | ✅ Configurado |
+| VITE_CAKTO_CHECKOUT_COMPLETE_URL | ✅ Configurado |
+
+---
+
+## Ações Recomendadas
+
+1. **PUBLICAR** - Clicar em "Publish" para colocar as alterações no ar
+2. **TESTAR** - Fazer um teste completo do funil após publicar
+3. **WHATSAPP** - Se houver integração WhatsApp externa, verificar se os links estão atualizados para a landing page
+
+---
+
+**Relatório gerado automaticamente.**  
+**Projeto pronto para receber tráfego pago após publicação.**
