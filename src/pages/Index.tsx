@@ -30,16 +30,6 @@ const Index = () => {
       {/* ========== BLOCO 1 - PRIMEIRA DOBRA (CRÍTICA) ========== */}
       <section className="relative pt-10 pb-12 px-4">
         <div className="container mx-auto max-w-2xl">
-          {/* Pré-headline */}
-          <motion.p
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center text-sm md:text-base text-muted-foreground mb-4"
-          >
-            Se você passou por uma fase difícil recentemente, isso é pra você.
-          </motion.p>
-
           {/* Headline Principal */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -47,7 +37,7 @@ const Index = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-5 leading-tight text-foreground text-center"
           >
-            Existe um sinal na sua mão que aparece antes de uma grande virada.
+            O que você está vivendo agora deixa sinais ativos na sua mão.
           </motion.h1>
 
           {/* Subheadline */}
@@ -55,38 +45,28 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base md:text-lg text-muted-foreground mb-4 leading-relaxed text-center"
+            className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed text-center"
           >
-            Em menos de 1 minuto, você pode verificar esse sinal enviando uma foto da sua palma e receber uma leitura direta sobre o momento que você está vivendo.
-          </motion.p>
-
-          {/* Urgência emocional */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.25 }}
-            className="text-sm text-muted-foreground/80 mb-8 text-center italic"
-          >
-            Esse tipo de sinal costuma aparecer apenas em períodos específicos da vida.
+            Se você sente que decisões estão se repetindo, este é o próximo passo:
             <br />
-            Quando ignorado, o momento passa.
+            enviar a foto da palma e receber a leitura do que está ativo agora.
           </motion.p>
 
-          {/* Benefícios rápidos */}
+          {/* Bloco emocional - sem título */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-8"
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="flex flex-col gap-2 mb-8 px-4"
           >
             {[
-              { icon: CheckCircle2, text: "Leitura simples e objetiva" },
-              { icon: CheckCircle2, text: "Funciona mesmo para céticos" },
-              { icon: Lock, text: "Totalmente privada" },
+              "Decisões travam no mesmo ponto",
+              "Algo parece se repetir",
+              "Você quer clareza pra agir agora",
             ].map((item, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm text-foreground/80">
-                <item.icon className="w-4 h-4 text-primary" />
-                <span>{item.text}</span>
+              <div key={index} className="flex items-center gap-3 text-foreground/90">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                <span className="text-sm md:text-base">{item}</span>
               </div>
             ))}
           </motion.div>
@@ -105,14 +85,14 @@ const Index = () => {
             >
               <Link to={QUIZ_ROUTE} className="flex items-center justify-center gap-2">
                 <Hand className="w-5 h-5" />
-                Verificar o sinal na minha mão
+                Quero continuar agora
                 <ChevronRight className="w-5 h-5" />
               </Link>
             </Button>
             
-            {/* Microcopy com prova social temporal */}
+            {/* Microcopy */}
             <p className="mt-4 text-sm text-muted-foreground text-center">
-              A maioria das pessoas faz a leitura no mesmo dia em que sente o chamado.
+              Leva menos de 1 minuto
             </p>
           </motion.div>
 
@@ -198,19 +178,19 @@ const Index = () => {
             Você não precisa acreditar em nada. Apenas enviar a palma.
           </motion.p>
 
-          {/* Vídeo opcional - movido para após Como Funciona */}
+          {/* Vídeo opcional - claramente OPCIONAL */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className="mt-10 text-center"
           >
-            <p className="text-sm text-muted-foreground mb-4">
-              Prefere entender antes? Assista 40 segundos.
+            <p className="text-xs text-muted-foreground/70 mb-3">
+              Opcional: se quiser ver mais antes de continuar
             </p>
             <div className="aspect-video w-full max-w-xl mx-auto rounded-2xl bg-card/50 border border-border/30 flex items-center justify-center">
               <div className="text-muted-foreground text-sm">
-                [Espaço para vídeo opcional]
+                [Vídeo opcional]
               </div>
             </div>
           </motion.div>
@@ -391,10 +371,6 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center p-8 md:p-12 rounded-3xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/25"
           >
-            <h2 className="text-xl md:text-2xl font-serif font-bold mb-6 text-foreground">
-              Se algo te trouxe até aqui, talvez seja hora de verificar.
-            </h2>
-            
             <Button 
               asChild 
               size="lg" 
@@ -402,14 +378,10 @@ const Index = () => {
             >
               <Link to={QUIZ_ROUTE} className="flex items-center gap-2">
                 <Hand className="w-5 h-5" />
-                Descobrir agora (antes que esse ciclo se feche)
+                Quero ver minha leitura agora
                 <ChevronRight className="w-5 h-5" />
               </Link>
             </Button>
-            
-            <p className="mt-5 text-sm text-muted-foreground italic">
-              Alguns sinais aparecem apenas em fases específicas da vida.
-            </p>
           </motion.div>
         </div>
       </section>
@@ -418,7 +390,7 @@ const Index = () => {
       <Footer />
 
       {/* Sticky CTA Mobile */}
-      <StickyCTA route={QUIZ_ROUTE} buttonText="Verificar minha mão" />
+      <StickyCTA route={QUIZ_ROUTE} buttonText="Quero continuar agora" />
     </div>
   );
 };

@@ -285,17 +285,15 @@ const EntregaLeitura = () => {
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-mystic-gold mb-4">
               <Gift className="w-6 h-6" />
-              <span className="text-sm font-semibold uppercase tracking-wide">Potencialize Sua Transformação</span>
+              <span className="text-sm font-semibold uppercase tracking-wide">Próximo Passo</span>
             </div>
 
-            <h3 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-4">
-              Quer ir ainda mais fundo na sua jornada?
+            <h3 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-4">
+              A leitura mostrou pontos importantes.
             </h3>
             
-            <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
-              O <strong className="text-foreground">Guia Sagrado de Transformação Energética</strong> contém 
-              rituais específicos para seu tipo de energia, ciclos lunares personalizados, meditações guiadas e 
-              práticas diárias para potencializar tudo o que foi revelado na sua leitura.
+            <p className="text-muted-foreground mb-6 text-base md:text-lg leading-relaxed">
+              Este guia aprofunda exatamente como lidar com isso no dia a dia.
             </p>
 
             <div className="flex flex-wrap gap-3 mb-6">
@@ -322,7 +320,7 @@ const EntregaLeitura = () => {
                 size="lg"
                 className="w-full bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-lg py-7 rounded-xl shadow-lg shadow-mystic-gold/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-mystic-gold/40"
               >
-                Quero o Guia Sagrado Agora
+                Quero aprofundar agora
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
