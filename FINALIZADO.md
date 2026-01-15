@@ -183,3 +183,9 @@ Apenas falta configurar os checkouts da Cakto e testar o fluxo completo.
 
 **Status**: ✅ FINALIZADO E PRONTO PARA GO-LIVE
 
+
+
+
+
+
+

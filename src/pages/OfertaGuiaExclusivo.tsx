@@ -82,8 +82,7 @@ const OfertaGuiaExclusivo = () => {
             <span className="text-mystic-gold">Guia Sagrado</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Descubra os segredos dos seus ciclos energéticos e aprenda rituais 
-            práticos para potencializar o autoconhecimento revelado na sua leitura.
+            A leitura mostrou pontos importantes. Este guia aprofunda exatamente como lidar com isso no dia a dia.
           </p>
         </motion.div>
 
@@ -181,7 +180,7 @@ const OfertaGuiaExclusivo = () => {
               size="lg"
               className="w-full max-w-md bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-xl py-8 rounded-xl shadow-lg shadow-mystic-gold/30 transition-all duration-300 hover:scale-[1.02] mb-4"
             >
-              Ativar Guia Exclusivo (R$ 29,90)
+              Quero aprofundar agora
               <ArrowRight className="w-6 h-6 ml-2" />
             </Button>
 
@@ -208,8 +207,8 @@ const OfertaGuiaExclusivo = () => {
             ))}
           </div>
           <p className="text-muted-foreground italic mb-3">
-            "O Guia Sagrado me ajudou a entender padrões que eu repetia há anos. 
-            Os rituais são simples e poderosos. Recomendo muito!"
+            "O Guia Sagrado me ajudou a lidar com padrões que eu repetia há anos. 
+            Os rituais são simples e práticos. Recomendo muito!"
           </p>
           <p className="text-foreground font-medium">— Fernanda S.</p>
         </motion.div>

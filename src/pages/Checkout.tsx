@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -20,6 +20,8 @@ import { Footer } from '@/components/layout/Footer';
 import { toast } from 'sonner';
 import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 import CountdownTimer from '@/components/delivery/CountdownTimer';
+import { WhatsAppCTA } from '@/components/shared/WhatsAppCTA';
+import { WhatsAppExitModal } from '@/components/shared/WhatsAppExitModal';
 
 // Declare fbq type for TypeScript
 declare global {
@@ -31,6 +33,8 @@ declare global {
 const Checkout = () => {
   const navigate = useNavigate();
   const { name, canAccessResult } = useHandReadingStore();
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+  const [pendingCheckoutUrl, setPendingCheckoutUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -49,6 +53,25 @@ const Checkout = () => {
 
   const basicUrl = "https://pay.cakto.com.br/3drniqx_701391";
   const completeUrl = "https://pay.cakto.com.br/gkt4gy6_701681";
+
+  const handleCloseModal = () => {
+    setShowWhatsAppModal(false);
+    setPendingCheckoutUrl(null);
+  };
+
+  const handleContinueToCheckout = () => {
+    if (pendingCheckoutUrl) {
+      window.location.href = pendingCheckoutUrl;
+    }
+    setShowWhatsAppModal(false);
+    setPendingCheckoutUrl(null);
+  };
+
+  const handleCheckoutClick = (url: string, e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setPendingCheckoutUrl(url);
+    setShowWhatsAppModal(true);
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -121,6 +144,17 @@ const Checkout = () => {
       {/* Pricing Cards */}
       <section className="py-10 px-4">
         <div className="container max-w-5xl mx-auto px-2 md:px-4">
+          {/* WhatsApp CTA acima dos planos */}
+          <div className="mb-6 text-center">
+            <WhatsAppCTA
+              variant="inline"
+              label="Não sabe qual escolher? Me chame"
+              microcopy="Te oriento qual é melhor"
+              messagePreset="Olá, estou na página de checkout e queria uma ajuda para escolher entre o plano básico e completo."
+              sourceTag="CHECKOUT_DUVIDA_PLANO"
+            />
+          </div>
+
           <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
             
             {/* Basic Plan - Just Reading */}
@@ -174,7 +208,7 @@ const Checkout = () => {
                 size="lg"
                 className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6"
               >
-                <a href={basicUrl} className="cta-button">
+                <a href={basicUrl} onClick={(e) => handleCheckoutClick(basicUrl, e)} className="cta-button">
                   Quero Apenas a Leitura
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </a>
@@ -241,7 +275,7 @@ const Checkout = () => {
                 size="lg"
                 className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg"
               >
-                <a href={completeUrl} className="cta-button">
+                <a href={completeUrl} onClick={(e) => handleCheckoutClick(completeUrl, e)} className="cta-button">
                   <Sparkles className="w-5 h-5 mr-2" />
                   Quero o Pacote Completo
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -261,6 +295,26 @@ const Checkout = () => {
 
       {/* Social Proof Carousel - Bottom */}
       <SocialProofCarousel />
+
+      {/* Sticky WhatsApp Mobile */}
+      <WhatsAppCTA
+        variant="sticky"
+        label="Falar no WhatsApp"
+        messagePreset="Olá, estou na página de checkout e gostaria de conversar antes de finalizar o pagamento."
+        sourceTag="CHECKOUT_STICKY_MOBILE"
+        showAfterPercent={0}
+      />
+
+      {/* WhatsApp Exit Modal */}
+      <WhatsAppExitModal
+        open={showWhatsAppModal}
+        onClose={handleCloseModal}
+        onContinue={handleContinueToCheckout}
+        label="Quer que eu te guie no pagamento?"
+        microcopy="Te ajudo em 30 segundos no WhatsApp"
+        messagePreset="Estou no checkout e quero uma ajuda rápida no pagamento."
+        sourceTag="CHECKOUT_EXIT_INTENT"
+      />
 
       <Footer />
     </div>
