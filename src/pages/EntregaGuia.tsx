@@ -10,12 +10,7 @@ import { useHandReadingStore } from "@/store/useHandReadingStore";
 // PDF hospedado no projeto
 const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
 
-// Declare fbq type for TypeScript
-declare global {
-  interface Window {
-    fbq?: (...args: unknown[]) => void;
-  }
-}
+// fbq type is declared in src/types/global.d.ts
 
 const EntregaGuia = () => {
   const navigate = useNavigate();

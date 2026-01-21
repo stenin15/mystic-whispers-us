@@ -7,12 +7,7 @@ import { ParticlesBackground, FloatingOrbs } from "@/components/shared/Particles
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Footer } from "@/components/layout/Footer";
 
-// Declare fbq type for TypeScript
-declare global {
-  interface Window {
-    fbq?: (...args: unknown[]) => void;
-  }
-}
+// fbq type is declared in src/types/global.d.ts
 
 const Sucesso = () => {
   const navigate = useNavigate();
