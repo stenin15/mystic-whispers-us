@@ -51,12 +51,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-// Declare fbq type for TypeScript
-declare global {
-  interface Window {
-    fbq?: (...args: unknown[]) => void;
-  }
-}
+// fbq type is declared in src/types/global.d.ts
 
 const Formulario = () => {
   const navigate = useNavigate();

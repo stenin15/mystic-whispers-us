@@ -168,8 +168,7 @@ const handler = async (req: Request): Promise<Response> => {
           success: false,
           emailSent: false,
           reason: "Email delivery failed",
-          // surface a minimal error for debugging (safe to show in client)
-          details: typeof error === "object" && error ? (error as Record<string, unknown>).message : String(error),
+          details: typeof error === "object" && error !== null ? String((error as { message?: string }).message ?? error) : String(error),
         }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );

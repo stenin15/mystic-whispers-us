@@ -10,12 +10,7 @@ import { useEffect, useState } from "react";
 import { supabaseClient as supabase } from "@/integrations/supabase/supabaseClient";
 import ReactMarkdown from "react-markdown";
 
-// Declare fbq type for TypeScript
-declare global {
-  interface Window {
-    fbq?: (...args: unknown[]) => void;
-  }
-}
+// fbq type is declared in src/types/global.d.ts
 
 const EntregaLeitura = () => {
   const navigate = useNavigate();
