@@ -38,6 +38,45 @@ const Sucesso = () => {
     }
   }, [canAccessResult, navigate, setPaymentCompleted]);
 
+  useEffect(() => {
+    // Patch mínimo: libera /entrega/* SOMENTE se houver algum indicativo de retorno do pagamento.
+    // (Evita liberar apenas por acessar /sucesso diretamente.)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const status = (params.get("status") || "").toLowerCase();
+      const paid = (params.get("paid") || "").toLowerCase();
+      const approved = (params.get("approved") || "").toLowerCase();
+      const ok = (params.get("ok") || "").toLowerCase();
+      const transactionId =
+        params.get("transaction_id") ||
+        params.get("transactionId") ||
+        params.get("tid") ||
+        params.get("payment_id") ||
+        params.get("paymentId") ||
+        params.get("order_id") ||
+        params.get("orderId") ||
+        params.get("id");
+
+      const looksPaid =
+        status === "paid" ||
+        status === "approved" ||
+        status === "success" ||
+        paid === "1" ||
+        paid === "true" ||
+        approved === "1" ||
+        approved === "true" ||
+        ok === "1" ||
+        ok === "true" ||
+        !!transactionId;
+
+      if (looksPaid) {
+        setPaymentCompleted(true, transactionId || undefined);
+      }
+    } catch {
+      // ignore
+    }
+  }, [setPaymentCompleted]);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <ParticlesBackground />

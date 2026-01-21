@@ -23,6 +23,7 @@ import EntregaLeitura from "./pages/EntregaLeitura";
 import EntregaCombo from "./pages/EntregaCombo";
 import EntregaGuia from "./pages/EntregaGuia";
 import OfertaGuiaExclusivo from "./pages/OfertaGuiaExclusivo";
+import EntradaFoto from "./pages/EntradaFoto";
 import { VslGate } from "./components/shared/VslGate";
 
 const queryClient = new QueryClient();
@@ -85,6 +86,7 @@ const App = () => (
           <Route path="/cancelado" element={<Cancelado />} />
           <Route path="/resultado" element={<Resultado />} />
           <Route path="/upsell" element={<Upsell />} />
+          <Route path="/enviar-foto" element={<EntradaFoto />} />
           <Route path="/entrega/leitura" element={<EntregaLeitura />} />
           <Route path="/entrega/combo" element={<EntregaCombo />} />
           <Route path="/entrega/guia" element={<EntregaGuia />} />

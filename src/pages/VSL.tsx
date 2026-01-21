@@ -147,7 +147,7 @@ const VSL = () => {
             <div className="mb-8">
               <WhatsAppCTA
                 variant="inline"
-                label="Prefere conversar primeiro?"
+                label="Conversar no WhatsApp"
                 microcopy="Respondo em até 5 minutos"
                 messagePreset="Olá, vi sua página sobre leitura da mão e gostaria de tirar uma dúvida rápida."
                 sourceTag="VSL_HERO_DUVIDA"
@@ -438,8 +438,18 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-center p-8 md:p-10 rounded-2xl bg-card/40 border border-border/20"
           >
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 border border-primary/40 flex items-center justify-center">
-              <Sparkles className="w-10 h-10 text-primary" />
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full overflow-hidden border border-primary/40 shadow-sm shadow-primary/10 bg-card/30">
+              <img
+                src="/asasasas.png"
+                alt="Madame Aurora"
+                className="w-full h-full object-cover"
+                loading="lazy"
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  img.onerror = null;
+                  img.src = "/placeholder.svg";
+                }}
+              />
             </div>
 
             <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-6">

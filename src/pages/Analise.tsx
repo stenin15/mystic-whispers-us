@@ -6,6 +6,7 @@ import { ParticlesBackground, FloatingOrbs } from '@/components/shared/Particles
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { processAnalysis, generateVoiceMessage } from '@/lib/api';
 import { useMysticSounds } from '@/hooks/useMysticSounds';
+import AudioPromptModal from '@/components/shared/AudioPromptModal';
 // Generate personalized voice texts for each phase
 const getAnalysisPhases = (name: string) => [
   { 
@@ -14,7 +15,9 @@ const getAnalysisPhases = (name: string) => [
     icon: Sparkles,
     duration: 6500,
     sound: 'sparkle' as const,
-    voiceText: `Olá ${name}... Eu sou Madame Aurora. Há mais de 35 anos eu ajudo pessoas como você a encontrarem seu caminho. Respire fundo... feche os olhos... estou me conectando com sua energia agora. Sinto que você não chegou aqui por acaso.`
+    voiceText: `Olá, ${name}… eu sou Madame Aurora.
+Agora eu vou cruzar o que você me contou com padrões que costumam aparecer em fases de decisão.
+Não é sobre sorte… é sobre ciclos internos.`
   },
   { 
     text: "Sentindo sua presença...", 
@@ -22,7 +25,9 @@ const getAnalysisPhases = (name: string) => [
     icon: Hand,
     duration: 7000,
     sound: 'chime' as const,
-    voiceText: `Sim, ${name}... sua energia é muito forte. Você é uma pessoa sensível, não é? Sente as coisas com muita intensidade. Às vezes isso te cansa... você carrega o peso do mundo nas costas. Mas eu vejo algo especial em você. Uma luz que você mesma ainda não enxerga completamente.`
+    voiceText: `Pode respirar.
+Essa etapa é só pra organizar o que está ativo em você hoje.
+Quando a mente está cheia, a vida parece repetir as mesmas perguntas.`
   },
   { 
     text: "Analisando as linhas da sua mão...", 
@@ -30,7 +35,9 @@ const getAnalysisPhases = (name: string) => [
     icon: Fingerprint,
     duration: 7500,
     sound: 'whoosh' as const,
-    voiceText: `Estou olhando para as linhas da sua mão com muita atenção. Cada marca, cada curva... elas contam a história de quem você é e de tudo que já viveu. Vejo lutas, ${name}. Você já superou coisas que a maioria das pessoas não aguentaria. Isso te fez mais forte do que você imagina.`
+    voiceText: `Pelo jeito que você respondeu… existe um peso aí que você segura em silêncio.
+Isso costuma aparecer em pessoas que são fortes por muito tempo…
+e só percebem depois que estão cansadas.`
   },
   { 
     text: "Lendo sua linha do coração...", 
@@ -38,7 +45,9 @@ const getAnalysisPhases = (name: string) => [
     icon: Heart,
     duration: 8000,
     sound: 'heartPulse' as const,
-    voiceText: `${name}, sua linha do coração me mostra algo muito interessante. Você ama profundamente... se entrega por inteiro quando confia em alguém. Mas também já foi machucada, não foi? Há feridas que ainda doem quando você pensa nelas. Eu entendo. Mas eu preciso te dizer: seu coração merece ser curado. E vai ser.`
+    voiceText: `E a idade muda muito a forma como um padrão aparece.
+Em certas fases, a gente não quer errar… então a decisão trava.
+Não por falta de capacidade — por excesso de consequência.`
   },
   { 
     text: "Interpretando sua mente...", 
@@ -46,7 +55,9 @@ const getAnalysisPhases = (name: string) => [
     icon: Brain,
     duration: 7200,
     sound: 'chime' as const,
-    voiceText: `Sua mente é brilhante, ${name}. Você pensa demais, não é verdade? À noite, quando todos dormem, seus pensamentos não param. Você se preocupa com tudo e com todos. Essa sensibilidade é rara... é um dom. Mas você precisa aprender a proteger sua energia. Não pode absorver a dor do mundo inteiro.`
+    voiceText: `O que mais se destaca aqui é um sinal de repetição.
+Você sente que algo volta… como se a vida tocasse no mesmo ponto.
+Isso é típico quando uma escolha importante foi adiada mais de uma vez.`
   },
   { 
     text: "Recebendo mensagens do universo...", 
@@ -54,7 +65,9 @@ const getAnalysisPhases = (name: string) => [
     icon: Waves,
     duration: 7800,
     sound: 'mysticTone' as const,
-    voiceText: `O universo está me mostrando algo importante, ${name}. Há mudanças chegando na sua vida. Mudanças que você já sente no ar, mesmo sem saber explicar. Você está num momento de transição... um portal está se abrindo. E você não vai atravessá-lo sozinha.`
+    voiceText: `Quando esse padrão fica ativo, a pessoa começa a duvidar de si…
+mas na verdade é só um mecanismo de proteção.
+Ele te impede de agir no impulso… e ao mesmo tempo te prende.`
   },
   { 
     text: "Desvendando seus segredos...", 
@@ -62,7 +75,9 @@ const getAnalysisPhases = (name: string) => [
     icon: Eye,
     duration: 7500,
     sound: 'whoosh' as const,
-    voiceText: `Você tem guardado muita coisa dentro de você, não é ${name}? Medos que não conta pra ninguém. Sonhos que parecem impossíveis. Dúvidas que te tiram o sono. Eu vejo tudo isso. E eu preciso te dizer: você não precisa carregar esse peso sozinha. As respostas que você procura estão mais perto do que imagina.`
+    voiceText: `Agora eu já consigo ver quais forças estão mais presentes em você.
+E também quais bloqueios aparecem quando você tenta avançar.
+É aqui que muita gente entende por que se sente ‘presa’ no mesmo lugar.`
   },
   { 
     text: "Consultando as estrelas...", 
@@ -70,7 +85,9 @@ const getAnalysisPhases = (name: string) => [
     icon: Moon,
     duration: 7000,
     sound: 'mysticTone' as const,
-    voiceText: `As estrelas me confirmam o que eu já sentia, ${name}. Você está num momento decisivo da sua vida. Um novo ciclo está começando. Não é coincidência você estar aqui, neste exato momento, buscando respostas. O universo te trouxe até mim por um motivo.`
+    voiceText: `O caminho não é ‘forçar’.
+O caminho é escolher com consciência… e cortar uma repetição específica.
+Quando você faz isso, sua energia muda rápido — porque você para de negociar com o que te desgasta.`
   },
   { 
     text: "Preparando sua revelação...", 
@@ -78,7 +95,9 @@ const getAnalysisPhases = (name: string) => [
     icon: Star,
     duration: 6500,
     sound: 'sparkle' as const,
-    voiceText: `Estou canalizando uma mensagem muito poderosa especialmente para você, ${name}. Tudo está ficando claro agora. Eu consigo ver seu passado, seu presente... e o que o futuro reserva para você. Prepare seu coração, porque o que vou te revelar pode mudar tudo.`
+    voiceText: `Pronto… agora eu vou transformar isso em uma leitura clara, direta e organizada.
+Sem enrolação, sem mistério exagerado.
+Você vai entender o que está ativo… e como lidar com isso no seu dia a dia.`
   },
   { 
     text: "Finalizando sua leitura...", 
@@ -86,7 +105,10 @@ const getAnalysisPhases = (name: string) => [
     icon: Volume2,
     duration: 5000,
     sound: 'chime' as const,
-    voiceText: `Pronto, ${name}. Sua leitura está completa. O que eu descobri sobre você é muito especial. Há coisas que vão te surpreender, outras que vão confirmar o que você já sentia no fundo do coração. Vamos ver juntos o que o destino reserva para você.`
+    voiceText: `Terminei.
+E eu vou te dizer com calma: você não está confusa por acaso.
+Você está num ciclo de decisão — e ciclos pedem coragem, mas também pedem direção.
+Vamos ver a sua leitura.`
   },
 ];
 
@@ -112,9 +134,13 @@ const Analise = () => {
   const [phaseProgress, setPhaseProgress] = useState(0);
   const [isApiDone, setIsApiDone] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
+  const [showAudioPrompt, setShowAudioPrompt] = useState(false);
   const analysisStarted = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentPhaseAudioPlayed = useRef<Set<number>>(new Set());
+  const audioUnlockedRef = useRef(false);
+  const pendingPhaseToReplayRef = useRef<number | null>(null);
+  const hasPromptedForAudioRef = useRef(false);
   
   const { 
     playTransitionChime, 
@@ -148,32 +174,110 @@ const Analise = () => {
     }
   };
 
+  // Initialize persisted audio unlock state (one-time)
+  useEffect(() => {
+    try {
+      const persisted = localStorage.getItem("ma_audio_unlocked");
+      if (persisted === "1") {
+        audioUnlockedRef.current = true;
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   // Function to play voice narration for each phase
   const playPhaseVoice = async (phaseIndex: number) => {
     // Only play if not already played for this phase
     if (currentPhaseAudioPlayed.current.has(phaseIndex)) return;
-    currentPhaseAudioPlayed.current.add(phaseIndex);
 
     const voiceText = analysisPhases[phaseIndex]?.voiceText;
     if (!voiceText) return;
 
     try {
+      if (import.meta.env.DEV) {
+        console.log("[ANALISE] playPhaseVoice: start", { phaseIndex, chars: voiceText.length });
+      }
       const audioDataUrl = await generateVoiceMessage(voiceText);
-      if (audioDataUrl) {
-        // Stop any currently playing audio
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current = null;
+      if (!audioDataUrl) {
+        if (import.meta.env.DEV) {
+          console.log("[ANALISE] playPhaseVoice: no audioDataUrl", { phaseIndex });
         }
+        return;
+      }
 
-        const audio = new Audio(audioDataUrl);
-        audioRef.current = audio;
-        audio.volume = 0.8;
+      // Stop any currently playing audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+
+      const audio = new Audio(audioDataUrl);
+      audioRef.current = audio;
+      audio.volume = 0.8;
+
+      audio.onplay = () => {
+        audioUnlockedRef.current = true;
+        try {
+          localStorage.setItem("ma_audio_unlocked", "1");
+        } catch {
+          // ignore
+        }
+        if (import.meta.env.DEV) {
+          console.log("[ANALISE] audio.onplay: unlocked", { phaseIndex });
+        }
+      };
+
+      audio.onerror = () => {
+        if (import.meta.env.DEV) {
+          console.log("[ANALISE] audio.onerror", { phaseIndex });
+        }
+      };
+
+      try {
         await audio.play();
+        // Mark as played ONLY after we have valid audio and play() succeeded
+        currentPhaseAudioPlayed.current.add(phaseIndex);
+        if (import.meta.env.DEV) {
+          console.log("[ANALISE] audio.play: success", { phaseIndex });
+        }
+      } catch (err) {
+        const e = err as Error & { name?: string };
+        console.error("[ANALISE] audio.play: failed", err);
+
+        // Autoplay blocked → ask for a user gesture, then replay this phase
+        if (e?.name === "NotAllowedError" || String(e?.message || "").toLowerCase().includes("not allowed")) {
+          // If we already unlocked audio once, don't keep prompting.
+          // Let the next user interaction (any click) re-trigger naturally via retry.
+          if (!audioUnlockedRef.current && !hasPromptedForAudioRef.current) {
+            hasPromptedForAudioRef.current = true;
+            pendingPhaseToReplayRef.current = phaseIndex;
+            setShowAudioPrompt(true);
+            if (import.meta.env.DEV) {
+              console.log("[ANALISE] autoplay blocked → showing AudioPromptModal", { phaseIndex });
+            }
+          }
+        }
       }
     } catch (error) {
       console.error('Error playing phase voice:', error);
     }
+  };
+
+  const handleAudioPromptConfirm = () => {
+    setShowAudioPrompt(false);
+    audioUnlockedRef.current = true;
+    try {
+      localStorage.setItem("ma_audio_unlocked", "1");
+    } catch {
+      // ignore
+    }
+    const phaseToReplay = pendingPhaseToReplayRef.current ?? currentPhaseIndex;
+    pendingPhaseToReplayRef.current = null;
+    if (import.meta.env.DEV) {
+      console.log("[ANALISE] AudioPromptModal confirmed → replay phase", { phaseToReplay });
+    }
+    playPhaseVoice(phaseToReplay);
   };
 
   useEffect(() => {
@@ -324,6 +428,12 @@ const Analise = () => {
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4">
       <ParticlesBackground />
       <FloatingOrbs />
+
+      <AudioPromptModal
+        isOpen={showAudioPrompt}
+        onConfirm={handleAudioPromptConfirm}
+        userName={name}
+      />
 
       <div className="relative max-w-lg mx-auto text-center">
         {/* Main Animation */}

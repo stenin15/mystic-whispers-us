@@ -216,6 +216,9 @@ export const processAnalysis = async (
 // Text-to-Speech function using OpenAI TTS via Edge Function
 export const generateVoiceMessage = async (text: string): Promise<string | null> => {
   try {
+    if (import.meta.env.DEV) {
+      console.log("[TTS] generateVoiceMessage: start", { chars: text?.length ?? 0 });
+    }
     const { data, error } = await supabase.functions.invoke('text-to-speech', {
       body: { 
         text,
@@ -229,10 +232,16 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
     }
 
     if (data?.audioContent) {
+      if (import.meta.env.DEV) {
+        console.log("[TTS] generateVoiceMessage: ok", { base64Chars: String(data.audioContent).length });
+      }
       // Create a data URL from the base64 audio
       return `data:audio/mpeg;base64,${data.audioContent}`;
     }
 
+    if (import.meta.env.DEV) {
+      console.log("[TTS] generateVoiceMessage: no audioContent in response", { keys: data ? Object.keys(data) : null });
+    }
     return null;
   } catch (error) {
     console.error('Error generating voice message:', error);

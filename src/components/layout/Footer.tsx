@@ -58,10 +58,8 @@ export const Footer = () => {
           </div>
 
           {/* Copyright */}
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <span>Feito com</span>
-            <Heart className="w-4 h-4 text-accent fill-accent" />
-            <span>e magia</span>
+          <div className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Madame Aurora. Todos os direitos reservados.
           </div>
         </div>
 
@@ -71,9 +69,6 @@ export const Footer = () => {
             Este serviço é para fins de entretenimento e autoconhecimento. 
             As leituras fornecidas não substituem aconselhamento profissional médico, 
             psicológico ou financeiro.
-          </p>
-          <p className="text-xs text-muted-foreground/40 mt-2">
-            © {new Date().getFullYear()} Madame Aurora. Todos os direitos reservados.
           </p>
         </div>
       </div>

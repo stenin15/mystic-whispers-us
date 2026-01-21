@@ -19,8 +19,8 @@ interface WhatsAppExitModalProps {
   sourceTag: string;
 }
 
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER as string | undefined;
-const WHATSAPP_DEFAULT_MESSAGE = import.meta.env.VITE_WHATSAPP_DEFAULT_MESSAGE || "Olá, quero tirar uma dúvida sobre a leitura da mão.";
+// Link fixo (pedido): garante que o modal também abra exatamente este wa.me
+const WHATSAPP_DIRECT_LINK = "https://wa.me/559985097153?text=w49254149";
 
 const trackWhatsAppClick = (sourceTag: string) => {
   // Meta Pixel
@@ -51,16 +51,9 @@ export const WhatsAppExitModal = ({
   sourceTag,
 }: WhatsAppExitModalProps) => {
   const handleWhatsAppClick = () => {
-    if (!WHATSAPP_NUMBER) {
-      console.warn("VITE_WHATSAPP_NUMBER não configurado");
-      return;
-    }
-
     trackWhatsAppClick(sourceTag);
-
-    const message = encodeURIComponent(`${messagePreset}\n\n[${sourceTag}]`);
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
-    window.open(whatsappUrl, "_blank");
+    // Mantemos o comportamento simples e determinístico (link fixo).
+    window.open(WHATSAPP_DIRECT_LINK, "_blank");
     
     onClose(); // Fecha modal após abrir WhatsApp
   };

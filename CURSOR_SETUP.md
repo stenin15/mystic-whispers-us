@@ -28,8 +28,8 @@ Este projeto está sincronizado com o GitHub via Lovable. Para acessar o código
 Abra o terminal e execute:
 
 ```bash
-git clone <URL_DO_SEU_REPOSITORIO>
-cd <NOME_DO_PROJETO>
+git clone https://github.com/stenin15/mystic-whispers.git
+cd mystic-whispers
 ```
 
 ---
@@ -47,9 +47,8 @@ npm install
 Crie um arquivo `.env` na raiz do projeto com:
 
 ```env
-VITE_SUPABASE_URL=https://ihwjbvzynygkvvbqiths.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlod2pidnp5bnlna3Z2YnFpdGhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwMTcxNTcsImV4cCI6MjA4MTU5MzE1N30.Zoa07Z0sZplwy-lMi-JQR5GLfVfCseqVTrwuUxTc15c
-VITE_SUPABASE_PROJECT_ID=ihwjbvzynygkvvbqiths
+VITE_SUPABASE_URL=https://badpwouonnopuoovabtz.supabase.co
+VITE_SUPABASE_ANON_KEY=<SUA_SUPABASE_ANON_KEY>
 ```
 
 ---
@@ -144,7 +143,7 @@ Após fazer push para o GitHub:
 2. Verifique se as alterações sincronizaram
 3. Clique em **Publish** para colocar em produção
 
-**URL de Produção:** https://madameaurorablog.lovable.app
+**Produção (recomendado):** Vercel
 
 ---
 
@@ -152,8 +151,7 @@ Após fazer push para o GitHub:
 
 - **Não edite** `src/integrations/supabase/types.ts` (gerado automaticamente)
 - **Não edite** `supabase/config.toml` diretamente
-- **Migrações de banco** devem ser feitas pelo Lovable
-- **Secrets/API Keys** devem ser configuradas no Lovable Cloud
+- **Secrets/API Keys** das Edge Functions devem ser configuradas no Supabase (Edge Functions → Secrets)
 
 ---
 

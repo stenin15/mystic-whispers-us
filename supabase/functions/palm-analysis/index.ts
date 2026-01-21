@@ -8,11 +8,17 @@ const ALLOWED_ORIGINS = [
   "https://www.madameaurora.blog",
   "https://mystic-whispers.lovable.app",
   "http://localhost:5173",
+  "http://localhost:8080",
   "http://localhost:8910",
 ];
 
 const getCorsHeaders = (origin: string | null) => {
-  const allowedOrigin = origin && ALLOWED_ORIGINS.some(o => origin === o || origin.endsWith(".lovable.app"))
+  const allowedOrigin = origin && ALLOWED_ORIGINS.some(o =>
+    origin === o ||
+    origin.endsWith(".lovable.app") ||
+    origin.endsWith(".lovableproject.com") ||
+    origin.endsWith(".vercel.app")
+  )
     ? origin
     : ALLOWED_ORIGINS[0];
 
@@ -80,7 +86,13 @@ serve(async (req) => {
   }
 
   // Validate origin for actual requests
-  if (!origin || (!ALLOWED_ORIGINS.includes(origin) && !origin.endsWith(".lovable.app"))) {
+  if (
+    !origin ||
+    (!ALLOWED_ORIGINS.includes(origin) &&
+      !origin.endsWith(".lovable.app") &&
+      !origin.endsWith(".lovableproject.com") &&
+      !origin.endsWith(".vercel.app"))
+  ) {
     return new Response(
       JSON.stringify({ error: "Origin not allowed" }),
       { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
