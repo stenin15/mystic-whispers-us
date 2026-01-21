@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -47,8 +47,12 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/vsl" element={<VSL />} />
+          {/* Main entry for funnel */}
+          <Route path="/" element={<VSL />} />
+          {/* Keep Index as an alternate/legacy entry */}
+          <Route path="/leitura" element={<Index />} />
+          {/* Alias for older links */}
+          <Route path="/vsl" element={<Navigate to="/" replace />} />
           <Route path="/conexao" element={<Conexao />} />
           <Route
             path="/formulario"
