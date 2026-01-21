@@ -6,7 +6,8 @@ const ALLOWED_ORIGINS = [
   "https://www.auroramadame.com",
   "https://madameaurora.blog",
   "https://www.madameaurora.blog",
-  "https://mystic-whispers.lovable.app",
+  "https://madame-aurora.com",
+  "https://www.madame-aurora.com",
   "http://localhost:5173",
   "http://localhost:8080",
   "http://localhost:8910",
@@ -15,8 +16,6 @@ const ALLOWED_ORIGINS = [
 const getCorsHeaders = (origin: string | null) => {
   const allowedOrigin = origin && ALLOWED_ORIGINS.some(o =>
     origin === o ||
-    origin.endsWith(".lovable.app") ||
-    origin.endsWith(".lovableproject.com") ||
     origin.endsWith(".vercel.app")
   )
     ? origin
@@ -89,8 +88,6 @@ serve(async (req) => {
   if (
     !origin ||
     (!ALLOWED_ORIGINS.includes(origin) &&
-      !origin.endsWith(".lovable.app") &&
-      !origin.endsWith(".lovableproject.com") &&
       !origin.endsWith(".vercel.app"))
   ) {
     return new Response(

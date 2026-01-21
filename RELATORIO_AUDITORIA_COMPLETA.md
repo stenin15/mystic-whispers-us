@@ -12,8 +12,8 @@
 | Item | Resposta |
 |------|----------|
 | **Hosting** | Lovable Cloud (hosting interno gerenciado pelo Lovable) |
-| **URL de Produção** | https://madameaurorablog.lovable.app |
-| **URL de Preview** | https://id-preview--65de5f59-c367-4d1b-9980-aaad48441c3b.lovable.app |
+| **URL de Produção** | (Vercel) |
+| **URL de Preview** | (Vercel Preview Deploys) |
 | **Backend** | Lovable Cloud (Supabase gerenciado) |
 | **Edge Functions** | 4 funções ativas (generate-reading, palm-analysis, send-welcome-email, text-to-speech) |
 
@@ -23,7 +23,7 @@
 |------|--------|
 | **Tipo de Deploy** | ✅ PRODUÇÃO |
 | **Ambiente** | Publicado e acessível publicamente |
-| **Domínio** | Lovable subdomain (*.lovable.app) |
+| **Domínio** | Vercel (custom domain / *.vercel.app) |
 
 ### 3) Como as alterações funcionam?
 
@@ -36,7 +36,7 @@
 
 ### 4) O domínio aponta para onde?
 
-O domínio `madameaurorablog.lovable.app` aponta para o **deploy gerenciado pelo Lovable**.  
+O deploy está configurado na **Vercel**.
 Não há deploy externo configurado.
 
 ### 5) Risco de sobrescrever algo?

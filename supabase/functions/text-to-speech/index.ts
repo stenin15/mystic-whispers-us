@@ -5,7 +5,8 @@ const ALLOWED_ORIGINS = [
   "https://www.auroramadame.com",
   "https://madameaurora.blog",
   "https://www.madameaurora.blog",
-  "https://mystic-whispers.lovable.app",
+  "https://madame-aurora.com",
+  "https://www.madame-aurora.com",
   "http://localhost:5173",
   "http://localhost:8080",
   "http://localhost:8910",
@@ -14,8 +15,6 @@ const ALLOWED_ORIGINS = [
 const isAllowedOrigin = (origin: string | null): boolean => {
   if (!origin) return false;
   if (ALLOWED_ORIGINS.includes(origin)) return true;
-  if (origin.endsWith(".lovable.app")) return true;
-  if (origin.endsWith(".lovableproject.com")) return true;
   if (origin.endsWith(".vercel.app")) return true;
   return false;
 };
