@@ -66,7 +66,7 @@ serve(async (req) => {
       );
     }
 
-    const selectedVoice = voice && VALID_VOICES.includes(voice) ? voice : "nova";
+    const selectedVoice = voice && VALID_VOICES.includes(voice) ? voice : "onyx";
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     
@@ -88,7 +88,8 @@ serve(async (req) => {
         input: text,
         voice: selectedVoice,
         response_format: "mp3",
-        speed: 0.9,
+        // Slightly slower reads tend to feel more "mature"
+        speed: 0.85,
       }),
     });
 

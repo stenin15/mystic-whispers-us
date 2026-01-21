@@ -222,7 +222,8 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
     const { data, error } = await supabase.functions.invoke('text-to-speech', {
       body: { 
         text,
-        voice: 'nova' // Warm, feminine voice for mystical content
+        // "onyx" tends to sound more mature/serious than "nova"
+        voice: 'onyx'
       }
     });
 
