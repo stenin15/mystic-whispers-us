@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 // Pages
@@ -31,9 +31,28 @@ const queryClient = new QueryClient();
 // Scroll to top on route change
 const ScrollToTop = () => {
   const { pathname } = useLocation();
+  const didInitialPageView = useRef(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [pathname]);
+
+  // Meta Pixel SPA support: fire PageView on client-side route changes
+  useEffect(() => {
+    const fbq = (window as any).fbq as undefined | ((...args: any[]) => void);
+    if (!fbq) return;
+
+    // index.html already tracks the initial PageView; avoid double-counting
+    if (!didInitialPageView.current) {
+      didInitialPageView.current = true;
+      return;
+    }
+
+    try {
+      fbq("track", "PageView");
+    } catch {
+      // ignore
+    }
   }, [pathname]);
 
   return null;
