@@ -7,7 +7,7 @@ import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { quizQuestions } from '@/lib/quizQuestions';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { generateVoiceMessage } from '@/lib/api';
+import { generateVoiceMessage, prefetchVoiceMessage } from '@/lib/api';
 import { useMicroCoach } from '@/lib/useMicroCoach';
 
 import AudioWaveVisualizer from '@/components/shared/AudioWaveVisualizer';
@@ -32,6 +32,7 @@ const Quiz = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCacheRef = useRef<Map<number, string>>(new Map());
   const preloadingRef = useRef<Set<number>>(new Set());
+  const analysisIntroPrefetchedRef = useRef(false);
 
   // Redirect if coming from wrong place
   useEffect(() => {
@@ -148,6 +149,21 @@ const Quiz = () => {
       }
     }
   }, [currentQuestionIndex, audioEnabled, preloadAudio]);
+
+  // Prefetch the analysis intro voice (says the lead name) BEFORE navigating to /analise
+  // so the analysis page can start speaking instantly.
+  useEffect(() => {
+    if (!audioEnabled) return;
+    if (!name) return;
+    if (analysisIntroPrefetchedRef.current) return;
+
+    // Start prefetching when user is near the end (last 2 questions).
+    if (currentQuestionIndex >= totalQuestions - 2) {
+      analysisIntroPrefetchedRef.current = true;
+      const introText = `Olá, ${getShortName(name)}… eu sou Madame Aurora.\nAgora eu vou cruzar o que você me contou com padrões que costumam aparecer em fases de decisão.\nNão é sobre sorte… é sobre ciclos internos.`;
+      prefetchVoiceMessage(introText);
+    }
+  }, [audioEnabled, name, currentQuestionIndex, totalQuestions, getShortName]);
 
   // Play current question audio immediately (only after quiz started) - ZERO DELAY
   useEffect(() => {

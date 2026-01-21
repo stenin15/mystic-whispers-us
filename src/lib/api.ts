@@ -216,6 +216,35 @@ export const processAnalysis = async (
 // Text-to-Speech function using OpenAI TTS via Edge Function
 export const generateVoiceMessage = async (text: string): Promise<string | null> => {
   try {
+    // --- lightweight cache (memory + sessionStorage) to eliminate TTS wait time ---
+    const hashString = (input: string): string => {
+      // djb2
+      let hash = 5381;
+      for (let i = 0; i < input.length; i++) {
+        hash = ((hash << 5) + hash) ^ input.charCodeAt(i);
+      }
+      // force unsigned and base36
+      return (hash >>> 0).toString(36);
+    };
+
+    const cacheKey = `ma_tts_v1:${hashString(text)}`;
+    const mem = (globalThis as any).__maTtsCache as Map<string, string> | undefined;
+    const memCache = mem ?? new Map<string, string>();
+    (globalThis as any).__maTtsCache = memCache;
+
+    const fromMem = memCache.get(cacheKey);
+    if (fromMem) return fromMem;
+
+    try {
+      const fromSession = sessionStorage.getItem(cacheKey);
+      if (fromSession) {
+        memCache.set(cacheKey, fromSession);
+        return fromSession;
+      }
+    } catch {
+      // ignore
+    }
+
     if (import.meta.env.DEV) {
       console.log("[TTS] generateVoiceMessage: start", { chars: text?.length ?? 0 });
     }
@@ -237,7 +266,15 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
         console.log("[TTS] generateVoiceMessage: ok", { base64Chars: String(data.audioContent).length });
       }
       // Create a data URL from the base64 audio
-      return `data:audio/mpeg;base64,${data.audioContent}`;
+      const dataUrl = `data:audio/mpeg;base64,${data.audioContent}`;
+      memCache.set(cacheKey, dataUrl);
+      try {
+        // sessionStorage survives navigation but not a full browser restart
+        sessionStorage.setItem(cacheKey, dataUrl);
+      } catch {
+        // ignore
+      }
+      return dataUrl;
     }
 
     if (import.meta.env.DEV) {
@@ -247,6 +284,15 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
   } catch (error) {
     console.error('Error generating voice message:', error);
     return null;
+  }
+};
+
+// Best-effort prefetch (fire-and-forget). Use this to have audio ready before the user reaches a screen.
+export const prefetchVoiceMessage = async (text: string): Promise<void> => {
+  try {
+    await generateVoiceMessage(text);
+  } catch {
+    // ignore
   }
 };
 
