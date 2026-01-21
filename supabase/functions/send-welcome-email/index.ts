@@ -55,6 +55,9 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    // Optional: allow changing sender without code changes (helps during verification/testing)
+    const RESEND_FROM_EMAIL =
+      Deno.env.get("RESEND_FROM_EMAIL") ?? "Madame Aurora <onboarding@resend.dev>";
     
     if (!RESEND_API_KEY) {
       return new Response(
@@ -88,7 +91,7 @@ const handler = async (req: Request): Promise<Response> => {
     const sanitizedName = name.replace(/[<>{}]/g, "").trim().substring(0, 100);
 
     const { data, error } = await resend.emails.send({
-      from: "Madame Aurora <contato@madameaurora.blog>",
+      from: RESEND_FROM_EMAIL,
       to: [email],
       subject: "✨ Sua Consulta Espiritual Foi Iniciada",
       html: `
@@ -159,9 +162,16 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (error) {
+      console.error("Resend error:", error);
       return new Response(
-        JSON.stringify({ success: true, emailSent: false, reason: "Email delivery failed" }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({
+          success: false,
+          emailSent: false,
+          reason: "Email delivery failed",
+          // surface a minimal error for debugging (safe to show in client)
+          details: typeof error === "object" && error ? (error as Record<string, unknown>).message : String(error),
+        }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -170,9 +180,15 @@ const handler = async (req: Request): Promise<Response> => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
+    console.error("send-welcome-email error:", error);
     return new Response(
-      JSON.stringify({ success: true, emailSent: false, reason: "An error occurred" }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({
+        success: false,
+        emailSent: false,
+        reason: "An error occurred",
+        details: error instanceof Error ? error.message : String(error),
+      }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 };

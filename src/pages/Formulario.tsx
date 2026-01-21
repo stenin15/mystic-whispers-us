@@ -126,8 +126,11 @@ const Formulario = () => {
       if (error) {
         console.error('Error sending email:', error);
         toast.error('Não foi possível enviar o email, mas você pode continuar.', { id: 'email-sending' });
-      } else {
+      } else if (emailResult?.emailSent) {
         toast.success('Email enviado. Sua consulta foi iniciada.', { id: 'email-sending' });
+      } else {
+        console.warn('Email not sent:', emailResult);
+        toast.error('Não foi possível enviar o email, mas você pode continuar.', { id: 'email-sending' });
       }
 
       // Calculate age from birth date fields
