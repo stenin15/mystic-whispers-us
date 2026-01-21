@@ -7,7 +7,7 @@ import DeliveryFAQ from "@/components/delivery/DeliveryFAQ";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { useEffect, useState } from "react";
-import { supabaseClient as supabase } from "@/integrations/supabase/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
 
 // fbq type is declared in src/types/global.d.ts

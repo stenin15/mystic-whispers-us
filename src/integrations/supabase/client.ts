@@ -2,23 +2,26 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// NOTE: In some preview environments (e.g. embedded iframes), env vars may be missing.
-// The Supabase anon key is public by design; a fallback prevents the app from crashing
-// with "supabaseUrl is required" and allows UI previewing.
-const FALLBACK_SUPABASE_URL = "https://uwoaqvviyfbbovfebmns.supabase.co";
-const FALLBACK_SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3b2FxdnZpeWZiYm92ZmVibW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4OTk3NzUsImV4cCI6MjA4MDQ3NTc3NX0.DuTTcCpml0LkN6nHcBBQBrGUaGPzrGszc2BaRpgZPgo";
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? FALLBACK_SUPABASE_URL;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const SUPABASE_ANON_KEY =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ??
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
-  FALLBACK_SUPABASE_ANON_KEY;
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ??
+  (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined);
+
+// In production we MUST have env vars configured; falling back silently can point to the wrong project.
+if (import.meta.env.PROD && (!SUPABASE_URL || !SUPABASE_ANON_KEY)) {
+  throw new Error(
+    "Missing Supabase env vars. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel.",
+  );
+}
+
+// Allow local dev to run even if env vars are missing (developer will see a clear error when used).
+const safeUrl = SUPABASE_URL ?? "";
+const safeAnonKey = SUPABASE_ANON_KEY ?? "";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+export const supabase = createClient<Database>(safeUrl, safeAnonKey, {
   auth: {
     storage: localStorage,
     persistSession: true,
