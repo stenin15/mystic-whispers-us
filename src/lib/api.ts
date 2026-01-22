@@ -216,6 +216,10 @@ export const processAnalysis = async (
 // Text-to-Speech function using OpenAI TTS via Edge Function
 export const generateVoiceMessage = async (text: string): Promise<string | null> => {
   try {
+    // Default voice for "Madame Aurora" narration.
+    // OpenAI TTS voices: alloy, echo, fable, onyx, nova, shimmer
+    const defaultVoice = (import.meta.env.VITE_TTS_VOICE || 'shimmer') as string;
+
     // --- lightweight cache (memory + sessionStorage) to eliminate TTS wait time ---
     const hashString = (input: string): string => {
       // djb2
@@ -227,7 +231,8 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
       return (hash >>> 0).toString(36);
     };
 
-    const cacheKey = `ma_tts_v1:${hashString(text)}`;
+    // include voice + bump version to avoid replaying previously-cached audio with a different voice
+    const cacheKey = `ma_tts_v2:${defaultVoice}:${hashString(text)}`;
     const mem = (globalThis as any).__maTtsCache as Map<string, string> | undefined;
     const memCache = mem ?? new Map<string, string>();
     (globalThis as any).__maTtsCache = memCache;
@@ -251,8 +256,8 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
     const { data, error } = await supabase.functions.invoke('text-to-speech', {
       body: { 
         text,
-        // "onyx" tends to sound more mature/serious than "nova"
-        voice: 'onyx'
+        // "shimmer" tends to sound more feminine (Madame Aurora)
+        voice: defaultVoice
       }
     });
 
