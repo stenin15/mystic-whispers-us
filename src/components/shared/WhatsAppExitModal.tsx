@@ -23,14 +23,6 @@ interface WhatsAppExitModalProps {
 const WHATSAPP_DIRECT_LINK = "https://wa.me/559985097153?text=w49254149";
 
 const trackWhatsAppClick = (sourceTag: string) => {
-  // Meta Pixel
-  if (window.fbq) {
-    window.fbq("track", "Contact", {
-      content_name: sourceTag,
-      content_category: "whatsapp_click",
-    });
-  }
-
   // Google Analytics (opcional)
   if (window.gtag) {
     window.gtag("event", "whatsapp_click", {

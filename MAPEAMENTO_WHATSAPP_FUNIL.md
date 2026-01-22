@@ -429,14 +429,6 @@ export const WhatsAppCTA = ({
   }, [variant, showAfterPercent]);
 
   const handleClick = () => {
-    // Tracking Meta Pixel
-    if (window.fbq) {
-      window.fbq("track", "Contact", {
-        content_name: sourceTag,
-        content_category: "whatsapp_click",
-      });
-    }
-
     // Tracking Custom Event
     if (window.gtag) {
       window.gtag("event", "whatsapp_click", {
@@ -535,7 +527,6 @@ export const WhatsAppCTA = ({
 
 ```ts
 interface Window {
-  fbq?: (...args: any[]) => void;
   gtag?: (...args: any[]) => void;
 }
 ```
@@ -603,11 +594,6 @@ const handleContinueToCheckout = () => {
 
 ## 6️⃣ TRACKING
 
-### Meta Pixel (Já Instalado)
-- **ID:** `750384690839292` (index.html linha 61)
-- **Evento Custom:** `Contact` (evento de contato)
-- **Parâmetros:** `content_name` (sourceTag), `content_category` ("whatsapp_click")
-
 ### Google Analytics (Opcional)
 Se já tiver GA4, adicionar evento:
 ```javascript
@@ -623,14 +609,6 @@ Criar função simples em `src/lib/analytics.ts`:
 
 ```ts
 export const trackWhatsAppClick = (sourceTag: string) => {
-  // Meta Pixel
-  if (window.fbq) {
-    window.fbq("track", "Contact", {
-      content_name: sourceTag,
-      content_category: "whatsapp_click",
-    });
-  }
-
   // Console log (debug)
   console.log("[WhatsApp Click]", sourceTag);
 
@@ -687,7 +665,7 @@ Substituir `WHATSAPP_NUMBER` no componente por variável de ambiente ou constant
 1. Criar componente `WhatsAppCTA.tsx`
 2. Implementar em cada página conforme mapeamento
 3. Configurar número WhatsApp
-4. Testar tracking Meta Pixel
+4. Testar tracking (GA/console)
 5. Deploy e monitorar conversões
 
 

@@ -47,10 +47,6 @@ const OfertaGuiaExclusivo = () => {
   ];
 
   const handleCheckout = () => {
-    // Optional: Track checkout initiation
-    // if (typeof window !== 'undefined' && window.fbq) {
-    //   window.fbq('track', 'InitiateCheckout', { value: 29.90, currency: 'BRL', content_name: 'GuiaSagrado' });
-    // }
     window.location.href = CHECKOUT_GUIA_URL;
   };
 

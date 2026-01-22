@@ -23,8 +23,6 @@ import CountdownTimer from '@/components/delivery/CountdownTimer';
 import { WhatsAppCTA } from '@/components/shared/WhatsAppCTA';
 import { WhatsAppExitModal } from '@/components/shared/WhatsAppExitModal';
 
-// fbq type is declared in src/types/global.d.ts
-
 const Checkout = () => {
   const navigate = useNavigate();
   const { name, canAccessResult } = useHandReadingStore();
@@ -34,15 +32,6 @@ const Checkout = () => {
   useEffect(() => {
     if (!canAccessResult()) {
       navigate('/formulario');
-    }
-    
-    // Meta Pixel - InitiateCheckout event
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'InitiateCheckout', {
-        content_name: 'Leitura de Mão',
-        currency: 'BRL',
-        value: 9.90
-      });
     }
   }, [canAccessResult, navigate]);
 

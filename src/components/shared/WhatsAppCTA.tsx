@@ -27,14 +27,6 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 const trackWhatsAppClick = (sourceTag: string) => {
-  // Meta Pixel
-  if (window.fbq) {
-    window.fbq("track", "Contact", {
-      content_name: sourceTag,
-      content_category: "whatsapp_click",
-    });
-  }
-
   // Google Analytics (opcional)
   if (window.gtag) {
     window.gtag("event", "whatsapp_click", {

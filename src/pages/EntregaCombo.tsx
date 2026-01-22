@@ -12,8 +12,6 @@ import { Button } from "@/components/ui/button";
 // PDF hospedado no projeto
 const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
 
-// fbq type is declared in src/types/global.d.ts
-
 const EntregaCombo = () => {
   const navigate = useNavigate();
   const { name, canAccessDelivery } = useHandReadingStore();
@@ -22,16 +20,6 @@ const EntregaCombo = () => {
     if (!canAccessDelivery()) {
       navigate('/');
       return;
-    }
-    
-    // Meta Pixel - Purchase event for Combo (R$ 49,90)
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'Purchase', {
-        content_name: 'Pacote Completo - Leitura + Guia',
-        content_type: 'product',
-        currency: 'BRL',
-        value: 49.90
-      });
     }
   }, [canAccessDelivery, navigate]);
 

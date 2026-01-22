@@ -7,8 +7,6 @@ import { ParticlesBackground, FloatingOrbs } from "@/components/shared/Particles
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Footer } from "@/components/layout/Footer";
 
-// fbq type is declared in src/types/global.d.ts
-
 const Sucesso = () => {
   const navigate = useNavigate();
   const { canAccessResult, name, setPaymentCompleted } = useHandReadingStore();
@@ -22,15 +20,6 @@ const Sucesso = () => {
     
     // Mark payment as completed
     setPaymentCompleted(true);
-    
-    // Meta Pixel - Purchase event
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'Purchase', {
-        content_name: 'Leitura de Mão',
-        currency: 'BRL',
-        value: 9.90
-      });
-    }
   }, [canAccessResult, navigate, setPaymentCompleted]);
 
   useEffect(() => {

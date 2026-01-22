@@ -44,7 +44,6 @@ VITE_WHATSAPP_DEFAULT_MESSAGE=Olá, quero tirar uma dúvida sobre a leitura da m
 
 ### ✅ WhatsAppCTA Component
 - Variantes: `inline` (botão secundário) e `sticky` (botão fixo mobile)
-- Tracking Meta Pixel integrado
 - Tracking Google Analytics (opcional) integrado
 - Mensagem pré-preenchida com sourceTag
 - Validação de env vars (console.warn se faltar)
@@ -67,13 +66,6 @@ VITE_WHATSAPP_DEFAULT_MESSAGE=Olá, quero tirar uma dúvida sobre a leitura da m
 ---
 
 ## 📊 TRACKING
-
-### Meta Pixel (Já Instalado)
-- **ID:** `750384690839292`
-- **Evento:** `Contact`
-- **Parâmetros:** 
-  - `content_name`: sourceTag (ex: "VSL_HERO_DUVIDA")
-  - `content_category`: "whatsapp_click"
 
 ### Google Analytics (Opcional)
 Se tiver GA4, evento é disparado automaticamente:
@@ -100,7 +92,6 @@ Se tiver GA4, evento é disparado automaticamente:
 3. **Testar tracking:**
    - Abrir console do navegador
    - Clicar em qualquer botão WhatsApp
-   - Verificar se `fbq('track', 'Contact')` é chamado
    - Verificar se mensagem inclui sourceTag
 
 4. **Testar mobile:**
@@ -113,8 +104,7 @@ Se tiver GA4, evento é disparado automaticamente:
 
 1. **Configurar número WhatsApp** no `.env.local`
 2. **Testar todas as funcionalidades** (mobile e desktop)
-3. **Verificar tracking** no Meta Pixel Events Manager
-4. **Monitorar conversões** após deploy
+3. **Monitorar conversões** após deploy
 
 ---
 
@@ -130,8 +120,7 @@ Se tiver GA4, evento é disparado automaticamente:
 - Verificar se número tem formato correto (5511999999999)
 
 ### Tracking não funciona
-- Verificar se Meta Pixel está carregado (console: `window.fbq`)
-- Verificar se eventos aparecem no Meta Pixel Events Manager
+- Se estiver usando GA4, verificar se o evento `whatsapp_click` aparece (Realtime/DebugView)
 
 ---
 
@@ -140,7 +129,7 @@ Se tiver GA4, evento é disparado automaticamente:
 - **Modal não redireciona ao fechar:** Implementado corretamente com 2 handlers distintos
 - **Checkout exit intent:** Intercepta clicks antes do redirect externo
 - **SourceTag:** Incluído no final da mensagem do WhatsApp para rastreamento
-- **Tracking:** Integrado com Meta Pixel e GA (opcional)
+- **Tracking:** Integrado com GA (opcional)
 - **Variantes:** Inline (secundário) e Sticky (mobile) para não canibalizar CTA principal
 
 

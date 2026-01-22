@@ -10,8 +10,6 @@ import { useHandReadingStore } from "@/store/useHandReadingStore";
 // PDF hospedado no projeto
 const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
 
-// fbq type is declared in src/types/global.d.ts
-
 const EntregaGuia = () => {
   const navigate = useNavigate();
   const { name, canAccessDelivery } = useHandReadingStore();
@@ -20,16 +18,6 @@ const EntregaGuia = () => {
     if (!canAccessDelivery()) {
       navigate('/');
       return;
-    }
-    
-    // Meta Pixel - Purchase event for Guia (R$ 29,90)
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'Purchase', {
-        content_name: 'Guia Sagrado de Transformação Energética',
-        content_type: 'product',
-        currency: 'BRL',
-        value: 29.90
-      });
     }
   }, [canAccessDelivery, navigate]);
 

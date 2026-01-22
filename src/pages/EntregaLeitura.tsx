@@ -10,8 +10,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
 
-// fbq type is declared in src/types/global.d.ts
-
 const EntregaLeitura = () => {
   const navigate = useNavigate();
   const { name, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery } = useHandReadingStore();
@@ -23,16 +21,6 @@ const EntregaLeitura = () => {
     if (!canAccessDelivery()) {
       navigate('/');
       return;
-    }
-    
-    // Meta Pixel - Purchase event for Leitura (R$ 9,90)
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'Purchase', {
-        content_name: 'Leitura de Mão',
-        content_type: 'product',
-        currency: 'BRL',
-        value: 9.90
-      });
     }
 
     const generateReading = async () => {

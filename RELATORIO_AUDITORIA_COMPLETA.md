@@ -148,8 +148,6 @@ Landing (/)
    - Clique no botão **"Publish"** no canto superior direito
    - Selecione **"Update"** para aplicar as mudanças
 
-3. **Pixel Meta**: Configurado e rastreando eventos (InitiateCheckout, Purchase)
-
 4. **Proteção de páginas**: Funcionando corretamente via VslGate e verificações de payment
 
 ---

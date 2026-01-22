@@ -16,10 +16,6 @@ const DownloadCard = ({
   buttonText = "Baixar Guia Sagrado",
 }: DownloadCardProps) => {
   const handleDownload = () => {
-    // Optional: Track download event
-    // if (typeof window !== 'undefined' && window.fbq) {
-    //   window.fbq('track', 'Lead', { content_name: 'GuiaSagrado' });
-    // }
     window.open(downloadUrl, "_blank");
   };
 
