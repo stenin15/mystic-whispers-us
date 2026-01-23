@@ -19,6 +19,7 @@ import { ParticlesBackground, FloatingOrbs } from '@/components/shared/Particles
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
 import { VSLCard } from '@/components/shared/VSLCard';
+import { toast } from 'sonner';
 
 const Upsell = () => {
   const navigate = useNavigate();
@@ -32,8 +33,13 @@ const Upsell = () => {
 
   const handlePurchase = () => {
     const upsellUrl = import.meta.env.VITE_STRIPE_CHECKOUT_UPSELL_URL as string | undefined;
-    if (!upsellUrl) return;
-    window.location.href = upsellUrl;
+    const fallbackUrl = import.meta.env.VITE_STRIPE_CHECKOUT_URL as string | undefined;
+    const finalUrl = upsellUrl || fallbackUrl;
+    if (!finalUrl) {
+      toast("Checkout isn’t configured yet.");
+      return;
+    }
+    window.location.href = finalUrl;
   };
 
   if (!analysisResult) return null;

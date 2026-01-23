@@ -19,6 +19,7 @@ import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
 import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 import CountdownTimer from '@/components/delivery/CountdownTimer';
+import { toast } from 'sonner';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -32,11 +33,16 @@ const Checkout = () => {
 
   const basicUrl = import.meta.env.VITE_STRIPE_CHECKOUT_BASIC_URL as string | undefined;
   const completeUrl = import.meta.env.VITE_STRIPE_CHECKOUT_COMPLETE_URL as string | undefined;
+  const fallbackUrl = import.meta.env.VITE_STRIPE_CHECKOUT_URL as string | undefined;
 
   const handleCheckoutClick = (url: string | undefined, e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    if (!url) return;
-    window.location.href = url;
+    const finalUrl = url || fallbackUrl;
+    if (!finalUrl) {
+      toast("Checkout isn’t configured yet.");
+      return;
+    }
+    window.location.href = finalUrl;
   };
 
   return (

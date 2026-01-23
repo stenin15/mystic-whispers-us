@@ -14,9 +14,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import LegalFooter from "@/components/delivery/LegalFooter";
+import { toast } from "sonner";
 
 // US market: checkout via Stripe (configure in Vercel envs)
 const CHECKOUT_GUIDE_URL = import.meta.env.VITE_STRIPE_CHECKOUT_GUIDE_URL as string | undefined;
+const CHECKOUT_FALLBACK_URL = import.meta.env.VITE_STRIPE_CHECKOUT_URL as string | undefined;
 
 const OfertaGuiaExclusivo = () => {
   const benefits = [
@@ -47,8 +49,12 @@ const OfertaGuiaExclusivo = () => {
   ];
 
   const handleCheckout = () => {
-    if (!CHECKOUT_GUIDE_URL) return;
-    window.location.href = CHECKOUT_GUIDE_URL;
+    const finalUrl = CHECKOUT_GUIDE_URL || CHECKOUT_FALLBACK_URL;
+    if (!finalUrl) {
+      toast("Checkout isn’t configured yet.");
+      return;
+    }
+    window.location.href = finalUrl;
   };
 
   return (
