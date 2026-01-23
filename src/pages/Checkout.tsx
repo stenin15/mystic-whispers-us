@@ -6,7 +6,7 @@ import {
   CheckCircle2, 
   Crown,
   Star,
-  Zap,
+  Bolt,
   Heart,
   Shield,
   Gift,
@@ -17,17 +17,12 @@ import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
-import { toast } from 'sonner';
 import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 import CountdownTimer from '@/components/delivery/CountdownTimer';
-import { WhatsAppCTA } from '@/components/shared/WhatsAppCTA';
-import { WhatsAppExitModal } from '@/components/shared/WhatsAppExitModal';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { name, canAccessResult } = useHandReadingStore();
-  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
-  const [pendingCheckoutUrl, setPendingCheckoutUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -35,26 +30,13 @@ const Checkout = () => {
     }
   }, [canAccessResult, navigate]);
 
-  const basicUrl = "https://pay.cakto.com.br/3drniqx_701391";
-  const completeUrl = "https://pay.cakto.com.br/gkt4gy6_701681";
+  const basicUrl = import.meta.env.VITE_STRIPE_CHECKOUT_BASIC_URL as string | undefined;
+  const completeUrl = import.meta.env.VITE_STRIPE_CHECKOUT_COMPLETE_URL as string | undefined;
 
-  const handleCloseModal = () => {
-    setShowWhatsAppModal(false);
-    setPendingCheckoutUrl(null);
-  };
-
-  const handleContinueToCheckout = () => {
-    if (pendingCheckoutUrl) {
-      window.location.href = pendingCheckoutUrl;
-    }
-    setShowWhatsAppModal(false);
-    setPendingCheckoutUrl(null);
-  };
-
-  const handleCheckoutClick = (url: string, e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleCheckoutClick = (url: string | undefined, e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    setPendingCheckoutUrl(url);
-    setShowWhatsAppModal(true);
+    if (!url) return;
+    window.location.href = url;
   };
 
   return (
@@ -74,16 +56,16 @@ const Checkout = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mystic-gold/20 border border-mystic-gold/40 mb-6">
               <Sparkles className="w-4 h-4 text-mystic-gold" />
-              <span className="text-sm text-mystic-gold">Análise Pronta!</span>
+              <span className="text-sm text-mystic-gold">Analysis ready</span>
             </div>
 
             <h1 className="text-2xl md:text-3xl lg:text-5xl font-serif font-bold mb-4">
-              <span className="text-foreground">{name}, sua leitura está </span>
-              <span className="gradient-text">pronta para ser revelada</span>
+              <span className="text-foreground">{name}, your reading is </span>
+              <span className="gradient-text">ready to be revealed</span>
             </h1>
 
             <p className="text-muted-foreground max-w-xl mx-auto text-lg mb-8">
-              Escolha como deseja receber sua análise espiritual completa
+              Choose how you’d like to receive your complete intuitive analysis
             </p>
           </motion.div>
         </div>
@@ -101,25 +83,25 @@ const Checkout = () => {
             <div className="flex items-center gap-2 mb-4">
               <Eye className="w-5 h-5 text-primary" />
               <h3 className="text-lg font-serif font-medium text-foreground">
-                O que identificamos
+                What we noticed
               </h3>
             </div>
             <ul className="space-y-2 mb-4">
               <li className="flex items-start gap-2 text-sm text-muted-foreground/90">
                 <span className="text-primary/80 mt-0.5">•</span>
-                <span>Padrão energético ligado a ciclos recorrentes.</span>
+                <span>An energy pattern tied to recurring cycles.</span>
               </li>
               <li className="flex items-start gap-2 text-sm text-muted-foreground/90">
                 <span className="text-primary/80 mt-0.5">•</span>
-                <span>Indicativo de ponto de decisão não concluído.</span>
+                <span>A sign of an unresolved decision point.</span>
               </li>
               <li className="flex items-start gap-2 text-sm text-muted-foreground/90">
                 <span className="text-primary/80 mt-0.5">•</span>
-                <span>A leitura completa mostra onde isso começa.</span>
+                <span>The complete reading shows where it starts.</span>
               </li>
             </ul>
             <p className="text-xs text-muted-foreground/70 italic">
-              Leitura simbólica e de autoconhecimento.
+              For entertainment and self-reflection.
             </p>
           </motion.div>
         </div>
@@ -128,16 +110,7 @@ const Checkout = () => {
       {/* Pricing Cards */}
       <section className="py-10 px-4">
         <div className="container max-w-5xl mx-auto px-2 md:px-4">
-          {/* WhatsApp CTA acima dos planos */}
-          <div className="mb-6 text-center">
-            <WhatsAppCTA
-              variant="inline"
-              label="Não sabe qual escolher? Me chame"
-              microcopy="Te oriento qual é melhor"
-              messagePreset="Olá, estou na página de checkout e queria uma ajuda para escolher entre o plano básico e completo."
-              sourceTag="CHECKOUT_DUVIDA_PLANO"
-            />
-          </div>
+          {/* US market: no chat CTA */}
 
           <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
             
@@ -153,23 +126,23 @@ const Checkout = () => {
                   <Star className="w-7 h-7 text-primary" />
                 </div>
                 <h3 className="text-xl font-serif font-semibold text-foreground mb-1">
-                  Leitura da Mão
+                  Palm reading
                 </h3>
                 <p className="text-sm text-muted-foreground/80 mb-1">
-                  Visão inicial da sua energia
+                  A clear, initial view of your energy
                 </p>
                 <p className="text-xs text-muted-foreground/60 italic">
-                  Para uma primeira orientação.
+                  A simple starting point.
                 </p>
               </div>
 
               <div className="space-y-3 mb-8">
                 {[
-                  "Análise da sua energia dominante",
-                  "Descoberta dos seus pontos fortes",
-                  "Identificação de bloqueios energéticos",
-                  "Mensagem espiritual personalizada",
-                  "Áudio da mensagem com voz mística",
+                  "Your dominant energy, explained clearly",
+                  "Your strengths and natural gifts",
+                  "What may be blocking your momentum",
+                  "A personalized intuitive message",
+                  "Audio message with a calm voice",
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
@@ -181,9 +154,9 @@ const Checkout = () => {
               {/* Price */}
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-2">
-                  <span className="text-4xl font-bold text-foreground">R$ 9,90</span>
+                  <span className="text-4xl font-bold text-foreground">$9.90</span>
                 </div>
-                <span className="text-sm text-muted-foreground">pagamento único</span>
+                <span className="text-sm text-muted-foreground">One-time payment • Instant access</span>
               </div>
 
               <Button
@@ -192,8 +165,8 @@ const Checkout = () => {
                 size="lg"
                 className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6"
               >
-                <a href={basicUrl} onClick={(e) => handleCheckoutClick(basicUrl, e)} className="cta-button">
-                  Quero Apenas a Leitura
+                  <a href={basicUrl || "#"} onClick={(e) => handleCheckoutClick(basicUrl, e)} className="cta-button">
+                  Get the basic reading
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </a>
               </Button>
@@ -210,7 +183,7 @@ const Checkout = () => {
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <div className="px-4 py-1.5 rounded-full bg-mystic-gold text-background text-sm font-medium flex items-center gap-1.5 shadow-lg shadow-mystic-gold/20">
                   <Crown className="w-4 h-4" />
-                  Mais Escolhido
+                  Most popular
                 </div>
               </div>
 
@@ -219,24 +192,24 @@ const Checkout = () => {
                   <Crown className="w-7 h-7 text-mystic-gold" />
                 </div>
                 <h3 className="text-xl font-serif font-semibold gradient-text mb-1">
-                  Pacote Completo
+                  Complete package
                 </h3>
                 <p className="text-sm text-muted-foreground/80 mb-1">
-                  Mapa completo + desbloqueio guiado
+                  Deeper guidance + practical next steps
                 </p>
                 <p className="text-xs text-muted-foreground/60 italic">
-                  Orientação mais aprofundada.
+                  Best for major decisions and clarity.
                 </p>
               </div>
 
               <div className="space-y-3 mb-8">
                 {[
-                  { text: "Leitura da Mão Completa", icon: Star },
-                  { text: "7 Rituais de Ativação Energética", icon: Zap },
-                  { text: "Meditações Guiadas de Cura", icon: Heart },
-                  { text: "Mapa de Manifestação (PDF)", icon: Gift },
-                  { text: "Proteção Energética Diária", icon: Shield },
-                  { text: "Bônus: Leitura de Tarot", icon: Sparkles },
+                  { text: "Complete palm reading", icon: Star },
+                  { text: "7 guided activation practices", icon: Bolt },
+                  { text: "Healing meditations (audio)", icon: Heart },
+                  { text: "Manifestation map (PDF)", icon: Gift },
+                  { text: "Daily protection ritual", icon: Shield },
+                  { text: "Bonus: Tarot mini-reading", icon: Sparkles },
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <item.icon className="w-5 h-5 text-mystic-gold flex-shrink-0" />
@@ -247,11 +220,10 @@ const Checkout = () => {
 
               {/* Price */}
               <div className="text-center mb-6">
-                <span className="text-muted-foreground line-through text-lg">De R$ 197</span>
                 <div className="flex items-center justify-center gap-2">
-                  <span className="text-4xl font-bold gradient-text">R$ 49,90</span>
+                  <span className="text-4xl font-bold gradient-text">$49.90</span>
                 </div>
-                <span className="text-sm text-muted-foreground">ou 5x de R$ 10,98</span>
+                <span className="text-sm text-muted-foreground">One-time payment • Instant access</span>
               </div>
 
               <Button
@@ -259,9 +231,9 @@ const Checkout = () => {
                 size="lg"
                 className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg"
               >
-                <a href={completeUrl} onClick={(e) => handleCheckoutClick(completeUrl, e)} className="cta-button">
+                  <a href={completeUrl || "#"} onClick={(e) => handleCheckoutClick(completeUrl, e)} className="cta-button">
                   <Sparkles className="w-5 h-5 mr-2" />
-                  Quero o Pacote Completo
+                  Upgrade to the complete package
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </a>
               </Button>
@@ -269,7 +241,7 @@ const Checkout = () => {
               {/* Guarantee */}
               <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
                 <Shield className="w-4 h-4 text-green-500" />
-                <span>Garantia de 7 dias</span>
+                <span>7-day refund policy</span>
               </div>
             </motion.div>
           </div>
@@ -280,25 +252,7 @@ const Checkout = () => {
       {/* Social Proof Carousel - Bottom */}
       <SocialProofCarousel />
 
-      {/* Sticky WhatsApp Mobile */}
-      <WhatsAppCTA
-        variant="sticky"
-        label="Falar no WhatsApp"
-        messagePreset="Olá, estou na página de checkout e gostaria de conversar antes de finalizar o pagamento."
-        sourceTag="CHECKOUT_STICKY_MOBILE"
-        showAfterPercent={0}
-      />
-
-      {/* WhatsApp Exit Modal */}
-      <WhatsAppExitModal
-        open={showWhatsAppModal}
-        onClose={handleCloseModal}
-        onContinue={handleContinueToCheckout}
-        label="Quer que eu te guie no pagamento?"
-        microcopy="Te ajudo em 30 segundos no WhatsApp"
-        messagePreset="Estou no checkout e quero uma ajuda rápida no pagamento."
-        sourceTag="CHECKOUT_EXIT_INTENT"
-      />
+      {/* US market: no chat CTA */}
 
       <Footer />
     </div>

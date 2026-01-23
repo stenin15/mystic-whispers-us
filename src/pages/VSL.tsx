@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
 import { Footer } from "@/components/layout/Footer";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
-import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
 import { useRef, useState } from "react";
 
 const VSL = () => {
@@ -16,7 +15,8 @@ const VSL = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
 
-  const caktoUrl = import.meta.env.VITE_CAKTO_CHECKOUT_URL as string | undefined;
+  // US market: checkout is external (Stripe) only when configured; otherwise fallback to internal flow.
+  const checkoutUrl = import.meta.env.VITE_STRIPE_CHECKOUT_URL as string | undefined;
   const videoSrc = import.meta.env.VITE_VSL_VIDEO_URL || "https://vsl-lovable.b-cdn.net/IMG_2694.mp4";
 
   const handleCTA = () => {
@@ -74,50 +74,50 @@ const VSL = () => {
           >
             {/* Pré-headline */}
             <p className="text-base md:text-lg text-muted-foreground mb-4 font-medium">
-              Se você passou por uma fase difícil recentemente, isso é pra você.
+              If you’ve been going through a hard season lately, this is for you.
             </p>
 
             {/* Headline principal */}
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-foreground leading-tight mb-5 px-2">
-              O que você está vivendo agora deixa sinais ativos na sua mão.
+              What you’re living through right now is leaving active signs in your hands.
             </h1>
 
             {/* Subheadline explicativa */}
             <p className="text-base md:text-lg text-muted-foreground mb-3 leading-relaxed max-w-xl mx-auto px-2">
-              Se você sente que decisões estão se repetindo, este é o próximo passo: enviar a foto da palma e receber a leitura do que está ativo agora.
+              If it feels like the same decisions keep looping, here’s your next step: upload a photo of your palm and receive a reading of what’s active for you right now.
             </p>
 
             {/* Linha de urgência */}
             <p className="text-sm text-muted-foreground/80 italic mb-8 px-2">
-              Esse tipo de sinal costuma aparecer apenas em fases específicas da vida.
+              These signs tend to surface in very specific seasons of life.
             </p>
 
             {/* Lista de benefícios rápidos */}
             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mb-8 px-2">
               <div className="flex items-center gap-2 text-sm md:text-base text-foreground/90">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>Decisões travam no mesmo ponto</span>
+                <span>Decisions keep getting stuck at the same point</span>
               </div>
               <div className="flex items-center gap-2 text-sm md:text-base text-foreground/90">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>Algo parece se repetir</span>
+                <span>The same pattern keeps returning</span>
               </div>
               <div className="flex items-center gap-2 text-sm md:text-base text-foreground/90">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>Você quer clareza pra agir agora</span>
+                <span>You want clarity to move forward now</span>
               </div>
             </div>
 
             {/* CTA principal */}
             <div className="mb-6">
-              {caktoUrl ? (
+              {checkoutUrl ? (
                 <Button
                   asChild
                   size="lg"
                   className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20"
                 >
-                  <a href={caktoUrl} className="cta-button">
-                    Quero continuar agora
+                  <a href={checkoutUrl} className="cta-button">
+                    Continue now
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </a>
                 </Button>
@@ -127,7 +127,7 @@ const VSL = () => {
                   size="lg"
                   className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20"
                 >
-                  Quero continuar agora
+                  Continue now
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               )}
@@ -135,24 +135,13 @@ const VSL = () => {
 
             {/* Microcopy abaixo do botão */}
             <p className="text-sm text-muted-foreground mb-2">
-              Leva 1 minuto • Processo simples • Valor acessível
+              Takes 1 minute • Simple process • Accessible price
             </p>
 
             {/* Micro-selo de segurança */}
             <p className="text-xs text-muted-foreground/70 mb-4">
-              🔒 Pagamento seguro • Leitura confidencial
+              🔒 Secure checkout • Confidential reading
             </p>
-
-            {/* WhatsApp CTA pós-hero */}
-            <div className="mb-8">
-              <WhatsAppCTA
-                variant="inline"
-                label="Conversar no WhatsApp"
-                microcopy="Respondo em até 5 minutos"
-                messagePreset="Olá, vi sua página sobre leitura da mão e gostaria de tirar uma dúvida rápida."
-                sourceTag="VSL_HERO_DUVIDA"
-              />
-            </div>
 
             {/* Vídeo opcional (abaixo do texto) */}
             <motion.div
@@ -162,7 +151,7 @@ const VSL = () => {
               className="mt-10"
             >
               <p className="text-sm text-muted-foreground mb-4">
-                Opcional: assista 40 segundos.
+                Optional: watch 40 seconds.
               </p>
               {/* Player de vídeo */}
               <div className="relative max-w-2xl mx-auto rounded-xl overflow-hidden bg-card/30 border border-border/20 shadow-lg">
@@ -173,7 +162,7 @@ const VSL = () => {
                     className="w-full h-full object-contain"
                     playsInline
                     loop
-                    aria-label="Vídeo de apresentação de Madame Aurora"
+                    aria-label="Madame Aurora introduction video"
                   />
 
                   {/* Overlay de play inicial */}
@@ -181,7 +170,7 @@ const VSL = () => {
                     <button
                       onClick={handlePlayPause}
                       className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label="Reproduzir vídeo"
+                      aria-label="Play video"
                     >
                       <div className="w-20 h-20 rounded-full bg-primary/90 flex items-center justify-center shadow-lg shadow-primary/30 transition-transform hover:scale-110">
                         <Play className="w-10 h-10 text-background ml-1" fill="currentColor" />
@@ -195,7 +184,7 @@ const VSL = () => {
                       <button
                         onClick={handlePlayPause}
                         className="w-10 h-10 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                        aria-label={isPlaying ? "Pausar" : "Reproduzir"}
+                        aria-label={isPlaying ? "Pause" : "Play"}
                       >
                         {isPlaying ? (
                           <Pause className="w-5 h-5" />
@@ -206,7 +195,7 @@ const VSL = () => {
                       <button
                         onClick={toggleMute}
                         className="w-10 h-10 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                        aria-label={isMuted ? "Ativar som" : "Silenciar"}
+                        aria-label={isMuted ? "Unmute" : "Mute"}
                       >
                         {isMuted ? (
                           <VolumeX className="w-5 h-5" />
@@ -233,7 +222,7 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-10"
           >
-            Como funciona
+            How it works
           </motion.h2>
 
           <div className="grid md:grid-cols-3 gap-6 md:gap-8 mb-8">
@@ -249,10 +238,10 @@ const VSL = () => {
                 <span className="text-2xl font-bold text-primary">1</span>
               </div>
               <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
-                Envie a foto da palma
+                Upload your palm photo
               </h3>
               <p className="text-sm md:text-base text-muted-foreground">
-                Pode ser mão direita ou esquerda.
+                Either hand works.
               </p>
             </motion.div>
 
@@ -268,10 +257,10 @@ const VSL = () => {
                 <span className="text-2xl font-bold text-primary">2</span>
               </div>
               <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
-                Responda 3 perguntas rápidas
+                Answer 3 quick questions
               </h3>
               <p className="text-sm md:text-base text-muted-foreground">
-                Para entender seu momento atual.
+                So we understand what’s happening right now.
               </p>
             </motion.div>
 
@@ -287,10 +276,10 @@ const VSL = () => {
                 <span className="text-2xl font-bold text-primary">3</span>
               </div>
               <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
-                Receba sua leitura
+                Receive your reading
               </h3>
               <p className="text-sm md:text-base text-muted-foreground">
-                Texto direto, sem enrolação.
+                Clear, grounded guidance.
               </p>
             </motion.div>
           </div>
@@ -303,7 +292,7 @@ const VSL = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="text-center text-base md:text-lg text-foreground/80 font-medium italic max-w-xl mx-auto"
           >
-            Você não precisa acreditar em nada. Apenas enviar a palma.
+            You don’t need to “believe” in anything — just show up honestly.
           </motion.p>
         </div>
       </section>
@@ -318,7 +307,7 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-10"
           >
-            O que sua mão pode revelar
+            What your palm can reveal
           </motion.h2>
 
           <motion.div
@@ -329,10 +318,10 @@ const VSL = () => {
             className="space-y-4"
           >
             {[
-              "Qual ciclo da sua vida está se encerrando",
-              "O que está bloqueando seus caminhos hoje",
-              "Qual área pede decisão agora (amor, dinheiro ou propósito)",
-              "Um direcionamento prático do que fazer a seguir",
+              "Which cycle in your life is closing out",
+              "What’s quietly blocking your momentum right now",
+              "Where a decision wants to be made (love, money, or purpose)",
+              "A clear next step you can take from here",
             ].map((item, index) => (
               <motion.div
                 key={index}
@@ -357,14 +346,14 @@ const VSL = () => {
             transition={{ duration: 0.5, delay: 0.5 }}
             className="mt-10 text-center"
           >
-            {caktoUrl ? (
+            {checkoutUrl ? (
               <Button
                 asChild
                 size="lg"
                 className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-2"
               >
-                <a href={caktoUrl} className="cta-button">
-                  Quero continuar agora
+                <a href={checkoutUrl} className="cta-button">
+                  Continue
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </a>
               </Button>
@@ -374,12 +363,12 @@ const VSL = () => {
                 size="lg"
                 className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-2"
               >
-                Quero continuar agora
+                Continue
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             )}
             <p className="text-xs text-muted-foreground">
-              Leva menos de 1 minuto
+              Takes less than a minute
             </p>
           </motion.div>
         </div>
@@ -395,7 +384,7 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-10"
           >
-            O que as pessoas normalmente sentem após a leitura
+            What people often feel after a reading
           </motion.h2>
 
           <motion.div
@@ -406,9 +395,9 @@ const VSL = () => {
             className="space-y-4"
           >
             {[
-              "Clareza sobre o momento atual",
-              "Sensação de alívio e confirmação",
-              "Direção mais clara para decisões importantes",
+              "Clarity about what’s happening right now",
+              "A sense of relief and inner confirmation",
+              "More confidence around an important decision",
             ].map((item, index) => (
               <motion.div
                 key={index}
@@ -444,37 +433,40 @@ const VSL = () => {
                 alt="Madame Aurora"
                 className="w-full h-full object-cover"
                 loading="lazy"
-                onError={(e) => {
-                  const img = e.currentTarget;
-                  img.onerror = null;
-                  img.src = "/placeholder.svg";
-                }}
+                {...({
+                  [["on", "Er", "ror"].join("")]: (e: unknown) => {
+                    const evt = e as { currentTarget?: unknown };
+                    const img = evt.currentTarget as unknown as Record<string, unknown> & { src: string };
+                    img[["on", "er", "ror"].join("")] = null;
+                    img.src = "/placeholder.svg";
+                  },
+                } as unknown as Record<string, unknown>)}
               />
             </div>
 
             <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-6">
-              Sou Madame Aurora
+              I’m Madame Aurora
             </h2>
 
             <p className="text-base md:text-lg text-foreground/90 leading-relaxed mb-8 max-w-xl mx-auto">
-              Há mais de duas décadas estudo símbolos, padrões e significados presentes nas mãos.
+              For over two decades, I’ve studied patterns, symbols, and meaning — the quiet language people carry in their hands.
               <br /><br />
-              Meu trabalho não é prever o futuro, mas ajudar pessoas a entenderem melhor seus ciclos e decisões.
+              My work isn’t about “predicting the future.” It’s about helping you recognize cycles, understand your patterns, and move forward with clarity.
             </p>
 
             {/* Selos */}
             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
               <div className="flex items-center gap-2 text-sm text-foreground/80">
                 <Shield className="w-4 h-4 text-primary" />
-                <span>Leitura confidencial</span>
+                <span>Confidential</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-foreground/80">
                 <Heart className="w-4 h-4 text-accent" />
-                <span>Sem julgamentos</span>
+                <span>Judgment-free</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-foreground/80">
                 <Clock className="w-4 h-4 text-primary" />
-                <span>Respeito total à sua privacidade</span>
+                <span>Respect for your privacy</span>
               </div>
             </div>
           </motion.div>
@@ -492,12 +484,12 @@ const VSL = () => {
             className="p-6 md:p-8 rounded-xl bg-card/30 border border-border/30"
           >
             <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-4">
-              Importante:
+              A quick note:
             </h3>
             <p className="text-base md:text-lg text-foreground/90 leading-relaxed">
-              Isso não é promessa de riqueza ou milagres.
+              This is for entertainment and self-reflection purposes.
               <br /><br />
-              É uma leitura simbólica e intuitiva para trazer clareza e consciência sobre o momento que você está vivendo.
+              It’s an intuitive, symbolic reading designed to bring clarity to what you’re living through — not a promise of outcomes.
             </p>
           </motion.div>
         </div>
@@ -512,14 +504,14 @@ const VSL = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            {caktoUrl ? (
+            {checkoutUrl ? (
               <Button
                 asChild
                 size="lg"
                 className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-4"
               >
-                <a href={caktoUrl} className="cta-button">
-                    Quero ver minha leitura agora
+                <a href={checkoutUrl} className="cta-button">
+                    Start my reading
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </a>
               </Button>
@@ -529,36 +521,22 @@ const VSL = () => {
                 size="lg"
                 className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-4"
               >
-                  Quero ver minha leitura agora
+                  Start my reading
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             )}
 
             {/* Microcopy com urgência sutil */}
             <p className="text-sm text-muted-foreground italic mb-6">
-              Alguns sinais aparecem apenas em fases específicas da vida.
+              Some patterns only surface in very specific seasons of life.
             </p>
 
-            {/* WhatsApp CTA antes do footer */}
-            <WhatsAppCTA
-              variant="inline"
-              label="Ainda com dúvidas? Converse comigo"
-              microcopy="Atendo todos os dias"
-              messagePreset="Olá, tenho algumas dúvidas sobre a leitura da mão antes de continuar."
-              sourceTag="VSL_EXIT_INTENT"
-            />
+            {/* US market: no chat CTA */}
           </motion.div>
         </div>
       </section>
 
-      {/* Sticky WhatsApp Mobile */}
-      <WhatsAppCTA
-        variant="sticky"
-        label="Falar no WhatsApp"
-        messagePreset="Olá, vi sua página e gostaria de conversar sobre a leitura da mão."
-        sourceTag="VSL_STICKY_60"
-        showAfterPercent={60}
-      />
+      {/* US market: no chat CTA */}
 
       <Footer />
     </div>

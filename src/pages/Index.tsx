@@ -37,7 +37,7 @@ const Index = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-5 leading-tight text-foreground text-center"
           >
-            O que você está vivendo agora deixa sinais ativos na sua mão.
+            What you’re living through right now is leaving active signs in your hands.
           </motion.h1>
 
           {/* Subheadline */}
@@ -47,9 +47,9 @@ const Index = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed text-center"
           >
-            Se você sente que decisões estão se repetindo, este é o próximo passo:
+            If it feels like the same decisions keep looping, here’s your next step:
             <br />
-            enviar a foto da palma e receber a leitura do que está ativo agora.
+            upload a photo of your palm and receive a reading of what’s active right now.
           </motion.p>
 
           {/* Bloco emocional - sem título */}
@@ -60,9 +60,9 @@ const Index = () => {
             className="flex flex-col gap-2 mb-8 px-4"
           >
             {[
-              "Decisões travam no mesmo ponto",
-              "Algo parece se repetir",
-              "Você quer clareza pra agir agora",
+              "Decisions keep getting stuck at the same point",
+              "The same pattern keeps returning",
+              "You want clarity to move forward now",
             ].map((item, index) => (
               <div key={index} className="flex items-center gap-3 text-foreground/90">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
@@ -85,14 +85,14 @@ const Index = () => {
             >
               <Link to={QUIZ_ROUTE} className="flex items-center justify-center gap-2">
                 <Hand className="w-5 h-5" />
-                Quero continuar agora
+                Continue
                 <ChevronRight className="w-5 h-5" />
               </Link>
             </Button>
             
             {/* Microcopy */}
             <p className="mt-4 text-sm text-muted-foreground text-center">
-              Leva menos de 1 minuto
+              Takes less than a minute
             </p>
           </motion.div>
 
@@ -104,15 +104,15 @@ const Index = () => {
             className="mt-8 p-5 rounded-xl bg-card/30 border border-border/20"
           >
             <p className="text-xs font-medium text-foreground/70 mb-3 text-center">
-              Antes de continuar, é importante você saber:
+              Before you continue, here’s what to know:
             </p>
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
-              <span>• Não é assinatura</span>
-              <span>• Não é consulta longa</span>
-              <span>• Não é promessa de riqueza</span>
+              <span>• Not a subscription</span>
+              <span>• Not a long consultation</span>
+              <span>• No guaranteed outcomes</span>
             </div>
             <p className="text-xs text-muted-foreground text-center mt-2">
-              É uma leitura simbólica, direta e pontual sobre o momento atual.
+              For entertainment and self-reflection purposes.
             </p>
           </motion.div>
 
@@ -128,25 +128,25 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center text-xl md:text-2xl font-serif font-bold mb-10 text-foreground"
           >
-            Como funciona
+            How it works
           </motion.h2>
           
           <div className="grid gap-6">
             {[
               { 
                 step: "1", 
-                title: "Envie a foto da palma", 
-                desc: "Pode ser mão direita ou esquerda." 
+                title: "Upload your palm photo", 
+                desc: "Either hand works." 
               },
               { 
                 step: "2", 
-                title: "Responda 3 perguntas rápidas", 
-                desc: "Para entender seu momento atual." 
+                title: "Answer 3 quick questions", 
+                desc: "So we understand what’s happening right now." 
               },
               { 
                 step: "3", 
-                title: "Receba sua leitura", 
-                desc: "Texto direto, sem enrolação." 
+                title: "Receive your reading", 
+                desc: "Clear, grounded guidance." 
               },
             ].map((item, index) => (
               <motion.div
@@ -175,7 +175,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center mt-8 text-sm text-muted-foreground italic"
           >
-            Você não precisa acreditar em nada. Apenas enviar a palma.
+            You don’t need to “believe” in anything — just show up honestly.
           </motion.p>
 
           {/* Vídeo opcional - claramente OPCIONAL */}
@@ -186,11 +186,11 @@ const Index = () => {
             className="mt-10 text-center"
           >
             <p className="text-xs text-muted-foreground/70 mb-3">
-              Opcional: se quiser ver mais antes de continuar
+              Optional: if you’d like to watch before continuing
             </p>
             <div className="aspect-video w-full max-w-xl mx-auto rounded-2xl bg-card/50 border border-border/30 flex items-center justify-center">
               <div className="text-muted-foreground text-sm">
-                [Vídeo opcional]
+                [Optional video]
               </div>
             </div>
           </motion.div>
@@ -206,7 +206,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center text-xl md:text-2xl font-serif font-bold mb-8 text-foreground"
           >
-            O que sua mão pode revelar
+            What your palm can reveal
           </motion.h2>
           
           <motion.div
@@ -217,10 +217,10 @@ const Index = () => {
           >
             <div className="grid gap-4">
               {[
-                { icon: CircleDot, text: "Qual ciclo da sua vida está se encerrando" },
-                { icon: Eye, text: "O que está bloqueando seus caminhos hoje" },
-                { icon: Heart, text: "Qual área pede decisão agora (amor, dinheiro ou propósito)" },
-                { icon: Sparkles, text: "Um direcionamento prático do que fazer a seguir" },
+                { icon: CircleDot, text: "Which cycle in your life is closing out" },
+                { icon: Eye, text: "What’s quietly blocking your momentum right now" },
+                { icon: Heart, text: "Where a decision wants to be made (love, money, or purpose)" },
+                { icon: Sparkles, text: "A clear next step you can take from here" },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -253,12 +253,12 @@ const Index = () => {
             >
               <Link to={QUIZ_ROUTE} className="flex items-center justify-center gap-2">
                 <Hand className="w-5 h-5" />
-                Quero entender o que esse sinal diz sobre mim agora
+                I want clarity on what this means
                 <ChevronRight className="w-5 h-5" />
               </Link>
             </Button>
             <p className="mt-3 text-sm text-muted-foreground">
-              Leva menos de 1 minuto
+              Takes less than a minute
             </p>
           </motion.div>
         </div>
@@ -273,7 +273,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center text-xl md:text-2xl font-serif font-bold mb-8 text-foreground"
           >
-            O que as pessoas normalmente sentem após a leitura
+            What people often feel after a reading
           </motion.h2>
           
           <motion.div
@@ -284,9 +284,9 @@ const Index = () => {
           >
             <div className="grid gap-4">
               {[
-                { icon: CheckCircle2, text: "Clareza sobre o momento atual" },
-                { icon: CheckCircle2, text: "Sensação de alívio e confirmação" },
-                { icon: CheckCircle2, text: "Direção mais clara para decisões importantes" },
+                { icon: CheckCircle2, text: "Clarity about what’s happening right now" },
+                { icon: CheckCircle2, text: "A sense of relief and inner confirmation" },
+                { icon: CheckCircle2, text: "More confidence around an important decision" },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -320,17 +320,17 @@ const Index = () => {
             </div>
             
             <p className="text-base md:text-lg text-foreground leading-relaxed mb-6">
-              "Sou <span className="font-semibold">Madame Aurora</span>. Há mais de duas décadas estudo símbolos, padrões e significados presentes nas mãos.
+              "I’m <span className="font-semibold">Madame Aurora</span>. For over two decades, I’ve studied patterns, symbols, and meaning — the quiet language people carry in their hands.
               <br /><br />
-              Meu trabalho não é prever o futuro, mas ajudar pessoas a entenderem melhor seus ciclos e decisões."
+              My work isn’t about “predicting the future.” It’s about helping you recognize cycles, understand your patterns, and move forward with clarity."
             </p>
             
             {/* Selos */}
             <div className="flex flex-wrap items-center justify-center gap-4 mt-6 pt-6 border-t border-border/30">
               {[
-                { icon: Lock, text: "Leitura confidencial" },
-                { icon: Heart, text: "Sem julgamentos" },
-                { icon: Shield, text: "Respeito à sua privacidade" },
+                { icon: Lock, text: "Confidential" },
+                { icon: Heart, text: "Judgment-free" },
+                { icon: Shield, text: "Respect for your privacy" },
               ].map((item, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
                   <item.icon className="w-4 h-4 text-primary/70" />
@@ -352,11 +352,11 @@ const Index = () => {
             className="rounded-xl bg-card/40 border border-border/30 p-5 text-center"
           >
             <p className="text-sm text-muted-foreground leading-relaxed">
-              <span className="font-medium text-foreground">Importante:</span>
+              <span className="font-medium text-foreground">A quick note:</span>
               <br />
-              Isso não é promessa de riqueza ou milagres.
+              This is not a guarantee of outcomes.
               <br />
-              É uma leitura simbólica e intuitiva para trazer clareza e consciência sobre o momento que você está vivendo.
+              It’s an intuitive, symbolic reading designed for entertainment and self-reflection.
             </p>
           </motion.div>
         </div>
@@ -378,7 +378,7 @@ const Index = () => {
             >
               <Link to={QUIZ_ROUTE} className="flex items-center gap-2">
                 <Hand className="w-5 h-5" />
-                Quero ver minha leitura agora
+                Start my reading
                 <ChevronRight className="w-5 h-5" />
               </Link>
             </Button>
@@ -390,7 +390,7 @@ const Index = () => {
       <Footer />
 
       {/* Sticky CTA Mobile */}
-      <StickyCTA route={QUIZ_ROUTE} buttonText="Quero continuar agora" />
+      <StickyCTA route={QUIZ_ROUTE} buttonText="Continue" />
     </div>
   );
 };

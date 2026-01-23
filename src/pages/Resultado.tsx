@@ -174,11 +174,11 @@ const Resultado = () => {
           startAudioWithEffects();
         }, 100);
       } else {
-        toast.error('Não foi possível gerar o áudio. Tente novamente.');
+        toast("We couldn’t generate the audio. Please try again.");
       }
-    } catch (error) {
-      console.error('Error generating voice:', error);
-      toast.error('Erro ao gerar áudio. Tente novamente.');
+    } catch (err) {
+      console.warn('Voice generation failed:', err);
+      toast("Something went wrong generating the audio. Please try again.");
     } finally {
       setAudioLoading(false);
     }
@@ -211,16 +211,16 @@ const Resultado = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mystic-gold/20 border border-mystic-gold/40 mb-6">
               <Sparkles className="w-4 h-4 text-mystic-gold" />
-              <span className="text-sm text-mystic-gold">Sua Leitura Completa</span>
+              <span className="text-sm text-mystic-gold">Your complete reading</span>
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold mb-4">
-              <span className="text-foreground">{name}, aqui está o que </span>
-              <span className="gradient-text">sua mão revela</span>
+              <span className="text-foreground">{name}, here’s what </span>
+              <span className="gradient-text">your palm reveals</span>
             </h1>
 
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Uma análise profunda da sua energia, potenciais e caminhos para evolução espiritual
+              A deeper look at your energy, strengths, and what’s asking for your attention right now.
             </p>
           </motion.div>
         </div>
@@ -257,8 +257,8 @@ const Resultado = () => {
       <section className="py-10 px-4">
         <div className="container max-w-4xl mx-auto">
           <SectionTitle
-            title="Seus Pontos Fortes"
-            subtitle="Dons e talentos que fazem de você um ser único"
+            title="Your strengths"
+            subtitle="Gifts and qualities you can lean on right now"
           />
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -292,8 +292,8 @@ const Resultado = () => {
       <section className="py-10 px-4">
         <div className="container max-w-4xl mx-auto">
           <SectionTitle
-            title="Possíveis Bloqueios"
-            subtitle="Áreas que merecem atenção e cura"
+            title="Potential blocks"
+            subtitle="Areas to bring awareness, care, and healing"
           />
 
           <div className="space-y-4 max-w-2xl mx-auto">
@@ -340,10 +340,10 @@ const Resultado = () => {
             
             <div className="text-center mb-6">
               <h2 className="text-2xl font-serif font-bold gradient-text mb-2">
-                Sua Mensagem Espiritual
+                Your intuitive message
               </h2>
               <p className="text-sm text-muted-foreground">
-                Uma mensagem canalizada especialmente para você
+                A message crafted just for you
               </p>
             </div>
 
@@ -360,17 +360,17 @@ const Resultado = () => {
                 {audioLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-mystic-gold border-t-transparent rounded-full animate-spin mr-2" />
-                    Canalizando áudio...
+                    Generating audio...
                   </>
                 ) : isPlayingAudio ? (
                   <>
                     <Pause className="w-4 h-4 mr-2" />
-                    Pausar Mensagem
+                    Pause
                   </>
                 ) : (
                   <>
                     <Volume2 className="w-4 h-4 mr-2" />
-                    Ouvir Mensagem Espiritual
+                    Play audio message
                   </>
                 )}
               </Button>
@@ -421,11 +421,11 @@ const Resultado = () => {
             <Sparkles className="w-12 h-12 text-mystic-gold mx-auto mb-4" />
             
             <h2 className="text-2xl md:text-3xl font-serif font-semibold mb-4 text-foreground">
-              Complete Sua Transformação
+              Want deeper guidance?
             </h2>
             
             <p className="text-muted-foreground/80 mb-6 max-w-xl mx-auto">
-              Receba um ritual energético personalizado para desbloquear seu potencial.
+              Upgrade for a personalized ritual and practical steps to help you move through what’s active right now.
             </p>
 
             <Button
@@ -434,13 +434,13 @@ const Resultado = () => {
               className="gradient-gold text-background hover:opacity-90 px-10 py-6 text-lg"
             >
               <Sparkles className="w-5 h-5 mr-2" />
-              Receber Meu Ritual Completo
+              Upgrade my reading
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
 
             <p className="mt-4 text-sm text-muted-foreground flex items-center justify-center gap-2">
               <Gift className="w-4 h-4" />
-              Oferta especial por tempo limitado
+              Limited-time offer
             </p>
           </motion.div>
         </div>
@@ -449,7 +449,7 @@ const Resultado = () => {
       {/* Back to start link */}
       <div className="text-center pb-10">
         <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          ← Voltar ao início
+          ← Back to home
         </Link>
       </div>
 

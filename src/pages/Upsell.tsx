@@ -8,7 +8,7 @@ import {
   Clock, 
   Shield,
   Star,
-  Zap,
+  Bolt,
   Heart,
   Crown,
   ArrowRight,
@@ -31,8 +31,9 @@ const Upsell = () => {
   }, [canAccessResult, navigate]);
 
   const handlePurchase = () => {
-    // TODO: Implement payment with Stripe
-    console.log('Payment flow will be implemented');
+    const upsellUrl = import.meta.env.VITE_STRIPE_CHECKOUT_UPSELL_URL as string | undefined;
+    if (!upsellUrl) return;
+    window.location.href = upsellUrl;
   };
 
   if (!analysisResult) return null;
@@ -51,17 +52,17 @@ const Upsell = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mystic-gold/20 border border-mystic-gold/40 mb-6">
               <Gift className="w-4 h-4 text-mystic-gold" />
-              <span className="text-sm text-mystic-gold">Oferta Exclusiva para Você</span>
+              <span className="text-sm text-mystic-gold">Exclusive upgrade</span>
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold mb-4">
-              <span className="text-foreground">{name}, Complete Sua </span>
-              <span className="gradient-text">Transformação Espiritual</span>
+              <span className="text-foreground">{name}, deepen your </span>
+              <span className="gradient-text">next chapter</span>
             </h1>
 
             <p className="text-muted-foreground/80 max-w-2xl mx-auto text-lg mb-6">
-              Você descobriu seus bloqueios energéticos. Agora é hora de liberar 
-              seu potencial com um ritual personalizado.
+              You’ve identified what may be holding you back. Now you can upgrade for a guided ritual
+              designed to help you move forward with clarity.
             </p>
           </motion.div>
         </div>
@@ -76,8 +77,8 @@ const Upsell = () => {
             transition={{ delay: 0.2 }}
           >
             <VSLCard
-              title="Descubra o Ritual que Vai Transformar Sua Vida"
-              description="Assista este vídeo exclusivo de 3 minutos e entenda como desbloquear sua energia"
+              title="See how the ritual works"
+              description="Watch this short 3‑minute video to understand what you’ll receive and how to use it"
               onPlay={() => console.log('Play VSL')}
             />
           </motion.div>
@@ -94,8 +95,8 @@ const Upsell = () => {
             className="p-8 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20"
           >
             <h2 className="text-2xl font-serif font-semibold text-center mb-6">
-              <span className="text-foreground">Identificamos </span>
-              <span className="text-destructive/90">{analysisResult.blocks.length} bloqueios</span>
+              <span className="text-foreground">We noticed </span>
+              <span className="text-destructive/90">{analysisResult.blocks.length} patterns</span>
             </h2>
 
             <div className="space-y-3 mb-6">
@@ -108,8 +109,8 @@ const Upsell = () => {
             </div>
 
             <p className="text-muted-foreground/80 text-center text-sm">
-              Sem o tratamento adequado, esses bloqueios continuam limitando 
-              sua energia, relacionamentos e realizações.
+              Without real attention, these patterns can keep showing up — in your energy, relationships,
+              and the choices you want to make.
             </p>
           </motion.div>
         </div>
@@ -125,11 +126,10 @@ const Upsell = () => {
             className="text-center mb-10"
           >
             <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
-              <span className="gradient-text">Ritual de Desbloqueio Energético</span>
+              <span className="gradient-text">Guided release ritual</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Um programa completo de 7 dias para liberar sua energia e 
-              manifestar a vida que você merece
+              A 7‑day guided practice to help you release what’s stuck and reconnect with your momentum.
             </p>
           </motion.div>
 
@@ -141,16 +141,16 @@ const Upsell = () => {
             className="p-8 rounded-3xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 mb-10"
           >
             <h3 className="text-xl font-serif font-medium text-center mb-6 text-foreground">
-              O Que Você Receberá
+              What you’ll receive
             </h3>
 
             <div className="grid md:grid-cols-2 gap-4">
               {[
-                { icon: Zap, text: "7 Rituais de Ativação Energética (áudio guiado)" },
-                { icon: Heart, text: "Meditação de Cura para Cada Bloqueio Identificado" },
-                { icon: Star, text: "Mapa de Manifestação Personalizado (PDF)" },
-                { icon: Shield, text: "Técnicas de Proteção Energética" },
-                { icon: Gift, text: "Bônus: Leitura de Tarot de 3 Cartas" },
+                { icon: Bolt, text: "7 guided activation practices (audio)" },
+                { icon: Heart, text: "Healing meditation for the patterns we identified" },
+                { icon: Star, text: "Personal manifestation map (PDF)" },
+                { icon: Shield, text: "Daily protection techniques" },
+                { icon: Gift, text: "Bonus: 3‑card tarot mini-reading" },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -178,20 +178,19 @@ const Upsell = () => {
             {/* Timer */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 mb-6">
               <Clock className="w-4 h-4 text-destructive/80" />
-              <span className="text-sm text-destructive/80 font-medium">Oferta expira em 24 horas</span>
+              <span className="text-sm text-destructive/80 font-medium">Limited-time offer</span>
             </div>
 
             <h3 className="text-2xl font-serif font-semibold mb-2 text-foreground">
-              Ritual Completo de Desbloqueio
+              Complete ritual upgrade
             </h3>
 
             {/* Price */}
             <div className="mb-6">
-              <span className="text-muted-foreground line-through text-lg">De R$ 197</span>
               <div className="flex items-center justify-center gap-2">
-                <span className="text-4xl font-bold gradient-text">R$ 47</span>
-                <span className="text-muted-foreground">ou 5x R$ 9,97</span>
+                <span className="text-4xl font-bold gradient-text">$47.00</span>
               </div>
+              <span className="text-sm text-muted-foreground">One-time payment • Instant access</span>
             </div>
 
             {/* CTA Button */}
@@ -201,14 +200,14 @@ const Upsell = () => {
               className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg mb-4"
             >
               <Sparkles className="w-5 h-5 mr-2" />
-              Quero Meu Ritual Agora
+              Upgrade now
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
 
             {/* Guarantee */}
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <Shield className="w-4 h-4 text-green-500" />
-              <span>Garantia de 7 dias ou seu dinheiro de volta</span>
+              <span>7-day refund policy</span>
             </div>
           </motion.div>
 
@@ -223,7 +222,7 @@ const Upsell = () => {
               to="/resultado"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
             >
-              Não, obrigado. Voltar para minha leitura.
+              No thanks — back to my reading.
             </Link>
           </motion.div>
         </div>
@@ -233,18 +232,18 @@ const Upsell = () => {
       <section className="py-16 px-4">
         <div className="container max-w-4xl mx-auto">
           <h2 className="text-2xl font-serif font-bold text-center mb-10 gradient-text">
-            Transformações Reais
+            Real experiences
           </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
             {[
               {
-                name: "Carla M.",
-                text: "Depois do ritual, senti uma paz que não sentia há anos. Meus relacionamentos melhoraram drasticamente!",
+                name: "Lauren M.",
+                text: "It helped me slow down and see what I’d been avoiding. The steps felt doable, not overwhelming.",
               },
               {
-                name: "Roberto S.",
-                text: "Cético no início, mas os resultados são inegáveis. Consegui o emprego dos sonhos uma semana depois.",
+                name: "Daniel R.",
+                text: "I didn’t expect it to feel this personal. The ritual gave me clarity and a calmer way to move forward.",
               },
             ].map((testimonial, index) => (
               <motion.div

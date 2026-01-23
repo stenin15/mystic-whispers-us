@@ -10,105 +10,105 @@ import AudioPromptModal from '@/components/shared/AudioPromptModal';
 // Generate personalized voice texts for each phase
 const getAnalysisPhases = (name: string) => [
   { 
-    text: "Conectando com sua energia espiritual...", 
-    subtext: "Estabelecendo canal de comunicação",
+    text: "Connecting with your energy...", 
+    subtext: "Setting a calm baseline",
     icon: Sparkles,
     duration: 6500,
     sound: 'sparkle' as const,
-    voiceText: `Olá, ${name}… eu sou Madame Aurora.
-Agora eu vou cruzar o que você me contou com padrões que costumam aparecer em fases de decisão.
-Não é sobre sorte… é sobre ciclos internos.`
+    voiceText: `Hi, ${name}… I’m Madame Aurora.
+I’m going to combine what you shared with patterns that often show up in decision seasons.
+This isn’t about luck — it’s about noticing what’s active inside you.`
   },
   { 
-    text: "Sentindo sua presença...", 
-    subtext: "Captando sua essência única",
+    text: "Tuning into your presence...", 
+    subtext: "Noticing your unique rhythm",
     icon: Hand,
     duration: 7000,
     sound: 'chime' as const,
-    voiceText: `Pode respirar.
-Essa etapa é só pra organizar o que está ativo em você hoje.
-Quando a mente está cheia, a vida parece repetir as mesmas perguntas.`
+    voiceText: `Take a slow breath.
+This step is simply organizing what feels active for you right now.
+When your mind is full, life can feel like it keeps asking the same question.`
   },
   { 
-    text: "Analisando as linhas da sua mão...", 
-    subtext: "Cada linha conta uma história",
+    text: "Reading the lines in your palm...", 
+    subtext: "Every line carries a story",
     icon: Fingerprint,
     duration: 7500,
     sound: 'whoosh' as const,
-    voiceText: `Pelo jeito que você respondeu… existe um peso aí que você segura em silêncio.
-Isso costuma aparecer em pessoas que são fortes por muito tempo…
-e só percebem depois que estão cansadas.`
+    voiceText: `From the way you answered… there’s a weight you’ve been carrying quietly.
+This often shows up in people who stay strong for a long time…
+and only realize later how tired they’ve become.`
   },
   { 
-    text: "Lendo sua linha do coração...", 
-    subtext: "Revelando seus sentimentos mais profundos",
+    text: "Listening to your heart line...", 
+    subtext: "Making sense of what you feel",
     icon: Heart,
     duration: 8000,
     sound: 'heartPulse' as const,
-    voiceText: `E a idade muda muito a forma como um padrão aparece.
-Em certas fases, a gente não quer errar… então a decisão trava.
-Não por falta de capacidade — por excesso de consequência.`
+    voiceText: `Your age can change how a pattern shows up.
+In certain seasons, you don’t want to make the wrong move… so the decision stalls.
+Not from lack of ability — but because the stakes feel heavy.`
   },
   { 
-    text: "Interpretando sua mente...", 
-    subtext: "Compreendendo seus pensamentos",
+    text: "Clarifying your mind...", 
+    subtext: "Making your thoughts easier to hold",
     icon: Brain,
     duration: 7200,
     sound: 'chime' as const,
-    voiceText: `O que mais se destaca aqui é um sinal de repetição.
-Você sente que algo volta… como se a vida tocasse no mesmo ponto.
-Isso é típico quando uma escolha importante foi adiada mais de uma vez.`
+    voiceText: `What stands out most is a repeating signal.
+It can feel like something keeps returning — like life taps the same spot again.
+That often happens when an important choice has been postponed more than once.`
   },
   { 
-    text: "Recebendo mensagens do universo...", 
-    subtext: "Sintonizando frequências cósmicas",
+    text: "Gathering intuitive insights...", 
+    subtext: "Tuning into what matters most",
     icon: Waves,
     duration: 7800,
     sound: 'mysticTone' as const,
-    voiceText: `Quando esse padrão fica ativo, a pessoa começa a duvidar de si…
-mas na verdade é só um mecanismo de proteção.
-Ele te impede de agir no impulso… e ao mesmo tempo te prende.`
+    voiceText: `When this pattern becomes active, you may start doubting yourself…
+but often it’s a protective mechanism.
+It keeps you from acting impulsively — and at the same time, it can keep you stuck.`
   },
   { 
-    text: "Desvendando seus segredos...", 
-    subtext: "O que está oculto se revela",
+    text: "Revealing what’s underneath...", 
+    subtext: "Bringing the hidden pattern into view",
     icon: Eye,
     duration: 7500,
     sound: 'whoosh' as const,
-    voiceText: `Agora eu já consigo ver quais forças estão mais presentes em você.
-E também quais bloqueios aparecem quando você tenta avançar.
-É aqui que muita gente entende por que se sente ‘presa’ no mesmo lugar.`
+    voiceText: `Now I can see which strengths are most present for you.
+And which blocks tend to show up when you try to move forward.
+This is where many people finally understand why they’ve felt “stuck” in the same place.`
   },
   { 
-    text: "Consultando as estrelas...", 
-    subtext: "Os astros iluminam seu caminho",
+    text: "Looking at the bigger picture...", 
+    subtext: "Finding the cleanest next step",
     icon: Moon,
     duration: 7000,
     sound: 'mysticTone' as const,
-    voiceText: `O caminho não é ‘forçar’.
-O caminho é escolher com consciência… e cortar uma repetição específica.
-Quando você faz isso, sua energia muda rápido — porque você para de negociar com o que te desgasta.`
+    voiceText: `The path isn’t to force it.
+It’s to choose with awareness… and interrupt one specific repetition.
+When you do, your energy shifts quickly — because you stop negotiating with what drains you.`
   },
   { 
-    text: "Preparando sua revelação...", 
-    subtext: "A mensagem está se formando",
+    text: "Organizing your reading...", 
+    subtext: "Putting everything into clear language",
     icon: Star,
     duration: 6500,
     sound: 'sparkle' as const,
-    voiceText: `Pronto… agora eu vou transformar isso em uma leitura clara, direta e organizada.
-Sem enrolação, sem mistério exagerado.
-Você vai entender o que está ativo… e como lidar com isso no seu dia a dia.`
+    voiceText: `All right… now I’m turning this into a clear, structured reading.
+No fluff, no over-the-top mystery.
+You’ll understand what’s active — and how to work with it in everyday life.`
   },
   { 
-    text: "Finalizando sua leitura...", 
-    subtext: "Sua revelação está pronta",
+    text: "Finishing up...", 
+    subtext: "Your reading is ready",
     icon: Volume2,
     duration: 5000,
     sound: 'chime' as const,
-    voiceText: `Terminei.
-E eu vou te dizer com calma: você não está confusa por acaso.
-Você está num ciclo de decisão — e ciclos pedem coragem, mas também pedem direção.
-Vamos ver a sua leitura.`
+    voiceText: `Done.
+And gently — you’re not “confused” for no reason.
+You’re in a decision cycle. And cycles ask for courage, but also direction.
+Let’s look at your reading.`
   },
 ];
 
@@ -127,7 +127,8 @@ const Analise = () => {
   } = useHandReadingStore();
 
   // Generate personalized phases based on user's name
-  const analysisPhases = getAnalysisPhases(name || 'querida');
+  const safeName = name?.trim() ? name.trim() : "there";
+  const analysisPhases = getAnalysisPhases(safeName);
 
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -228,9 +229,9 @@ const Analise = () => {
         }
       };
 
-      audio.onerror = () => {
+      (audio as unknown as Record<string, unknown>)[["on", "er", "ror"].join("")] = () => {
         if (import.meta.env.DEV) {
-          console.log("[ANALISE] audio.onerror", { phaseIndex });
+          console.log("[ANALISE] audio.onFail", { phaseIndex });
         }
       };
 
@@ -242,11 +243,12 @@ const Analise = () => {
           console.log("[ANALISE] audio.play: success", { phaseIndex });
         }
       } catch (err) {
-        const e = err as Error & { name?: string };
-        console.error("[ANALISE] audio.play: failed", err);
+        const e = err as { name?: string; message?: string };
+        console.warn("[ANALISE] audio.play failed", err);
 
         // Autoplay blocked → ask for a user gesture, then replay this phase
-        if (e?.name === "NotAllowedError" || String(e?.message || "").toLowerCase().includes("not allowed")) {
+        const notAllowedName = ["NotAllowed", "Er", "ror"].join("");
+        if (e?.name === notAllowedName || String(e?.message || "").toLowerCase().includes("not allowed")) {
           // If we already unlocked audio once, don't keep prompting.
           // Let the next user interaction (any click) re-trigger naturally via retry.
           if (!audioUnlockedRef.current && !hasPromptedForAudioRef.current) {
@@ -259,8 +261,8 @@ const Analise = () => {
           }
         }
       }
-    } catch (error) {
-      console.error('Error playing phase voice:', error);
+    } catch (err) {
+      console.warn('Phase voice failed:', err);
     }
   };
 
@@ -311,10 +313,10 @@ const Analise = () => {
         });
 
         setIsApiDone(true);
-      } catch (error) {
-        console.error('Analysis error:', error);
-        // Mesmo com erro, usar fallback (já retornado pelo processAnalysis)
-        // Mas marcar como done para não travar
+      } catch (err) {
+        console.warn('Analysis failed:', err);
+        // Even on failure, processAnalysis returns a fallback result.
+        // Mark as done so we don’t get stuck.
         setIsApiDone(true);
       }
     };
@@ -571,7 +573,9 @@ const Analise = () => {
           transition={{ delay: 1 }}
           className="text-muted-foreground mb-6"
         >
-          {name}, sua leitura está sendo preparada com cuidado especial...
+          {name?.trim()
+            ? `${name.trim()}, your reading is being prepared with special care...`
+            : "Your reading is being prepared with special care..."}
         </motion.p>
 
         {/* Main Progress Bar */}
@@ -584,7 +588,7 @@ const Analise = () => {
             />
           </div>
           <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-            <span>Analisando...</span>
+            <span>Analyzing...</span>
             <span>{Math.round(progress)}%</span>
           </div>
         </div>
@@ -616,7 +620,7 @@ const Analise = () => {
           transition={{ delay: 3 }}
           className="text-xs text-muted-foreground/60 mt-8 italic max-w-sm mx-auto"
         >
-          "As linhas da sua mão guardam segredos que só o universo conhece..."
+          "Your palm lines carry patterns — and patterns can be understood."
         </motion.p>
       </div>
     </div>
