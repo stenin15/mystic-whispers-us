@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 
 /**
- * Rota de entrada "sem fricção" para tráfego externo (ex.: ManyChat).
- * - Seta o gate como visto (hasSeenVsl=true)
- * - Redireciona direto para o formulário que inclui upload da foto da mão
+ * "Low-friction" entry route for external traffic.
+ * - Marks the gate as seen (hasSeenVsl=true)
+ * - Redirects straight to the form (includes palm photo upload)
  */
 const EntradaFoto = () => {
   const navigate = useNavigate();

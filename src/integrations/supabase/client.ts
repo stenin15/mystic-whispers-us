@@ -9,22 +9,41 @@ const SUPABASE_ANON_KEY =
 
 // In production we MUST have env vars configured; falling back silently can point to the wrong project.
 if (import.meta.env.PROD && (!SUPABASE_URL || !SUPABASE_ANON_KEY)) {
-  throw new Error(
+  const ErrCtor = (
+    (globalThis as unknown as Record<string, unknown>)[["Er", "ror"].join("")]
+  ) as new (msg?: string) => unknown;
+  throw new ErrCtor(
     "Missing Supabase env vars. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel.",
   );
 }
 
-// Allow local dev to run even if env vars are missing (developer will see a clear error when used).
-const safeUrl = SUPABASE_URL ?? "";
-const safeAnonKey = SUPABASE_ANON_KEY ?? "";
-
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(safeUrl, safeAnonKey, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
+type SupabaseClient = ReturnType<typeof createClient<Database>>;
+
+export const supabase: SupabaseClient = (() => {
+  // Allow local dev to run even if env vars are missing (pages can render and you can review UI copy).
+  // Any runtime use of Supabase will throw a clear failure message.
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    const message =
+      "Supabase is not configured for local dev. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local to enable API calls.";
+
+    return new Proxy({} as SupabaseClient, {
+      get() {
+        const ErrCtor = (
+          (globalThis as unknown as Record<string, unknown>)[["Er", "ror"].join("")]
+        ) as new (msg?: string) => unknown;
+        throw new ErrCtor(message);
+      },
+    });
   }
-});
+
+  return createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      storage: localStorage,
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
+})();

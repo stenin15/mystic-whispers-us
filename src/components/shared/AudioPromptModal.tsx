@@ -77,16 +77,16 @@ export const AudioPromptModal = ({ isOpen, onConfirm, userName }: AudioPromptMod
 
             <div className="relative text-center">
               <h2 className="text-2xl font-serif font-bold mb-3">
-                <span className="gradient-text-mystic">Ative o Som</span>
+                <span className="gradient-text-mystic">Turn on sound</span>
               </h2>
               
               <p className="text-muted-foreground mb-2 text-sm leading-relaxed">
-                {userName ? `${userName}, ` : ''}Madame Aurora irá guiar você através do quiz com sua voz mística.
+                {userName ? `${userName}, ` : ''}Madame Aurora will guide you through the quiz with a calm, mystical voice.
               </p>
               
               <p className="text-primary/80 text-xs mb-6 flex items-center justify-center gap-2">
                 <Sparkles className="w-3 h-3" />
-                Experiência muito mais imersiva com áudio
+                A more immersive experience with audio
                 <Sparkles className="w-3 h-3" />
               </p>
 
@@ -96,14 +96,14 @@ export const AudioPromptModal = ({ isOpen, onConfirm, userName }: AudioPromptMod
                 className="w-full gradient-mystic text-primary-foreground hover:opacity-90 shadow-lg shadow-primary/30"
               >
                 <Volume2 className="w-5 h-5 mr-2" />
-                Continuar com Áudio
+                Continue with audio
               </Button>
 
               <button
                 onClick={onConfirm}
                 className="mt-4 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
               >
-                Continuar sem áudio
+                Continue without audio
               </button>
             </div>
           </motion.div>

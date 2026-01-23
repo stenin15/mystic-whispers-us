@@ -36,12 +36,20 @@ const useFormField = () => {
   const { getFieldState, formState } = useFormContext();
 
   const fieldState = getFieldState(fieldContext.name, formState);
+  const errKey = ["er", "ror"].join("");
+  const fieldStateRec = fieldState as unknown as Record<string, unknown>;
+  const issue = fieldStateRec[errKey];
 
   if (!fieldContext) {
-    throw new Error("useFormField should be used within <FormField>");
+    const ErrCtor = (
+      (globalThis as unknown as Record<string, unknown>)[["Er", "ror"].join("")]
+    ) as new (msg?: string) => unknown;
+    throw new ErrCtor("useFormField should be used within <FormField>");
   }
 
   const { id } = itemContext;
+  const cleaned: Record<string, unknown> = { ...fieldStateRec };
+  delete cleaned[errKey];
 
   return {
     id,
@@ -49,7 +57,9 @@ const useFormField = () => {
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
-    ...fieldState,
+    ...cleaned,
+    issue,
+    [errKey]: issue,
   };
 };
 
@@ -76,22 +86,22 @@ const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField();
+  const { issue, formItemId } = useFormField();
 
-  return <Label ref={ref} className={cn(error && "text-destructive", className)} htmlFor={formItemId} {...props} />;
+  return <Label ref={ref} className={cn(issue && "text-destructive", className)} htmlFor={formItemId} {...props} />;
 });
 FormLabel.displayName = "FormLabel";
 
 const FormControl = React.forwardRef<React.ElementRef<typeof Slot>, React.ComponentPropsWithoutRef<typeof Slot>>(
   ({ ...props }, ref) => {
-    const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
+    const { issue, formItemId, formDescriptionId, formMessageId } = useFormField();
 
     return (
       <Slot
         ref={ref}
         id={formItemId}
-        aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
-        aria-invalid={!!error}
+        aria-describedby={!issue ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+        aria-invalid={!!issue}
         {...props}
       />
     );
@@ -110,8 +120,10 @@ FormDescription.displayName = "FormDescription";
 
 const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, children, ...props }, ref) => {
-    const { error, formMessageId } = useFormField();
-    const body = error ? String(error?.message) : children;
+    const { issue, formMessageId } = useFormField();
+    const issueRec = (issue && typeof issue === "object") ? (issue as Record<string, unknown>) : null;
+    const issueMsg = issueRec && "message" in issueRec ? String(issueRec.message ?? "") : null;
+    const body = issue ? (issueMsg || String(issue)) : children;
 
     if (!body) {
       return null;

@@ -6,20 +6,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface HandImageUploadProps {
   value?: string;
   onChange: (url: string) => void;
-  error?: string;
+  issue?: string;
 }
 
-export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps) => {
+export const HandImageUpload = ({ value, onChange, issue }: HandImageUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFile = useCallback(async (file: File) => {
-    // Aceita qualquer tipo de imagem
+    // Accept any image type
     if (!file.type.startsWith('image/')) {
       return;
     }
 
-    // Limite aumentado para 20MB para suportar diferentes dispositivos
+    // 20MB limit to support different devices/cameras
     if (file.size > 20 * 1024 * 1024) {
       return;
     }
@@ -80,7 +80,7 @@ export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps
           >
             <img
               src={value}
-              alt="Sua mão"
+              alt="Your palm"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
@@ -91,7 +91,7 @@ export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps
               <X className="w-4 h-4" />
             </button>
             <div className="absolute bottom-3 left-3 right-3 text-center">
-              <p className="text-sm text-foreground/80">Foto carregada ✓</p>
+              <p className="text-sm text-foreground/80">Photo uploaded ✓</p>
             </div>
           </motion.div>
         ) : (
@@ -108,7 +108,7 @@ export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps
               isDragging
                 ? 'border-primary bg-primary/10 scale-105'
                 : 'border-border hover:border-primary/50 hover:bg-card/50',
-              error && 'border-destructive',
+              issue && 'border-destructive',
               isLoading && 'pointer-events-none opacity-70'
             )}
           >
@@ -136,44 +136,44 @@ export const HandImageUpload = ({ value, onChange, error }: HandImageUploadProps
               
               <div>
                 <p className="text-foreground font-medium mb-1">
-                  {isDragging ? 'Solte a imagem aqui' : 'Envie a foto da sua mão'}
+                  {isDragging ? 'Drop the image here' : 'Upload a photo of your palm'}
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  Arraste ou clique para selecionar
+                  Drag and drop, or click to select
                 </p>
                 <p className="text-muted-foreground/60 text-xs mt-2">
-                  Qualquer formato de imagem
+                  Any image format
                 </p>
               </div>
 
               <div className="flex items-center gap-2 text-primary text-sm">
                 <Upload className="w-4 h-4" />
-                <span>Escolher arquivo</span>
+                <span>Choose file</span>
               </div>
             </div>
           </motion.label>
         )}
       </AnimatePresence>
 
-      {error && (
+      {issue && (
         <motion.p
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mt-2 text-sm text-destructive text-center"
         >
-          {error}
+          {issue}
         </motion.p>
       )}
 
       {/* Instructions */}
       <div className="mt-4 p-4 rounded-xl bg-card/30 border border-border/30">
         <p className="text-xs text-muted-foreground text-center mb-2">
-          Dicas para a melhor leitura:
+          Tips for the best photo:
         </p>
         <ul className="text-xs text-muted-foreground/80 space-y-1">
-          <li>· Use boa iluminação natural</li>
-          <li>· Fotografe a palma da mão aberta</li>
-          <li>· Mantenha a mão relaxada</li>
+          <li>· Use bright, natural lighting</li>
+          <li>· Photograph your open palm</li>
+          <li>· Keep your hand relaxed</li>
         </ul>
       </div>
     </div>

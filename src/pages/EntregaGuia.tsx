@@ -7,7 +7,7 @@ import DownloadCard from "@/components/delivery/DownloadCard";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 
-// PDF hospedado no projeto
+// PDF hosted in the project
 const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
 
 const EntregaGuia = () => {
@@ -24,29 +24,29 @@ const EntregaGuia = () => {
   const steps = [
     {
       icon: Moon,
-      title: "Reserve um momento sagrado",
+      title: "Set aside a quiet moment",
       description:
-        "Encontre um espaço tranquilo, acenda uma vela, prepare um chá. Este é seu momento de conexão espiritual.",
+        "Find a calm space. Light a candle or make a cup of tea. Let this be a gentle moment of reflection.",
     },
     {
       icon: BookOpen,
-      title: "Leia com intenção e presença",
+      title: "Read with intention",
       description:
-        "Não tenha pressa. Cada página foi canalizada para despertar insights profundos sobre sua energia e destino.",
+        "Go slowly. Each section is meant to help you notice patterns and make sense of what you’re feeling.",
     },
     {
       icon: Sun,
-      title: "Pratique os rituais diariamente",
+      title: "Practice daily",
       description:
-        "Os 7 rituais exclusivos foram desenhados para seu tipo energético. A transformação acontece na prática constante.",
+        "The 7 rituals are designed to be simple and consistent. Change happens through steady practice.",
     },
   ];
 
-  const oQueContem = [
-    { icon: Crown, title: "7 Rituais Exclusivos", desc: "Práticas para cada dia da semana" },
-    { icon: Moon, title: "Calendário Lunar", desc: "Fases da lua e seus significados" },
-    { icon: Star, title: "Meditações Guiadas", desc: "Conexão com sua essência" },
-    { icon: Gift, title: "Mantras Personalizados", desc: "Afirmações de poder" },
+  const includes = [
+    { icon: Crown, title: "7 guided rituals", desc: "One practice for each day of the week" },
+    { icon: Moon, title: "Moon cycle calendar", desc: "Phases of the moon and their meaning" },
+    { icon: Star, title: "Guided meditations", desc: "Reconnect with your inner clarity" },
+    { icon: Gift, title: "Personal mantras", desc: "Grounding affirmations you can repeat" },
   ];
 
   return (
@@ -68,7 +68,7 @@ const EntregaGuia = () => {
         >
           <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            Acesso Exclusivo Liberado
+            Exclusive access unlocked
           </div>
 
           <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-mystic-gold to-mystic-gold/60 flex items-center justify-center shadow-lg shadow-mystic-gold/30">
@@ -76,15 +76,15 @@ const EntregaGuia = () => {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            {name ? `${name}, Seu Guia Sagrado Está Pronto` : "Seu Guia Sagrado Está Pronto"}
+            {name ? `${name}, your Sacred Guide is ready` : "Your Sacred Guide is ready"}
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Você acaba de receber um material que pode transformar completamente sua jornada espiritual. 
-            Use-o com sabedoria e constância.
+            You now have a guide you can return to anytime. Use it gently and consistently.
+            For entertainment and self-reflection purposes.
           </p>
         </motion.div>
 
-        {/* O que contém */}
+        {/* What’s included */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -94,12 +94,12 @@ const EntregaGuia = () => {
           <div className="flex items-center gap-3 mb-6">
             <Gift className="w-6 h-6 text-mystic-gold" />
             <h2 className="text-xl font-serif font-semibold text-foreground">
-              O Que Você Está Recebendo
+              What you’ll receive
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            {oQueContem.map((item, index) => (
+            {includes.map((item, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
@@ -122,10 +122,10 @@ const EntregaGuia = () => {
         {/* Download Card */}
         <div className="mb-10">
           <DownloadCard
-            title="Guia Sagrado de Transformação Energética"
-            description="Clique abaixo para baixar seu material exclusivo em PDF"
+            title="Sacred Guide for Energy Transformation"
+            description="Tap below to download your PDF"
             downloadUrl={PDF_GUIA_URL}
-            buttonText="Baixar Guia Sagrado (PDF)"
+            buttonText="Download Sacred Guide (PDF)"
           />
         </div>
 
@@ -139,7 +139,7 @@ const EntregaGuia = () => {
           <div className="flex items-center gap-3 mb-6">
             <Star className="w-6 h-6 text-mystic-gold" />
             <h3 className="text-xl font-serif font-semibold text-foreground">
-              Como Aproveitar ao Máximo
+              How to get the most from it
             </h3>
           </div>
 
@@ -178,13 +178,12 @@ const EntregaGuia = () => {
           <div className="flex items-center gap-3 mb-4">
             <Shield className="w-6 h-6 text-emerald-400" />
             <h3 className="text-lg font-serif font-semibold text-foreground">
-              Acesso Vitalício ao Material
+              Lifetime access
             </h3>
           </div>
           <p className="text-muted-foreground leading-relaxed">
-            Este Guia é seu para sempre. Você pode baixá-lo quantas vezes precisar e retornar 
-            a esta página quando desejar. <strong className="text-foreground">Salve nos favoritos</strong> para 
-            acesso rápido sempre que quiser revisar os rituais e práticas.
+            This guide is yours to keep. You can download it anytime and return to this page whenever you’d like.
+            <strong className="text-foreground"> Bookmark it</strong> for quick access.
           </p>
         </motion.div>
 
@@ -196,9 +195,8 @@ const EntregaGuia = () => {
           className="text-center glass rounded-2xl p-8 mb-8"
         >
           <p className="text-xl text-foreground/90 italic font-serif leading-relaxed">
-            "A verdadeira transformação começa quando você decide olhar para dentro 
-            e honrar seu próprio caminho. Este guia é apenas o primeiro passo de uma 
-            jornada extraordinária que está apenas começando."
+            "Real change begins when you choose to look inward and honor your own path.
+            Let this guide be a simple, steady companion as you move forward."
           </p>
           <p className="text-mystic-gold mt-4 font-semibold">— Madame Aurora</p>
         </motion.div>

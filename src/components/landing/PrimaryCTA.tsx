@@ -14,7 +14,7 @@ interface PrimaryCTAProps {
 
 export const PrimaryCTA = ({
   route,
-  buttonText = "Quero minha leitura da mão",
+  buttonText = "Start my reading",
   showMicrotrust = true,
   showTime = true,
   className = "",
@@ -45,14 +45,14 @@ export const PrimaryCTA = ({
 
       {showMicrotrust && (
         <p className="text-sm text-muted-foreground/80 text-center tracking-wide">
-          Leitura confidencial · Processo individual · Sem julgamentos
+          Confidential · Personal process · Judgment-free
         </p>
       )}
 
       {showTime && (
         <p className="text-xs text-muted-foreground/80 flex items-center gap-1">
           <Clock className="w-3 h-3" />
-          Leva menos de 2 minutos
+          Takes less than 2 minutes
         </p>
       )}
     </motion.div>

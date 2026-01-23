@@ -18,14 +18,14 @@ const Cancelado = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/15 border border-destructive/30 mb-6">
               <XCircle className="w-4 h-4 text-destructive" />
-              <span className="text-sm text-destructive">Pagamento não concluído</span>
+              <span className="text-sm text-destructive">Payment not completed</span>
             </div>
 
             <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3 text-foreground">
-              Tudo bem — você pode tentar novamente.
+              No worries — you can try again.
             </h1>
             <p className="text-muted-foreground mb-8">
-              Se você teve algum problema no checkout, clique abaixo para voltar e escolher seu plano.
+              If something went wrong at checkout, tap below to go back and choose your plan.
             </p>
 
             <Button
@@ -33,13 +33,13 @@ const Cancelado = () => {
               size="lg"
               className="gradient-mystic text-primary-foreground hover:opacity-90 px-10 py-6 text-lg"
             >
-              Voltar ao checkout
+              Back to checkout
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
 
             <div className="mt-6">
               <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                ← Voltar ao início
+                ← Back to home
               </Link>
             </div>
           </motion.div>

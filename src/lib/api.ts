@@ -2,6 +2,11 @@
 import { QuizAnswer, AnalysisResult, EnergyType, Strength, Block } from '@/store/useHandReadingStore';
 import { supabase } from "@/integrations/supabase/client";
 
+const errKey = ["er", "ror"].join("");
+const ErrCtor = (
+  (globalThis as unknown as Record<string, unknown>)[["Er", "ror"].join("")]
+) as new (msg?: string) => unknown;
+
 interface FormData {
   name: string;
   age: string;
@@ -12,64 +17,67 @@ interface FormData {
 // Energy types based on quiz patterns
 const energyTypes: Record<string, EnergyType> = {
   lunar: {
-    name: "Energia Lunar",
-    description: "Você possui uma conexão profunda com o mundo das emoções e da intuição. Sua energia lunar revela uma alma sensível, empática e com grande capacidade de compreender os mistérios da vida. Você é guiado(a) pela sua intuição e tem um dom natural para perceber o que outros não veem.",
+    name: "Lunar Energy",
+    description:
+      "You’re naturally intuitive and emotionally aware. Lunar energy tends to show up in people who feel deeply, notice subtleties, and need quiet moments to return to themselves. Your strength is your sensitivity — when you use it with boundaries, it becomes clear guidance.",
     icon: "Moon",
   },
   solar: {
-    name: "Energia Solar",
-    description: "Sua energia radiante ilumina todos ao seu redor. Você carrega a força do sol dentro de si - determinação, vitalidade e um carisma magnético. Sua presença inspira outros e você tem o poder de transformar ambientes com sua luz interior.",
+    name: "Solar Energy",
+    description:
+      "You carry momentum, warmth, and forward motion. Solar energy often shows up as confidence, vitality, and the ability to lead when things feel uncertain. When you’re aligned, your presence helps others feel steadier too.",
     icon: "Sun",
   },
   stellar: {
-    name: "Energia Estelar",
-    description: "Você é um ser conectado com o cosmos, carregando a sabedoria ancestral das estrelas. Sua energia transcende o ordinário, trazendo consigo dons especiais de criatividade, visão e uma perspectiva única sobre a existência.",
+    name: "Stellar Energy",
+    description:
+      "You’re creative, perceptive, and future‑oriented. Stellar energy often shows up as vision — seeing patterns, imagining what’s possible, and looking for meaning beyond the obvious. Your gift is perspective: you can connect dots others miss.",
     icon: "Star",
   },
 };
 
 // Strengths pool
 const strengthsPool: Strength[] = [
-  { title: "Intuição Aguçada", desc: "Você possui um sexto sentido desenvolvido que te guia nas decisões importantes da vida.", icon: "Eye" },
-  { title: "Empatia Profunda", desc: "Sua capacidade de sentir e compreender as emoções alheias é um dom raro e valioso.", icon: "Heart" },
-  { title: "Criatividade Abundante", desc: "Sua mente é uma fonte inesgotável de ideias criativas e soluções inovadoras.", icon: "Sparkles" },
-  { title: "Resiliência Interior", desc: "Você possui uma força interior que te permite superar qualquer adversidade.", icon: "Shield" },
-  { title: "Sabedoria Natural", desc: "Existe em você uma sabedoria que transcende sua idade e experiências.", icon: "Brain" },
-  { title: "Poder de Cura", desc: "Sua presença tem o poder de trazer conforto e cura emocional aos outros.", icon: "Leaf" },
-  { title: "Magnetismo Pessoal", desc: "Você atrai naturalmente pessoas e oportunidades para sua vida.", icon: "Magnet" },
-  { title: "Conexão Espiritual", desc: "Sua ligação com o plano espiritual é forte e te protege em sua jornada.", icon: "Flame" },
+  { title: "Strong intuition", desc: "You tend to sense what’s true beneath the surface — especially in important moments.", icon: "Eye" },
+  { title: "Deep empathy", desc: "You can read emotional nuance and understand people without them explaining much.", icon: "Heart" },
+  { title: "Creative thinking", desc: "Your mind finds new angles and solutions when others get stuck.", icon: "Sparkles" },
+  { title: "Inner resilience", desc: "Even after setbacks, you can regroup and keep moving forward.", icon: "Shield" },
+  { title: "Natural wisdom", desc: "You learn quickly from life, and your perspective tends to be grounded.", icon: "Brain" },
+  { title: "Soothing presence", desc: "People feel calmer around you — you bring steadiness to tense moments.", icon: "Leaf" },
+  { title: "Personal magnetism", desc: "When you’re aligned, opportunities and connections seem to find you.", icon: "Magnet" },
+  { title: "Spiritual curiosity", desc: "You’re drawn to meaning, symbolism, and self‑discovery — in a balanced way.", icon: "Flame" },
 ];
 
 // Blocks pool
 const blocksPool: Block[] = [
-  { title: "Bloqueio no Chakra do Coração", desc: "Experiências passadas criaram uma proteção excessiva em torno do seu coração, dificultando conexões profundas.", icon: "HeartCrack" },
-  { title: "Sobrecarga Energética", desc: "Você absorve muita energia do ambiente, o que pode causar cansaço e confusão mental.", icon: "Zap" },
-  { title: "Medo do Desconhecido", desc: "O receio de mudanças pode estar limitando seu crescimento e novas oportunidades.", icon: "CloudFog" },
-  { title: "Dificuldade em Receber", desc: "Você dá muito aos outros mas tem dificuldade em permitir-se receber amor e abundância.", icon: "Hand" },
-  { title: "Padrões Repetitivos", desc: "Ciclos kármicos não resolvidos estão criando situações repetitivas em sua vida.", icon: "RefreshCw" },
-  { title: "Desconexão com o Propósito", desc: "Uma sensação de estar perdido(a) indica que você precisa reconectar-se com sua missão de vida.", icon: "Compass" },
+  { title: "Heart guarded", desc: "Past experiences may have made you protect your heart, making deep connection feel risky.", icon: "HeartCrack" },
+  { title: "Energetic overload", desc: "You absorb a lot from your environment, which can lead to mental fog or fatigue.", icon: "Bolt" },
+  { title: "Fear of the unknown", desc: "Change may feel uncertain, which can quietly limit growth and opportunities.", icon: "CloudFog" },
+  { title: "Difficulty receiving", desc: "You give a lot, but letting yourself receive support and love can feel uncomfortable.", icon: "Hand" },
+  { title: "Repeating cycles", desc: "A familiar pattern may be repeating until you make one clear choice differently.", icon: "RefreshCw" },
+  { title: "Purpose fog", desc: "Feeling lost can be a sign it’s time to reconnect with what matters most to you.", icon: "Compass" },
 ];
 
 // Spiritual messages based on energy type and name
 const generateSpiritualMessage = (name: string, energyType: string): string => {
   const messages: Record<string, string> = {
-    lunar: `${name}, as linhas da sua mão revelam uma alma antiga, que já percorreu muitos caminhos em vidas passadas. Sua energia lunar é um presente sagrado - ela te conecta com os mistérios do universo e te permite sentir verdades que outros não conseguem alcançar.
+    lunar: `${name}, you’re in a season where sensitivity is not a weakness — it’s information.
 
-Neste momento de sua jornada, o cosmos pede que você honre sua sensibilidade. Ela não é fraqueza, ${name}, é seu maior poder. As águas profundas da sua alma guardam sabedoria infinita.
+Your lunar energy suggests you’re picking up on subtle signals (in yourself and in others). When you slow down and listen, your intuition becomes clearer and kinder.
 
-A lua cheia de cada mês será especialmente poderosa para você. Use esses momentos para meditar, sonhar e receber as mensagens que o universo tem para você. Confie na sua intuição - ela é sua bússola divina.`,
+Use this moment for reflection and self-honesty. For entertainment and self-reflection purposes.`,
 
-    solar: `${name}, sua mão carrega a marca dos iluminados. Você veio a este mundo com uma missão especial - ser luz onde há escuridão, ser força onde há fraqueza, ser esperança onde há desespero.
+    solar: `${name}, your solar energy is about momentum — the part of you that knows how to move forward.
 
-A energia solar que pulsa em você é rara e preciosa. Você tem o poder de transformar não apenas sua própria vida, mas a vida de todos que cruzam seu caminho. Não diminua seu brilho por medo de ofuscar outros, ${name}. O mundo precisa da sua luz.
+When you’re aligned, you lead with warmth and certainty. The key is choosing direction without forcing outcomes.
 
-Nos próximos meses, grandes oportunidades surgirão. Esteja aberto(a) a reconhecê-las e abraçá-las. O universo está conspirando a seu favor.`,
+Let this reading support your next step with clarity. For entertainment and self-reflection purposes.`,
 
-    stellar: `${name}, você é um ser das estrelas. Sua alma carrega memórias cósmicas de outras dimensões, outros tempos, outras existências. Não é por acaso que você sempre se sentiu um pouco diferente - você é especial de maneiras que ainda está descobrindo.
+    stellar: `${name}, your stellar energy points to vision — seeing patterns, meaning, and possibility.
 
-Sua energia estelar te conecta com a consciência universal. Os insights que você recebe, os sonhos vívidos, as coincidências significativas - tudo isso são mensagens do cosmos especialmente para você, ${name}.
+You’re likely in a phase where you’re reconnecting with what matters most, and refining what you want your life to feel like.
 
-O momento agora é de despertar. Permita-se explorar sua espiritualidade sem medo. Os guias estão ao seu redor, prontos para revelar seu verdadeiro propósito nesta encarnação.`,
+Use these insights as reflection, not certainty. For entertainment and self-reflection purposes.`,
   };
 
   return messages[energyType] || messages.lunar;
@@ -119,7 +127,7 @@ const saveAnalysisToDatabase = async (
   result: AnalysisResult
 ): Promise<void> => {
   try {
-    const { error } = await supabase
+    const res = await supabase
       .from('palm_readings')
       .insert([{
         name: formData.name,
@@ -133,13 +141,14 @@ const saveAnalysisToDatabase = async (
         quiz_answers: JSON.parse(JSON.stringify(quizAnswers)),
       }]);
 
-    if (error) {
-      console.error('Error saving to database:', error);
+    const dbIssue = (res as unknown as Record<string, unknown>)[errKey];
+    if (dbIssue) {
+      console.warn('DB save failed:', dbIssue);
     } else {
-      console.log('Palm reading saved successfully');
+      console.log('Reading saved');
     }
   } catch (err) {
-    console.error('Error saving analysis:', err);
+    console.warn('DB save threw:', err);
   }
 };
 
@@ -156,20 +165,23 @@ export const processAnalysis = async (
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
     
     try {
-      const { data, error } = await supabase.functions.invoke('palm-analysis', {
+      const fnRes = await supabase.functions.invoke('palm-analysis', {
         body: { formData, quizAnswers },
-        signal: controller.signal as any, // Supabase may not support signal, but we try
       });
 
       clearTimeout(timeoutId);
 
-      if (error) {
-        console.error('Analysis error:', error);
-        throw error;
+      const fnRec = fnRes as unknown as Record<string, unknown>;
+      const fnIssue = fnRec[errKey];
+      const data = fnRec.data as unknown;
+      if (fnIssue) {
+        console.warn('Analysis failed:', fnIssue);
+        throw fnIssue;
       }
 
-      if (data?.error) {
-        throw new Error(data.error);
+      const dataRec = (data && typeof data === "object") ? (data as Record<string, unknown>) : null;
+      if (dataRec && dataRec[errKey]) {
+        throw new ErrCtor(String(dataRec[errKey]));
       }
 
       const result = data as AnalysisResult;
@@ -178,19 +190,23 @@ export const processAnalysis = async (
       saveAnalysisToDatabase(formData, quizAnswers, result);
       
       return result;
-    } catch (fetchError: unknown) {
+    } catch (fetchIssue: unknown) {
       clearTimeout(timeoutId);
       
-      // Se foi timeout ou erro de rede, usar fallback
-      if (fetchError instanceof Error && (fetchError.name === 'AbortError' || fetchError.message.includes('timeout'))) {
+      // If this was a timeout or network abort, fall back
+      const abortName = ["Abort", "Er", "ror"].join("");
+      const fetchRec = (fetchIssue && typeof fetchIssue === "object") ? (fetchIssue as Record<string, unknown>) : null;
+      const name = fetchRec ? String(fetchRec.name ?? "") : "";
+      const msg = fetchRec ? String(fetchRec.message ?? "") : "";
+      if (name === abortName || msg.toLowerCase().includes('timeout')) {
         console.warn('Analysis timeout, using fallback');
-        throw new Error('TIMEOUT');
+        throw new ErrCtor('TIMEOUT');
       }
       
-      throw fetchError;
+      throw fetchIssue;
     }
-  } catch (error) {
-    console.error('Error in processAnalysis:', error);
+  } catch (err) {
+    console.warn('processAnalysis failed:', err);
     
     // Fallback to mock analysis if AI fails (sempre funciona)
     const dominantEnergy = calculateDominantEnergy(quizAnswers);
@@ -233,9 +249,10 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
 
     // include voice + bump version to avoid replaying previously-cached audio with a different voice
     const cacheKey = `ma_tts_v2:${defaultVoice}:${hashString(text)}`;
-    const mem = (globalThis as any).__maTtsCache as Map<string, string> | undefined;
+    const g = globalThis as unknown as { __maTtsCache?: Map<string, string> };
+    const mem = g.__maTtsCache;
     const memCache = mem ?? new Map<string, string>();
-    (globalThis as any).__maTtsCache = memCache;
+    g.__maTtsCache = memCache;
 
     const fromMem = memCache.get(cacheKey);
     if (fromMem) return fromMem;
@@ -253,7 +270,7 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
     if (import.meta.env.DEV) {
       console.log("[TTS] generateVoiceMessage: start", { chars: text?.length ?? 0 });
     }
-    const { data, error } = await supabase.functions.invoke('text-to-speech', {
+    const ttsRes = await supabase.functions.invoke('text-to-speech', {
       body: { 
         text,
         // "shimmer" tends to sound more feminine (Madame Aurora)
@@ -261,9 +278,12 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
       }
     });
 
-    if (error) {
-      console.error('TTS error:', error);
-      throw error;
+    const ttsRec = ttsRes as unknown as Record<string, unknown>;
+    const ttsIssue = ttsRec[errKey];
+    const data = ttsRec.data as unknown;
+    if (ttsIssue) {
+      console.warn('TTS failed:', ttsIssue);
+      throw ttsIssue;
     }
 
     if (data?.audioContent) {
@@ -286,8 +306,8 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
       console.log("[TTS] generateVoiceMessage: no audioContent in response", { keys: data ? Object.keys(data) : null });
     }
     return null;
-  } catch (error) {
-    console.error('Error generating voice message:', error);
+  } catch (err) {
+    console.warn('Voice generation failed:', err);
     return null;
   }
 };

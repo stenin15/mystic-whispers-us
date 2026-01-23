@@ -12,7 +12,7 @@ interface StickyCTAProps {
 
 export const StickyCTA = ({
   route,
-  buttonText = "Quero minha leitura",
+  buttonText = "Continue",
   showAfterPercent = 30
 }: StickyCTAProps) => {
   const [isVisible, setIsVisible] = useState(false);

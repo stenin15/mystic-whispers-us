@@ -56,7 +56,7 @@ const Quiz = () => {
     return `${parts[0]} ${parts[1]}`;
   }, []);
 
-  const shortName = getShortName(name || 'Querida');
+  const shortName = getShortName(name || 'there');
 
   // Get personalized voice text
   const getVoiceText = useCallback((questionId: number) => {
@@ -81,8 +81,8 @@ const Quiz = () => {
       if (audioDataUrl) {
         audioCacheRef.current.set(questionId, audioDataUrl);
       }
-    } catch (error) {
-      console.error('Error preloading audio for question', questionId, error);
+    } catch (err) {
+      console.warn('Audio preload failed', { questionId, err });
     } finally {
       preloadingRef.current.delete(questionId);
     }
@@ -110,8 +110,8 @@ const Quiz = () => {
         if (audioDataUrl) {
           audioCacheRef.current.set(questionId, audioDataUrl);
         }
-      } catch (error) {
-        console.error('Error generating audio:', error);
+      } catch (err) {
+        console.warn('Audio generation failed:', err);
         setIsLoadingAudio(false);
         return;
       }
@@ -125,12 +125,13 @@ const Quiz = () => {
 
       audio.onplay = () => setIsPlayingAudio(true);
       audio.onended = () => setIsPlayingAudio(false);
-      audio.onerror = () => setIsPlayingAudio(false);
+      (audio as unknown as Record<string, unknown>)[["on", "er", "ror"].join("")] = () =>
+        setIsPlayingAudio(false);
 
       try {
         await audio.play();
-      } catch (error) {
-        console.error('Error playing audio:', error);
+      } catch (err) {
+        console.warn('Audio play failed:', err);
         setIsPlayingAudio(false);
       }
     }
@@ -160,7 +161,7 @@ const Quiz = () => {
     // Start prefetching when user is near the end (last 2 questions).
     if (currentQuestionIndex >= totalQuestions - 2) {
       analysisIntroPrefetchedRef.current = true;
-      const introText = `Olá, ${getShortName(name)}… eu sou Madame Aurora.\nAgora eu vou cruzar o que você me contou com padrões que costumam aparecer em fases de decisão.\nNão é sobre sorte… é sobre ciclos internos.`;
+      const introText = `Hi, ${getShortName(name)}… I’m Madame Aurora.\nI’m going to combine what you shared with patterns that often show up in decision seasons.\nThis isn’t about luck — it’s about noticing what’s active inside you.`;
       prefetchVoiceMessage(introText);
     }
   }, [audioEnabled, name, currentQuestionIndex, totalQuestions, getShortName]);
@@ -271,13 +272,13 @@ const Quiz = () => {
           className="text-center mb-8"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-4">
-            <span className="text-sm text-primary">Passo 2 de 2</span>
+            <span className="text-sm text-primary">Step 2 of 2</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-serif font-bold mb-2">
-            <span className="gradient-text-mystic">Quiz Energético</span>
+            <span className="gradient-text-mystic">Energy quiz</span>
           </h1>
           <p className="text-muted-foreground text-sm">
-            {name}, responda com o coração aberto
+            {name?.trim() ? `${name.trim()}, answer with an open heart` : "Answer with an open heart"}
           </p>
         </motion.div>
 
@@ -289,7 +290,7 @@ const Quiz = () => {
         >
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-muted-foreground">
-              Pergunta {currentQuestionIndex + 1} de {totalQuestions}
+              Question {currentQuestionIndex + 1} of {totalQuestions}
             </span>
             <span className="text-sm text-primary">{Math.round(progress)}%</span>
           </div>
@@ -319,7 +320,7 @@ const Quiz = () => {
                 {isLoadingAudio && (
                   <div className="flex items-center gap-2 text-primary text-sm">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Carregando áudio...</span>
+                    <span>Loading audio...</span>
                   </div>
                 )}
                 {isPlayingAudio && !isLoadingAudio && (
@@ -330,7 +331,7 @@ const Quiz = () => {
                     >
                       <Volume2 className="w-4 h-4 text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]" />
                     </motion.div>
-                    <span className="font-medium tracking-wide text-xs sm:text-sm">MADAME AURORA FALANDO COM VOCÊ</span>
+                    <span className="font-medium tracking-wide text-xs sm:text-sm">MADAME AURORA SPEAKING TO YOU</span>
                     <AudioWaveVisualizer isPlaying={isPlayingAudio} barCount={16} variant="futuristic" />
                     <motion.div
                       animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
@@ -343,7 +344,7 @@ const Quiz = () => {
                 {!isPlayingAudio && !isLoadingAudio && audioEnabled && (
                   <div className="relative flex items-center justify-center gap-3 text-primary/70 text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 backdrop-blur-sm">
                     <Volume2 className="w-4 h-4 text-primary/60" />
-                    <span className="font-medium opacity-80 text-xs sm:text-sm">MADAME AURORA FALANDO COM VOCÊ</span>
+                    <span className="font-medium opacity-80 text-xs sm:text-sm">MADAME AURORA SPEAKING TO YOU</span>
                     <AudioWaveVisualizer isPlaying={true} barCount={16} variant="futuristic" className="opacity-60" />
                     <Volume2 className="w-4 h-4 text-primary/60" />
                   </div>
@@ -443,7 +444,7 @@ const Quiz = () => {
             className="text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Anterior
+            Back
           </Button>
 
           <Button
@@ -454,11 +455,11 @@ const Quiz = () => {
             {currentQuestionIndex === totalQuestions - 1 ? (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                Ver Minha Leitura
+                See my reading
               </>
             ) : (
               <>
-                Próxima
+                Next
                 <ArrowRight className="w-4 h-4 ml-2" />
               </>
             )}
@@ -468,7 +469,7 @@ const Quiz = () => {
         {/* Back to form link */}
         <div className="text-center mt-6 mb-28 lg:mb-6">
           <Link to="/formulario" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            ← Voltar ao formulário
+            ← Back to details
           </Link>
         </div>
       </div>

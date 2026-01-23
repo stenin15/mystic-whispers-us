@@ -15,39 +15,40 @@ import { Button } from "@/components/ui/button";
 import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import LegalFooter from "@/components/delivery/LegalFooter";
 
-// Link de checkout do Guia na Cakto
-const CHECKOUT_GUIA_URL = import.meta.env.VITE_CAKTO_CHECKOUT_GUIA_URL as string || "https://pay.cakto.com.br/7kityvs_701674";
+// US market: checkout via Stripe (configure in Vercel envs)
+const CHECKOUT_GUIDE_URL = import.meta.env.VITE_STRIPE_CHECKOUT_GUIDE_URL as string | undefined;
 
 const OfertaGuiaExclusivo = () => {
   const benefits = [
     {
       icon: Moon,
-      text: "Entenda seus ciclos energéticos e como eles influenciam suas decisões",
+      text: "Understand your personal cycles and how they influence your decisions",
     },
     {
       icon: Flame,
-      text: "Rituais simples para equilibrar sua energia no dia a dia",
+      text: "Simple rituals to rebalance your energy day by day",
     },
     {
       icon: Heart,
-      text: "Práticas de autoconhecimento para clareza emocional",
+      text: "Self-reflection practices for emotional clarity",
     },
     {
       icon: Star,
-      text: "Mapas simbólicos para identificar padrões em sua vida",
+      text: "Symbolic maps to help you recognize repeating patterns",
     },
   ];
 
   const includes = [
-    "Guia Sagrado completo em PDF (45+ páginas)",
-    "Mapa de Ciclos Energéticos Pessoais",
-    "7 Rituais de Equilíbrio para o Dia a Dia",
-    "Bônus: Meditação Guiada em Áudio",
-    "Acesso vitalício ao material",
+    "Complete Sacred Guide (45+ pages PDF)",
+    "Personal cycles map",
+    "7 grounding rituals for everyday life",
+    "Bonus: guided meditation (audio)",
+    "Lifetime access",
   ];
 
   const handleCheckout = () => {
-    window.location.href = CHECKOUT_GUIA_URL;
+    if (!CHECKOUT_GUIDE_URL) return;
+    window.location.href = CHECKOUT_GUIDE_URL;
   };
 
   return (
@@ -70,15 +71,15 @@ const OfertaGuiaExclusivo = () => {
         >
           <div className="inline-flex items-center gap-2 bg-mystic-gold/20 text-mystic-gold px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Gift className="w-4 h-4" />
-            Oferta Exclusiva Pós-Leitura
+            Post-reading offer
           </div>
 
           <h1 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-6 leading-tight">
-            Aprofunde sua leitura com o{" "}
-            <span className="text-mystic-gold">Guia Sagrado</span>
+            Deepen your insight with the{" "}
+            <span className="text-mystic-gold">Sacred Guide</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            A leitura mostrou pontos importantes. Este guia aprofunda exatamente como lidar com isso no dia a dia.
+            Your reading highlighted key themes. This guide shows how to work with them in everyday life.
           </p>
         </motion.div>
 
@@ -91,7 +92,7 @@ const OfertaGuiaExclusivo = () => {
         >
           <h2 className="text-xl font-serif font-semibold text-foreground mb-6 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-mystic-gold" />
-            O que você vai descobrir
+            What you’ll discover
           </h2>
 
           <div className="grid gap-4">
@@ -121,7 +122,7 @@ const OfertaGuiaExclusivo = () => {
         >
           <h2 className="text-xl font-serif font-semibold text-foreground mb-6 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-mystic-gold" />
-            O que está incluso
+            What’s included
           </h2>
 
           <ul className="space-y-3">
@@ -154,20 +155,20 @@ const OfertaGuiaExclusivo = () => {
           <div className="relative z-10 text-center">
             <div className="inline-flex items-center gap-2 bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm font-medium mb-4">
               <Flame className="w-4 h-4" />
-              Oferta válida apenas após ativar a leitura
+              Available right after your reading
             </div>
 
             <div className="mb-6">
               <p className="text-muted-foreground line-through text-lg">
-                De R$ 39,90
+                Was $39.90
               </p>
               <div className="flex items-baseline justify-center gap-2">
                 <span className="text-5xl md:text-6xl font-bold text-mystic-gold">
-                  R$ 29,90
+                  $29.90
                 </span>
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                Pagamento único • Acesso imediato
+                One-time payment • Instant access
               </p>
             </div>
 
@@ -176,13 +177,13 @@ const OfertaGuiaExclusivo = () => {
               size="lg"
               className="w-full max-w-md bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-xl py-8 rounded-xl shadow-lg shadow-mystic-gold/30 transition-all duration-300 hover:scale-[1.02] mb-4"
             >
-              Quero aprofundar agora
+              Upgrade now
               <ArrowRight className="w-6 h-6 ml-2" />
             </Button>
 
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <Shield className="w-4 h-4 text-emerald-400" />
-              <span>Pagamento 100% seguro • Satisfação garantida</span>
+              <span>Secure checkout • Satisfaction guaranteed</span>
             </div>
           </div>
         </motion.div>
@@ -203,10 +204,9 @@ const OfertaGuiaExclusivo = () => {
             ))}
           </div>
           <p className="text-muted-foreground italic mb-3">
-            "O Guia Sagrado me ajudou a lidar com padrões que eu repetia há anos. 
-            Os rituais são simples e práticos. Recomendo muito!"
+            "The guide helped me understand what kept repeating — and the steps felt grounded and easy to follow."
           </p>
-          <p className="text-foreground font-medium">— Fernanda S.</p>
+          <p className="text-foreground font-medium">— Michelle S.</p>
         </motion.div>
 
         {/* Legal Footer */}

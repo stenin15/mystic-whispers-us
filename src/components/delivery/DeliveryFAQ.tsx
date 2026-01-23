@@ -20,30 +20,30 @@ interface DeliveryFAQProps {
 
 const defaultFAQItems: FAQItem[] = [
   {
-    question: "Minha leitura é única e personalizada?",
+    question: "Is my reading unique and personalized?",
     answer:
-      "Sim! Madame Aurora analisa profundamente as linhas da sua mão, seu perfil energético e suas respostas do quiz para criar uma leitura 100% personalizada para você. Cada revelação é única.",
+      "Yes. Madame Aurora reads the lines of your palm, your energy profile, and your quiz answers to create a deeply personalized experience. Every insight is unique to you.",
   },
   {
-    question: "Posso acessar minha leitura novamente?",
+    question: "Can I access my reading again later?",
     answer:
-      "Sim! Sua leitura fica disponível nesta página sempre que precisar revisitar. Recomendamos salvar nos favoritos para consultas futuras.",
+      "Absolutely. Your reading stays available on this page whenever you want to revisit it. We recommend bookmarking it for easy access.",
   },
   {
-    question: "O que está incluído na minha leitura?",
+    question: "What’s included in my reading?",
     answer:
-      "Sua leitura inclui: análise do seu tipo energético, revelação dos seus dons e pontos fortes, identificação de bloqueios a serem superados, mensagem espiritual canalizada especialmente para você, e orientações práticas para sua transformação.",
+      "Your reading includes: an overview of your dominant energy, your natural strengths, the blocks currently holding you back, and clear guidance you can use right away.",
   },
   {
-    question: "Preciso de suporte ou tenho dúvidas?",
+    question: "Need support or have a question?",
     answer:
-      "Entre em contato conosco através do e-mail suporte@madameaurora.com ou pelo WhatsApp disponível em nosso site. Estamos aqui para ajudar!",
+      "Email us at suporte@madameaurora.com. We’re here to help.",
   },
 ];
 
 const DeliveryFAQ = forwardRef<HTMLDivElement, DeliveryFAQProps>(({
   items = defaultFAQItems,
-  title = "Perguntas Frequentes",
+  title = "Frequently Asked Questions",
 }, ref) => {
   return (
     <motion.div

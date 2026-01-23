@@ -189,7 +189,7 @@ O JSON deve ter exatamente esta estrutura:
     {
       "title": "Título do bloqueio",
       "desc": "Descrição de 1-2 frases sobre o bloqueio e como afeta a pessoa",
-      "icon": "HeartCrack ou Zap ou CloudFog ou Hand ou RefreshCw ou Compass"
+      "icon": "HeartCrack ou Bolt ou CloudFog ou Hand ou RefreshCw ou Compass"
     },
     {
       "title": "Segundo bloqueio",

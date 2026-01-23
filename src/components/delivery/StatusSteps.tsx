@@ -12,9 +12,9 @@ interface StatusStepsProps {
 }
 
 const defaultSteps: Step[] = [
-  { label: "Pagamento confirmado", status: "completed", icon: "payment" },
-  { label: "Foto recebida", status: "completed", icon: "photo" },
-  { label: "Leitura em preparação", status: "processing", icon: "reading" },
+  { label: "Payment confirmed", status: "completed", icon: "payment" },
+  { label: "Photo received", status: "completed", icon: "photo" },
+  { label: "Reading in progress", status: "processing", icon: "reading" },
 ];
 
 const iconMap = {
@@ -32,7 +32,7 @@ const StatusSteps = ({ steps = defaultSteps }: StatusStepsProps) => {
       className="glass-strong rounded-2xl p-6 md:p-8"
     >
       <h3 className="text-lg font-semibold text-foreground mb-6 font-serif">
-        Status do seu pedido
+        Your order status
       </h3>
       <div className="space-y-4">
         {steps.map((step, index) => {
@@ -73,7 +73,7 @@ const StatusSteps = ({ steps = defaultSteps }: StatusStepsProps) => {
               </span>
               {step.status === "processing" && (
                 <span className="text-xs text-mystic-gold/70 ml-auto">
-                  Em andamento
+                  In progress
                 </span>
               )}
             </motion.div>

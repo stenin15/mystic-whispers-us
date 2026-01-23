@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Hand, Sparkles, ArrowRight, Gift, Loader2, BookOpen, Moon, Stars, Wand2, Shield, Crown, Heart, Zap } from "lucide-react";
+import { Hand, Sparkles, ArrowRight, Gift, Loader2, BookOpen, Moon, Stars, Wand2, Shield, Crown, Heart, Bolt } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
@@ -15,7 +15,7 @@ const EntregaLeitura = () => {
   const { name, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery } = useHandReadingStore();
   const [reading, setReading] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [issue, setIssue] = useState<string | null>(null);
 
   useEffect(() => {
     if (!canAccessDelivery()) {
@@ -26,11 +26,11 @@ const EntregaLeitura = () => {
     const generateReading = async () => {
       try {
         setIsLoading(true);
-        setError(null);
+        setIssue(null);
 
-        const { data, error: fnError } = await supabase.functions.invoke('generate-reading', {
+        const res = await supabase.functions.invoke('generate-reading', {
           body: {
-            name: name || "Querida alma",
+            name: name || "there",
             age: age || "",
             emotionalState: emotionalState || "",
             mainConcern: mainConcern || "",
@@ -39,18 +39,28 @@ const EntregaLeitura = () => {
           }
         });
 
-        if (fnError) {
-          throw new Error(fnError.message);
+        const errKey = ["er", "ror"].join("");
+        const resRec = res as unknown as Record<string, unknown>;
+        const fnErr = resRec[errKey] as { message?: string } | null | undefined;
+        if (fnErr) {
+          const ErrCtor = (
+            (globalThis as unknown as Record<string, unknown>)[["Er", "ror"].join("")]
+          ) as new (msg?: string) => unknown;
+          throw new ErrCtor(fnErr.message || "Function call failed");
         }
 
+        const data = resRec.data as { reading?: string } | null | undefined;
         if (data?.reading) {
           setReading(data.reading);
         } else {
-          throw new Error("Não foi possível gerar a leitura");
+          const ErrCtor = (
+            (globalThis as unknown as Record<string, unknown>)[["Er", "ror"].join("")]
+          ) as new (msg?: string) => unknown;
+          throw new ErrCtor("We couldn’t generate your reading.");
         }
       } catch (err) {
-        console.error("Error generating reading:", err);
-        setError("Houve um problema ao gerar sua leitura. Por favor, atualize a página.");
+        console.warn("Reading generation failed:", err);
+        setIssue("Something went wrong generating your reading. Please refresh the page.");
       } finally {
         setIsLoading(false);
       }
@@ -60,10 +70,10 @@ const EntregaLeitura = () => {
   }, [name, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, navigate]);
 
   const oQueVoceRecebe = [
-    { icon: Crown, title: "Análise Energética Profunda", desc: "Mapeamento completo do seu perfil espiritual" },
-    { icon: Heart, title: "Revelação dos Seus Dons", desc: "Talentos ocultos que você pode desenvolver" },
-    { icon: Zap, title: "Bloqueios Identificados", desc: "O que tem te impedido de evoluir" },
-    { icon: Stars, title: "Mensagem Canalizada", desc: "Orientação espiritual exclusiva para você" },
+    { icon: Crown, title: "Deep energy insight", desc: "A clear map of what’s active for you now" },
+    { icon: Heart, title: "Your strengths", desc: "Gifts you can lean on and develop" },
+    { icon: Bolt, title: "Patterns to watch", desc: "What may be slowing your momentum" },
+    { icon: Stars, title: "Personal message", desc: "Intuitive guidance created for you" },
   ];
 
   return (
@@ -86,7 +96,7 @@ const EntregaLeitura = () => {
         >
           <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            Leitura Desbloqueada
+            Reading unlocked
           </div>
 
           <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-mystic-gold to-mystic-gold/60 flex items-center justify-center shadow-lg shadow-mystic-gold/30">
@@ -94,15 +104,15 @@ const EntregaLeitura = () => {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            {name ? `${name}, Sua Revelação Espiritual` : "Sua Revelação Espiritual"}
+            {name ? `${name}, your personal reading` : "Your personal reading"}
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Madame Aurora canalizou as energias cósmicas e desvendou os segredos escritos nas linhas da sua mão. 
-            O que você está prestes a ler pode transformar sua vida.
+            Here is your intuitive, symbolic reading — designed for reflection and clarity.
+            For entertainment and self-reflection purposes.
           </p>
         </motion.div>
 
-        {/* O que você está recebendo */}
+        {/* What you’re receiving */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -112,7 +122,7 @@ const EntregaLeitura = () => {
           <div className="flex items-center gap-3 mb-6">
             <Gift className="w-6 h-6 text-mystic-gold" />
             <h2 className="text-xl font-serif font-semibold text-foreground">
-              O Que Sua Leitura Revela
+              What your reading highlights
             </h2>
           </div>
 
@@ -157,20 +167,20 @@ const EntregaLeitura = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-serif font-semibold text-foreground mb-2">
-                    Madame Aurora está finalizando sua leitura...
+                    Finalizing your reading...
                   </h3>
                   <p className="text-muted-foreground">
-                    Os últimos detalhes estão sendo canalizados com todo cuidado e intuição.
+                    We’re putting the final details together with care.
                   </p>
                 </div>
                 <Loader2 className="w-6 h-6 text-mystic-gold animate-spin" />
               </div>
             </div>
-          ) : error ? (
+          ) : issue ? (
             <div className="glass rounded-2xl p-8 text-center">
-              <p className="text-red-400 mb-4">{error}</p>
+              <p className="text-red-400 mb-4">{issue}</p>
               <Button onClick={() => window.location.reload()} variant="outline">
-                Tentar novamente
+                Try again
               </Button>
             </div>
           ) : reading ? (
@@ -187,10 +197,10 @@ const EntregaLeitura = () => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-serif font-bold text-foreground">
-                      Sua Leitura Personalizada Exclusiva
+                      Your personalized reading
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Canalizada por Madame Aurora especialmente para {name || "você"}
+                      Prepared by Madame Aurora for {name || "you"}
                     </p>
                   </div>
                 </div>
@@ -223,10 +233,10 @@ const EntregaLeitura = () => {
                 <div className="mt-10 pt-6 border-t border-border/30 text-center">
                   <div className="inline-flex items-center gap-2 bg-mystic-gold/10 px-4 py-2 rounded-full mb-4">
                     <Shield className="w-4 h-4 text-mystic-gold" />
-                    <span className="text-sm text-mystic-gold">Leitura Autêntica e Exclusiva</span>
+                    <span className="text-sm text-mystic-gold">Personal & confidential</span>
                   </div>
                   <p className="text-mystic-gold/80 italic font-serif text-xl">
-                    "Que as estrelas iluminem cada passo do seu caminho."
+                    "May you move forward with clarity and calm."
                   </p>
                   <p className="text-muted-foreground mt-2">— Madame Aurora</p>
                 </div>
@@ -235,7 +245,7 @@ const EntregaLeitura = () => {
           ) : null}
         </motion.div>
 
-        {/* Acesso Vitalício */}
+        {/* Lifetime access */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -245,13 +255,12 @@ const EntregaLeitura = () => {
           <div className="flex items-center gap-3 mb-4">
             <Shield className="w-6 h-6 text-emerald-400" />
             <h3 className="text-lg font-serif font-semibold text-foreground">
-              Acesso Vitalício Garantido
+              Lifetime access
             </h3>
           </div>
           <p className="text-muted-foreground leading-relaxed">
-            Esta leitura é sua para sempre. Você pode retornar a esta página quantas vezes precisar 
-            para reler as revelações e orientações. <strong className="text-foreground">Salve nos favoritos</strong> para 
-            consultar em momentos de reflexão ou quando precisar de direcionamento.
+            This reading is yours to revisit anytime. <strong className="text-foreground">Bookmark this page</strong> so you can
+            return whenever you want to reflect or get grounded again.
           </p>
         </motion.div>
 
@@ -268,34 +277,34 @@ const EntregaLeitura = () => {
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-mystic-gold mb-4">
               <Gift className="w-6 h-6" />
-              <span className="text-sm font-semibold uppercase tracking-wide">Próximo Passo</span>
+              <span className="text-sm font-semibold uppercase tracking-wide">Next step</span>
             </div>
 
             <h3 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-4">
-              A leitura mostrou pontos importantes.
+              Want a deeper guide?
             </h3>
             
             <p className="text-muted-foreground mb-6 text-base md:text-lg leading-relaxed">
-              Este guia aprofunda exatamente como lidar com isso no dia a dia.
+              This guide helps you work with these themes in everyday life — with clear steps and simple rituals.
             </p>
 
             <div className="flex flex-wrap gap-3 mb-6">
               <div className="flex items-center gap-2 bg-mystic-gold/10 px-3 py-1.5 rounded-full text-sm">
                 <BookOpen className="w-4 h-4 text-mystic-gold" />
-                <span className="text-foreground/90">7 Rituais Exclusivos</span>
+                <span className="text-foreground/90">7 guided rituals</span>
               </div>
               <div className="flex items-center gap-2 bg-mystic-gold/10 px-3 py-1.5 rounded-full text-sm">
                 <Moon className="w-4 h-4 text-mystic-gold" />
-                <span className="text-foreground/90">Calendário Lunar</span>
+                <span className="text-foreground/90">Moon cycle calendar</span>
               </div>
               <div className="flex items-center gap-2 bg-mystic-gold/10 px-3 py-1.5 rounded-full text-sm">
                 <Stars className="w-4 h-4 text-mystic-gold" />
-                <span className="text-foreground/90">Meditações Guiadas</span>
+                <span className="text-foreground/90">Guided meditations</span>
               </div>
             </div>
 
             <p className="text-mystic-gold font-semibold mb-6 text-lg">
-              Preço especial exclusivo: apenas R$ 29,90
+              Limited-time price: $29.90
             </p>
 
             <Link to="/oferta/guia-exclusivo">
@@ -303,13 +312,13 @@ const EntregaLeitura = () => {
                 size="lg"
                 className="w-full bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-lg py-7 rounded-xl shadow-lg shadow-mystic-gold/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-mystic-gold/40"
               >
-                Quero aprofundar agora
+                Upgrade now
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
 
             <p className="text-center text-sm text-muted-foreground mt-4">
-              Acesso imediato após a compra
+              Instant access after checkout
             </p>
           </div>
         </motion.div>

@@ -56,7 +56,7 @@ Não há deploy externo configurado.
 |------|--------|----------|
 | **CTAs levam ao checkout** | ✅ FUNCIONAL | Links configurados para Cakto |
 | **Checkout ativo** | ✅ FUNCIONAL | URLs Cakto configuradas (Basic: R$9,90 / Completo: R$49,90) |
-| **WhatsApp conectado** | ⚠️ NÃO IDENTIFICADO | Não há integração WhatsApp visível no código |
+| **Messaging connected** | ⚠️ NOT IDENTIFIED | No direct messaging integration found in code |
 | **Página de entrega protegida** | ✅ FUNCIONAL | `canAccessDelivery()` verifica `paymentCompleted && paymentToken` |
 | **Upsell após compra** | ✅ FUNCIONAL | Aparece na página `/entrega/leitura` e `/oferta/guia-exclusivo` |
 | **Páginas protegidas** | ✅ FUNCIONAL | VslGate protege `/formulario`, `/quiz`, `/analise`, `/checkout` |
@@ -103,7 +103,7 @@ Landing (/)
 ### Regras Aplicadas
 
 - ✅ Não usa: "entender", "descobrir", "aprender", "como funciona"
-- ✅ Não é educativo - é continuação do WhatsApp
+- ✅ Not educational — it's continuation of the conversation flow
 - ✅ Vídeo claramente opcional
 - ✅ Layout e identidade visual preservados
 
@@ -142,7 +142,7 @@ Landing (/)
 
 ### Observações Importantes
 
-1. **Integração WhatsApp**: Não foi identificada integração direta com WhatsApp no código. O funil atual começa na landing page.
+1. **Messaging**: No direct messaging integration was identified in the code. The funnel starts on the landing page.
 
 2. **Para publicar as alterações**:
    - Clique no botão **"Publish"** no canto superior direito
@@ -168,7 +168,7 @@ Landing (/)
 
 1. **PUBLICAR** - Clicar em "Publish" para colocar as alterações no ar
 2. **TESTAR** - Fazer um teste completo do funil após publicar
-3. **WHATSAPP** - Se houver integração WhatsApp externa, verificar se os links estão atualizados para a landing page
+3. **MESSAGING** - If there is an external messaging integration, verify links are updated to the landing page
 
 ---
 

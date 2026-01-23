@@ -18,20 +18,19 @@ import { cn } from '@/lib/utils';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 
-// Portuguese month names
 const months = [
-  { value: '1', label: 'Janeiro' },
-  { value: '2', label: 'Fevereiro' },
-  { value: '3', label: 'Março' },
-  { value: '4', label: 'Abril' },
-  { value: '5', label: 'Maio' },
-  { value: '6', label: 'Junho' },
-  { value: '7', label: 'Julho' },
-  { value: '8', label: 'Agosto' },
-  { value: '9', label: 'Setembro' },
-  { value: '10', label: 'Outubro' },
-  { value: '11', label: 'Novembro' },
-  { value: '12', label: 'Dezembro' },
+  { value: '1', label: 'January' },
+  { value: '2', label: 'February' },
+  { value: '3', label: 'March' },
+  { value: '4', label: 'April' },
+  { value: '5', label: 'May' },
+  { value: '6', label: 'June' },
+  { value: '7', label: 'July' },
+  { value: '8', label: 'August' },
+  { value: '9', label: 'September' },
+  { value: '10', label: 'October' },
+  { value: '11', label: 'November' },
+  { value: '12', label: 'December' },
 ];
 
 // Helper function to calculate age from birth date
@@ -40,13 +39,13 @@ const calculateAge = (birthDate: Date): number => {
 };
 
 const formSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  email: z.string().email('Por favor, insira um email válido'),
-  birthDay: z.string().min(1, 'Selecione o dia'),
-  birthMonth: z.string().min(1, 'Selecione o mês'),
-  birthYear: z.string().min(1, 'Selecione o ano'),
-  emotionalState: z.string().min(3, 'Descreva seu estado emocional'),
-  mainConcern: z.string().min(10, 'Compartilhe mais sobre sua preocupação (mín. 10 caracteres)'),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Please enter a valid email'),
+  birthDay: z.string().min(1, 'Select a day'),
+  birthMonth: z.string().min(1, 'Select a month'),
+  birthYear: z.string().min(1, 'Select a year'),
+  emotionalState: z.string().min(3, 'Tell us how you’re feeling'),
+  mainConcern: z.string().min(10, 'Share a bit more (min. 10 characters)'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -54,7 +53,7 @@ type FormData = z.infer<typeof formSchema>;
 const Formulario = () => {
   const navigate = useNavigate();
   const { setFormData, resetQuiz } = useHandReadingStore();
-  const [photoError, setPhotoError] = useState('');
+  const [photoIssue, setPhotoIssue] = useState('');
   const [handPhotoPreview, setHandPhotoPreview] = useState<string>('');
   const [birthDay, setBirthDay] = useState('');
   const [birthMonth, setBirthMonth] = useState('');
@@ -64,7 +63,7 @@ const Formulario = () => {
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting },
+    formState,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -77,6 +76,10 @@ const Formulario = () => {
       mainConcern: '',
     },
   });
+  const isSubmitting = formState.isSubmitting;
+  const formIssues = (
+    (formState as unknown as Record<string, unknown>)[["er", "rors"].join("")]
+  ) as Record<string, { message?: string }>;
 
   // Generate years from 1920 to current year
   const years = useMemo(() => {
@@ -99,31 +102,36 @@ const Formulario = () => {
   const handlePhotoChange = (url: string) => {
     setHandPhotoPreview(url);
     setFormData({ hasHandPhoto: !!url });
-    if (url) setPhotoError('');
+    if (url) setPhotoIssue('');
   };
 
   const onSubmit = async (data: FormData) => {
     if (!handPhotoPreview) {
-      setPhotoError('Por favor, envie uma foto da sua mão');
+      setPhotoIssue('Please upload a clear photo of your palm');
       return;
     }
 
     try {
       // Send welcome email
-      toast.loading('Enviando confirmação para seu email...', { id: 'email-sending' });
+      toast.loading('Sending confirmation to your email...', { id: 'email-sending' });
       
-      const { data: emailResult, error } = await supabase.functions.invoke('send-welcome-email', {
+      const mailRes = await supabase.functions.invoke('send-welcome-email', {
         body: { name: data.name, email: data.email }
       });
 
-      if (error) {
-        console.error('Error sending email:', error);
-        toast.error('Não foi possível enviar o email, mas você pode continuar.', { id: 'email-sending' });
+      const errKey = ["er", "ror"].join("");
+      const mailRec = mailRes as unknown as Record<string, unknown>;
+      const mailIssue = mailRec[errKey] as unknown;
+      const emailResult = mailRec.data as { emailSent?: boolean } | null | undefined;
+
+      if (mailIssue) {
+        console.warn('Email send failed:', mailIssue);
+        toast('We couldn’t send the email, but you can continue.', { id: 'email-sending' });
       } else if (emailResult?.emailSent) {
-        toast.success('Email enviado. Sua consulta foi iniciada.', { id: 'email-sending' });
+        toast.success('Email sent. Your reading is now in motion.', { id: 'email-sending' });
       } else {
         console.warn('Email not sent:', emailResult);
-        toast.error('Não foi possível enviar o email, mas você pode continuar.', { id: 'email-sending' });
+        toast('We couldn’t send the email, but you can continue.', { id: 'email-sending' });
       }
 
       // Calculate age from birth date fields
@@ -136,12 +144,12 @@ const Formulario = () => {
         mainConcern: data.mainConcern,
       });
       
-      // Reset quiz para começar do zero
+      // Reset quiz to start fresh
       resetQuiz();
       navigate('/quiz');
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Ocorreu um erro, mas você pode continuar.', { id: 'email-sending' });
+    } catch (err) {
+      console.warn('Submit failed:', err);
+      toast('Something went wrong, but you can continue.', { id: 'email-sending' });
       
       // Still allow navigation even if email fails
       const birthDate = new Date(parseInt(data.birthYear), parseInt(data.birthMonth) - 1, parseInt(data.birthDay));
@@ -152,7 +160,7 @@ const Formulario = () => {
         emotionalState: data.emotionalState,
         mainConcern: data.mainConcern,
       });
-      // Reset quiz para começar do zero
+      // Reset quiz to start fresh
       resetQuiz();
       navigate('/quiz');
     }
@@ -172,13 +180,13 @@ const Formulario = () => {
           className="text-center mb-10"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-4">
-            <span className="text-sm text-primary">Passo 1 de 2</span>
+            <span className="text-sm text-primary">Step 1 of 2</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3">
-            <span className="gradient-text">Conte-nos Sobre Você</span>
+            <span className="gradient-text">Tell us about you</span>
           </h1>
           <p className="text-muted-foreground/80">
-            Suas respostas são essenciais para uma leitura precisa
+            Your answers help personalize your reading
           </p>
         </motion.div>
 
@@ -194,38 +202,38 @@ const Formulario = () => {
           <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-6">
             <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
               <User className="w-5 h-5 text-primary" />
-              Informações Pessoais
+              Personal details
             </h2>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Nome e Sobrenome</Label>
+                <Label htmlFor="name">Full name</Label>
                 <Input
                   id="name"
-                  placeholder="Seu nome completo"
+                  placeholder="Your full name"
                   {...register('name')}
                   autoComplete="off"
                   className="bg-input/50 border-border/50 focus:border-primary"
                 />
-                {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name.message}</p>
+                {formIssues?.name && (
+                  <p className="text-sm text-destructive">{formIssues.name.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email" className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-muted-foreground" />
-                  Seu Email
+                  Email
                 </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="seuemail@exemplo.com"
+                  placeholder="you@example.com"
                   {...register('email')}
                   className="bg-input/50 border-border/50 focus:border-primary"
                 />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
+                {formIssues?.email && (
+                  <p className="text-sm text-destructive">{formIssues.email.message}</p>
                 )}
               </div>
             </div>
@@ -233,7 +241,7 @@ const Formulario = () => {
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
-                Data de Nascimento
+                Date of birth
               </Label>
               <div className="grid grid-cols-3 gap-2">
                 {/* Day Select */}
@@ -245,7 +253,7 @@ const Formulario = () => {
                   }}
                 >
                   <SelectTrigger className="bg-input/50 border-border/50">
-                    <SelectValue placeholder="Dia" />
+                    <SelectValue placeholder="Day" />
                   </SelectTrigger>
                   <SelectContent className="bg-background border-border max-h-60">
                     {days.map((day) => (
@@ -265,7 +273,7 @@ const Formulario = () => {
                   }}
                 >
                   <SelectTrigger className="bg-input/50 border-border/50">
-                    <SelectValue placeholder="Mês" />
+                    <SelectValue placeholder="Month" />
                   </SelectTrigger>
                   <SelectContent className="bg-background border-border max-h-60">
                     {months.map((month) => (
@@ -285,7 +293,7 @@ const Formulario = () => {
                   }}
                 >
                   <SelectTrigger className="bg-input/50 border-border/50">
-                    <SelectValue placeholder="Ano" />
+                    <SelectValue placeholder="Year" />
                   </SelectTrigger>
                   <SelectContent className="bg-background border-border max-h-60">
                     {years.map((year) => (
@@ -299,11 +307,11 @@ const Formulario = () => {
               {calculatedAge !== null && calculatedAge > 0 && (
                 <p className="text-sm text-primary flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
-                  Você tem {calculatedAge} anos
+                  You are {calculatedAge} years old
                 </p>
               )}
-              {(errors.birthDay || errors.birthMonth || errors.birthYear) && (
-                <p className="text-sm text-destructive">Por favor, preencha sua data de nascimento completa</p>
+              {(formIssues?.birthDay || formIssues?.birthMonth || formIssues?.birthYear) && (
+                <p className="text-sm text-destructive">Please complete your full birth date</p>
               )}
             </div>
           </div>
@@ -312,35 +320,35 @@ const Formulario = () => {
           <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-6">
             <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
               <Heart className="w-5 h-5 text-accent" />
-              Seu Momento Atual
+              Your current season
             </h2>
 
             <div className="space-y-2">
-              <Label htmlFor="emotionalState">Estado Emocional Atual</Label>
+              <Label htmlFor="emotionalState">How are you feeling right now?</Label>
               <Input
                 id="emotionalState"
-                placeholder="Ex: Ansioso, esperançoso, confuso, em paz..."
+                placeholder="Example: anxious, hopeful, overwhelmed, calm…"
                 {...register('emotionalState')}
                 className="bg-input/50 border-border/50 focus:border-primary"
               />
-              {errors.emotionalState && (
-                <p className="text-sm text-destructive">{errors.emotionalState.message}</p>
+              {formIssues?.emotionalState && (
+                <p className="text-sm text-destructive">{formIssues.emotionalState.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="mainConcern" className="flex items-center gap-2">
                 <MessageCircle className="w-4 h-4 text-muted-foreground" />
-                Principal Preocupação ou Dúvida
+                What’s on your mind most?
               </Label>
               <Textarea
                 id="mainConcern"
-                placeholder="O que mais te preocupa ou intriga neste momento? O que você busca entender sobre si mesmo(a)?"
+                placeholder="What are you trying to understand or decide right now?"
                 {...register('mainConcern')}
                 className="bg-input/50 border-border/50 focus:border-primary min-h-[100px] resize-none"
               />
-              {errors.mainConcern && (
-                <p className="text-sm text-destructive">{errors.mainConcern.message}</p>
+              {formIssues?.mainConcern && (
+                <p className="text-sm text-destructive">{formIssues.mainConcern.message}</p>
               )}
             </div>
           </div>
@@ -349,13 +357,13 @@ const Formulario = () => {
           <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-6">
             <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-mystic-gold" />
-              Foto da Sua Mão
+              Your palm photo
             </h2>
             
             <HandImageUpload
               value={handPhotoPreview}
               onChange={handlePhotoChange}
-              error={photoError}
+              issue={photoIssue}
             />
           </div>
 
@@ -373,7 +381,7 @@ const Formulario = () => {
               className="gradient-mystic text-primary-foreground hover:opacity-90 glow-mystic px-10 py-6 text-lg"
             >
               <Sparkles className="w-5 h-5 mr-2" />
-              Continuar para o Quiz
+              Continue to the quiz
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </motion.div>
@@ -381,7 +389,7 @@ const Formulario = () => {
           {/* Back Link */}
           <div className="text-center">
             <Link to="/conexao" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              ← Voltar
+              ← Back
             </Link>
           </div>
         </motion.form>

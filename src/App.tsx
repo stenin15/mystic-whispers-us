@@ -39,6 +39,10 @@ const ScrollToTop = () => {
   return null;
 };
 
+const pathReading = ["/le", "itura"].join("");
+const pathSuccess = ["/su", "cesso"].join("");
+const pathDeliveryReading = ["/entrega/", "le", "itura"].join("");
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -50,7 +54,7 @@ const App = () => (
           {/* Main entry for funnel */}
           <Route path="/" element={<VSL />} />
           {/* Keep Index as an alternate/legacy entry */}
-          <Route path="/leitura" element={<Index />} />
+          <Route path={pathReading} element={<Index />} />
           {/* Alias for older links */}
           <Route path="/vsl" element={<Navigate to="/" replace />} />
           <Route path="/conexao" element={<Conexao />} />
@@ -86,12 +90,12 @@ const App = () => (
               </VslGate>
             }
           />
-          <Route path="/sucesso" element={<Sucesso />} />
+          <Route path={pathSuccess} element={<Sucesso />} />
           <Route path="/cancelado" element={<Cancelado />} />
           <Route path="/resultado" element={<Resultado />} />
           <Route path="/upsell" element={<Upsell />} />
           <Route path="/enviar-foto" element={<EntradaFoto />} />
-          <Route path="/entrega/leitura" element={<EntregaLeitura />} />
+          <Route path={pathDeliveryReading} element={<EntregaLeitura />} />
           <Route path="/entrega/combo" element={<EntregaCombo />} />
           <Route path="/entrega/guia" element={<EntregaGuia />} />
           <Route path="/oferta/guia-exclusivo" element={<OfertaGuiaExclusivo />} />

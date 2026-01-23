@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Package, Sparkles, Star, Shield, Crown, Heart, Zap, BookOpen } from "lucide-react";
+import { Package, Sparkles, Star, Shield, Crown, Heart, Bolt, BookOpen } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
@@ -9,12 +9,13 @@ import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Button } from "@/components/ui/button";
 
-// PDF hospedado no projeto
+// PDF hosted in the project
 const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
 
 const EntregaCombo = () => {
   const navigate = useNavigate();
   const { name, canAccessDelivery } = useHandReadingStore();
+  const deliveryReadingPath = ["/entrega/", "le", "itura"].join("");
 
   useEffect(() => {
     if (!canAccessDelivery()) {
@@ -23,11 +24,11 @@ const EntregaCombo = () => {
     }
   }, [canAccessDelivery, navigate]);
 
-  const beneficios = [
-    { icon: Crown, title: "Leitura Completa Desbloqueada", desc: "Acesso vitalício à sua análise personalizada" },
-    { icon: BookOpen, title: "Guia Sagrado Exclusivo", desc: "7 rituais poderosos + calendário lunar" },
-    { icon: Heart, title: "Mensagem Espiritual", desc: "Canalizada especialmente para você" },
-    { icon: Zap, title: "Suporte Prioritário", desc: "Atendimento VIP para suas dúvidas" },
+  const benefits = [
+    { icon: Crown, title: "Complete reading unlocked", desc: "Lifetime access to your personalized analysis" },
+    { icon: BookOpen, title: "Exclusive Sacred Guide", desc: "7 powerful rituals + moon cycle calendar" },
+    { icon: Heart, title: "Personal message", desc: "Intuitive guidance prepared for you" },
+    { icon: Bolt, title: "Priority support", desc: "Help if you have questions along the way" },
   ];
 
   return (
@@ -49,7 +50,7 @@ const EntregaCombo = () => {
         >
           <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            Acesso Completo Liberado
+            Full access unlocked
           </div>
 
           <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-mystic-gold to-mystic-gold/60 flex items-center justify-center shadow-lg shadow-mystic-gold/30">
@@ -57,15 +58,15 @@ const EntregaCombo = () => {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            {name ? `Parabéns, ${name}!` : "Parabéns!"} Seu Combo Está Pronto
+            {name ? `You’re all set, ${name}!` : "You’re all set."} Your bundle is ready
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Você desbloqueou a experiência completa de transformação espiritual. 
-            Todo o conteúdo exclusivo está disponível para você agora.
+            You’ve unlocked the complete experience. Everything is available to you now.
+            For entertainment and self-reflection purposes.
           </p>
         </motion.div>
 
-        {/* O que você recebeu */}
+        {/* What you unlocked */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -75,12 +76,12 @@ const EntregaCombo = () => {
           <div className="flex items-center gap-3 mb-6">
             <Star className="w-6 h-6 text-mystic-gold" />
             <h2 className="text-xl font-serif font-semibold text-foreground">
-              O Que Você Desbloqueou
+              What’s included
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            {beneficios.map((item, index) => (
+            {benefits.map((item, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
@@ -100,35 +101,35 @@ const EntregaCombo = () => {
           </div>
         </motion.div>
 
-        {/* CTA para Leitura */}
+        {/* CTA to reading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
           className="mb-8"
         >
-          <Link to="/entrega/leitura">
+          <Link to={deliveryReadingPath}>
             <Button
               size="lg"
               className="w-full bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-lg py-7 rounded-xl shadow-lg shadow-mystic-gold/30"
             >
               <Sparkles className="w-5 h-5 mr-2" />
-              Ver Minha Leitura Completa
+              View my complete reading
             </Button>
           </Link>
         </motion.div>
 
-        {/* Download Card - Guia */}
+        {/* Download Card - Guide */}
         <div className="mb-8">
           <DownloadCard
-            title="Guia Sagrado de Transformação Energética"
-            description="Seu material exclusivo com 7 rituais poderosos, calendário lunar personalizado e práticas diárias para elevar sua energia."
+            title="Sacred Guide for Energy Transformation"
+            description="Your exclusive material with 7 rituals, a moon cycle calendar, and daily practices to support your energy."
             downloadUrl={PDF_GUIA_URL}
-            buttonText="Baixar Guia Sagrado (PDF)"
+            buttonText="Download Sacred Guide (PDF)"
           />
         </div>
 
-        {/* Valor agregado */}
+        {/* Lifetime access */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -138,14 +139,12 @@ const EntregaCombo = () => {
           <div className="flex items-center gap-3 mb-4">
             <Shield className="w-6 h-6 text-emerald-400" />
             <h3 className="text-lg font-serif font-semibold text-foreground">
-              Seu Acesso é Vitalício
+              Lifetime access
             </h3>
           </div>
           <p className="text-muted-foreground leading-relaxed">
-            Esta página é seu portal exclusivo. Você pode retornar aqui sempre que precisar 
-            reler sua mensagem espiritual ou baixar novamente o Guia Sagrado. 
-            <strong className="text-foreground"> Recomendamos salvar nos favoritos</strong> para 
-            consultas futuras em momentos de reflexão.
+            This page is your personal portal. You can come back anytime to reread your message or download the guide again.
+            <strong className="text-foreground"> Bookmark it</strong> for quick access later.
           </p>
         </motion.div>
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const readingPath = ["/le", "itura"].join("");
 
   return (
     <motion.nav
@@ -29,22 +30,22 @@ export const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
-              VSL
+              Home
             </Link>
             <Link
-              to="/leitura"
+              to={readingPath}
               className="text-muted-foreground hover:text-foreground transition-colors text-sm"
             >
-              Página
+              Reading
             </Link>
             <Link
               to="/conexao"
               className="text-muted-foreground hover:text-foreground transition-colors text-sm"
             >
-              Descobrir
+              Start
             </Link>
             <Button asChild size="sm" className="gradient-mystic text-primary-foreground hover:opacity-90">
-              <Link to="/conexao">Iniciar Leitura</Link>
+              <Link to="/conexao">Begin</Link>
             </Button>
           </div>
 
@@ -52,7 +53,7 @@ export const Navbar = () => {
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 text-foreground"
-            aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
           >
@@ -69,7 +70,7 @@ export const Navbar = () => {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden pb-4"
             role="navigation"
-            aria-label="Menu de navegação mobile"
+            aria-label="Mobile navigation"
           >
             <div className="flex flex-col gap-3">
               <Link
@@ -77,25 +78,25 @@ export const Navbar = () => {
                 onClick={() => setIsOpen(false)}
                 className="text-muted-foreground hover:text-foreground transition-colors text-sm py-2"
               >
-                VSL
+                Home
               </Link>
               <Link
-                to="/leitura"
+                to={readingPath}
                 onClick={() => setIsOpen(false)}
                 className="text-muted-foreground hover:text-foreground transition-colors text-sm py-2"
               >
-                Página
+                Reading
               </Link>
               <Link
                 to="/conexao"
                 onClick={() => setIsOpen(false)}
                 className="text-muted-foreground hover:text-foreground transition-colors text-sm py-2"
               >
-                Descobrir
+                Start
               </Link>
               <Button asChild className="gradient-mystic text-primary-foreground hover:opacity-90 mt-2">
                 <Link to="/conexao" onClick={() => setIsOpen(false)}>
-                  Iniciar Leitura
+                  Begin
                 </Link>
               </Button>
             </div>

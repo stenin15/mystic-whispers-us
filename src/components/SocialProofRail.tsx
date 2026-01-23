@@ -2,20 +2,20 @@ import { useEffect, useState, useRef } from 'react';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// TODO: substituir imageUrl por fotos reais autorizadas (com consentimento) quando disponíveis.
+// TODO: replace avatars with approved real photos (with consent) if/when available.
 const TESTIMONIALS = [
-  { name: 'Carla M.', city: 'São Paulo', rating: 5, text: 'Incrível! A leitura foi muito precisa.' },
-  { name: 'Rafael S.', city: 'Rio de Janeiro', rating: 5, text: 'Revelou coisas que eu sentia mas não entendia.' },
-  { name: 'Patricia L.', city: 'Belo Horizonte', rating: 5, text: 'Me ajudou a tomar uma decisão importante.' },
-  { name: 'Fernanda A.', city: 'Curitiba', rating: 5, text: 'Chorei lendo. Muito verdadeiro.' },
-  { name: 'Eduardo C.', city: 'Brasília', rating: 5, text: 'Recomendo para quem busca clareza.' },
-  { name: 'Mariana T.', city: 'Porto Alegre', rating: 5, text: 'A mensagem veio na hora certa.' },
-  { name: 'Lucas P.', city: 'Salvador', rating: 5, text: 'Nunca vi algo tão certeiro assim.' },
-  { name: 'Amanda R.', city: 'Fortaleza', rating: 5, text: 'Transformou minha visão sobre mim.' },
-  { name: 'Bruno G.', city: 'Recife', rating: 5, text: 'Experiência única e reveladora.' },
-  { name: 'Juliana F.', city: 'Manaus', rating: 5, text: 'Me senti acolhida e compreendida.' },
-  { name: 'Thiago M.', city: 'Goiânia', rating: 5, text: 'Vale cada centavo. Impressionante!' },
-  { name: 'Camila D.', city: 'Florianópolis', rating: 5, text: 'Acertou detalhes que só eu sabia.' },
+  { name: 'Carla M.', city: 'Austin, TX', rating: 5, text: 'Surprisingly accurate. It gave me real clarity.' },
+  { name: 'Rafael S.', city: 'San Diego, CA', rating: 5, text: 'It put words to what I’ve been sensing for months.' },
+  { name: 'Patricia L.', city: 'Chicago, IL', rating: 5, text: 'It helped me make a decision I was avoiding.' },
+  { name: 'Fernanda A.', city: 'Miami, FL', rating: 5, text: 'I felt seen. Calm, grounded, and comforting.' },
+  { name: 'Eduardo C.', city: 'Seattle, WA', rating: 5, text: 'If you’re looking for clarity, this is worth it.' },
+  { name: 'Mariana T.', city: 'Denver, CO', rating: 5, text: 'The timing was perfect. It eased my anxiety.' },
+  { name: 'Lucas P.', city: 'Nashville, TN', rating: 5, text: 'Not a “prediction” — more like direction. Loved it.' },
+  { name: 'Amanda R.', city: 'Phoenix, AZ', rating: 5, text: 'It changed how I see my patterns — in a good way.' },
+  { name: 'Bruno G.', city: 'Brooklyn, NY', rating: 5, text: 'A unique experience. Beautifully written.' },
+  { name: 'Juliana F.', city: 'Atlanta, GA', rating: 5, text: 'I felt supported and guided — not judged.' },
+  { name: 'Thiago M.', city: 'Dallas, TX', rating: 5, text: 'Worth it. Clear, practical, and surprisingly deep.' },
+  { name: 'Camila D.', city: 'San Jose, CA', rating: 5, text: 'It highlighted patterns I hadn’t admitted to myself.' },
 ];
 
 const getAvatarUrl = (name: string, city: string) => {
@@ -90,7 +90,7 @@ const SocialProofRail = ({ variant = 'right', isInteracting = false }: SocialPro
           <div className="h-full rounded-2xl bg-card/60 backdrop-blur-xl border border-border/30 overflow-hidden">
             <div className="px-3 py-2 border-b border-border/30 bg-card/80">
               <p className="text-xs font-medium text-muted-foreground text-center">
-                ✨ Depoimentos recentes
+                ✨ Recent notes
               </p>
             </div>
             <div className="h-[calc(100%-40px)] overflow-hidden">

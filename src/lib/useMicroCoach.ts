@@ -1,30 +1,30 @@
 /**
- * Hook para micro-feedbacks do "coach" durante o quiz.
- * Retorna texto apenas em perguntas específicas (índices 1, 3, 5).
- * NÃO faz chamadas à IA - usa regras locais apenas.
+ * Micro feedback during the quiz.
+ * Returns short text only on a few specific questions (indices 1, 3, 5).
+ * No AI calls — local rules only.
  */
 
 const COACH_MESSAGES = [
-  // Grupo 1 - mensagens místicas genéricas
+  // Group 1 — gentle nudges
   [
-    "Isso costuma aparecer em fases de virada.",
-    "Anotei. Esse detalhe muda a leitura.",
-    "Interessante… isso indica um padrão repetido.",
-    "Percebo algo importante nessa escolha.",
+    "This often shows up during turning points.",
+    "Noted. That detail changes the picture.",
+    "Interesting… this suggests a repeating pattern.",
+    "There’s something important in this choice.",
   ],
-  // Grupo 2 - mensagens de validação
+  // Group 2 — validation
   [
-    "Sua energia está se revelando claramente.",
-    "Esse ponto confirma algo que já sentia.",
-    "Registrado. Há uma conexão aqui.",
-    "Isso faz sentido com o que vi antes.",
+    "Your energy is coming through clearly.",
+    "This confirms something you already felt.",
+    "Noted — there’s a connection here.",
+    "This aligns with what showed up earlier.",
   ],
-  // Grupo 3 - mensagens de profundidade
+  // Group 3 — depth
   [
-    "Estou captando uma camada mais profunda.",
-    "Há um significado oculto nessa resposta.",
-    "Isso revela um ciclo importante.",
-    "Percebo uma energia forte aqui.",
+    "I’m picking up a deeper layer here.",
+    "There’s a hidden meaning in that answer.",
+    "This points to an important cycle.",
+    "There’s strong energy here.",
   ],
 ];
 
@@ -37,18 +37,18 @@ export function useMicroCoach(
   selectedOptionLabel: string | null | undefined,
   userFirstName?: string
 ): UseMicroCoachResult {
-  // Só retorna texto nos índices 1, 3, 5 (ou seja, após perguntas 2, 4, 6)
+  // Only return text at indices 1, 3, 5 (after questions 2, 4, 6)
   const targetIndices = [1, 3, 5];
   
   if (!targetIndices.includes(questionIndex) || !selectedOptionLabel) {
     return { text: null };
   }
   
-  // Seleciona grupo de mensagens baseado no índice
+  // Pick a message group based on index
   const groupIndex = targetIndices.indexOf(questionIndex);
   const messages = COACH_MESSAGES[groupIndex] || COACH_MESSAGES[0];
   
-  // Seleciona mensagem baseada no hash da resposta selecionada
+  // Pick a message based on a stable hash of the selected answer
   const hash = selectedOptionLabel.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const messageIndex = hash % messages.length;
   

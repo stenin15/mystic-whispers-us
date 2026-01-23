@@ -23,8 +23,8 @@ const Sucesso = () => {
   }, [canAccessResult, navigate, setPaymentCompleted]);
 
   useEffect(() => {
-    // Patch mínimo: libera /entrega/* SOMENTE se houver algum indicativo de retorno do pagamento.
-    // (Evita liberar apenas por acessar /sucesso diretamente.)
+    // Minimal patch: allow /entrega/* only when we detect a payment return.
+    // (Prevents granting access by navigating directly to this route.)
     try {
       const params = new URLSearchParams(window.location.search);
       const status = (params.get("status") || "").toLowerCase();
@@ -71,14 +71,14 @@ const Sucesso = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/15 border border-green-500/30 mb-6">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span className="text-sm text-green-500">Pagamento confirmado</span>
+              <span className="text-sm text-green-500">Payment confirmed</span>
             </div>
 
             <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3">
-              <span className="text-foreground">Tudo certo{ name ? `, ${name}` : "" }.</span>
+              <span className="text-foreground">All set{ name ? `, ${name}` : "" }.</span>
             </h1>
             <p className="text-muted-foreground mb-8">
-              Você já pode acessar sua leitura agora.
+              You can access your reading now.
             </p>
 
             <Button
@@ -86,13 +86,13 @@ const Sucesso = () => {
               size="lg"
               className="gradient-gold text-background hover:opacity-90 px-10 py-6 text-lg"
             >
-              Acessar minha leitura
+              View my reading
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
 
             <div className="mt-6">
               <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                ← Voltar ao início
+                ← Back to home
               </Link>
             </div>
           </motion.div>

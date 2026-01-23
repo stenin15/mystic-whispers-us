@@ -50,8 +50,8 @@ const Conexao = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold mb-6"
         >
-          <span className="text-foreground">Bem-vindo(a) à sua </span>
-          <span className="gradient-text">Jornada Espiritual</span>
+          <span className="text-foreground">Welcome to your </span>
+          <span className="gradient-text">Intuitive Journey</span>
         </motion.h1>
 
         {/* Message */}
@@ -62,15 +62,15 @@ const Conexao = () => {
           className="space-y-4 mb-10"
         >
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Este é um momento de conexão com sua essência.
+            This is a quiet moment to reconnect with yourself.
           </p>
           <p className="text-muted-foreground leading-relaxed">
-            Nos próximos minutos, você compartilhará algumas informações 
-            sobre você e sua energia atual. Quanto mais sincero, mais precisa será sua leitura.
+            Over the next couple minutes, you’ll share a few details about your current energy and what’s on your mind.
+            The more honest you are, the more accurate your reading will feel.
           </p>
           <p className="text-lg text-foreground font-medium flex items-center justify-center gap-2">
             <Star className="w-4 h-4 text-mystic-gold" />
-            Respire fundo. Você está pronto(a)?
+            Take a deep breath. Are you ready?
           </p>
         </motion.div>
 
@@ -82,9 +82,9 @@ const Conexao = () => {
           className="grid grid-cols-3 gap-4 mb-10 p-6 rounded-2xl bg-card/30 border border-border/30"
         >
           {[
-            { step: '1', label: 'Seus Dados' },
-            { step: '2', label: 'Quiz Energético' },
-            { step: '3', label: 'Sua Leitura' },
+            { step: '1', label: 'Your details' },
+            { step: '2', label: 'Energy quiz' },
+            { step: '3', label: 'Your reading' },
           ].map((item, index) => (
             <div key={index} className="text-center">
               <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-2">
@@ -107,7 +107,7 @@ const Conexao = () => {
             className="gradient-mystic text-primary-foreground hover:opacity-90 glow-mystic px-10 py-6 text-lg"
           >
             <Sparkles className="w-5 h-5 mr-2" />
-            Estou Pronto(a)
+            I’m ready
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </motion.div>
@@ -120,7 +120,7 @@ const Conexao = () => {
           className="mt-6"
         >
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            ← Voltar ao início
+            ← Back to home
           </Link>
         </motion.div>
       </motion.div>
