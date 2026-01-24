@@ -73,16 +73,16 @@ export const VideoHero = ({ videoSrc, brandName = "Madame Aurora" }: VideoHeroPr
       {/* Video Container */}
       <div className="relative rounded-2xl overflow-hidden bg-card/60 backdrop-blur-xl border border-border/40 shadow-2xl glow-mystic">
         {isPlaceholder ? (
-          /* Placeholder quando não há vídeo */
+          /* Placeholder when no video is configured */
           <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex flex-col items-center justify-center p-8">
             <div className="w-20 h-20 rounded-full bg-primary/30 flex items-center justify-center mb-4 animate-pulse">
               <Play className="w-10 h-10 text-primary ml-1" />
             </div>
             <p className="text-muted-foreground text-center text-sm">
-              VSL será exibida aqui
+              Your VSL will appear here
             </p>
             <p className="text-muted-foreground/60 text-xs mt-2">
-              Configure VSL_SRC com a URL do vídeo
+              Set `VSL_SRC` to your video URL
             </p>
           </div>
         ) : (
@@ -93,7 +93,7 @@ export const VideoHero = ({ videoSrc, brandName = "Madame Aurora" }: VideoHeroPr
               className="w-full aspect-video object-cover"
               playsInline
               loop
-              aria-label={`Vídeo de apresentação ${brandName}`}
+              aria-label={`${brandName} introduction video`}
             />
 
             {/* Play/Pause Overlay */}
@@ -101,7 +101,7 @@ export const VideoHero = ({ videoSrc, brandName = "Madame Aurora" }: VideoHeroPr
               <button
                 onClick={handlePlayPause}
                 className="absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity hover:bg-black/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
-                aria-label="Reproduzir vídeo"
+                aria-label="Play video"
               >
                 <div className="w-20 h-20 rounded-full bg-primary/90 flex items-center justify-center glow-mystic transition-transform hover:scale-110">
                   <Play className="w-10 h-10 text-primary-foreground ml-1" />
@@ -115,7 +115,7 @@ export const VideoHero = ({ videoSrc, brandName = "Madame Aurora" }: VideoHeroPr
                 <button
                   onClick={handlePlayPause}
                   className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                  aria-label={isPlaying ? "Pausar" : "Reproduzir"}
+                  aria-label={isPlaying ? "Pause" : "Play"}
                 >
                   {isPlaying ? (
                     <Pause className="w-5 h-5" />
@@ -126,7 +126,7 @@ export const VideoHero = ({ videoSrc, brandName = "Madame Aurora" }: VideoHeroPr
                 <button
                   onClick={toggleMute}
                   className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-                  aria-label={isMuted ? "Ativar som" : "Silenciar"}
+                  aria-label={isMuted ? "Unmute" : "Mute"}
                 >
                   {isMuted ? (
                     <VolumeX className="w-5 h-5" />

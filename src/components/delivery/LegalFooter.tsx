@@ -20,12 +20,11 @@ const LegalFooter = forwardRef<HTMLElement, LegalFooterProps>(({ showLinks = tru
         <div className="flex items-start gap-3">
           <Shield className="w-5 h-5 text-mystic-gold mt-0.5 flex-shrink-0" />
           <p className="text-sm text-muted-foreground leading-relaxed">
-            <strong className="text-foreground">Aviso Legal:</strong> O conteúdo
-            oferecido por Madame Aurora é de natureza simbólica e voltado ao
-            autoconhecimento. Não constitui aconselhamento médico, psicológico,
-            financeiro ou profissional de qualquer natureza. Os resultados são
-            pessoais e podem variar. Este serviço não substitui orientação
-            profissional especializada.
+            <strong className="text-foreground">Disclaimer:</strong> The content
+            provided by Madame Aurora is symbolic and intended for self-reflection.
+            It is not medical, psychological, financial, or professional advice.
+            Results are personal and may vary. This service does not replace
+            qualified professional guidance.
           </p>
         </div>
       </div>
@@ -38,21 +37,21 @@ const LegalFooter = forwardRef<HTMLElement, LegalFooterProps>(({ showLinks = tru
             className="flex items-center gap-2 hover:text-mystic-gold transition-colors"
           >
             <FileText className="w-4 h-4" />
-            Termos de Uso
+            Terms of Use
           </a>
           <a
             href="/privacidade"
             className="flex items-center gap-2 hover:text-mystic-gold transition-colors"
           >
             <Lock className="w-4 h-4" />
-            Política de Privacidade
+            Privacy Policy
           </a>
         </div>
       )}
 
       {/* Copyright */}
       <div className="text-center text-xs text-muted-foreground/60">
-        <p>© {new Date().getFullYear()} Madame Aurora. Todos os direitos reservados.</p>
+        <p>© {new Date().getFullYear()} Madame Aurora. All rights reserved.</p>
       </div>
     </motion.footer>
   );
