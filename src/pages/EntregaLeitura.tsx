@@ -85,7 +85,8 @@ const EntregaLeitura = () => {
       const url = requireCheckoutUrl("complete");
       window.location.href = url;
     } catch (err) {
-      toast(String((err as Error)?.message || "Checkout isn’t configured yet."));
+      console.error("Checkout URL missing: complete", err);
+      toast("Checkout isn’t configured yet. Please try again in a moment.");
     }
   };
 

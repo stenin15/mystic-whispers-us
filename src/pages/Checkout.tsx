@@ -33,13 +33,13 @@ const Checkout = () => {
     }
   }, [canAccessResult, navigate]);
 
-  const handleCheckoutClick = (key: "basic" | "complete", e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+  const handleCheckoutClick = (key: "basic" | "complete") => {
     try {
       const finalUrl = requireCheckoutUrl(key);
       window.location.href = finalUrl;
     } catch (err) {
-      toast(String((err as Error)?.message || "Checkout isn’t configured yet."));
+      console.error("Checkout URL missing:", key, err);
+      toast("Checkout isn’t configured yet. Please try again in a moment.");
     }
   };
 
@@ -164,15 +164,13 @@ const Checkout = () => {
               </div>
 
               <Button
-                asChild
+                onClick={() => handleCheckoutClick("basic")}
                 variant="outline"
                 size="lg"
                 className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6"
               >
-                  <a href="#" onClick={(e) => handleCheckoutClick("basic", e)} className="cta-button">
-                  Get the basic reading
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </a>
+                Get the basic reading
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </motion.div>
 
@@ -231,15 +229,13 @@ const Checkout = () => {
               </div>
 
               <Button
-                asChild
+                onClick={() => handleCheckoutClick("complete")}
                 size="lg"
                 className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg"
               >
-                  <a href="#" onClick={(e) => handleCheckoutClick("complete", e)} className="cta-button">
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Upgrade to the complete package
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </a>
+                <Sparkles className="w-5 h-5 mr-2" />
+                Upgrade to the complete package
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
 
               {/* Guarantee */}

@@ -38,7 +38,8 @@ const Upsell = () => {
       const url = requireCheckoutUrl("upsell");
       window.location.href = url;
     } catch (err) {
-      toast(String((err as Error)?.message || "Checkout isn’t configured yet."));
+      console.error("Checkout URL missing: upsell", err);
+      toast("Checkout isn’t configured yet. Please try again in a moment.");
     }
   };
 

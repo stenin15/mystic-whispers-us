@@ -113,8 +113,6 @@ const Formulario = () => {
 
     try {
       // Send welcome email
-      toast.loading('Sending confirmation to your email...', { id: 'email-sending' });
-      
       const mailRes = await supabase.functions.invoke('send-welcome-email', {
         body: { name: data.name, email: data.email }
       });
@@ -126,12 +124,10 @@ const Formulario = () => {
 
       if (mailIssue) {
         console.warn('Email send failed:', mailIssue);
-        toast('We couldn’t send the email, but you can continue.', { id: 'email-sending' });
       } else if (emailResult?.emailSent) {
-        toast.success('Email sent. Your reading is now in motion.', { id: 'email-sending' });
+        // Email is a nice-to-have here; keep UX instant/quiet.
       } else {
         console.warn('Email not sent:', emailResult);
-        toast('We couldn’t send the email, but you can continue.', { id: 'email-sending' });
       }
 
       // Calculate age from birth date fields

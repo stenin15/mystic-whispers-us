@@ -75,7 +75,7 @@ const CountdownTimer = ({ minutes = 15, onExpire }: CountdownTimerProps) => {
               } animate-pulse`}
             />
             <span className="text-sm md:text-base text-foreground font-medium">
-              Limited-time offer ends in:
+              Exclusive offer ends in
             </span>
           </div>
 

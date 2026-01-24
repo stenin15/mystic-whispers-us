@@ -157,7 +157,7 @@ export const processAnalysis = async (
   formData: FormData,
   quizAnswers: QuizAnswer[]
 ): Promise<AnalysisResult> => {
-  const TIMEOUT_MS = 25000; // 25 segundos (maior que server timeout)
+  const TIMEOUT_MS = 25000; // 25 seconds (longer than server timeout)
   
   try {
     // Create AbortController for client-side timeout
