@@ -7,7 +7,6 @@ import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { quizQuestions } from '@/lib/quizQuestions';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { generateVoiceMessage, prefetchVoiceMessage } from '@/lib/api';
 import { useMicroCoach } from '@/lib/useMicroCoach';
 
 import AudioWaveVisualizer from '@/components/shared/AudioWaveVisualizer';
@@ -30,9 +29,6 @@ const Quiz = () => {
   const [showAudioPrompt, setShowAudioPrompt] = useState(true);
   const [quizStarted, setQuizStarted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioCacheRef = useRef<Map<number, string>>(new Map());
-  const preloadingRef = useRef<Set<number>>(new Set());
-  const analysisIntroPrefetchedRef = useRef(false);
 
   // Redirect if coming from wrong place
   useEffect(() => {
@@ -58,37 +54,21 @@ const Quiz = () => {
 
   const shortName = getShortName(name || 'there');
 
-  // Get personalized voice text
-  const getVoiceText = useCallback((questionId: number) => {
-    const question = quizQuestions.find(q => q.id === questionId);
-    if (!question) return '';
-    return question.voiceIntro.replace('{name}', shortName);
-  }, [shortName]);
+  // QUIZ AUDIO (pre-recorded, no TTS): /public/audio/q1.mp3 ... q7.mp3
+  const getQuizAudioSrc = useCallback((questionId: number) => {
+    return `/audio/q${questionId}.mp3`;
+  }, []);
 
-  // Preload audio for a specific question
-  const preloadAudio = useCallback(async (questionId: number) => {
-    // Skip if already cached or currently preloading
-    if (audioCacheRef.current.has(questionId) || preloadingRef.current.has(questionId)) {
-      return;
-    }
-
-    preloadingRef.current.add(questionId);
-
+  const preloadAudio = useCallback((questionId: number) => {
     try {
-      const voiceText = getVoiceText(questionId);
-      const audioDataUrl = await generateVoiceMessage(voiceText);
-      
-      if (audioDataUrl) {
-        audioCacheRef.current.set(questionId, audioDataUrl);
-      }
-    } catch (err) {
-      console.warn('Audio preload failed', { questionId, err });
-    } finally {
-      preloadingRef.current.delete(questionId);
+      const a = new Audio(getQuizAudioSrc(questionId));
+      a.preload = "auto";
+      a.load();
+    } catch {
+      // ignore
     }
-  }, [getVoiceText]);
+  }, [getQuizAudioSrc]);
 
-  // Play audio from cache or generate it
   const playQuestionAudio = useCallback(async (questionId: number) => {
     if (!audioEnabled) return;
 
@@ -99,27 +79,9 @@ const Quiz = () => {
       setIsPlayingAudio(false);
     }
 
-    let audioDataUrl = audioCacheRef.current.get(questionId);
-
-    // If not cached, generate it now (show loading)
-    if (!audioDataUrl) {
-      setIsLoadingAudio(true);
-      try {
-        const voiceText = getVoiceText(questionId);
-        audioDataUrl = await generateVoiceMessage(voiceText);
-        if (audioDataUrl) {
-          audioCacheRef.current.set(questionId, audioDataUrl);
-        }
-      } catch (err) {
-        console.warn('Audio generation failed:', err);
-        setIsLoadingAudio(false);
-        return;
-      }
-      setIsLoadingAudio(false);
-    }
-
-    if (audioDataUrl) {
-      const audio = new Audio(audioDataUrl);
+    setIsLoadingAudio(true);
+    const src = getQuizAudioSrc(questionId);
+    const audio = new Audio(src);
       audioRef.current = audio;
       audio.volume = 0.85;
 
@@ -133,9 +95,10 @@ const Quiz = () => {
       } catch (err) {
         console.warn('Audio play failed:', err);
         setIsPlayingAudio(false);
+      } finally {
+        setIsLoadingAudio(false);
       }
-    }
-  }, [audioEnabled, getVoiceText]);
+  }, [audioEnabled, getQuizAudioSrc]);
 
   // Preload next questions when current question changes
   useEffect(() => {
@@ -150,21 +113,6 @@ const Quiz = () => {
       }
     }
   }, [currentQuestionIndex, audioEnabled, preloadAudio]);
-
-  // Prefetch the analysis intro voice (says the lead name) BEFORE navigating to /analise
-  // so the analysis page can start speaking instantly.
-  useEffect(() => {
-    if (!audioEnabled) return;
-    if (!name) return;
-    if (analysisIntroPrefetchedRef.current) return;
-
-    // Start prefetching when user is near the end (last 2 questions).
-    if (currentQuestionIndex >= totalQuestions - 2) {
-      analysisIntroPrefetchedRef.current = true;
-      const introText = `Hi, ${getShortName(name)}… I’m Madame Aurora.\nI’m going to combine what you shared with patterns that often show up in decision seasons.\nThis isn’t about luck — it’s about noticing what’s active inside you.`;
-      prefetchVoiceMessage(introText);
-    }
-  }, [audioEnabled, name, currentQuestionIndex, totalQuestions, getShortName]);
 
   // Play current question audio immediately (only after quiz started) - ZERO DELAY
   useEffect(() => {
