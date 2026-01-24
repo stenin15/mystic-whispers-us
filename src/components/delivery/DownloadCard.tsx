@@ -10,10 +10,10 @@ interface DownloadCardProps {
 }
 
 const DownloadCard = ({
-  title = "Guia Sagrado",
-  description = "Seu material exclusivo está pronto para download",
+  title = "Sacred Guide",
+  description = "Your exclusive material is ready to download",
   downloadUrl,
-  buttonText = "Baixar Guia Sagrado",
+  buttonText = "Download your guide (PDF)",
 }: DownloadCardProps) => {
   const handleDownload = () => {
     window.open(downloadUrl, "_blank");
@@ -51,7 +51,7 @@ const DownloadCard = ({
 
         <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Sparkles className="w-4 h-4 text-mystic-gold" />
-          <span>PDF de alta qualidade</span>
+          <span>High-quality PDF</span>
         </div>
       </div>
     </motion.div>

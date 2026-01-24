@@ -75,7 +75,7 @@ const CountdownTimer = ({ minutes = 15, onExpire }: CountdownTimerProps) => {
               } animate-pulse`}
             />
             <span className="text-sm md:text-base text-foreground font-medium">
-              Oferta exclusiva expira em:
+              Limited-time offer ends in:
             </span>
           </div>
 
@@ -125,7 +125,7 @@ const CountdownTimer = ({ minutes = 15, onExpire }: CountdownTimerProps) => {
               isUrgent ? "text-red-300" : "text-mystic-gold/80"
             }`}
           >
-            Preço promocional válido apenas nesta sessão
+            Promotional price valid for this session only
           </span>
         </div>
       </div>
