@@ -9,6 +9,10 @@ import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
+import { PRICE_MAP } from "@/lib/pricing";
+import { requireCheckoutUrl } from "@/lib/checkout";
+import { AudioPlayer } from "@/components/shared/AudioPlayer";
 
 const EntregaLeitura = () => {
   const navigate = useNavigate();
@@ -69,12 +73,21 @@ const EntregaLeitura = () => {
     generateReading();
   }, [name, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, navigate]);
 
-  const oQueVoceRecebe = [
+  const highlights = [
     { icon: Crown, title: "Deep energy insight", desc: "A clear map of what’s active for you now" },
     { icon: Heart, title: "Your strengths", desc: "Gifts you can lean on and develop" },
     { icon: Bolt, title: "Patterns to watch", desc: "What may be slowing your momentum" },
     { icon: Stars, title: "Personal message", desc: "Intuitive guidance created for you" },
   ];
+
+  const handleUpgradeToComplete = () => {
+    try {
+      const url = requireCheckoutUrl("complete");
+      window.location.href = url;
+    } catch (err) {
+      toast(String((err as Error)?.message || "Checkout isn’t configured yet."));
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -104,11 +117,13 @@ const EntregaLeitura = () => {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            {name ? `${name}, your personal reading` : "Your personal reading"}
+            Your palm reveals patterns that are active right now
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Here is your intuitive, symbolic reading — designed for reflection and clarity.
-            For entertainment and self-reflection purposes.
+            {name?.trim() ? `Hi, ${name.trim()}.` : "Hi."} Thank you for sharing your palm.
+            What appears here is not random — it reflects tendencies, strengths, and internal movements that can influence your current season.
+            <br />
+            <span className="text-muted-foreground/80">For entertainment and self-reflection purposes.</span>
           </p>
         </motion.div>
 
@@ -127,7 +142,7 @@ const EntregaLeitura = () => {
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            {oQueVoceRecebe.map((item, index) => (
+            {highlights.map((item, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
@@ -197,10 +212,10 @@ const EntregaLeitura = () => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-serif font-bold text-foreground">
-                      Your personalized reading
+                      Your reading (basic)
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Prepared by Madame Aurora for {name || "you"}
+                      Text-first, personalized, and meant to feel human — not robotic.
                     </p>
                   </div>
                 </div>
@@ -240,6 +255,24 @@ const EntregaLeitura = () => {
                   </p>
                   <p className="text-muted-foreground mt-2">— Madame Aurora</p>
                 </div>
+
+                {/* Loop opener */}
+                <div className="mt-10 p-6 rounded-2xl bg-card/30 border border-border/30 text-center">
+                  <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
+                    What this covers — and what it doesn’t (yet)
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    This reading highlights what is active — but not yet how to work with it.
+                    That’s where deeper guidance becomes important.
+                  </p>
+                </div>
+
+                <div className="mt-6">
+                  <AudioPlayer
+                    track="reassurance"
+                    title="A short audio to ground you (optional)"
+                  />
+                </div>
               </div>
             </div>
           ) : null}
@@ -264,7 +297,7 @@ const EntregaLeitura = () => {
           </p>
         </motion.div>
 
-        {/* Upsell CTA - Highlighted more */}
+        {/* Natural bridge to deeper guidance */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -281,44 +314,24 @@ const EntregaLeitura = () => {
             </div>
 
             <h3 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-4">
-              Want a deeper guide?
+              A deeper look into the patterns shaping your decisions
             </h3>
             
             <p className="text-muted-foreground mb-6 text-base md:text-lg leading-relaxed">
-              This guide helps you work with these themes in everyday life — with clear steps and simple rituals.
+              Upgrade to the complete reading to go deeper into your recurring patterns, strengths, and the blocks that show up when you try to move forward.
             </p>
 
-            <div className="flex flex-wrap gap-3 mb-6">
-              <div className="flex items-center gap-2 bg-mystic-gold/10 px-3 py-1.5 rounded-full text-sm">
-                <BookOpen className="w-4 h-4 text-mystic-gold" />
-                <span className="text-foreground/90">7 guided rituals</span>
-              </div>
-              <div className="flex items-center gap-2 bg-mystic-gold/10 px-3 py-1.5 rounded-full text-sm">
-                <Moon className="w-4 h-4 text-mystic-gold" />
-                <span className="text-foreground/90">Moon cycle calendar</span>
-              </div>
-              <div className="flex items-center gap-2 bg-mystic-gold/10 px-3 py-1.5 rounded-full text-sm">
-                <Stars className="w-4 h-4 text-mystic-gold" />
-                <span className="text-foreground/90">Guided meditations</span>
-              </div>
-            </div>
-
-            <p className="text-mystic-gold font-semibold mb-6 text-lg">
-              Limited-time price: $29.90
-            </p>
-
-            <Link to="/oferta/guia-exclusivo">
-              <Button
-                size="lg"
-                className="w-full bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-lg py-7 rounded-xl shadow-lg shadow-mystic-gold/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-mystic-gold/40"
-              >
-                Upgrade now
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
+            <Button
+              onClick={handleUpgradeToComplete}
+              size="lg"
+              className="w-full bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-lg py-7 rounded-xl shadow-lg shadow-mystic-gold/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-mystic-gold/40"
+            >
+              Unlock the complete reading ({PRICE_MAP.complete.display})
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
 
             <p className="text-center text-sm text-muted-foreground mt-4">
-              Instant access after checkout
+              One-time payment • Instant access • Secure checkout
             </p>
           </div>
         </motion.div>

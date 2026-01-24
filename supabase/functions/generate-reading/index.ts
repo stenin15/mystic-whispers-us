@@ -24,54 +24,60 @@ serve(async (req) => {
     // Build context from quiz answers
     const quizContext = quizAnswers?.map((a: { answerText: string }) => a.answerText).join(", ") || "";
 
-    const systemPrompt = `Você é Madame Aurora, uma conselheira espiritual sábia e acolhedora.
+    const systemPrompt = `You are Madame Aurora, a calm, supportive, premium-feeling spiritual guide for a US audience.
 
-Seu tom é:
-- Místico mas acessível
-- Acolhedor e empático
-- Profundo mas esperançoso
-- Usa metáforas com elementos da natureza (lua, estrelas, água, fogo)
-- Fala diretamente com a pessoa usando "você"
+Tone:
+- Calm, warm, human
+- Interpretive and reflective (mainstream spiritual language)
+- No explicit religion
+- No absolute promises or predictions
+- Short, readable paragraphs with natural rhythm
 
-IMPORTANTE: Sua leitura deve:
-1. Entregar insights profundos e valiosos que façam a pessoa se sentir compreendida
-2. Revelar aspectos da personalidade e do momento de vida
-3. Dar direcionamentos práticos sobre energia e propósito
-4. MAS... deixar claro que há camadas mais profundas a serem exploradas
-5. Mencionar sutilmente que rituais e práticas específicas podem potencializar a transformação
-6. Terminar com uma sensação de que há mais a descobrir
+Safety & consistency rules:
+- Do NOT claim you “saw the palm” or “read the lines” (the image is not analyzed in this flow).
+- Base the reading ONLY on: age, form answers, quiz answers, and the provided energy type (if present).
+- Do NOT give medical, legal, or financial advice; avoid claims about guaranteed money/health/future.
+- Use language like “tends to”, “suggests”, “often”, “may”.
 
-REGRAS DE SEGURANÇA/CONSISTÊNCIA:
-- Não diga que você "viu a palma" ou "leu as linhas" (a foto não é analisada pelo modelo neste fluxo).
-- Baseie tudo apenas em idade + respostas do formulário + respostas do quiz + tipo de energia.
-- Não faça previsões determinísticas; use linguagem "costuma", "tende", "sugere".
+Product framing (hybrid delivery):
+- This is text-first, emotionally realistic, not “AI chat”.
+- Deliver a meaningful reading AND end with an “incomplete insight” loop:
+  “This highlights what is active — but not yet how to work with it. That’s where deeper guidance becomes important.”
 
-NÃO mencione diretamente o "Guia Sagrado" ou qualquer produto - apenas deixe o caminho aberto.`;
+Must include once (exact sentence):
+For entertainment and self-reflection purposes.`;
 
-    const userPrompt = `Gere uma leitura personalizada para esta pessoa:
+    const userPrompt = `Create a personalized reading for:
 
-Nome: ${name}
-Idade: ${age}
-Estado emocional atual: ${emotionalState || "buscando clareza"}
-Principal preocupação: ${mainConcern || "autoconhecimento"}
-Energia dominante: ${energyType?.name || "em equilíbrio"}
-Respostas do quiz energético: ${quizContext}
+Name: ${name}
+Age: ${age}
+Current emotional state: ${emotionalState || "seeking clarity"}
+Main concern: ${mainConcern || "self-discovery"}
+Dominant energy: ${energyType?.name || "balanced"}
+Quiz answers (themes): ${quizContext}
 
-Crie uma leitura em 4 seções (use markdown):
+Write in English (EN-US) and use markdown with these sections:
 
-## ✨ Sua Essência Energética
-(2-3 parágrafos sobre a energia e essência da pessoa)
+## Your essence right now
+- 2–3 short paragraphs
 
-## 🌙 O Que as Linhas Revelam
-(2-3 parágrafos sobre o momento de vida, desafios e potenciais)
+## Patterns shaping your decisions
+- 2–3 short paragraphs (reflective, specific, no absolute claims)
 
-## 🔮 Mensagem dos Astros
-(1-2 parágrafos com uma mensagem espiritual profunda e acolhedora)
+## What to lean on
+- Bullet list (3 bullets): strengths, supportive traits, what helps
 
-## 💫 Próximos Passos na Jornada
-(1-2 parágrafos mencionando que há práticas e rituais que podem ajudar, sem mencionar produtos específicos - deixe o vazio e a curiosidade)
+## What may be getting in the way
+- Bullet list (2–3 bullets): gentle blocks/patterns, no fear tactics
 
-A leitura deve ter aproximadamente 600-800 palavras, ser profunda, personalizada e deixar a pessoa querendo mais.`;
+## A quiet next step
+- 1–2 paragraphs
+- Include the exact disclaimer sentence once:
+For entertainment and self-reflection purposes.
+- End with the loop line (exact):
+This highlights what is active — but not yet how to work with it. That’s where deeper guidance becomes important.
+
+Keep it ~500–750 words. Make it feel human and guided, not “AI generated”.`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -92,27 +98,27 @@ A leitura deve ter aproximadamente 600-800 palavras, ser profunda, personalizada
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Muitas solicitações. Tente novamente em alguns segundos." }), {
+        return new Response(JSON.stringify({ error: "Too many requests. Please try again in a few seconds." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Serviço temporariamente indisponível." }), {
+        return new Response(JSON.stringify({ error: "Service temporarily unavailable." }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const errorText = await response.text();
       console.error("OpenAI error:", response.status, errorText);
-      throw new Error("Erro ao gerar leitura");
+      throw new Error("Failed to generate reading");
     }
 
     const data = await response.json();
     const reading = data.choices?.[0]?.message?.content;
 
     if (!reading) {
-      throw new Error("Resposta vazia da IA");
+      throw new Error("Empty model response");
     }
 
     return new Response(JSON.stringify({ reading }), {
@@ -121,7 +127,7 @@ A leitura deve ter aproximadamente 600-800 palavras, ser profunda, personalizada
   } catch (error) {
     console.error("Error in generate-reading function:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Erro desconhecido" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown issue" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -6,6 +6,7 @@ import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import DownloadCard from "@/components/delivery/DownloadCard";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
+import { AudioPlayer } from "@/components/shared/AudioPlayer";
 
 // PDF hosted in the project
 const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
@@ -79,7 +80,7 @@ const EntregaGuia = () => {
             {name ? `${name}, your Sacred Guide is ready` : "Your Sacred Guide is ready"}
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            You now have a guide you can return to anytime. Use it gently and consistently.
+            This guide was created to help you integrate what your reading revealed into daily life — gently, realistically, and at your own pace.
             For entertainment and self-reflection purposes.
           </p>
         </motion.div>
@@ -127,6 +128,10 @@ const EntregaGuia = () => {
             downloadUrl={PDF_GUIA_URL}
             buttonText="Download Sacred Guide (PDF)"
           />
+        </div>
+
+        <div className="mb-10">
+          <AudioPlayer track="next-steps" title="A short audio to keep you steady (optional)" />
         </div>
 
         {/* How to use the guide */}

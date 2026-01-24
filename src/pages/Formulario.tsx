@@ -149,7 +149,6 @@ const Formulario = () => {
       navigate('/quiz');
     } catch (err) {
       console.warn('Submit failed:', err);
-      toast('Something went wrong, but you can continue.', { id: 'email-sending' });
       
       // Still allow navigation even if email fails
       const birthDate = new Date(parseInt(data.birthYear), parseInt(data.birthMonth) - 1, parseInt(data.birthDay));
@@ -307,12 +306,7 @@ const Formulario = () => {
                   </SelectContent>
                 </Select>
               </div>
-              {calculatedAge !== null && calculatedAge > 0 && (
-                <p className="text-sm text-primary flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  You are {calculatedAge} years old
-                </p>
-              )}
+              {/* Intentionally avoid showing “You are X years old” in UI */}
               {(formIssues?.birthDay || formIssues?.birthMonth || formIssues?.birthYear) && (
                 <p className="text-sm text-destructive">Please complete your full birth date</p>
               )}

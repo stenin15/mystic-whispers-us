@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Package, Sparkles, Star, Shield, Crown, Heart, Bolt, BookOpen } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import DownloadCard from "@/components/delivery/DownloadCard";
@@ -8,6 +8,7 @@ import DeliveryFAQ from "@/components/delivery/DeliveryFAQ";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Button } from "@/components/ui/button";
+import { AudioPlayer } from "@/components/shared/AudioPlayer";
 
 // PDF hosted in the project
 const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
@@ -16,6 +17,7 @@ const EntregaCombo = () => {
   const navigate = useNavigate();
   const { name, canAccessDelivery } = useHandReadingStore();
   const deliveryReadingPath = ["/entrega/", "le", "itura"].join("");
+  const deliveryGuidePath = ["/entrega/", "gu", "ia"].join("");
 
   useEffect(() => {
     if (!canAccessDelivery()) {
@@ -30,6 +32,8 @@ const EntregaCombo = () => {
     { icon: Heart, title: "Personal message", desc: "Intuitive guidance prepared for you" },
     { icon: Bolt, title: "Priority support", desc: "Help if you have questions along the way" },
   ];
+
+  // HYBRID AUDIO: pre-recorded, generic tracks only (no TTS).
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -58,11 +62,12 @@ const EntregaCombo = () => {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            {name ? `You’re all set, ${name}!` : "You’re all set."} Your bundle is ready
+            A deeper look into the patterns shaping your decisions
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            You’ve unlocked the complete experience. Everything is available to you now.
-            For entertainment and self-reflection purposes.
+            {name?.trim() ? `Hi, ${name.trim()}.` : "Hi."} This is your complete delivery — deeper context, clearer patterns, and a practical integration path.
+            <br />
+            <span className="text-muted-foreground/80">For entertainment and self-reflection purposes.</span>
           </p>
         </motion.div>
 
@@ -101,7 +106,7 @@ const EntregaCombo = () => {
           </div>
         </motion.div>
 
-        {/* CTA to reading */}
+        {/* Open the complete reading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -114,9 +119,34 @@ const EntregaCombo = () => {
               className="w-full bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-lg py-7 rounded-xl shadow-lg shadow-mystic-gold/30"
             >
               <Sparkles className="w-5 h-5 mr-2" />
-              View my complete reading
+              Open my complete reading
             </Button>
           </Link>
+        </motion.div>
+
+        {/* Integration bridge */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+          className="glass rounded-2xl p-6 md:p-8 mb-8 border border-border/30"
+        >
+          <h2 className="text-xl md:text-2xl font-serif font-semibold text-foreground mb-3">
+            Awareness alone doesn’t create change. Integration does.
+          </h2>
+          <p className="text-muted-foreground leading-relaxed mb-5">
+            Use the guide to integrate what your reading revealed into daily life — gently, realistically, and at your own pace.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link to={deliveryGuidePath} className="w-full">
+              <Button className="w-full gradient-mystic text-primary-foreground hover:opacity-90 py-6">
+                Open the guide page
+              </Button>
+            </Link>
+          </div>
+          <div className="mt-4">
+            <AudioPlayer track="integration" title="A short audio to integrate (optional)" />
+          </div>
         </motion.div>
 
         {/* Download Card - Guide */}

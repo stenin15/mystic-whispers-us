@@ -232,6 +232,9 @@ export const processAnalysis = async (
 // Text-to-Speech function using OpenAI TTS via Edge Function
 export const generateVoiceMessage = async (text: string): Promise<string | null> => {
   try {
+    // Production policy: no per-user TTS in production builds (cost control).
+    if (import.meta.env.PROD) return null;
+
     // Default voice for "Madame Aurora" narration.
     // OpenAI TTS voices: alloy, echo, fable, onyx, nova, shimmer
     const defaultVoice = (import.meta.env.VITE_TTS_VOICE || 'shimmer') as string;
