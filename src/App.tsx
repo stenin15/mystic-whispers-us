@@ -97,6 +97,7 @@ const App = () => (
           <Route path="/enviar-foto" element={<EntradaFoto />} />
           <Route path={pathDeliveryReading} element={<EntregaLeitura />} />
           <Route path="/entrega/combo" element={<EntregaCombo />} />
+          <Route path="/entrega/completa" element={<EntregaCombo />} />
           <Route path="/entrega/guia" element={<EntregaGuia />} />
           <Route path="/oferta/guia-exclusivo" element={<OfertaGuiaExclusivo />} />
           <Route path="*" element={<NotFound />} />

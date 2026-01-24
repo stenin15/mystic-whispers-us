@@ -15,8 +15,6 @@ const VSL = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
 
-  // US market: checkout is external (Stripe) only when configured; otherwise fallback to internal flow.
-  const checkoutUrl = import.meta.env.VITE_STRIPE_CHECKOUT_URL as string | undefined;
   const videoSrc = import.meta.env.VITE_VSL_VIDEO_URL || "https://vsl-lovable.b-cdn.net/IMG_2694.mp4";
 
   const handleCTA = () => {
@@ -110,27 +108,14 @@ const VSL = () => {
 
             {/* CTA principal */}
             <div className="mb-6">
-              {checkoutUrl ? (
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20"
-                >
-                  <a href={checkoutUrl} className="cta-button">
-                    Continue now
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </a>
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleCTA}
-                  size="lg"
-                  className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20"
-                >
-                  Continue now
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              )}
+              <Button
+                onClick={handleCTA}
+                size="lg"
+                className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20"
+              >
+                Continue now
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
             </div>
 
             {/* Microcopy abaixo do botão */}
@@ -346,27 +331,14 @@ const VSL = () => {
             transition={{ duration: 0.5, delay: 0.5 }}
             className="mt-10 text-center"
           >
-            {checkoutUrl ? (
-              <Button
-                asChild
-                size="lg"
-                className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-2"
-              >
-                <a href={checkoutUrl} className="cta-button">
-                  Continue
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </a>
-              </Button>
-            ) : (
-              <Button
-                onClick={handleCTA}
-                size="lg"
-                className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-2"
-              >
-                Continue
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            )}
+            <Button
+              onClick={handleCTA}
+              size="lg"
+              className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-2"
+            >
+              Continue
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
             <p className="text-xs text-muted-foreground">
               Takes less than a minute
             </p>
@@ -504,27 +476,14 @@ const VSL = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            {checkoutUrl ? (
-              <Button
-                asChild
-                size="lg"
-                className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-4"
-              >
-                <a href={checkoutUrl} className="cta-button">
-                    Start my reading
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </a>
-              </Button>
-            ) : (
-              <Button
-                onClick={handleCTA}
-                size="lg"
-                className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-4"
-              >
-                  Start my reading
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            )}
+            <Button
+              onClick={handleCTA}
+              size="lg"
+              className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-4"
+            >
+              Start my reading
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
 
             {/* Microcopy com urgência sutil */}
             <p className="text-sm text-muted-foreground italic mb-6">

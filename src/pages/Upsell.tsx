@@ -20,6 +20,8 @@ import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
 import { VSLCard } from '@/components/shared/VSLCard';
 import { toast } from 'sonner';
+import { PRICE_MAP } from '@/lib/pricing';
+import { requireCheckoutUrl } from '@/lib/checkout';
 
 const Upsell = () => {
   const navigate = useNavigate();
@@ -32,14 +34,12 @@ const Upsell = () => {
   }, [canAccessResult, navigate]);
 
   const handlePurchase = () => {
-    const upsellUrl = import.meta.env.VITE_STRIPE_CHECKOUT_UPSELL_URL as string | undefined;
-    const fallbackUrl = import.meta.env.VITE_STRIPE_CHECKOUT_URL as string | undefined;
-    const finalUrl = upsellUrl || fallbackUrl;
-    if (!finalUrl) {
-      toast("Checkout isn’t configured yet.");
-      return;
+    try {
+      const url = requireCheckoutUrl("upsell");
+      window.location.href = url;
+    } catch (err) {
+      toast(String((err as Error)?.message || "Checkout isn’t configured yet."));
     }
-    window.location.href = finalUrl;
   };
 
   if (!analysisResult) return null;
@@ -188,13 +188,13 @@ const Upsell = () => {
             </div>
 
             <h3 className="text-2xl font-serif font-semibold mb-2 text-foreground">
-              Complete ritual upgrade
+              Ritual & Integration Guide
             </h3>
 
             {/* Price */}
             <div className="mb-6">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-4xl font-bold gradient-text">$47.00</span>
+                <span className="text-4xl font-bold gradient-text">{PRICE_MAP.guide.display}</span>
               </div>
               <span className="text-sm text-muted-foreground">One-time payment • Instant access</span>
             </div>
@@ -206,7 +206,7 @@ const Upsell = () => {
               className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg mb-4"
             >
               <Sparkles className="w-5 h-5 mr-2" />
-              Upgrade now
+              Get the guide
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
 

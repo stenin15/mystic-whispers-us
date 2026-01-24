@@ -20,6 +20,8 @@ import { Footer } from '@/components/layout/Footer';
 import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 import CountdownTimer from '@/components/delivery/CountdownTimer';
 import { toast } from 'sonner';
+import { PRICE_MAP } from '@/lib/pricing';
+import { requireCheckoutUrl } from '@/lib/checkout';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -31,18 +33,14 @@ const Checkout = () => {
     }
   }, [canAccessResult, navigate]);
 
-  const basicUrl = import.meta.env.VITE_STRIPE_CHECKOUT_BASIC_URL as string | undefined;
-  const completeUrl = import.meta.env.VITE_STRIPE_CHECKOUT_COMPLETE_URL as string | undefined;
-  const fallbackUrl = import.meta.env.VITE_STRIPE_CHECKOUT_URL as string | undefined;
-
-  const handleCheckoutClick = (url: string | undefined, e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleCheckoutClick = (key: "basic" | "complete", e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const finalUrl = url || fallbackUrl;
-    if (!finalUrl) {
-      toast("Checkout isn’t configured yet.");
-      return;
+    try {
+      const finalUrl = requireCheckoutUrl(key);
+      window.location.href = finalUrl;
+    } catch (err) {
+      toast(String((err as Error)?.message || "Checkout isn’t configured yet."));
     }
-    window.location.href = finalUrl;
   };
 
   return (
@@ -148,7 +146,7 @@ const Checkout = () => {
                   "Your strengths and natural gifts",
                   "What may be blocking your momentum",
                   "A personalized intuitive message",
-                  "Audio message with a calm voice",
+                  "Optional short audio (generic)",
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
@@ -160,7 +158,7 @@ const Checkout = () => {
               {/* Price */}
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-2">
-                  <span className="text-4xl font-bold text-foreground">$9.90</span>
+                  <span className="text-4xl font-bold text-foreground">{PRICE_MAP.basic.display}</span>
                 </div>
                 <span className="text-sm text-muted-foreground">One-time payment • Instant access</span>
               </div>
@@ -171,7 +169,7 @@ const Checkout = () => {
                 size="lg"
                 className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6"
               >
-                  <a href={basicUrl || "#"} onClick={(e) => handleCheckoutClick(basicUrl, e)} className="cta-button">
+                  <a href="#" onClick={(e) => handleCheckoutClick("basic", e)} className="cta-button">
                   Get the basic reading
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </a>
@@ -227,7 +225,7 @@ const Checkout = () => {
               {/* Price */}
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-2">
-                  <span className="text-4xl font-bold gradient-text">$49.90</span>
+                  <span className="text-4xl font-bold gradient-text">{PRICE_MAP.complete.display}</span>
                 </div>
                 <span className="text-sm text-muted-foreground">One-time payment • Instant access</span>
               </div>
@@ -237,7 +235,7 @@ const Checkout = () => {
                 size="lg"
                 className="w-full gradient-gold text-background hover:opacity-90 py-6 text-lg"
               >
-                  <a href={completeUrl || "#"} onClick={(e) => handleCheckoutClick(completeUrl, e)} className="cta-button">
+                  <a href="#" onClick={(e) => handleCheckoutClick("complete", e)} className="cta-button">
                   <Sparkles className="w-5 h-5 mr-2" />
                   Upgrade to the complete package
                   <ArrowRight className="w-5 h-5 ml-2" />

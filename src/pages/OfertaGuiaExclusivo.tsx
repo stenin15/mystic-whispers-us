@@ -15,10 +15,8 @@ import { Button } from "@/components/ui/button";
 import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { toast } from "sonner";
-
-// US market: checkout via Stripe (configure in Vercel envs)
-const CHECKOUT_GUIDE_URL = import.meta.env.VITE_STRIPE_CHECKOUT_GUIDE_URL as string | undefined;
-const CHECKOUT_FALLBACK_URL = import.meta.env.VITE_STRIPE_CHECKOUT_URL as string | undefined;
+import { PRICE_MAP } from "@/lib/pricing";
+import { requireCheckoutUrl } from "@/lib/checkout";
 
 const OfertaGuiaExclusivo = () => {
   const benefits = [
@@ -49,12 +47,12 @@ const OfertaGuiaExclusivo = () => {
   ];
 
   const handleCheckout = () => {
-    const finalUrl = CHECKOUT_GUIDE_URL || CHECKOUT_FALLBACK_URL;
-    if (!finalUrl) {
-      toast("Checkout isn’t configured yet.");
-      return;
+    try {
+      const url = requireCheckoutUrl("guide");
+      window.location.href = url;
+    } catch (err) {
+      toast(String((err as Error)?.message || "Checkout isn’t configured yet."));
     }
-    window.location.href = finalUrl;
   };
 
   return (
@@ -165,12 +163,9 @@ const OfertaGuiaExclusivo = () => {
             </div>
 
             <div className="mb-6">
-              <p className="text-muted-foreground line-through text-lg">
-                Was $39.90
-              </p>
               <div className="flex items-baseline justify-center gap-2">
                 <span className="text-5xl md:text-6xl font-bold text-mystic-gold">
-                  $29.90
+                  {PRICE_MAP.guide.display}
                 </span>
               </div>
               <p className="text-sm text-muted-foreground mt-2">

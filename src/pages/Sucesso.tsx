@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
@@ -10,21 +10,9 @@ import { Footer } from "@/components/layout/Footer";
 const Sucesso = () => {
   const navigate = useNavigate();
   const { canAccessResult, name, setPaymentCompleted } = useHandReadingStore();
+  const [verified, setVerified] = useState(false);
 
-  useEffect(() => {
-    // Se o usuário cair aqui direto sem ter feito o fluxo, manda para o início
-    if (!canAccessResult()) {
-      navigate("/");
-      return;
-    }
-    
-    // Mark payment as completed
-    setPaymentCompleted(true);
-  }, [canAccessResult, navigate, setPaymentCompleted]);
-
-  useEffect(() => {
-    // Minimal patch: allow /entrega/* only when we detect a payment return.
-    // (Prevents granting access by navigating directly to this route.)
+  const paymentIndicator = useMemo(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const status = (params.get("status") || "").toLowerCase();
@@ -32,6 +20,7 @@ const Sucesso = () => {
       const approved = (params.get("approved") || "").toLowerCase();
       const ok = (params.get("ok") || "").toLowerCase();
       const transactionId =
+        params.get("session_id") ||
         params.get("transaction_id") ||
         params.get("transactionId") ||
         params.get("tid") ||
@@ -53,13 +42,29 @@ const Sucesso = () => {
         ok === "true" ||
         !!transactionId;
 
-      if (looksPaid) {
-        setPaymentCompleted(true, transactionId || undefined);
-      }
+      return { looksPaid, transactionId: transactionId || undefined };
     } catch {
-      // ignore
+      return { looksPaid: false as const, transactionId: undefined };
     }
-  }, [setPaymentCompleted]);
+  }, []);
+
+  useEffect(() => {
+    // Se o usuário cair aqui direto sem ter feito o fluxo, manda para o início
+    if (!canAccessResult()) {
+      navigate("/");
+      return;
+    }
+  }, [canAccessResult, navigate, setPaymentCompleted]);
+
+  useEffect(() => {
+    // Grant delivery access ONLY when a payment indicator is present in the return URL.
+    if (paymentIndicator.looksPaid) {
+      setPaymentCompleted(true, paymentIndicator.transactionId);
+      setVerified(true);
+    } else {
+      setVerified(false);
+    }
+  }, [paymentIndicator.looksPaid, paymentIndicator.transactionId, setPaymentCompleted]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -71,20 +76,25 @@ const Sucesso = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/15 border border-green-500/30 mb-6">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span className="text-sm text-green-500">Payment confirmed</span>
+              <span className="text-sm text-green-500">
+                {verified ? "Payment confirmed" : "Checking payment…"}
+              </span>
             </div>
 
             <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3">
               <span className="text-foreground">All set{ name ? `, ${name}` : "" }.</span>
             </h1>
             <p className="text-muted-foreground mb-8">
-              You can access your reading now.
+              {verified
+                ? "You can access your reading now."
+                : "If you just paid, please use the button below to continue."}
             </p>
 
             <Button
               onClick={() => navigate("/resultado")}
               size="lg"
               className="gradient-gold text-background hover:opacity-90 px-10 py-6 text-lg"
+              disabled={!verified}
             >
               View my reading
               <ArrowRight className="w-5 h-5 ml-2" />
