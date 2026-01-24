@@ -223,7 +223,7 @@ const Formulario = () => {
               <div className="space-y-2">
                 <Label htmlFor="email" className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-muted-foreground" />
-                  Email
+                  Where should we send updates about your reading?
                 </Label>
                 <Input
                   id="email"
@@ -232,6 +232,9 @@ const Formulario = () => {
                   {...register('email')}
                   className="bg-input/50 border-border/50 focus:border-primary"
                 />
+                <p className="text-xs text-muted-foreground/80">
+                  This helps us start your reading and notify you when it’s ready.
+                </p>
                 {formIssues?.email && (
                   <p className="text-sm text-destructive">{formIssues.email.message}</p>
                 )}
@@ -365,6 +368,12 @@ const Formulario = () => {
               onChange={handlePhotoChange}
               issue={photoIssue}
             />
+
+            {handPhotoPreview && (
+              <p className="text-sm text-muted-foreground text-center">
+                Your reading has been opened. Uploading your palm helps us continue.
+              </p>
+            )}
           </div>
 
           {/* Submit Button */}
