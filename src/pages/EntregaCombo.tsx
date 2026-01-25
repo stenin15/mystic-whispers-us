@@ -3,24 +3,22 @@ import { Package, Sparkles, Star, Shield, Crown, Heart, Bolt, BookOpen } from "l
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
-import DownloadCard from "@/components/delivery/DownloadCard";
 import DeliveryFAQ from "@/components/delivery/DeliveryFAQ";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Button } from "@/components/ui/button";
 import { AudioPlayer } from "@/components/shared/AudioPlayer";
-
-// PDF hosted in the project
-const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
+import { requireCheckoutUrl } from "@/lib/checkout";
+import { toast } from "sonner";
 
 const EntregaCombo = () => {
   const navigate = useNavigate();
-  const { name, canAccessDelivery } = useHandReadingStore();
+  const { name, canAccessDelivery, setPendingPurchase } = useHandReadingStore();
   const deliveryReadingPath = ["/entrega/", "le", "itura"].join("");
   const deliveryGuidePath = ["/entrega/", "gu", "ia"].join("");
 
   useEffect(() => {
-    if (!canAccessDelivery()) {
+    if (!canAccessDelivery("complete")) {
       navigate('/');
       return;
     }
@@ -28,12 +26,21 @@ const EntregaCombo = () => {
 
   const benefits = [
     { icon: Crown, title: "Complete reading unlocked", desc: "Lifetime access to your personalized analysis" },
-    { icon: BookOpen, title: "Exclusive Sacred Guide", desc: "7 powerful rituals + moon cycle calendar" },
     { icon: Heart, title: "Personal message", desc: "Intuitive guidance prepared for you" },
-    { icon: Bolt, title: "Priority support", desc: "Help if you have questions along the way" },
+    { icon: Bolt, title: "Practical integration", desc: "A clearer sense of what to do next" },
   ];
 
   // HYBRID AUDIO: pre-recorded, generic tracks only (no TTS).
+  const handleBuyGuide = () => {
+    try {
+      setPendingPurchase("guide");
+      const url = requireCheckoutUrl("guide");
+      window.location.href = url;
+    } catch (err) {
+      console.error("Checkout URL missing: guide", err);
+      toast("Checkout isn’t configured yet. Please try again in a moment.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -135,12 +142,15 @@ const EntregaCombo = () => {
             Awareness alone doesn’t create change. Integration does.
           </h2>
           <p className="text-muted-foreground leading-relaxed mb-5">
-            Use the guide to integrate what your reading revealed into daily life — gently, realistically, and at your own pace.
+            You now have deeper context — and a practical direction for your next step.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
+            <Button onClick={handleBuyGuide} className="w-full gradient-mystic text-primary-foreground hover:opacity-90 py-6">
+              Get the Ritual & Integration Guide
+            </Button>
             <Link to={deliveryGuidePath} className="w-full">
-              <Button className="w-full gradient-mystic text-primary-foreground hover:opacity-90 py-6">
-                Open the guide page
+              <Button variant="outline" className="w-full border-primary/30 py-6">
+                Already purchased? Open the guide
               </Button>
             </Link>
           </div>
@@ -148,16 +158,6 @@ const EntregaCombo = () => {
             <AudioPlayer track="integration" title="A short audio to integrate (optional)" />
           </div>
         </motion.div>
-
-        {/* Download Card - Guide */}
-        <div className="mb-8">
-          <DownloadCard
-            title="Sacred Guide for Energy Transformation"
-            description="Your exclusive material with 7 rituals, a moon cycle calendar, and daily practices to support your energy."
-            downloadUrl={PDF_GUIA_URL}
-            buttonText="Download Sacred Guide (PDF)"
-          />
-        </div>
 
         {/* Lifetime access */}
         <motion.div

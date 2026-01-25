@@ -9,7 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 
 const Sucesso = () => {
   const navigate = useNavigate();
-  const { canAccessResult, name, setPaymentCompleted } = useHandReadingStore();
+  const { canAccessResult, name, pendingPurchase, purchases, markPurchaseCompleted } = useHandReadingStore();
   const [verified, setVerified] = useState(false);
 
   const paymentIndicator = useMemo(() => {
@@ -49,22 +49,45 @@ const Sucesso = () => {
   }, []);
 
   useEffect(() => {
-    // Se o usuário cair aqui direto sem ter feito o fluxo, manda para o início
+    // If the user lands here without completing the flow, send them home.
     if (!canAccessResult()) {
       navigate("/");
       return;
     }
-  }, [canAccessResult, navigate, setPaymentCompleted]);
+  }, [canAccessResult, navigate]);
 
   useEffect(() => {
     // Grant delivery access ONLY when a payment indicator is present in the return URL.
     if (paymentIndicator.looksPaid) {
-      setPaymentCompleted(true, paymentIndicator.transactionId);
-      setVerified(true);
+      const inferredPurchase =
+        pendingPurchase ??
+        (purchases.guide ? "guide" : purchases.complete ? "complete" : purchases.basic ? "basic" : null);
+
+      if (inferredPurchase) {
+        markPurchaseCompleted(inferredPurchase, paymentIndicator.transactionId);
+        setVerified(true);
+      } else {
+        // Paid, but we can't tell what product this was for.
+        setVerified(false);
+      }
     } else {
       setVerified(false);
     }
-  }, [paymentIndicator.looksPaid, paymentIndicator.transactionId, setPaymentCompleted]);
+  }, [paymentIndicator.looksPaid, paymentIndicator.transactionId, markPurchaseCompleted, pendingPurchase, purchases.basic, purchases.complete, purchases.guide]);
+
+  const destination =
+    pendingPurchase === "guide"
+      ? "/entrega/guia"
+      : pendingPurchase === "complete"
+        ? "/entrega/completa"
+        : "/entrega/leitura";
+
+  const buttonLabel =
+    pendingPurchase === "guide"
+      ? "Open my guide"
+      : pendingPurchase === "complete"
+        ? "Open my complete delivery"
+        : "Open my reading";
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -86,17 +109,17 @@ const Sucesso = () => {
             </h1>
             <p className="text-muted-foreground mb-8">
               {verified
-                ? "You can access your reading now."
-                : "If you just paid, please use the button below to continue."}
+                ? "You can access your purchase now."
+                : "Payment was detected, but we couldn’t confirm the product. Please return to the page you came from and try again."}
             </p>
 
             <Button
-              onClick={() => navigate("/resultado")}
+              onClick={() => navigate(destination)}
               size="lg"
               className="gradient-gold text-background hover:opacity-90 px-10 py-6 text-lg"
               disabled={!verified}
             >
-              View my reading
+              {buttonLabel}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
 

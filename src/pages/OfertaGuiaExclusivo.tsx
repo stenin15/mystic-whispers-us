@@ -17,8 +17,19 @@ import LegalFooter from "@/components/delivery/LegalFooter";
 import { toast } from "sonner";
 import { PRICE_MAP } from "@/lib/pricing";
 import { requireCheckoutUrl } from "@/lib/checkout";
+import { useHandReadingStore } from "@/store/useHandReadingStore";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const OfertaGuiaExclusivo = () => {
+  const navigate = useNavigate();
+  const { canAccessResult, setPendingPurchase } = useHandReadingStore();
+
+  useEffect(() => {
+    // Offer page should not be reachable without completing the analysis flow.
+    if (!canAccessResult()) navigate("/");
+  }, [canAccessResult, navigate]);
+
   const benefits = [
     {
       icon: Moon,
@@ -48,6 +59,7 @@ const OfertaGuiaExclusivo = () => {
 
   const handleCheckout = () => {
     try {
+      setPendingPurchase("guide");
       const url = requireCheckoutUrl("guide");
       window.location.href = url;
     } catch (err) {

@@ -25,7 +25,7 @@ import { requireCheckoutUrl } from '@/lib/checkout';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { name, canAccessResult } = useHandReadingStore();
+  const { name, canAccessResult, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -35,6 +35,8 @@ const Checkout = () => {
 
   const handleCheckoutClick = (key: "basic" | "complete") => {
     try {
+      setPendingPurchase(key);
+      setSelectedPlan(key);
       const finalUrl = requireCheckoutUrl(key);
       window.location.href = finalUrl;
     } catch (err) {

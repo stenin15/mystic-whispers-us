@@ -97,6 +97,7 @@ const Resultado = () => {
 
   // Auto-play audio when available
   useEffect(() => {
+    if (import.meta.env.PROD) return;
     if (audioUrl && audioRef.current && !hasAutoPlayed && !isPlayingAudio) {
       // Small delay for better UX
       const timer = setTimeout(() => {
@@ -149,6 +150,8 @@ const Resultado = () => {
 
   const handlePlayVoice = async () => {
     if (!analysisResult) return;
+    // Production policy: no per-user TTS audio generation.
+    if (import.meta.env.PROD) return;
 
     // If already playing, pause
     if (isPlayingAudio) {
@@ -193,13 +196,15 @@ const Resultado = () => {
       <ParticlesBackground />
       <FloatingOrbs />
 
-      {/* Hidden audio element for TTS playback */}
-      <audio
-        ref={audioRef}
-        src={audioUrl || undefined}
-        onEnded={handleAudioEnded}
-        onPause={() => setIsPlayingAudio(false)}
-      />
+      {/* Hidden audio element for voice playback (DEV only) */}
+      {!import.meta.env.PROD && (
+        <audio
+          ref={audioRef}
+          src={audioUrl || undefined}
+          onEnded={handleAudioEnded}
+          onPause={() => setIsPlayingAudio(false)}
+        />
+      )}
 
       {/* Header Section */}
       <section className="pt-20 pb-10 px-4">
@@ -347,34 +352,36 @@ const Resultado = () => {
               </p>
             </div>
 
-            {/* Voice Playback Button */}
-            <div className="flex justify-center mb-6">
-              <Button
-                onClick={handlePlayVoice}
-                disabled={audioLoading}
-                variant="outline"
-                className={`border-mystic-gold/30 text-mystic-gold hover:bg-mystic-gold/10 transition-all duration-300 ${
-                  isPlayingAudio ? 'animate-pulse ring-2 ring-mystic-gold/40' : ''
-                }`}
-              >
-                {audioLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-mystic-gold border-t-transparent rounded-full animate-spin mr-2" />
-                    Generating audio...
-                  </>
-                ) : isPlayingAudio ? (
-                  <>
-                    <Pause className="w-4 h-4 mr-2" />
-                    Pause
-                  </>
-                ) : (
-                  <>
-                    <Volume2 className="w-4 h-4 mr-2" />
-                    Play audio message
-                  </>
-                )}
-              </Button>
-            </div>
+            {/* Voice Playback Button (DEV only; no per-user TTS in production) */}
+            {!import.meta.env.PROD && (
+              <div className="flex justify-center mb-6">
+                <Button
+                  onClick={handlePlayVoice}
+                  disabled={audioLoading}
+                  variant="outline"
+                  className={`border-mystic-gold/30 text-mystic-gold hover:bg-mystic-gold/10 transition-all duration-300 ${
+                    isPlayingAudio ? 'animate-pulse ring-2 ring-mystic-gold/40' : ''
+                  }`}
+                >
+                  {audioLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-mystic-gold border-t-transparent rounded-full animate-spin mr-2" />
+                      Generating audio...
+                    </>
+                  ) : isPlayingAudio ? (
+                    <>
+                      <Pause className="w-4 h-4 mr-2" />
+                      Pause
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-4 h-4 mr-2" />
+                      Play audio message
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
 
             {/* Playing indicator */}
             {isPlayingAudio && (

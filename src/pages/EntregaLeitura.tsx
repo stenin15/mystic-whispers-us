@@ -16,13 +16,13 @@ import { AudioPlayer } from "@/components/shared/AudioPlayer";
 
 const EntregaLeitura = () => {
   const navigate = useNavigate();
-  const { name, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery } = useHandReadingStore();
+  const { name, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
   const [reading, setReading] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [issue, setIssue] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!canAccessDelivery()) {
+    if (!canAccessDelivery("basic")) {
       navigate('/');
       return;
     }
@@ -82,6 +82,8 @@ const EntregaLeitura = () => {
 
   const handleUpgradeToComplete = () => {
     try {
+      setPendingPurchase("complete");
+      setSelectedPlan("complete");
       const url = requireCheckoutUrl("complete");
       window.location.href = url;
     } catch (err) {

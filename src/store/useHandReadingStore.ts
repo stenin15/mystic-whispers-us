@@ -33,7 +33,8 @@ export interface AnalysisResult {
   audioUrl?: string;
 }
 
-export type SelectedPlan = 'basic' | 'complete';
+export type ProductKey = 'basic' | 'complete' | 'guide';
+export type SelectedPlan = Exclude<ProductKey, 'guide'>;
 
 interface HandReadingState {
   // Funnel gate
@@ -64,6 +65,8 @@ interface HandReadingState {
   // Payment validation
   paymentCompleted: boolean;
   paymentToken: string | null;
+  pendingPurchase: ProductKey | null;
+  purchases: Record<ProductKey, boolean>;
 
   // Actions
   setFormData: (data: Partial<{
@@ -83,11 +86,13 @@ interface HandReadingState {
   setSelectedPlan: (plan: SelectedPlan | null) => void;
   setHasSeenVsl: (hasSeen: boolean) => void;
   setPaymentCompleted: (completed: boolean, token?: string) => void;
+  setPendingPurchase: (product: ProductKey | null) => void;
+  markPurchaseCompleted: (product: ProductKey, token?: string) => void;
   reset: () => void;
   canAccessQuiz: () => boolean;
   canAccessAnalysis: () => boolean;
   canAccessResult: () => boolean;
-  canAccessDelivery: () => boolean;
+  canAccessDelivery: (product?: ProductKey) => boolean;
 }
 
 const initialState = {
@@ -106,6 +111,8 @@ const initialState = {
   selectedPlan: null,
   paymentCompleted: false,
   paymentToken: null,
+  pendingPurchase: null,
+  purchases: { basic: false, complete: false, guide: false },
 };
 
 // Generate a unique payment token
@@ -153,6 +160,20 @@ export const useHandReadingStore = create<HandReadingState>()(
         paymentToken: token || generatePaymentToken()
       }),
 
+      setPendingPurchase: (product) => set({ pendingPurchase: product }),
+
+      markPurchaseCompleted: (product, token) => set((state) => {
+        const updated = { ...state.purchases, [product]: true };
+        // If someone bought Complete, they can access Basic reading too.
+        if (product === "complete") updated.basic = true;
+        return {
+          paymentCompleted: true,
+          paymentToken: token || state.paymentToken || generatePaymentToken(),
+          pendingPurchase: null,
+          purchases: updated,
+        };
+      }),
+
       reset: () => set(initialState),
 
       canAccessQuiz: () => {
@@ -170,9 +191,14 @@ export const useHandReadingStore = create<HandReadingState>()(
         return !!state.analysisResult;
       },
 
-      canAccessDelivery: () => {
+      canAccessDelivery: (product) => {
         const state = get();
-        return state.paymentCompleted && !!state.paymentToken;
+        if (!state.paymentCompleted || !state.paymentToken) return false;
+        if (!product) return true;
+        if (product === "basic") return !!(state.purchases.basic || state.purchases.complete);
+        if (product === "complete") return !!state.purchases.complete;
+        if (product === "guide") return !!state.purchases.guide;
+        return false;
       },
     }),
     {
@@ -191,6 +217,8 @@ export const useHandReadingStore = create<HandReadingState>()(
         selectedPlan: state.selectedPlan,
         paymentCompleted: state.paymentCompleted,
         paymentToken: state.paymentToken,
+        pendingPurchase: state.pendingPurchase,
+        purchases: state.purchases,
       }),
     },
   ),

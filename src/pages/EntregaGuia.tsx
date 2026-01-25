@@ -16,7 +16,7 @@ const EntregaGuia = () => {
   const { name, canAccessDelivery } = useHandReadingStore();
 
   useEffect(() => {
-    if (!canAccessDelivery()) {
+    if (!canAccessDelivery("guide")) {
       navigate('/');
       return;
     }

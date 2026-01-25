@@ -25,7 +25,7 @@ import { requireCheckoutUrl } from '@/lib/checkout';
 
 const Upsell = () => {
   const navigate = useNavigate();
-  const { name, analysisResult, canAccessResult } = useHandReadingStore();
+  const { name, analysisResult, canAccessResult, setPendingPurchase } = useHandReadingStore();
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -35,6 +35,7 @@ const Upsell = () => {
 
   const handlePurchase = () => {
     try {
+      setPendingPurchase("guide");
       const url = requireCheckoutUrl("upsell");
       window.location.href = url;
     } catch (err) {
