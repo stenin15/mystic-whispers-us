@@ -16,7 +16,7 @@ Migration added:
 ## Edge Functions
 New functions:
 - `create-checkout-session`
-  - Input: `{ productCode, email?, returnUrl }`
+  - Input: `{ productCode, email? }`
   - Output: `{ url }` (Stripe Checkout session URL)
 - `stripe-webhook`
   - Verifies `STRIPE_WEBHOOK_SECRET`
@@ -25,7 +25,7 @@ New functions:
     - `checkout.session.async_payment_failed` → `status='unpaid'`
     - `charge.refunded` → `status='refunded'` (by payment_intent)
 - `get-entitlement`
-  - Input: `{ session_id?: string, email?: string }`
+  - Input: `{ session_id: string }`
   - Output: `{ paidProducts: ["basic"|"complete"|"guide"][], isPaid }`
   - Normalization:
     - `complete` implies `basic`
@@ -34,7 +34,7 @@ New functions:
 ## Frontend behavior
 - Checkout buttons call `createCheckoutSessionUrl(...)` (Edge Function) and redirect to the returned URL.
 - `/sucesso` reads `session_id` and polls `get-entitlement` for up to 30 seconds.
-- Delivery routes remain gated, and also attempt an entitlement refresh by `email` when session state is missing.
+- Delivery routes remain gated (no entitlement lookup by email).
 
 ## Required env vars
 ### Frontend (Vercel)
@@ -42,6 +42,7 @@ New functions:
 - `VITE_SUPABASE_ANON_KEY`
 
 ### Supabase secrets (Edge Functions)
+- `SITE_URL` (e.g. `https://madam-aurora.co`)
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_PRICE_BASIC`

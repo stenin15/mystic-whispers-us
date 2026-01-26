@@ -4,15 +4,12 @@ export type CheckoutKey = "basic" | "complete" | "guide" | "upsell";
 
 export async function createCheckoutSessionUrl(
   key: CheckoutKey,
-  opts: { email?: string; returnUrl?: string } = {},
+  opts: { email?: string } = {},
 ): Promise<string> {
-  const returnUrl = opts.returnUrl ?? window.location.origin;
-
   const res = await supabase.functions.invoke("create-checkout-session", {
     body: {
       productCode: key,
       email: opts.email,
-      returnUrl,
     },
   });
 

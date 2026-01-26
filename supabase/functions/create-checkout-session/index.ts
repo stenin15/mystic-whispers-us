@@ -36,7 +36,6 @@ type ProductCode = "basic" | "complete" | "guide" | "upsell";
 interface CreateCheckoutSessionInput {
   productCode: ProductCode;
   email?: string;
-  returnUrl: string;
 }
 
 const isProductCode = (v: unknown): v is ProductCode =>
@@ -83,31 +82,21 @@ serve(async (req) => {
       });
     }
 
+    const SITE_URL_RAW = Deno.env.get("SITE_URL");
+    const SITE_URL = (SITE_URL_RAW ?? "").trim().replace(/\/+$/, "");
+    if (!SITE_URL) {
+      throw new Error("SITE_URL is not configured");
+    }
+    if (!SITE_URL.startsWith("https://")) {
+      throw new Error("SITE_URL must start with https://");
+    }
+
     const body = (await req.json()) as Partial<CreateCheckoutSessionInput>;
     const productCode = body.productCode;
-    const returnUrl = body.returnUrl;
     const email = body.email;
 
     if (!isProductCode(productCode)) {
       return new Response(JSON.stringify({ error: "Invalid product code" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    if (!returnUrl || typeof returnUrl !== "string") {
-      return new Response(JSON.stringify({ error: "Missing returnUrl" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    let originUrl: string;
-    try {
-      const u = new URL(returnUrl);
-      originUrl = u.origin;
-    } catch {
-      return new Response(JSON.stringify({ error: "Invalid returnUrl" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -121,6 +110,9 @@ serve(async (req) => {
       });
     }
 
+    const successUrl = `${SITE_URL}/sucesso?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${SITE_URL}/cancelado`;
+
     const stripe = new Stripe(STRIPE_SECRET_KEY, {
       apiVersion: "2023-10-16",
     });
@@ -128,8 +120,8 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${originUrl}/sucesso?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${originUrl}/cancelado`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       metadata: {
         product_code: productCode,
         app: "mystic-whispers-us",
