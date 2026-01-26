@@ -1,98 +1,63 @@
-# 🔮 Sussurros Místicos - Leitura de Mãos Espiritual
+# Mystic Whispers US (Vite + React + Supabase + Stripe)
 
-Uma aplicação moderna e imersiva para leitura de mãos (quiromancia) que combina tecnologia com espiritualidade, oferecendo uma experiência personalizada e envolvente para autoconhecimento.
+This is a Vite + React + TypeScript app using Supabase Edge Functions for server-side logic.
 
-## ✨ Sobre o Projeto
+## Payment architecture (Stripe)
+Stripe is **server-side only**:
+- The frontend calls an Edge Function to **create a Checkout Session** and redirects to `session.url`.
+- Stripe **webhooks** write the final purchase to Postgres (`stripe_purchases`).
+- The frontend unlocks delivery only after confirming entitlement via an Edge Function (`get-entitlement`).
 
-**Sussurros Místicos** é uma plataforma completa de leitura de mãos que oferece:
+## Requirements
+- Node.js 18+
+- A Supabase project
+- A Stripe account
 
-- 🎥 **VSL (Video Sales Letter)** - Apresentação inicial
-- 📝 **Formulário Personalizado** - Coleta de informações do usuário
-- 🧩 **Quiz Energético** - Questionário interativo com áudio
-- 🔮 **Análise Espiritual** - Processamento com IA e geração de leitura personalizada
-- 💳 **Checkout** - Integração com CartPanda para pagamentos
-- 🎨 **Interface Mística** - Design moderno com animações e efeitos visuais
-
-## 🚀 Tecnologias Utilizadas
-
-- **Frontend:**
-  - React 18 + TypeScript
-  - Vite (build tool)
-  - React Router (roteamento)
-  - Framer Motion (animações)
-  - Tailwind CSS (estilização)
-  - shadcn/ui (componentes UI)
-  - Zustand (gerenciamento de estado)
-
-- **Backend:**
-  - Supabase (banco de dados, autenticação, edge functions)
-  - Edge Functions para:
-    - Análise de palma da mão (IA)
-    - Text-to-Speech (geração de áudio)
-    - Envio de emails de boas-vindas
-
-- **Integrações:**
-  - CartPanda (checkout/pagamentos)
-  - Google Fonts (Playfair Display, Inter)
-
-## 📋 Pré-requisitos
-
-- Node.js 18+ e npm/yarn/pnpm
-- Conta no Supabase
-- Conta no CartPanda (para checkout)
-
-## 🛠️ Instalação e Configuração
-
-### 1. Clone o repositório
-
-```bash
-git clone https://github.com/stenin15/mystic-whispers.git
-cd mystic-whispers
-```
-
-### 2. Instale as dependências
+## Local setup
+1) Install deps:
 
 ```bash
 npm install
-# ou
-yarn install
-# ou
-pnpm install
 ```
 
-### 3. Configure as variáveis de ambiente
+2) Create `.env` from `.env.example`:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-Crie um arquivo `.env` na raiz do projeto baseado no `.env.example`:
-
-```env
-# Supabase
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
-VITE_SUPABASE_PROJECT_ID=your_project_id
-
-# CartPanda (Checkout)
-VITE_CARTPANDA_CHECKOUT_BASIC_URL=your_basic_checkout_url
-VITE_CARTPANDA_CHECKOUT_COMPLETE_URL=your_complete_checkout_url
-
-# VSL Video (opcional)
-VITE_VSL_VIDEO_URL=your_video_url
-```
-
-### 4. Configure o Supabase
-
-1. Crie um projeto no [Supabase](https://supabase.com)
-2. Configure as Edge Functions necessárias:
-   - `palm-analysis` - Para análise de palma da mão
-   - `text-to-speech` - Para geração de áudio
-   - `send-welcome-email` - Para envio de emails
-
-### 5. Execute o projeto
+3) Run:
 
 ```bash
 npm run dev
 ```
 
-O projeto estará disponível em `http://localhost:5173`
+## Supabase (DB + Edge Functions)
+### Migrations
+Run migrations (including `stripe_purchases`) with your normal Supabase workflow.
+
+### Edge Functions
+This repo includes:
+- `create-checkout-session`
+- `stripe-webhook`
+- `get-entitlement`
+- plus existing functions (`palm-analysis`, `generate-reading`, etc.)
+
+### Required Supabase secrets (server-side)
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRICE_BASIC`
+- `STRIPE_PRICE_COMPLETE`
+- `STRIPE_PRICE_GUIDE`
+- `STRIPE_PRICE_UPSELL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+## Webhook endpoint (Stripe)
+Create a webhook endpoint pointing to:
+- `https://<project-ref>.functions.supabase.co/stripe-webhook`
+
+Subscribe to events:
+- `checkout.session.completed`
+- `checkout.session.async_payment_failed`
+- `charge.refunded`
 
 ## 📦 Scripts Disponíveis
 
@@ -116,7 +81,9 @@ npm run preview      # Preview do build de produção
 ### Vercel (Recomendado)
 
 1. Conecte seu repositório GitHub à Vercel
-2. Configure as variáveis de ambiente no painel da Vercel
+2. Configure the frontend env vars on Vercel:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
 3. Build settings:
    - **Framework preset**: Vite
    - **Build command**: `npm run build`
@@ -174,10 +141,5 @@ src/
 
 Este projeto é privado e proprietário. Todos os direitos reservados.
 
-## 📞 Suporte
-
-Para suporte, entre em contato através do repositório ou email.
-
----
-
-**Desenvolvido com ❤️ e magia** ✨
+## Support
+Open an issue in the repo for support.

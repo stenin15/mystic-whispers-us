@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
@@ -6,45 +6,21 @@ import { Button } from "@/components/ui/button";
 import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Footer } from "@/components/layout/Footer";
+import { getEntitlement } from "@/lib/entitlement";
 
 const Sucesso = () => {
   const navigate = useNavigate();
-  const { canAccessResult, name, pendingPurchase, purchases, markPurchaseCompleted } = useHandReadingStore();
+  const { canAccessResult, name, purchases, setEntitlements } = useHandReadingStore();
   const [verified, setVerified] = useState(false);
+  const [message, setMessage] = useState<string>("Processing payment…");
+  const pollingRef = useRef<number | null>(null);
 
-  const paymentIndicator = useMemo(() => {
+  const sessionId = useMemo(() => {
     try {
       const params = new URLSearchParams(window.location.search);
-      const status = (params.get("status") || "").toLowerCase();
-      const paid = (params.get("paid") || "").toLowerCase();
-      const approved = (params.get("approved") || "").toLowerCase();
-      const ok = (params.get("ok") || "").toLowerCase();
-      const transactionId =
-        params.get("session_id") ||
-        params.get("transaction_id") ||
-        params.get("transactionId") ||
-        params.get("tid") ||
-        params.get("payment_id") ||
-        params.get("paymentId") ||
-        params.get("order_id") ||
-        params.get("orderId") ||
-        params.get("id");
-
-      const looksPaid =
-        status === "paid" ||
-        status === "approved" ||
-        status === "success" ||
-        paid === "1" ||
-        paid === "true" ||
-        approved === "1" ||
-        approved === "true" ||
-        ok === "1" ||
-        ok === "true" ||
-        !!transactionId;
-
-      return { looksPaid, transactionId: transactionId || undefined };
+      return (params.get("session_id") || "").trim();
     } catch {
-      return { looksPaid: false as const, transactionId: undefined };
+      return "";
     }
   }, []);
 
@@ -57,37 +33,58 @@ const Sucesso = () => {
   }, [canAccessResult, navigate]);
 
   useEffect(() => {
-    // Grant delivery access ONLY when a payment indicator is present in the return URL.
-    if (paymentIndicator.looksPaid) {
-      const inferredPurchase =
-        pendingPurchase ??
-        (purchases.guide ? "guide" : purchases.complete ? "complete" : purchases.basic ? "basic" : null);
-
-      if (inferredPurchase) {
-        markPurchaseCompleted(inferredPurchase, paymentIndicator.transactionId);
-        setVerified(true);
-      } else {
-        // Paid, but we can't tell what product this was for.
-        setVerified(false);
-      }
-    } else {
+    // Stripe payments are confirmed via webhook -> DB. The frontend must never trust query params alone.
+    if (!sessionId) {
       setVerified(false);
+      setMessage("We couldn’t confirm your payment. Please return to checkout and try again.");
+      return;
     }
-  }, [paymentIndicator.looksPaid, paymentIndicator.transactionId, markPurchaseCompleted, pendingPurchase, purchases.basic, purchases.complete, purchases.guide]);
+
+    let cancelled = false;
+    const startedAt = Date.now();
+
+    const check = async () => {
+      try {
+        const { paidProducts } = await getEntitlement({ sessionId });
+        if (cancelled) return;
+
+        if (paidProducts.length > 0) {
+          setEntitlements(paidProducts, sessionId);
+          setVerified(true);
+          setMessage("Payment confirmed.");
+          return;
+        }
+
+        const elapsed = Date.now() - startedAt;
+        if (elapsed >= 30_000) {
+          setVerified(false);
+          setMessage("Payment is still processing. Please refresh this page in a moment.");
+          return;
+        }
+
+        setVerified(false);
+        setMessage("Processing payment…");
+        pollingRef.current = window.setTimeout(check, 2000);
+      } catch (err) {
+        console.error("Entitlement check failed:", err);
+        setVerified(false);
+        setMessage("We couldn’t confirm your payment yet. Please refresh this page in a moment.");
+      }
+    };
+
+    check();
+
+    return () => {
+      cancelled = true;
+      if (pollingRef.current) window.clearTimeout(pollingRef.current);
+    };
+  }, [sessionId, setEntitlements]);
 
   const destination =
-    pendingPurchase === "guide"
-      ? "/entrega/guia"
-      : pendingPurchase === "complete"
-        ? "/entrega/completa"
-        : "/entrega/leitura";
+    purchases.complete ? "/entrega/completa" : purchases.guide ? "/entrega/guia" : "/entrega/leitura";
 
   const buttonLabel =
-    pendingPurchase === "guide"
-      ? "Open my guide"
-      : pendingPurchase === "complete"
-        ? "Open my complete delivery"
-        : "Open my reading";
+    purchases.complete ? "Open my complete delivery" : purchases.guide ? "Open my guide" : "Open my reading";
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -100,7 +97,7 @@ const Sucesso = () => {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/15 border border-green-500/30 mb-6">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
               <span className="text-sm text-green-500">
-                {verified ? "Payment confirmed" : "Checking payment…"}
+                {verified ? "Payment confirmed" : "Processing payment…"}
               </span>
             </div>
 
@@ -108,9 +105,7 @@ const Sucesso = () => {
               <span className="text-foreground">All set{ name ? `, ${name}` : "" }.</span>
             </h1>
             <p className="text-muted-foreground mb-8">
-              {verified
-                ? "You can access your purchase now."
-                : "Payment was detected, but we couldn’t confirm the product. Please return to the page you came from and try again."}
+              {verified ? "You can access your purchase now." : message}
             </p>
 
             <Button

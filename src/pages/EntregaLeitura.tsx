@@ -11,21 +11,32 @@ import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { PRICE_MAP } from "@/lib/pricing";
-import { requireCheckoutUrl } from "@/lib/checkout";
+import { createCheckoutSessionUrl } from "@/lib/checkout";
 import { AudioPlayer } from "@/components/shared/AudioPlayer";
+import { getEntitlement } from "@/lib/entitlement";
 
 const EntregaLeitura = () => {
   const navigate = useNavigate();
-  const { name, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
+  const { name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, setPendingPurchase, setSelectedPlan, setEntitlements } = useHandReadingStore();
   const [reading, setReading] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [issue, setIssue] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!canAccessDelivery("basic")) {
-      navigate('/');
-      return;
-    }
+    const ensureAccess = async () => {
+      if (canAccessDelivery("basic")) return true;
+      if (!email) return false;
+      try {
+        const ent = await getEntitlement({ email });
+        if (ent.paidProducts.length > 0) {
+          setEntitlements(ent.paidProducts);
+          return canAccessDelivery("basic");
+        }
+      } catch (err) {
+        console.warn("Entitlement refresh failed:", err);
+      }
+      return false;
+    };
 
     const generateReading = async () => {
       try {
@@ -70,8 +81,15 @@ const EntregaLeitura = () => {
       }
     };
 
-    generateReading();
-  }, [name, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, navigate]);
+    (async () => {
+      const ok = await ensureAccess();
+      if (!ok) {
+        navigate("/");
+        return;
+      }
+      generateReading();
+    })();
+  }, [name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, navigate, setEntitlements]);
 
   const highlights = [
     { icon: Crown, title: "Deep energy insight", desc: "A clear map of what’s active for you now" },
@@ -80,15 +98,15 @@ const EntregaLeitura = () => {
     { icon: Stars, title: "Personal message", desc: "Intuitive guidance created for you" },
   ];
 
-  const handleUpgradeToComplete = () => {
+  const handleUpgradeToComplete = async () => {
     try {
       setPendingPurchase("complete");
       setSelectedPlan("complete");
-      const url = requireCheckoutUrl("complete");
+      const url = await createCheckoutSessionUrl("complete", { email });
       window.location.href = url;
     } catch (err) {
-      console.error("Checkout URL missing: complete", err);
-      toast("Checkout isn’t configured yet. Please try again in a moment.");
+      console.error("Checkout session creation failed: complete", err);
+      toast("Checkout isn’t available right now. Please try again in a moment.");
     }
   };
 

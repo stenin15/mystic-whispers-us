@@ -8,21 +8,37 @@ import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Button } from "@/components/ui/button";
 import { AudioPlayer } from "@/components/shared/AudioPlayer";
-import { requireCheckoutUrl } from "@/lib/checkout";
+import { createCheckoutSessionUrl } from "@/lib/checkout";
 import { toast } from "sonner";
+import { getEntitlement } from "@/lib/entitlement";
 
 const EntregaCombo = () => {
   const navigate = useNavigate();
-  const { name, canAccessDelivery, setPendingPurchase } = useHandReadingStore();
+  const { name, email, canAccessDelivery, setPendingPurchase, setEntitlements } = useHandReadingStore();
   const deliveryReadingPath = ["/entrega/", "le", "itura"].join("");
   const deliveryGuidePath = ["/entrega/", "gu", "ia"].join("");
 
   useEffect(() => {
-    if (!canAccessDelivery("complete")) {
-      navigate('/');
-      return;
-    }
-  }, [canAccessDelivery, navigate]);
+    const ensureAccess = async () => {
+      if (canAccessDelivery("complete")) return true;
+      if (!email) return false;
+      try {
+        const ent = await getEntitlement({ email });
+        if (ent.paidProducts.length > 0) {
+          setEntitlements(ent.paidProducts);
+          return canAccessDelivery("complete");
+        }
+      } catch (err) {
+        console.warn("Entitlement refresh failed:", err);
+      }
+      return false;
+    };
+
+    (async () => {
+      const ok = await ensureAccess();
+      if (!ok) navigate("/");
+    })();
+  }, [canAccessDelivery, navigate, email, setEntitlements]);
 
   const benefits = [
     { icon: Crown, title: "Complete reading unlocked", desc: "Lifetime access to your personalized analysis" },
@@ -31,14 +47,14 @@ const EntregaCombo = () => {
   ];
 
   // HYBRID AUDIO: pre-recorded, generic tracks only (no TTS).
-  const handleBuyGuide = () => {
+  const handleBuyGuide = async () => {
     try {
       setPendingPurchase("guide");
-      const url = requireCheckoutUrl("guide");
+      const url = await createCheckoutSessionUrl("guide", { email });
       window.location.href = url;
     } catch (err) {
-      console.error("Checkout URL missing: guide", err);
-      toast("Checkout isn’t configured yet. Please try again in a moment.");
+      console.error("Checkout session creation failed: guide", err);
+      toast("Checkout isn’t available right now. Please try again in a moment.");
     }
   };
 

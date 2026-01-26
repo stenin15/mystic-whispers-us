@@ -7,20 +7,36 @@ import DownloadCard from "@/components/delivery/DownloadCard";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { AudioPlayer } from "@/components/shared/AudioPlayer";
+import { getEntitlement } from "@/lib/entitlement";
 
 // PDF hosted in the project
 const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
 
 const EntregaGuia = () => {
   const navigate = useNavigate();
-  const { name, canAccessDelivery } = useHandReadingStore();
+  const { name, email, canAccessDelivery, setEntitlements } = useHandReadingStore();
 
   useEffect(() => {
-    if (!canAccessDelivery("guide")) {
-      navigate('/');
-      return;
-    }
-  }, [canAccessDelivery, navigate]);
+    const ensureAccess = async () => {
+      if (canAccessDelivery("guide")) return true;
+      if (!email) return false;
+      try {
+        const ent = await getEntitlement({ email });
+        if (ent.paidProducts.length > 0) {
+          setEntitlements(ent.paidProducts);
+          return canAccessDelivery("guide");
+        }
+      } catch (err) {
+        console.warn("Entitlement refresh failed:", err);
+      }
+      return false;
+    };
+
+    (async () => {
+      const ok = await ensureAccess();
+      if (!ok) navigate("/");
+    })();
+  }, [canAccessDelivery, navigate, email, setEntitlements]);
 
   const steps = [
     {

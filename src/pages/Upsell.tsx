@@ -21,11 +21,11 @@ import { Footer } from '@/components/layout/Footer';
 import { VSLCard } from '@/components/shared/VSLCard';
 import { toast } from 'sonner';
 import { PRICE_MAP } from '@/lib/pricing';
-import { requireCheckoutUrl } from '@/lib/checkout';
+import { createCheckoutSessionUrl } from '@/lib/checkout';
 
 const Upsell = () => {
   const navigate = useNavigate();
-  const { name, analysisResult, canAccessResult, setPendingPurchase } = useHandReadingStore();
+  const { name, email, analysisResult, canAccessResult, setPendingPurchase } = useHandReadingStore();
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -33,14 +33,14 @@ const Upsell = () => {
     }
   }, [canAccessResult, navigate]);
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     try {
       setPendingPurchase("guide");
-      const url = requireCheckoutUrl("upsell");
+      const url = await createCheckoutSessionUrl("upsell", { email });
       window.location.href = url;
     } catch (err) {
-      console.error("Checkout URL missing: upsell", err);
-      toast("Checkout isn’t configured yet. Please try again in a moment.");
+      console.error("Checkout session creation failed: upsell", err);
+      toast("Checkout isn’t available right now. Please try again in a moment.");
     }
   };
 

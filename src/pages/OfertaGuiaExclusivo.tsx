@@ -16,14 +16,14 @@ import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { toast } from "sonner";
 import { PRICE_MAP } from "@/lib/pricing";
-import { requireCheckoutUrl } from "@/lib/checkout";
+import { createCheckoutSessionUrl } from "@/lib/checkout";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const OfertaGuiaExclusivo = () => {
   const navigate = useNavigate();
-  const { canAccessResult, setPendingPurchase } = useHandReadingStore();
+  const { email, canAccessResult, setPendingPurchase } = useHandReadingStore();
 
   useEffect(() => {
     // Offer page should not be reachable without completing the analysis flow.
@@ -57,14 +57,14 @@ const OfertaGuiaExclusivo = () => {
     "Lifetime access",
   ];
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     try {
       setPendingPurchase("guide");
-      const url = requireCheckoutUrl("guide");
+      const url = await createCheckoutSessionUrl("guide", { email });
       window.location.href = url;
     } catch (err) {
-      console.error("Checkout URL missing: guide", err);
-      toast("Checkout isn’t configured yet. Please try again in a moment.");
+      console.error("Checkout session creation failed: guide", err);
+      toast("Checkout isn’t available right now. Please try again in a moment.");
     }
   };
 

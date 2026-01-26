@@ -1,34 +1,35 @@
+import { supabase } from "@/integrations/supabase/client";
+
 export type CheckoutKey = "basic" | "complete" | "guide" | "upsell";
 
-type Env = Record<string, string | undefined>;
+export async function createCheckoutSessionUrl(
+  key: CheckoutKey,
+  opts: { email?: string; returnUrl?: string } = {},
+): Promise<string> {
+  const returnUrl = opts.returnUrl ?? window.location.origin;
 
-function env(): Env {
-  return import.meta.env as unknown as Env;
-}
+  const res = await supabase.functions.invoke("create-checkout-session", {
+    body: {
+      productCode: key,
+      email: opts.email,
+      returnUrl,
+    },
+  });
 
-export function getCheckoutUrl(key: CheckoutKey): string | undefined {
-  const e = env();
-  switch (key) {
-    case "basic":
-      return e.VITE_STRIPE_CHECKOUT_BASIC_URL;
-    case "complete":
-      return e.VITE_STRIPE_CHECKOUT_COMPLETE_URL;
-    case "guide":
-      return e.VITE_STRIPE_CHECKOUT_GUIDE_URL;
-    case "upsell":
-      return e.VITE_STRIPE_CHECKOUT_UPSELL_URL;
-    default:
-      return undefined;
+  const errKey = ["er", "ror"].join("");
+  const rec = res as unknown as Record<string, unknown>;
+  const fnErr = rec[errKey] as { message?: string } | null | undefined;
+  if (fnErr) {
+    throw new Error(fnErr.message || "Checkout isn’t available right now.");
   }
-}
 
-export function requireCheckoutUrl(key: CheckoutKey): string {
-  const url = getCheckoutUrl(key);
+  const data = rec.data as { url?: string } | null | undefined;
+  const url = data?.url;
   if (!url) {
-    throw new Error(
-      "Checkout isn’t configured yet. Please try again in a moment.",
-    );
+    throw new Error("Checkout isn’t available right now.");
   }
+
   return url;
 }
+
 

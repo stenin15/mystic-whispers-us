@@ -42,6 +42,7 @@ interface HandReadingState {
 
   // Form data
   name: string;
+  email: string;
   age: string;
   emotionalState: string;
   mainConcern: string;
@@ -71,6 +72,7 @@ interface HandReadingState {
   // Actions
   setFormData: (data: Partial<{
     name: string;
+    email: string;
     age: string;
     emotionalState: string;
     mainConcern: string;
@@ -88,6 +90,7 @@ interface HandReadingState {
   setPaymentCompleted: (completed: boolean, token?: string) => void;
   setPendingPurchase: (product: ProductKey | null) => void;
   markPurchaseCompleted: (product: ProductKey, token?: string) => void;
+  setEntitlements: (paidProducts: ProductKey[], token?: string) => void;
   reset: () => void;
   canAccessQuiz: () => boolean;
   canAccessAnalysis: () => boolean;
@@ -98,6 +101,7 @@ interface HandReadingState {
 const initialState = {
   hasSeenVsl: false,
   name: '',
+  email: '',
   age: '',
   emotionalState: '',
   mainConcern: '',
@@ -174,6 +178,23 @@ export const useHandReadingStore = create<HandReadingState>()(
         };
       }),
 
+      setEntitlements: (paidProducts, token) => set((state) => {
+        const hasBasic = paidProducts.includes("basic") || paidProducts.includes("complete");
+        const hasComplete = paidProducts.includes("complete");
+        const hasGuide = paidProducts.includes("guide");
+
+        return {
+          paymentCompleted: hasBasic || hasComplete || hasGuide,
+          paymentToken: token || state.paymentToken || generatePaymentToken(),
+          pendingPurchase: null,
+          purchases: {
+            basic: hasBasic,
+            complete: hasComplete,
+            guide: hasGuide,
+          },
+        };
+      }),
+
       reset: () => set(initialState),
 
       canAccessQuiz: () => {
@@ -207,6 +228,7 @@ export const useHandReadingStore = create<HandReadingState>()(
       partialize: (state) => ({
         hasSeenVsl: state.hasSeenVsl,
         name: state.name,
+        email: state.email,
         age: state.age,
         emotionalState: state.emotionalState,
         mainConcern: state.mainConcern,

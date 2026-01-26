@@ -135,6 +135,7 @@ const Formulario = () => {
       const age = calculateAge(birthDate).toString();
       setFormData({
         name: data.name,
+        email: data.email,
         age,
         emotionalState: data.emotionalState,
         mainConcern: data.mainConcern,
@@ -151,6 +152,7 @@ const Formulario = () => {
       const age = calculateAge(birthDate).toString();
       setFormData({
         name: data.name,
+        email: data.email,
         age,
         emotionalState: data.emotionalState,
         mainConcern: data.mainConcern,

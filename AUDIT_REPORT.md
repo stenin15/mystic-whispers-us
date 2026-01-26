@@ -373,24 +373,29 @@ src/lib/pricing.ts
 ## C) STRIPE LINK WIRING
 
 ### C1) Required env vars referenced
-Found in `src/lib/checkout.ts`:
-- `VITE_STRIPE_CHECKOUT_BASIC_URL`
-- `VITE_STRIPE_CHECKOUT_COMPLETE_URL`
-- `VITE_STRIPE_CHECKOUT_GUIDE_URL`
-- `VITE_STRIPE_CHECKOUT_UPSELL_URL`
 
-Not found in `src/`:
-- `VITE_STRIPE_CHECKOUT_URL` (**0 matches**)
+Frontend (Vercel):
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-### C2) Checkout-triggering CTAs (file + function + env)
+Supabase secrets (Edge Functions):
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRICE_BASIC`
+- `STRIPE_PRICE_COMPLETE`
+- `STRIPE_PRICE_GUIDE`
+- `STRIPE_PRICE_UPSELL`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-| CTA location | CTA description | Uses `requireCheckoutUrl(...)` | Redirect method | Env key used |
+### C2) Checkout-triggering CTAs (file + function)
+
+| CTA location | CTA description | Uses session creation | Redirect method |
 |---|---:|---:|---:|---|
-| `src/pages/Checkout.tsx` | Basic plan button (`Get the basic reading`) | Yes (`requireCheckoutUrl("basic")` via `handleCheckoutClick`) | `window.location.href` | `VITE_STRIPE_CHECKOUT_BASIC_URL` |
-| `src/pages/Checkout.tsx` | Complete plan button (`Upgrade to the complete package`) | Yes (`requireCheckoutUrl("complete")`) | `window.location.href` | `VITE_STRIPE_CHECKOUT_COMPLETE_URL` |
-| `src/pages/EntregaLeitura.tsx` | Upgrade to Complete (`handleUpgradeToComplete`) | Yes (`requireCheckoutUrl("complete")`) | `window.location.href` | `VITE_STRIPE_CHECKOUT_COMPLETE_URL` |
-| `src/pages/Upsell.tsx` | Guide purchase CTA (`Get the guide`) | Yes (`requireCheckoutUrl("upsell")`) | `window.location.href` | `VITE_STRIPE_CHECKOUT_UPSELL_URL` |
-| `src/pages/OfertaGuiaExclusivo.tsx` | Guide offer CTA (`handleCheckout`) | Yes (`requireCheckoutUrl("guide")`) | `window.location.href` | `VITE_STRIPE_CHECKOUT_GUIDE_URL` |
+| `src/pages/Checkout.tsx` | Basic plan button (`Get the basic reading`) | Yes (`createCheckoutSessionUrl("basic")`) | `window.location.href` |
+| `src/pages/Checkout.tsx` | Complete plan button (`Upgrade to the complete package`) | Yes (`createCheckoutSessionUrl("complete")`) | `window.location.href` |
+| `src/pages/EntregaLeitura.tsx` | Upgrade to Complete (`handleUpgradeToComplete`) | Yes (`createCheckoutSessionUrl("complete")`) | `window.location.href` |
+| `src/pages/Upsell.tsx` | Guide purchase CTA (`handlePurchase`) | Yes (`createCheckoutSessionUrl("upsell")`) | `window.location.href` |
+| `src/pages/OfertaGuiaExclusivo.tsx` | Guide offer CTA (`handleCheckout`) | Yes (`createCheckoutSessionUrl("guide")`) | `window.location.href` |
 
 **CTA mapping count: 5**
 
@@ -490,7 +495,7 @@ Audited files:
 ### F1) Basic delivery (`EntregaLeitura`)
 Observed:
 - Generates a reading via `supabase.functions.invoke('generate-reading')`.
-- Shows an upgrade CTA to Complete using `requireCheckoutUrl("complete")`.
+- Shows an upgrade CTA to Complete via session creation (`createCheckoutSessionUrl("complete")`).
 
 ### F2) Complete delivery (`EntregaCombo`)
 Observed:

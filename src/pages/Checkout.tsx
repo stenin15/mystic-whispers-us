@@ -21,11 +21,11 @@ import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 import CountdownTimer from '@/components/delivery/CountdownTimer';
 import { toast } from 'sonner';
 import { PRICE_MAP } from '@/lib/pricing';
-import { requireCheckoutUrl } from '@/lib/checkout';
+import { createCheckoutSessionUrl } from '@/lib/checkout';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { name, canAccessResult, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
+  const { name, email, canAccessResult, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -33,15 +33,15 @@ const Checkout = () => {
     }
   }, [canAccessResult, navigate]);
 
-  const handleCheckoutClick = (key: "basic" | "complete") => {
+  const handleCheckoutClick = async (key: "basic" | "complete") => {
     try {
       setPendingPurchase(key);
       setSelectedPlan(key);
-      const finalUrl = requireCheckoutUrl(key);
-      window.location.href = finalUrl;
+      const url = await createCheckoutSessionUrl(key, { email });
+      window.location.href = url;
     } catch (err) {
-      console.error("Checkout URL missing:", key, err);
-      toast("Checkout isn’t configured yet. Please try again in a moment.");
+      console.error("Checkout session creation failed:", key, err);
+      toast("Checkout isn’t available right now. Please try again in a moment.");
     }
   };
 
