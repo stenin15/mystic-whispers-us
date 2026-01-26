@@ -7,8 +7,8 @@ import DownloadCard from "@/components/delivery/DownloadCard";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 
-// PDF hosted in the project
-const PDF_GUIA_URL = "/downloads/ritual-integration-guide.pdf";
+// PDF hosted in the project (EN version)
+const PDF_GUIA_URL = "/downloads/Your-Personal-Integration-Guide.pdf";
 
 const EntregaGuia = () => {
   const navigate = useNavigate();
