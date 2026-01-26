@@ -8,6 +8,8 @@ const ALLOWED_ORIGINS = [
   "https://www.madameaurora.blog",
   "https://madame-aurora.com",
   "https://www.madame-aurora.com",
+  "https://madam-aurora.co",
+  "https://www.madam-aurora.co",
   "http://localhost:5173",
   "http://localhost:8080",
   "http://localhost:8910",
