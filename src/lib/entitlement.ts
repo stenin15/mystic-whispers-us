@@ -2,13 +2,15 @@ import { supabase } from "@/integrations/supabase/client";
 import type { ProductKey } from "@/store/useHandReadingStore";
 
 export async function getEntitlement(opts: {
-  sessionId?: string;
-  email?: string;
+  sessionId: string;
 }): Promise<{ paidProducts: ProductKey[]; isPaid: boolean }> {
+  if (!opts.sessionId || !opts.sessionId.trim()) {
+    throw new Error("session_id_required");
+  }
+
   const res = await supabase.functions.invoke("get-entitlement", {
     body: {
       session_id: opts.sessionId,
-      email: opts.email,
     },
   });
 

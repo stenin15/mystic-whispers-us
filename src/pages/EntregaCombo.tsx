@@ -10,35 +10,16 @@ import { Button } from "@/components/ui/button";
 import { AudioPlayer } from "@/components/shared/AudioPlayer";
 import { createCheckoutSessionUrl } from "@/lib/checkout";
 import { toast } from "sonner";
-import { getEntitlement } from "@/lib/entitlement";
 
 const EntregaCombo = () => {
   const navigate = useNavigate();
-  const { name, email, canAccessDelivery, setPendingPurchase, setEntitlements } = useHandReadingStore();
+  const { name, email, canAccessDelivery, setPendingPurchase } = useHandReadingStore();
   const deliveryReadingPath = ["/entrega/", "le", "itura"].join("");
   const deliveryGuidePath = ["/entrega/", "gu", "ia"].join("");
 
   useEffect(() => {
-    const ensureAccess = async () => {
-      if (canAccessDelivery("complete")) return true;
-      if (!email) return false;
-      try {
-        const ent = await getEntitlement({ email });
-        if (ent.paidProducts.length > 0) {
-          setEntitlements(ent.paidProducts);
-          return canAccessDelivery("complete");
-        }
-      } catch (err) {
-        console.warn("Entitlement refresh failed:", err);
-      }
-      return false;
-    };
-
-    (async () => {
-      const ok = await ensureAccess();
-      if (!ok) navigate("/");
-    })();
-  }, [canAccessDelivery, navigate, email, setEntitlements]);
+    if (!canAccessDelivery("complete")) navigate("/");
+  }, [canAccessDelivery, navigate]);
 
   const benefits = [
     { icon: Crown, title: "Complete reading unlocked", desc: "Lifetime access to your personalized analysis" },

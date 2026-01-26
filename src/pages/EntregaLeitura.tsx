@@ -13,30 +13,16 @@ import { toast } from "sonner";
 import { PRICE_MAP } from "@/lib/pricing";
 import { createCheckoutSessionUrl } from "@/lib/checkout";
 import { AudioPlayer } from "@/components/shared/AudioPlayer";
-import { getEntitlement } from "@/lib/entitlement";
 
 const EntregaLeitura = () => {
   const navigate = useNavigate();
-  const { name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, setPendingPurchase, setSelectedPlan, setEntitlements } = useHandReadingStore();
+  const { name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
   const [reading, setReading] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [issue, setIssue] = useState<string | null>(null);
 
   useEffect(() => {
-    const ensureAccess = async () => {
-      if (canAccessDelivery("basic")) return true;
-      if (!email) return false;
-      try {
-        const ent = await getEntitlement({ email });
-        if (ent.paidProducts.length > 0) {
-          setEntitlements(ent.paidProducts);
-          return canAccessDelivery("basic");
-        }
-      } catch (err) {
-        console.warn("Entitlement refresh failed:", err);
-      }
-      return false;
-    };
+    const ensureAccess = () => canAccessDelivery("basic");
 
     const generateReading = async () => {
       try {
@@ -81,15 +67,13 @@ const EntregaLeitura = () => {
       }
     };
 
-    (async () => {
-      const ok = await ensureAccess();
-      if (!ok) {
-        navigate("/");
-        return;
-      }
-      generateReading();
-    })();
-  }, [name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, navigate, setEntitlements]);
+    const ok = ensureAccess();
+    if (!ok) {
+      navigate("/");
+      return;
+    }
+    generateReading();
+  }, [name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, navigate]);
 
   const highlights = [
     { icon: Crown, title: "Deep energy insight", desc: "A clear map of what’s active for you now" },

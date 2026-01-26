@@ -33,15 +33,7 @@ type ProductCode = "basic" | "complete" | "guide" | "upsell";
 
 interface GetEntitlementInput {
   session_id?: string;
-  email?: string;
 }
-
-const isValidEmail = (value: unknown): value is string => {
-  if (typeof value !== "string") return false;
-  if (value.length > 255) return false;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(value);
-};
 
 const normalizeProducts = (codes: ProductCode[]): Array<"basic" | "complete" | "guide"> => {
   const out = new Set<"basic" | "complete" | "guide">();
@@ -84,10 +76,9 @@ serve(async (req) => {
 
     const body = (await req.json()) as Partial<GetEntitlementInput>;
     const session_id = typeof body.session_id === "string" ? body.session_id.trim() : "";
-    const email = isValidEmail(body.email) ? body.email.toLowerCase().trim() : "";
 
-    if (!session_id && !email) {
-      return new Response(JSON.stringify({ error: "Missing session_id or email" }), {
+    if (!session_id) {
+      return new Response(JSON.stringify({ error: "session_id_required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -102,8 +93,7 @@ serve(async (req) => {
       .select("product_code,status")
       .eq("status", "paid");
 
-    if (session_id) query = query.eq("stripe_session_id", session_id);
-    if (!session_id && email) query = query.eq("email", email);
+    query = query.eq("stripe_session_id", session_id);
 
     const { data, error } = await query;
     if (error) {
