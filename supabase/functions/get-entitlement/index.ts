@@ -76,7 +76,16 @@ serve(async (req) => {
       });
     }
 
-    const body = (await req.json()) as Partial<GetEntitlementInput>;
+    let body: Partial<GetEntitlementInput>;
+    try {
+      body = (await req.json()) as Partial<GetEntitlementInput>;
+    } catch (e) {
+      console.error("Invalid JSON body:", e);
+      return new Response(JSON.stringify({ error: "invalid_json_body" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const session_id = typeof body.session_id === "string" ? body.session_id.trim() : "";
 
     if (!session_id) {

@@ -91,7 +91,16 @@ serve(async (req) => {
       throw new Error("SITE_URL must start with https://");
     }
 
-    const body = (await req.json()) as Partial<CreateCheckoutSessionInput>;
+    let body: Partial<CreateCheckoutSessionInput>;
+    try {
+      body = (await req.json()) as Partial<CreateCheckoutSessionInput>;
+    } catch (e) {
+      console.error("Invalid JSON body:", e);
+      return new Response(JSON.stringify({ error: "invalid_json_body" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const productCode = body.productCode;
     const email = body.email;
 
