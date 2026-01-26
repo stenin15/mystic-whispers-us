@@ -114,6 +114,14 @@ serve(async (req) => {
 
     const paidProducts = normalizeProducts(codes);
 
+    // Minimal production validation logs (no secrets).
+    console.log("entitlement_lookup", {
+      session_id,
+      rows: (data ?? []).length,
+      paidProducts,
+      isPaid: paidProducts.length > 0,
+    });
+
     return new Response(JSON.stringify({ paidProducts, isPaid: paidProducts.length > 0 }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

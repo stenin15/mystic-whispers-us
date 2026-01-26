@@ -136,6 +136,16 @@ serve(async (req) => {
       });
     }
 
+    // Minimal production validation logs (no secrets).
+    console.log("checkout_session_created", {
+      session_id: session.id,
+      productCode,
+      priceId,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      origin,
+    });
+
     return new Response(JSON.stringify({ url: session.url }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

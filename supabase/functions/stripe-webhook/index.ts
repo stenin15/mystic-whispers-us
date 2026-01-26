@@ -98,6 +98,15 @@ serve(async (req) => {
         const metaProduct = (session.metadata?.product_code ?? "") as unknown;
         const product_code: ProductCode = isProductCode(metaProduct) ? metaProduct : "basic";
 
+        // Minimal production validation logs (no secrets).
+        console.log("webhook_checkout_completed", {
+          session_id: sessionId,
+          email: session.customer_details?.email ?? session.customer_email ?? null,
+          product_code,
+          amount_total: session.amount_total ?? null,
+          currency: session.currency ?? null,
+        });
+
         await upsertPurchase({
           stripe_session_id: sessionId,
           status: "paid",
@@ -113,6 +122,8 @@ serve(async (req) => {
           currency: session.currency ?? null,
           raw: event,
         });
+
+        console.log("purchase_upsert_ok", { session_id: sessionId, status: "paid", product_code });
 
         break;
       }
