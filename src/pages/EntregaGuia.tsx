@@ -6,14 +6,13 @@ import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import DownloadCard from "@/components/delivery/DownloadCard";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
-import { AudioPlayer } from "@/components/shared/AudioPlayer";
 
 // PDF hosted in the project
-const PDF_GUIA_URL = "/downloads/guia-sagrado-transformacao-energetica.pdf";
+const PDF_GUIA_URL = "/downloads/ritual-integration-guide.pdf";
 
 const EntregaGuia = () => {
   const navigate = useNavigate();
-  const { name, email, canAccessDelivery } = useHandReadingStore();
+  const { name, canAccessDelivery } = useHandReadingStore();
 
   useEffect(() => {
     if (!canAccessDelivery("guide")) navigate("/");
@@ -120,15 +119,11 @@ const EntregaGuia = () => {
         {/* Download Card */}
         <div className="mb-10">
           <DownloadCard
-            title="Sacred Guide for Energy Transformation"
-            description="Tap below to download your PDF"
+            title="Ritual & Integration Guide (PDF)"
+            description="Tap below to download your guide"
             downloadUrl={PDF_GUIA_URL}
-            buttonText="Download Sacred Guide (PDF)"
+            buttonText="Download your guide (PDF)"
           />
-        </div>
-
-        <div className="mb-10">
-          <AudioPlayer track="next-steps" title="A short audio to keep you steady (optional)" />
         </div>
 
         {/* How to use the guide */}

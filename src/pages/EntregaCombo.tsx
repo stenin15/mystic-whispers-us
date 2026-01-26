@@ -7,7 +7,6 @@ import DeliveryFAQ from "@/components/delivery/DeliveryFAQ";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Button } from "@/components/ui/button";
-import { AudioPlayer } from "@/components/shared/AudioPlayer";
 import { createCheckoutSessionUrl } from "@/lib/checkout";
 import { toast } from "sonner";
 
@@ -151,9 +150,7 @@ const EntregaCombo = () => {
               </Button>
             </Link>
           </div>
-          <div className="mt-4">
-            <AudioPlayer track="integration" title="A short audio to integrate (optional)" />
-          </div>
+          {/* Intentionally omit delivery audio unless real MP3 files are provided */}
         </motion.div>
 
         {/* Lifetime access */}

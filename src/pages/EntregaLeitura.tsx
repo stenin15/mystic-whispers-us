@@ -12,7 +12,6 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { PRICE_MAP } from "@/lib/pricing";
 import { createCheckoutSessionUrl } from "@/lib/checkout";
-import { AudioPlayer } from "@/components/shared/AudioPlayer";
 
 const EntregaLeitura = () => {
   const navigate = useNavigate();
@@ -272,12 +271,7 @@ const EntregaLeitura = () => {
                   </p>
                 </div>
 
-                <div className="mt-6">
-                  <AudioPlayer
-                    track="reassurance"
-                    title="A short audio to ground you (optional)"
-                  />
-                </div>
+                {/* Intentionally omit delivery audio unless real MP3 files are provided */}
               </div>
             </div>
           ) : null}
