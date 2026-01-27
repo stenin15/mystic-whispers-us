@@ -8,11 +8,12 @@ import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Footer } from "@/components/layout/Footer";
 import { getEntitlement } from "@/lib/entitlement";
 import { PRICE_MAP } from "@/lib/pricing";
-import { getOrCreateEventId, track } from "@/lib/tracking";
+import { getAdIds, getOrCreateEventId, track } from "@/lib/tracking";
+import { supabase } from "@/integrations/supabase/client";
 
 const Sucesso = () => {
   const navigate = useNavigate();
-  const { canAccessResult, name, purchases, setEntitlements } = useHandReadingStore();
+  const { canAccessResult, name, email, purchases, setEntitlements } = useHandReadingStore();
   const [verified, setVerified] = useState(false);
   const [message, setMessage] = useState<string>("Processing payment…");
   const pollingRef = useRef<number | null>(null);
@@ -62,14 +63,36 @@ const Sucesso = () => {
             const primary =
               paidProducts.includes("complete") ? "complete" : paidProducts.includes("guide") ? "guide" : "basic";
 
+            const event_id = getOrCreateEventId(`purchase:${sessionId}`);
             track("Purchase", {
-              event_id: getOrCreateEventId(`purchase:${sessionId}`),
+              event_id,
               transaction_id: sessionId,
               product_code: primary,
               value: PRICE_MAP[primary].amountUsd,
               currency: "USD",
               page_path: "/sucesso",
             });
+
+            // Server-side Events API (best-effort). Does NOT affect access.
+            try {
+              const { fbp, fbc, ttclid } = getAdIds();
+              await supabase.functions.invoke("track-event", {
+                body: {
+                  event_name: "Purchase",
+                  event_id,
+                  session_id: sessionId,
+                  product_code: primary,
+                  value: PRICE_MAP[primary].amountUsd,
+                  currency: "USD",
+                  page_url: window.location.href,
+                  user: { email: email || undefined },
+                  meta: { fbp, fbc },
+                  tiktok: { ttclid },
+                },
+              });
+            } catch {
+              // ignore (do not block UX)
+            }
           }
           return;
         }
