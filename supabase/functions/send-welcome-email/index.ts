@@ -23,12 +23,15 @@ const isAllowedOrigin = (origin: string | null): boolean => {
 };
 
 const getCorsHeaders = (origin: string | null): Record<string, string> => {
-  const allowedOrigin = isAllowedOrigin(origin) ? origin! : ALLOWED_ORIGINS[0];
+  // Never "fallback" to a different allowed origin. If we don't echo the request Origin,
+  // browsers will block the response and it becomes very hard to debug.
+  const allowedOrigin = isAllowedOrigin(origin) ? origin! : "null";
 
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Vary": "Origin",
   };
 };
 

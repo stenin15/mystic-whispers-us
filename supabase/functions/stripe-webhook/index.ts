@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
+import Stripe from "https://esm.sh/stripe@15.12.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1?target=deno";
 
 type ProductCode = "basic" | "complete" | "guide" | "upsell";
@@ -32,16 +32,57 @@ serve(async (req) => {
     const sig = req.headers.get("stripe-signature");
     if (!sig) return json(400, { error: "Missing signature" });
 
-    // IMPORTANT: use raw body for Stripe signature verification.
-    const rawBody = await req.text();
+    // IMPORTANT: verify using the exact raw bytes received (avoid any string normalization).
+    const rawBody = new Uint8Array(await req.arrayBuffer());
 
-    const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
+    const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2025-12-15.clover" });
     let event: Stripe.Event;
     try {
-      event = stripe.webhooks.constructEvent(rawBody, sig, STRIPE_WEBHOOK_SECRET);
+      // Allow multiple secrets during troubleshooting (comma-separated).
+      // This prevents false negatives when multiple Stripe webhook endpoints
+      // are configured to hit the same URL.
+      const secrets = STRIPE_WEBHOOK_SECRET
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => s.replace(/^['"]|['"]$/g, "")); // tolerate accidental quotes
+
+      // IMPORTANT: call as a method to preserve `this` binding inside Stripe SDK.
+      const hasConstructAsync =
+        typeof (stripe.webhooks as unknown as { constructEventAsync?: unknown }).constructEventAsync === "function";
+
+      if (!hasConstructAsync) {
+        return json(500, {
+          error: "Service unavailable",
+          message: "Stripe SDK missing constructEventAsync() in this runtime",
+        });
+      }
+
+      let lastErr: unknown = null;
+      for (const secret of secrets) {
+        try {
+          event = await (stripe.webhooks as unknown as {
+            constructEventAsync: (payload: Uint8Array, header: string, secret: string) => Promise<Stripe.Event>;
+          }).constructEventAsync(rawBody, sig, secret);
+          lastErr = null;
+          break;
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      if (lastErr) throw lastErr;
     } catch (err) {
       console.error("stripe-webhook signature verification failed:", err);
-      return json(400, { error: "Invalid signature" });
+      return json(400, {
+        error: "Invalid signature",
+        // Safe diagnostics (no secrets) to make Stripe dashboard debugging objective.
+        message: err instanceof Error ? err.message : String(err),
+        meta: {
+          raw_len: rawBody.length,
+          sig_len: sig.length,
+          secret_count: STRIPE_WEBHOOK_SECRET.split(",").map((s) => s.trim()).filter(Boolean).length,
+        },
+      });
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
