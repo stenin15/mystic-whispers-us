@@ -25,6 +25,10 @@ import EntregaCombo from "./pages/EntregaCombo";
 import EntregaGuia from "./pages/EntregaGuia";
 import OfertaGuiaExclusivo from "./pages/OfertaGuiaExclusivo";
 import EntradaFoto from "./pages/EntradaFoto";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Refund from "./pages/Refund";
+import Contact from "./pages/Contact";
 import { VslGate } from "./components/shared/VslGate";
 
 const queryClient = new QueryClient();
@@ -106,6 +110,10 @@ const App = () => (
           />
           <Route path={pathSuccess} element={<Sucesso />} />
           <Route path="/cancelado" element={<Cancelado />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/refund" element={<Refund />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/resultado" element={<Resultado />} />
           <Route path="/upsell" element={<Upsell />} />
           <Route path="/enviar-foto" element={<EntradaFoto />} />

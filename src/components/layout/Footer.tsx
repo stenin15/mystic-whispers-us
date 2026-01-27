@@ -49,12 +49,18 @@ export const Footer = () => {
             <Link to="/" className="hover:text-foreground transition-colors">
               Home
             </Link>
-            <a href="#" className="hover:text-foreground transition-colors">
+            <Link to="/privacy" className="hover:text-foreground transition-colors">
               Privacy Policy
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
+            </Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">
               Terms of Use
-            </a>
+            </Link>
+            <Link to="/refund" className="hover:text-foreground transition-colors">
+              Refund Policy
+            </Link>
+            <Link to="/contact" className="hover:text-foreground transition-colors">
+              Contact
+            </Link>
           </div>
 
           {/* Copyright */}

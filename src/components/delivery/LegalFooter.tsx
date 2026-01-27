@@ -33,18 +33,32 @@ const LegalFooter = forwardRef<HTMLElement, LegalFooterProps>(({ showLinks = tru
       {showLinks && (
         <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground mb-6">
           <a
-            href="/termos"
+            href="/terms"
             className="flex items-center gap-2 hover:text-mystic-gold transition-colors"
           >
             <FileText className="w-4 h-4" />
             Terms of Use
           </a>
           <a
-            href="/privacidade"
+            href="/privacy"
             className="flex items-center gap-2 hover:text-mystic-gold transition-colors"
           >
             <Lock className="w-4 h-4" />
             Privacy Policy
+          </a>
+          <a
+            href="/refund"
+            className="flex items-center gap-2 hover:text-mystic-gold transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            Refund Policy
+          </a>
+          <a
+            href="/contact"
+            className="flex items-center gap-2 hover:text-mystic-gold transition-colors"
+          >
+            <Lock className="w-4 h-4" />
+            Contact
           </a>
         </div>
       )}
