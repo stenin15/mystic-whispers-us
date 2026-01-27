@@ -1,22 +1,60 @@
 import { motion } from "framer-motion";
 import { BookOpen, Sparkles, Star, Moon, Sun, Shield, Gift, Crown } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import DownloadCard from "@/components/delivery/DownloadCard";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
+import { supabase } from "@/integrations/supabase/client";
+import { verifyEntitlement } from "@/lib/entitlement";
 
 // PDF hosted in the project (EN version)
-const PDF_GUIA_URL = "/downloads/Your-Personal-Integration-Guide.pdf";
+// NOTE: this will be replaced by a signed URL at runtime (paywall-protected).
+const FALLBACK_PDF_GUIA_URL = "";
 
 const EntregaGuia = () => {
   const navigate = useNavigate();
-  const { name, canAccessDelivery } = useHandReadingStore();
+  const { name } = useHandReadingStore();
+  const [downloadUrl, setDownloadUrl] = useState<string>(FALLBACK_PDF_GUIA_URL);
+  const [loadingUrl, setLoadingUrl] = useState(true);
 
   useEffect(() => {
-    if (!canAccessDelivery("guide")) navigate("/");
-  }, [canAccessDelivery, navigate]);
+    let cancelled = false;
+
+    const run = async () => {
+      setLoadingUrl(true);
+      try {
+        const ent = await verifyEntitlement("guide");
+        if (!ent.ok) {
+          navigate("/");
+          return;
+        }
+        if (cancelled) return;
+
+        // Get a signed URL (server-side entitlement enforced).
+        const res = await supabase.functions.invoke("signed-guide-url", {
+          body: { session_id: ent.sessionId },
+        });
+        const errKey = ["er", "ror"].join("");
+        const rec = res as unknown as Record<string, unknown>;
+        const fnErr = rec[errKey] as { message?: string } | null | undefined;
+        if (fnErr) throw new Error(fnErr.message || "signed_url_failed");
+        const data = rec.data as { signedUrl?: string } | null | undefined;
+        if (data?.signedUrl) setDownloadUrl(data.signedUrl);
+      } catch {
+        // If we can't generate a signed URL, do not expose a public fallback.
+        setDownloadUrl("");
+      } finally {
+        setLoadingUrl(false);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
 
   const steps = [
     {
@@ -120,9 +158,9 @@ const EntregaGuia = () => {
         <div className="mb-10">
           <DownloadCard
             title="Ritual & Integration Guide (PDF)"
-            description="Tap below to download your guide"
-            downloadUrl={PDF_GUIA_URL}
-            buttonText="Download your guide (PDF)"
+            description={loadingUrl ? "Preparing your secure download…" : "Tap below to download your guide"}
+            downloadUrl={downloadUrl}
+            buttonText={loadingUrl ? "Preparing…" : "Download your guide (PDF)"}
           />
         </div>
 

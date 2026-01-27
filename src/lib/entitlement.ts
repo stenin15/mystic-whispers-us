@@ -30,3 +30,48 @@ export async function getEntitlement(opts: {
   return { paidProducts, isPaid: !!data?.isPaid && paidProducts.length > 0 };
 }
 
+export function getSessionId(): string {
+  // Prefer the real Stripe session_id from the /sucesso redirect.
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const fromQuery = (params.get("session_id") || "").trim();
+    if (fromQuery) return fromQuery;
+  } catch {
+    // ignore
+  }
+
+  // Fallback: we persist the Stripe session_id into `paymentToken` via setEntitlements(paidProducts, sessionId).
+  try {
+    const raw = sessionStorage.getItem("mwus_funnel_v1");
+    if (!raw) return "";
+    const parsed = JSON.parse(raw) as { state?: { paymentToken?: string | null } };
+    return String(parsed?.state?.paymentToken ?? "").trim();
+  } catch {
+    return "";
+  }
+}
+
+export async function verifyEntitlement(required: ProductKey): Promise<{
+  ok: boolean;
+  sessionId: string;
+  paidProducts: ProductKey[];
+}> {
+  const sessionId = getSessionId();
+  if (!sessionId) return { ok: false, sessionId: "", paidProducts: [] };
+
+  const { paidProducts } = await getEntitlement({ sessionId });
+  const has = new Set(paidProducts);
+
+  // complete implies basic
+  const ok =
+    required === "basic"
+      ? has.has("basic") || has.has("complete")
+      : required === "complete"
+        ? has.has("complete")
+        : required === "guide"
+          ? has.has("guide")
+          : false;
+
+  return { ok, sessionId, paidProducts };
+}
+

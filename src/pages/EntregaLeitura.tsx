@@ -12,6 +12,7 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { PRICE_MAP } from "@/lib/pricing";
 import { createCheckoutSessionUrl } from "@/lib/checkout";
+import { verifyEntitlement } from "@/lib/entitlement";
 
 const EntregaLeitura = () => {
   const navigate = useNavigate();
@@ -21,12 +22,19 @@ const EntregaLeitura = () => {
   const [issue, setIssue] = useState<string | null>(null);
 
   useEffect(() => {
-    const ensureAccess = () => canAccessDelivery("basic");
+    let cancelled = false;
 
     const generateReading = async () => {
       try {
         setIsLoading(true);
         setIssue(null);
+
+        const ent = await verifyEntitlement("basic");
+        if (!ent.ok) {
+          navigate("/");
+          return;
+        }
+        if (cancelled) return;
 
         const res = await supabase.functions.invoke('generate-reading', {
           body: {
@@ -36,6 +44,7 @@ const EntregaLeitura = () => {
             mainConcern: mainConcern || "",
             quizAnswers: quizAnswers || [],
             energyType: analysisResult?.energyType || null,
+            session_id: ent.sessionId,
           }
         });
 
@@ -66,13 +75,11 @@ const EntregaLeitura = () => {
       }
     };
 
-    const ok = ensureAccess();
-    if (!ok) {
-      navigate("/");
-      return;
-    }
     generateReading();
-  }, [name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, navigate]);
+    return () => {
+      cancelled = true;
+    };
+  }, [name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, navigate]);
 
   const highlights = [
     { icon: Crown, title: "Deep energy insight", desc: "A clear map of what’s active for you now" },

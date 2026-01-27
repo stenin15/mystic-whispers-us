@@ -9,16 +9,49 @@ import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Button } from "@/components/ui/button";
 import { createCheckoutSessionUrl } from "@/lib/checkout";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { verifyEntitlement } from "@/lib/entitlement";
 
 const EntregaCombo = () => {
   const navigate = useNavigate();
-  const { name, email, canAccessDelivery, setPendingPurchase } = useHandReadingStore();
+  const { name, email, setPendingPurchase } = useHandReadingStore();
   const deliveryReadingPath = ["/entrega/", "le", "itura"].join("");
   const deliveryGuidePath = ["/entrega/", "gu", "ia"].join("");
+  const [guideUrl, setGuideUrl] = useState<string>("");
 
   useEffect(() => {
-    if (!canAccessDelivery("complete")) navigate("/");
-  }, [canAccessDelivery, navigate]);
+    let cancelled = false;
+
+    const run = async () => {
+      const ent = await verifyEntitlement("complete");
+      if (!ent.ok) {
+        navigate("/");
+        return;
+      }
+      if (cancelled) return;
+
+      // Pre-fetch signed guide URL for users who also bought the guide later.
+      // We intentionally do NOT expose a public PDF fallback.
+      try {
+        const res = await supabase.functions.invoke("signed-guide-url", {
+          body: { session_id: ent.sessionId },
+        });
+        const errKey = ["er", "ror"].join("");
+        const rec = res as unknown as Record<string, unknown>;
+        const fnErr = rec[errKey] as { message?: string } | null | undefined;
+        if (fnErr) return;
+        const data = rec.data as { signedUrl?: string } | null | undefined;
+        if (data?.signedUrl) setGuideUrl(data.signedUrl);
+      } catch {
+        // ignore
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
 
   const benefits = [
     { icon: Crown, title: "Complete reading unlocked", desc: "Lifetime access to your personalized analysis" },
@@ -144,11 +177,19 @@ const EntregaCombo = () => {
             <Button onClick={handleBuyGuide} className="w-full gradient-mystic text-primary-foreground hover:opacity-90 py-6">
               Get the Ritual & Integration Guide
             </Button>
-            <Link to={deliveryGuidePath} className="w-full">
-              <Button variant="outline" className="w-full border-primary/30 py-6">
-                Already purchased? Open the guide
-              </Button>
-            </Link>
+            {guideUrl ? (
+              <a className="w-full" href={guideUrl} target="_blank" rel="noreferrer">
+                <Button variant="outline" className="w-full border-primary/30 py-6">
+                  Download the guide (secure link)
+                </Button>
+              </a>
+            ) : (
+              <Link to={deliveryGuidePath} className="w-full">
+                <Button variant="outline" className="w-full border-primary/30 py-6">
+                  Already purchased? Open the guide
+                </Button>
+              </Link>
+            )}
           </div>
           {/* Intentionally omit delivery audio unless real MP3 files are provided */}
         </motion.div>
