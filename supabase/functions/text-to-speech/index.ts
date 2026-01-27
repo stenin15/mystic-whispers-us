@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createServiceClient, checkRateLimit, getClientIp, getRequestId } from "../_shared/rateLimit.ts";
 
 const ALLOWED_ORIGINS = [
   "https://auroramadame.com",
@@ -20,18 +21,20 @@ const isAllowedOrigin = (origin: string | null): boolean => {
 };
 
 const getCorsHeaders = (origin: string | null) => {
-  const allowedOrigin = isAllowedOrigin(origin) ? origin! : ALLOWED_ORIGINS[0];
+  const allowedOrigin = isAllowedOrigin(origin) ? origin! : "null";
 
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Vary": "Origin",
   };
 };
 
 const VALID_VOICES = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"];
 
 serve(async (req) => {
+  const request_id = getRequestId();
   const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
 
@@ -49,6 +52,27 @@ serve(async (req) => {
   }
 
   try {
+    const supabase = createServiceClient();
+    if (!supabase) {
+      return new Response(JSON.stringify({ error: "Service unavailable" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const ip = getClientIp(req);
+    const rl = await checkRateLimit({ supabase, key: `${ip}:text-to-speech` });
+    if (!rl.allowed) {
+      return new Response(JSON.stringify({ error: "rate_limited", request_id }), {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Retry-After": String(rl.retryAfterSeconds ?? 60),
+        },
+      });
+    }
+
     const { text, voice } = await req.json();
 
     if (!text || typeof text !== "string" || text.length === 0) {
@@ -120,6 +144,7 @@ serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
+    console.error("text-to-speech failed", { request_id, error });
     return new Response(
       JSON.stringify({ error: "An error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { checkRateLimit, createServiceClient, getClientIp, getRequestId } from "../_shared/rateLimit.ts";
 
 const ALLOWED_ORIGINS = [
   "https://auroramadame.com",
@@ -16,17 +17,19 @@ const ALLOWED_ORIGINS = [
 ];
 
 const getCorsHeaders = (origin: string | null) => {
-  const allowedOrigin = origin && ALLOWED_ORIGINS.some(o =>
-    origin === o ||
-    origin.endsWith(".vercel.app")
-  )
-    ? origin
-    : ALLOWED_ORIGINS[0];
+  // Never "fallback" to a different allowed origin. If we don't echo the request Origin,
+  // browsers will block the response and it becomes very hard to debug.
+  const allowedOrigin =
+    origin &&
+    (ALLOWED_ORIGINS.includes(origin) || origin.endsWith(".vercel.app"))
+      ? origin
+      : "null";
 
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Vary": "Origin",
   };
 };
 
@@ -79,6 +82,7 @@ const validateQuizAnswers = (answers: unknown): answers is QuizAnswer[] => {
 };
 
 serve(async (req) => {
+  const request_id = getRequestId();
   const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
 
@@ -99,6 +103,27 @@ serve(async (req) => {
   }
 
   try {
+    const supabase = createServiceClient();
+    if (!supabase) {
+      return new Response(
+        JSON.stringify({ error: "Service unavailable", request_id }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const ip = getClientIp(req);
+    const rl = await checkRateLimit({ supabase, key: `${ip}:palm-analysis` });
+    if (!rl.allowed) {
+      return new Response(JSON.stringify({ error: "rate_limited", request_id }), {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Retry-After": String(rl.retryAfterSeconds ?? 60),
+        },
+      });
+    }
+
     const rawBody = await req.text();
     if (rawBody.length > 8000) {
       return new Response(JSON.stringify({ error: "Payload too large" }), {
@@ -265,6 +290,7 @@ Make it personal, clear, and emotionally supportive. Avoid extreme mysticism or 
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
+    console.error("palm-analysis failed", { request_id, error });
     return new Response(
       JSON.stringify({ error: "An error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
