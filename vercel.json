@@ -1,9 +1,5 @@
 {
   "routes": [
-    {
-      "src": "^/downloads/ritual-integration-guide\\.pdf$",
-      "dest": "/downloads/Your-Personal-Integration-Guide.pdf"
-    },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
