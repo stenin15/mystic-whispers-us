@@ -22,6 +22,7 @@ import CountdownTimer from '@/components/delivery/CountdownTimer';
 import { toast } from 'sonner';
 import { PRICE_MAP } from '@/lib/pricing';
 import { createCheckoutSessionUrl } from '@/lib/checkout';
+import { getOrCreateEventId, track } from '@/lib/tracking';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -37,6 +38,13 @@ const Checkout = () => {
     try {
       setPendingPurchase(key);
       setSelectedPlan(key);
+      track("InitiateCheckout", {
+        event_id: getOrCreateEventId(`initiate_checkout:${key}`),
+        product_code: key,
+        value: PRICE_MAP[key].amountUsd,
+        currency: "USD",
+        page_path: "/checkout",
+      });
       const url = await createCheckoutSessionUrl(key, { email });
       window.location.href = url;
     } catch (err) {

@@ -17,6 +17,7 @@ import { getIcon } from '@/lib/iconMapper';
 import { Footer } from '@/components/layout/Footer';
 import { generateVoiceMessage } from '@/lib/api';
 import { toast } from 'sonner';
+import { getOrCreateEventId, track } from '@/lib/tracking';
 
 type WebkitAudioContextWindow = Window & {
   webkitAudioContext?: typeof AudioContext;
@@ -436,7 +437,14 @@ const Resultado = () => {
             </p>
 
             <Button
-              onClick={() => navigate('/upsell')}
+              onClick={() => {
+                track("ViewContent", {
+                  event_id: getOrCreateEventId("view_upsell"),
+                  content_name: "Upsell",
+                  page_path: "/resultado",
+                });
+                navigate('/upsell');
+              }}
               size="lg"
               className="gradient-gold text-background hover:opacity-90 px-10 py-6 text-lg"
             >

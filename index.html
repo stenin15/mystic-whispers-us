@@ -47,10 +47,37 @@
     <!-- Additional SEO -->
     <meta name="format-detection" content="telephone=no" />
     <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Google Tag Manager (configured via VITE_GTM_ID) -->
+    <script>
+      (function () {
+        try {
+          var gtmId = "%VITE_GTM_ID%";
+          if (!gtmId || gtmId.indexOf("GTM-") !== 0) return;
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+          var f = document.getElementsByTagName("script")[0];
+          var j = document.createElement("script");
+          j.async = true;
+          j.src = "https://www.googletagmanager.com/gtm.js?id=" + gtmId;
+          f.parentNode.insertBefore(j, f);
+        } catch {
+          // ignore
+        }
+      })();
+    </script>
     
   </head>
 
   <body>
+    <noscript>
+      <iframe
+        src="https://www.googletagmanager.com/ns.html?id=%VITE_GTM_ID%"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+      ></iframe>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

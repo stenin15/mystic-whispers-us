@@ -7,6 +7,8 @@ import { ParticlesBackground, FloatingOrbs } from "@/components/shared/Particles
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Footer } from "@/components/layout/Footer";
 import { getEntitlement } from "@/lib/entitlement";
+import { PRICE_MAP } from "@/lib/pricing";
+import { getOrCreateEventId, track } from "@/lib/tracking";
 
 const Sucesso = () => {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ const Sucesso = () => {
   const [verified, setVerified] = useState(false);
   const [message, setMessage] = useState<string>("Processing payment…");
   const pollingRef = useRef<number | null>(null);
+  const hasTrackedPurchaseRef = useRef(false);
 
   const sessionId = useMemo(() => {
     try {
@@ -52,6 +55,22 @@ const Sucesso = () => {
           setEntitlements(paidProducts, sessionId);
           setVerified(true);
           setMessage("Payment confirmed.");
+
+          if (!hasTrackedPurchaseRef.current) {
+            hasTrackedPurchaseRef.current = true;
+
+            const primary =
+              paidProducts.includes("complete") ? "complete" : paidProducts.includes("guide") ? "guide" : "basic";
+
+            track("Purchase", {
+              event_id: getOrCreateEventId(`purchase:${sessionId}`),
+              transaction_id: sessionId,
+              product_code: primary,
+              value: PRICE_MAP[primary].amountUsd,
+              currency: "USD",
+              page_path: "/sucesso",
+            });
+          }
           return;
         }
 

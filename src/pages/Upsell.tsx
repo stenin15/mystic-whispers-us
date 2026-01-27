@@ -22,6 +22,7 @@ import { VSLCard } from '@/components/shared/VSLCard';
 import { toast } from 'sonner';
 import { PRICE_MAP } from '@/lib/pricing';
 import { createCheckoutSessionUrl } from '@/lib/checkout';
+import { getOrCreateEventId, track } from '@/lib/tracking';
 
 const Upsell = () => {
   const navigate = useNavigate();
@@ -36,6 +37,13 @@ const Upsell = () => {
   const handlePurchase = async () => {
     try {
       setPendingPurchase("guide");
+      track("InitiateCheckout", {
+        event_id: getOrCreateEventId("initiate_checkout:upsell"),
+        product_code: "upsell",
+        value: PRICE_MAP.guide.amountUsd,
+        currency: "USD",
+        page_path: "/upsell",
+      });
       const url = await createCheckoutSessionUrl("upsell", { email });
       window.location.href = url;
     } catch (err) {

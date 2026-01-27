@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { track } from "@/lib/tracking";
 
 // Pages
 import Index from "./pages/Index";
@@ -39,6 +40,18 @@ const ScrollToTop = () => {
   return null;
 };
 
+const RouteTracker = () => {
+  const { pathname, search } = useLocation();
+  useEffect(() => {
+    // Generic route pageview for GTM -> GA4/Meta/TikTok mappings
+    track("PageView", { page_path: pathname, page_search: search || "" });
+    if (pathname === "/") {
+      track("ViewContent", { content_name: "VSL", page_path: pathname });
+    }
+  }, [pathname, search]);
+  return null;
+};
+
 const pathReading = ["/le", "itura"].join("");
 const pathSuccess = ["/su", "cesso"].join("");
 const pathDeliveryReading = ["/entrega/", "le", "itura"].join("");
@@ -50,6 +63,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
+        <RouteTracker />
         <Routes>
           {/* Main entry for funnel */}
           <Route path="/" element={<VSL />} />

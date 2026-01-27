@@ -17,6 +17,7 @@ import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { cn } from '@/lib/utils';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
+import { getOrCreateEventId, track } from '@/lib/tracking';
 
 const months = [
   { value: '1', label: 'January' },
@@ -112,6 +113,12 @@ const Formulario = () => {
     }
 
     try {
+      // Lead event (first-party). GTM can route to GA4/Meta/TikTok.
+      track("Lead", {
+        event_id: getOrCreateEventId("lead"),
+        page_path: "/formulario",
+      });
+
       // Send welcome email
       const mailRes = await supabase.functions.invoke('send-welcome-email', {
         body: { name: data.name, email: data.email }
