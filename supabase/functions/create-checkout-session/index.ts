@@ -2,12 +2,6 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 
 const ALLOWED_ORIGINS = [
-  "https://auroramadame.com",
-  "https://www.auroramadame.com",
-  "https://madameaurora.blog",
-  "https://www.madameaurora.blog",
-  "https://madame-aurora.com",
-  "https://www.madame-aurora.com",
   "https://madam-aurora.co",
   "https://www.madam-aurora.co",
   "http://localhost:5173",

@@ -2,12 +2,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createServiceClient, checkRateLimit, getClientIp, getRequestId } from "../_shared/rateLimit.ts";
 
 const ALLOWED_ORIGINS = [
-  "https://auroramadame.com",
-  "https://www.auroramadame.com",
-  "https://madameaurora.blog",
-  "https://www.madameaurora.blog",
-  "https://madame-aurora.com",
-  "https://www.madame-aurora.com",
+  "https://madam-aurora.co",
+  "https://www.madam-aurora.co",
   "http://localhost:5173",
   "http://localhost:8080",
   "http://localhost:8910",
