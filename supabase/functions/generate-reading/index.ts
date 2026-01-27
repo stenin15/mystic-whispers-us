@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1?target=deno";
+import { checkRateLimit, createServiceClient, getClientIp, getRequestId } from "../_shared/rateLimit.ts";
 
 const ALLOWED_ORIGINS = [
   "https://madam-aurora.co",
@@ -125,6 +126,7 @@ const translateToEnglish = async (OPENAI_API_KEY: string, text: string): Promise
 };
 
 serve(async (req) => {
+  const request_id = getRequestId();
   const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
 
@@ -134,7 +136,7 @@ serve(async (req) => {
 
   try {
     if (!isAllowedOrigin(origin)) {
-      return new Response(JSON.stringify({ error: "Origin not allowed" }), {
+      return new Response(JSON.stringify({ error: "Origin not allowed", request_id }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -152,16 +154,37 @@ serve(async (req) => {
       });
     }
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      return new Response(JSON.stringify({ error: "Service unavailable" }), {
+      return new Response(JSON.stringify({ error: "Service unavailable", request_id }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Rate limit to prevent abuse/cost spikes.
+    const svc = createServiceClient();
+    if (!svc) {
+      return new Response(JSON.stringify({ error: "Service unavailable", request_id }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const ip = getClientIp(req);
+    const rl = await checkRateLimit({ supabase: svc, key: `${ip}:generate-reading` });
+    if (!rl.allowed) {
+      return new Response(JSON.stringify({ error: "rate_limited", request_id }), {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Retry-After": String(rl.retryAfterSeconds ?? 60),
+        },
       });
     }
 
     // Paywall: require a Stripe session_id and verify entitlement server-side
     const sid = typeof session_id === "string" ? session_id.trim() : "";
     if (!sid) {
-      return new Response(JSON.stringify({ error: "session_id_required" }), {
+      return new Response(JSON.stringify({ error: "session_id_required", request_id }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -178,8 +201,8 @@ serve(async (req) => {
       .eq("status", "paid");
 
     if (error) {
-      console.error("generate-reading entitlement query failed:", error);
-      return new Response(JSON.stringify({ error: "entitlement_lookup_failed" }), {
+      console.error("generate-reading entitlement query failed:", { request_id, error });
+      return new Response(JSON.stringify({ error: "entitlement_lookup_failed", request_id }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -191,7 +214,7 @@ serve(async (req) => {
     const paidProducts = normalizeProducts(codes);
     const canAccessBasic = paidProducts.includes("basic") || paidProducts.includes("complete");
     if (!canAccessBasic) {
-      return new Response(JSON.stringify({ error: "forbidden" }), {
+      return new Response(JSON.stringify({ error: "forbidden", request_id }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -295,7 +318,7 @@ Keep it ~500–750 words. Make it feel human and guided, not “AI generated”.
         reading = await translateToEnglish(OPENAI_API_KEY, String(reading));
         console.log("generate_reading_translated_to_en", { chars: String(reading).length });
       } catch (e) {
-        console.warn("generate_reading_translation_failed", e);
+        console.warn("generate_reading_translation_failed", { request_id, e });
       }
     }
 
@@ -304,9 +327,9 @@ Keep it ~500–750 words. Make it feel human and guided, not “AI generated”.
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in generate-reading function:", error);
+    console.error("generate-reading failed:", { request_id, error });
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown issue" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown issue", request_id }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
