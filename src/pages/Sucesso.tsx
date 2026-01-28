@@ -73,6 +73,16 @@ const Sucesso = () => {
               page_path: "/sucesso",
             });
 
+            // Google Ads conversion (only after paid is confirmed).
+            try {
+              const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+              gtag?.("event", "conversion", {
+                send_to: "AW-17913229333/5qS2CPury-4bEXJQ2NIC",
+              });
+            } catch {
+              // ignore (do not block UX)
+            }
+
             // Server-side Events API (best-effort). Does NOT affect access.
             try {
               const { fbp, fbc, ttclid } = getAdIds();
