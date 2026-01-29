@@ -7,7 +7,7 @@ interface VideoHeroProps {
   brandName?: string;
 }
 
-export const VideoHero = ({ videoSrc, brandName = "Madame Aurora" }: VideoHeroProps) => {
+export const VideoHero = ({ videoSrc, brandName = "Madam Aurora" }: VideoHeroProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);

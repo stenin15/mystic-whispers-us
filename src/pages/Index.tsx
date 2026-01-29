@@ -305,7 +305,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ========== BLOCO 5 - AUTORIDADE (Madame Aurora) ========== */}
+      {/* ========== BLOCO 5 - AUTORIDADE (Madam Aurora) ========== */}
       <section className="relative py-14 px-4">
         <div className="container mx-auto max-w-2xl">
           <motion.div
@@ -320,7 +320,7 @@ const Index = () => {
             </div>
             
             <p className="text-base md:text-lg text-foreground leading-relaxed mb-6">
-              "I’m <span className="font-semibold">Madame Aurora</span>. For over two decades, I’ve studied patterns, symbols, and meaning — the quiet language people carry in their hands.
+              "I’m <span className="font-semibold">Madam Aurora</span>. For over two decades, I’ve studied patterns, symbols, and meaning — the quiet language people carry in their hands.
               <br /><br />
               My work isn’t about “predicting the future.” It’s about helping you recognize cycles, understand your patterns, and move forward with clarity."
             </p>

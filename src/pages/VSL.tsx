@@ -147,7 +147,7 @@ const VSL = () => {
                     className="w-full h-full object-contain"
                     playsInline
                     loop
-                    aria-label="Madame Aurora introduction video"
+                    aria-label="Madam Aurora introduction video"
                   />
 
                   {/* Overlay de play inicial */}
@@ -389,7 +389,7 @@ const VSL = () => {
         </div>
       </section>
 
-      {/* ========== 5. BLOCO DE AUTORIDADE (Madame Aurora) ========== */}
+      {/* ========== 5. BLOCO DE AUTORIDADE (Madam Aurora) ========== */}
       <section className="relative py-12 md:py-16 px-4 bg-card/20">
         <div className="container mx-auto max-w-2xl">
           <motion.div
@@ -402,7 +402,7 @@ const VSL = () => {
             <div className="w-20 h-20 mx-auto mb-6 rounded-full overflow-hidden border border-primary/40 shadow-sm shadow-primary/10 bg-card/30">
               <img
                 src="/asasasas.png"
-                alt="Madame Aurora"
+                alt="Madam Aurora"
                 className="w-full h-full object-cover"
                 loading="lazy"
                 {...({
@@ -417,7 +417,7 @@ const VSL = () => {
             </div>
 
             <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-6">
-              I’m Madame Aurora
+              I’m Madam Aurora
             </h2>
 
             <p className="text-base md:text-lg text-foreground/90 leading-relaxed mb-8 max-w-xl mx-auto">

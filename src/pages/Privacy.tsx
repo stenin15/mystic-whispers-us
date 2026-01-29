@@ -6,7 +6,7 @@ const Privacy = () => {
       <main className="container max-w-3xl mx-auto px-4 py-16">
         <h1 className="text-3xl md:text-4xl font-serif font-bold mb-6">Privacy Policy</h1>
         <p className="text-muted-foreground mb-6">
-          This Privacy Policy explains how Madame Aurora (“we”, “us”) collects and uses information when you use this
+          This Privacy Policy explains how Madam Aurora (“we”, “us”) collects and uses information when you use this
           website and purchase digital content. For entertainment and self-reflection purposes.
         </p>
 

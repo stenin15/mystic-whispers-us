@@ -55,7 +55,7 @@ const handler = async (req: Request): Promise<Response> => {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     // Optional: allow changing sender without code changes (helps during verification/testing)
     const RESEND_FROM_EMAIL =
-      Deno.env.get("RESEND_FROM_EMAIL") ?? "Madame Aurora <onboarding@resend.dev>";
+      Deno.env.get("RESEND_FROM_EMAIL") ?? "Madam Aurora <onboarding@resend.dev>";
     
     if (!RESEND_API_KEY) {
       return new Response(
@@ -104,7 +104,7 @@ const handler = async (req: Request): Promise<Response> => {
             
             <!-- Header -->
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #d4af37; font-size: 28px; margin: 0;">✨ Madame Aurora ✨</h1>
+              <h1 style="color: #d4af37; font-size: 28px; margin: 0;">✨ Madam Aurora ✨</h1>
               <p style="color: #9b87f5; font-size: 14px; margin-top: 5px;">Palm Reading & Intuitive Guidance</p>
             </div>
             
@@ -146,7 +146,7 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #9b87f530;">
               <p style="color: #8b7aa5; font-size: 12px; margin: 0;">
                 With care,<br>
-                <strong style="color: #d4af37;">Madame Aurora</strong>
+                <strong style="color: #d4af37;">Madam Aurora</strong>
               </p>
               <p style="color: #6b5a85; font-size: 11px; margin-top: 15px;">
                 This email was sent because you started a reading.

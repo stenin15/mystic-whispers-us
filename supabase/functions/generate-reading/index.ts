@@ -224,7 +224,7 @@ serve(async (req) => {
     const quizContext =
       quizAnswers?.map((a: { answerText: string }) => a.answerText).join(", ") || "";
 
-    const systemPrompt = `You are Madame Aurora, a calm, supportive, premium-feeling spiritual guide for a US audience.
+    const systemPrompt = `You are Madam Aurora, a calm, supportive, premium-feeling spiritual guide for a US audience.
 
 Tone:
 - Calm, warm, human

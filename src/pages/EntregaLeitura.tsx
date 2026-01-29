@@ -264,7 +264,7 @@ const EntregaLeitura = () => {
                   <p className="text-mystic-gold/80 italic font-serif text-xl">
                     "May you move forward with clarity and calm."
                   </p>
-                  <p className="text-muted-foreground mt-2">— Madame Aurora</p>
+                  <p className="text-muted-foreground mt-2">— Madam Aurora</p>
                 </div>
 
                 {/* Loop opener */}

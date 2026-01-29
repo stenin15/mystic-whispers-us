@@ -88,7 +88,7 @@ src\pages\EntregaGuia.tsx
 216:export default EntregaGuia;
 
 src\lib\api.ts
-1:// API module for Madame Aurora spiritual analysis
+1:// API module for Madam Aurora spiritual analysis
 2-import { QuizAnswer, AnalysisResult, EnergyType, Strength, Block } from '@/store/useHandReadingStore';
 --
 47-  { title: "Personal magnetism", desc: "When you’re aligned, opportunities and connections seem to find you.", icon: "Magnet" },

@@ -233,7 +233,7 @@ const EntregaGuia = () => {
             "Real change begins when you choose to look inward and honor your own path.
             Let this guide be a simple, steady companion as you move forward."
           </p>
-          <p className="text-mystic-gold mt-4 font-semibold">— Madame Aurora</p>
+          <p className="text-mystic-gold mt-4 font-semibold">— Madam Aurora</p>
         </motion.div>
 
         {/* Legal Footer */}

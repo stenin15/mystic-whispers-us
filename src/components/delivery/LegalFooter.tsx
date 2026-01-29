@@ -21,7 +21,7 @@ const LegalFooter = forwardRef<HTMLElement, LegalFooterProps>(({ showLinks = tru
           <Shield className="w-5 h-5 text-mystic-gold mt-0.5 flex-shrink-0" />
           <p className="text-sm text-muted-foreground leading-relaxed">
             <strong className="text-foreground">Disclaimer:</strong> The content
-            provided by Madame Aurora is symbolic and intended for self-reflection.
+            provided by Madam Aurora is symbolic and intended for self-reflection.
             It is not medical, psychological, financial, or professional advice.
             Results are personal and may vary. This service does not replace
             qualified professional guidance.
@@ -65,7 +65,7 @@ const LegalFooter = forwardRef<HTMLElement, LegalFooterProps>(({ showLinks = tru
 
       {/* Copyright */}
       <div className="text-center text-xs text-muted-foreground/60">
-        <p>© {new Date().getFullYear()} Madame Aurora. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Madam Aurora. All rights reserved.</p>
       </div>
     </motion.footer>
   );

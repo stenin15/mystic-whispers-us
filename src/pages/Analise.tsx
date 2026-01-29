@@ -15,7 +15,7 @@ const getAnalysisPhases = (name: string) => [
     icon: Sparkles,
     duration: 6500,
     sound: 'sparkle' as const,
-    voiceText: `Hi, ${name}… I’m Madame Aurora.
+    voiceText: `Hi, ${name}… I’m Madam Aurora.
 I’m going to combine what you shared with patterns that often show up in decision seasons.
 This isn’t about luck — it’s about noticing what’s active inside you.`
   },

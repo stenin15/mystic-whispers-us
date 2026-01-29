@@ -86,7 +86,7 @@ serve(async (req) => {
       );
     }
 
-    // Default voice for "Madame Aurora". Can be overridden via Edge Function secret DEFAULT_TTS_VOICE.
+    // Default voice for "Madam Aurora". Can be overridden via Edge Function secret DEFAULT_TTS_VOICE.
     const defaultVoice = Deno.env.get("DEFAULT_TTS_VOICE") ?? "shimmer";
     const fallbackVoice = VALID_VOICES.includes(defaultVoice) ? defaultVoice : "shimmer";
     const selectedVoice = voice && VALID_VOICES.includes(voice) ? voice : fallbackVoice;

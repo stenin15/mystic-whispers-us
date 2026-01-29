@@ -81,7 +81,7 @@ export const AudioPromptModal = ({ isOpen, onConfirm, userName }: AudioPromptMod
               </h2>
               
               <p className="text-muted-foreground mb-2 text-sm leading-relaxed">
-                {userName ? `${userName}, ` : ''}Madame Aurora will guide you through the quiz with a calm, mystical voice.
+                {userName ? `${userName}, ` : ''}Madam Aurora will guide you through the quiz with a calm, mystical voice.
               </p>
               
               <p className="text-primary/80 text-xs mb-6 flex items-center justify-center gap-2">

@@ -176,7 +176,7 @@ serve(async (req) => {
 
     const quizContext = sanitizedQuizAnswers.map(a => `- ${a.answerText}`).join("\n");
 
-    const systemPrompt = `You are Madame Aurora, a calm, supportive, premium-feeling intuitive guide for a US audience.
+    const systemPrompt = `You are Madam Aurora, a calm, supportive, premium-feeling intuitive guide for a US audience.
 
 Your task is to produce a personalized analysis based on the user's form data and quiz answers.
 

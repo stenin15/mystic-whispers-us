@@ -1,4 +1,4 @@
-// API module for Madame Aurora spiritual analysis
+// API module for Madam Aurora spiritual analysis
 import { QuizAnswer, AnalysisResult, EnergyType, Strength, Block } from '@/store/useHandReadingStore';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -235,7 +235,7 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
     // Production policy: no per-user TTS in production builds (cost control).
     if (import.meta.env.PROD) return null;
 
-    // Default voice for "Madame Aurora" narration.
+    // Default voice for "Madam Aurora" narration.
     // OpenAI TTS voices: alloy, echo, fable, onyx, nova, shimmer
     const defaultVoice = (import.meta.env.VITE_TTS_VOICE || 'shimmer') as string;
 
@@ -276,7 +276,7 @@ export const generateVoiceMessage = async (text: string): Promise<string | null>
     const ttsRes = await supabase.functions.invoke('text-to-speech', {
       body: { 
         text,
-        // "shimmer" tends to sound more feminine (Madame Aurora)
+        // "shimmer" tends to sound more feminine (Madam Aurora)
         voice: defaultVoice
       }
     });

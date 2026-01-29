@@ -40,7 +40,7 @@ export const Footer = () => {
               <Sparkles className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="font-serif font-semibold gradient-text-mystic">
-              Madame Aurora
+              Madam Aurora
             </span>
           </div>
 
@@ -65,7 +65,7 @@ export const Footer = () => {
 
           {/* Copyright */}
           <div className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Madame Aurora. All rights reserved.
+            © {new Date().getFullYear()} Madam Aurora. All rights reserved.
           </div>
         </div>
 

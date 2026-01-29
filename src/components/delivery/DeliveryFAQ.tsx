@@ -22,7 +22,7 @@ const defaultFAQItems: FAQItem[] = [
   {
     question: "Is my reading unique and personalized?",
     answer:
-      "Yes. Madame Aurora reads the lines of your palm, your energy profile, and your quiz answers to create a deeply personalized experience. Every insight is unique to you.",
+      "Yes. Madam Aurora reads the lines of your palm, your energy profile, and your quiz answers to create a deeply personalized experience. Every insight is unique to you.",
   },
   {
     question: "Can I access my reading again later?",
