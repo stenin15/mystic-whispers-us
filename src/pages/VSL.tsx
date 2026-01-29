@@ -15,7 +15,7 @@ const VSL = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
 
-  const videoSrc = import.meta.env.VITE_VSL_VIDEO_URL || "https://vsl-lovable.b-cdn.net/IMG_2694.mp4";
+  const videoSrc = import.meta.env.VITE_VSL_VIDEO_URL || "https://vsl-madame-aurora.b-cdn.net/0129.mp4";
 
   const handleCTA = () => {
     setHasSeenVsl(true);

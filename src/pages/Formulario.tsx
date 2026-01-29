@@ -214,7 +214,7 @@ const Formulario = () => {
                 <Label htmlFor="name">Full name</Label>
                 <Input
                   id="name"
-                  placeholder="Your full name"
+                  placeholder="Emily Carter"
                   {...register('name')}
                   autoComplete="off"
                   className="bg-input/50 border-border/50 focus:border-primary"
@@ -232,7 +232,7 @@ const Formulario = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="emily.carter@example.com"
                   {...register('email')}
                   className="bg-input/50 border-border/50 focus:border-primary"
                 />
