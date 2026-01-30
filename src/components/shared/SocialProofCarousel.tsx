@@ -10,42 +10,42 @@ import avatarRafael from '@/assets/avatar-rafael.jpg';
 
 const testimonials = [
   {
-    name: 'Carla S.',
+    name: 'Emily S.',
     city: 'Austin, TX',
     text: '"It put words to what I’ve been sensing, without being intense."',
     avatar: avatarCarla,
     rating: 5,
   },
   {
-    name: 'Patrícia L.',
+    name: 'Sarah L.',
     city: 'Chicago, IL',
     text: '"It helped me make a decision I kept postponing."',
     avatar: avatarPatricia,
     rating: 5,
   },
   {
-    name: 'Fernanda A.',
+    name: 'Olivia A.',
     city: 'Miami, FL',
     text: '"I felt seen. Calm, grounded, and surprisingly accurate."',
     avatar: avatarFernanda,
     rating: 5,
   },
   {
-    name: 'Eduardo C.',
+    name: 'Michael C.',
     city: 'Seattle, WA',
     text: '"If you’re looking for clarity, this is worth it."',
     avatar: avatarEduardo,
     rating: 5,
   },
   {
-    name: 'Mariana T.',
+    name: 'Sophia T.',
     city: 'Denver, CO',
     text: '"The timing was perfect. It eased my anxiety."',
     avatar: avatarMariana,
     rating: 5,
   },
   {
-    name: 'Rafael M.',
+    name: 'Daniel M.',
     city: 'San Diego, CA',
     text: '"Beautifully written. It felt like direction, not a “prediction.”"',
     avatar: avatarRafael,
