@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useMicroCoach } from '@/lib/useMicroCoach';
 import { getOrCreateEventId, track } from '@/lib/tracking';
+import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 
 import AudioWaveVisualizer from '@/components/shared/AudioWaveVisualizer';
 import AudioPromptModal from '@/components/shared/AudioPromptModal';
@@ -151,9 +152,13 @@ const Quiz = () => {
   const handleAudioPromptConfirm = () => {
     setShowAudioPrompt(false);
     setQuizStarted(true);
-    track("Lead", {
-      event_id: getOrCreateEventId("lead_quiz_start"),
+    track("ViewContent", {
+      event_id: getOrCreateEventId("viewcontent_quiz_start"),
       page_path: "/quiz",
+      step: "quiz",
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
     });
   };
 

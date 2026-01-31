@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 import { PRICE_MAP } from '@/lib/pricing';
 import { createCheckoutSessionUrl } from '@/lib/checkout';
 import { getOrCreateEventId, track } from '@/lib/tracking';
+import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -44,6 +45,9 @@ const Checkout = () => {
         value: PRICE_MAP[key].amountUsd,
         currency: "USD",
         page_path: "/checkout",
+        angle: getStoredAngle(),
+        focus: getStoredFocus(),
+        ...getAttributionParams(),
       });
       const url = await createCheckoutSessionUrl(key, { email });
       window.location.href = url;

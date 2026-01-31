@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { getOrCreateEventId, track } from '@/lib/tracking';
+import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 
 const months = [
   { value: '1', label: 'January' },
@@ -115,8 +116,11 @@ const Formulario = () => {
     try {
       // Lead event (first-party). GTM can route to GA4/Meta/TikTok.
       track("Lead", {
-        event_id: getOrCreateEventId("lead"),
+        event_id: getOrCreateEventId("lead_form_submit"),
         page_path: "/formulario",
+        angle: getStoredAngle(),
+        focus: getStoredFocus(),
+        ...getAttributionParams(),
       });
 
       // Send welcome email

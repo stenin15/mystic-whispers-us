@@ -1,25 +1,142 @@
-import { useNavigate } from "react-router-dom";
+import { useMemo, useRef, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { Sparkles, CheckCircle2, Shield, Heart, Clock, Star, ArrowRight, Play, Volume2, VolumeX, Pause } from "lucide-react";
+import {
+  Sparkles,
+  CheckCircle2,
+  Shield,
+  Heart,
+  Clock,
+  Star,
+  ArrowRight,
+  Play,
+  Volume2,
+  VolumeX,
+  Pause,
+  CircleDot,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
 import { Footer } from "@/components/layout/Footer";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
-import { useRef, useState } from "react";
+import { track, getOrCreateEventId } from "@/lib/tracking";
+import {
+  appendUtmToPath,
+  getAngle,
+  getAttributionParams,
+  getFocus,
+  getPersonalizedHeroLine,
+  parseUtm,
+  persistAttribution,
+} from "@/lib/marketing";
+
+const HERO_VARIANTS = {
+  A: {
+    h1: "Online Palm Reading for Love Timing — Based on Your Marriage Line",
+    subheadline:
+      "If you feel stuck in love, unsure about commitment, or repeating the same pattern… your marriage line + heart line usually explains why.",
+    cta: "Start My Personalized Reading",
+    microcopy: "Private • Personalized • Takes 2–3 minutes to begin",
+  },
+  B: {
+    h1: "Online Palm Reading for Marriage Line Patterns — Your Palm Doesn’t ‘Guess’ Love",
+    subheadline:
+      "Most readings are generic. This one connects your heart line + marriage line to reveal what keeps repeating — and what changes next.",
+    cta: "Get My Reading Now",
+    microcopy: "No accounts • No fluff • Focused on your lines",
+  },
+} as const;
+
+const FAQ_ITEMS = [
+  {
+    question: "Which hand do you read — left or right?",
+    answer:
+      "Either hand works. Many people use the dominant hand, but both can show helpful patterns.",
+  },
+  {
+    question: "Is palm reading accurate online?",
+    answer:
+      "It can be. The reading depends on clarity of the lines and the interpretation, not distance.",
+  },
+  {
+    question: "What if my marriage line is faint or multiple?",
+    answer:
+      "That’s normal. The reading looks at patterns across the marriage line and heart line together.",
+  },
+  {
+    question: "Can my lines change over time?",
+    answer:
+      "Yes. Lines can shift with life changes, stress, and new choices.",
+  },
+  {
+    question: "How long does it take?",
+    answer:
+      "It takes 2–3 minutes to start, and your personalized reading is delivered shortly after.",
+  },
+  {
+    question: "Is this private?",
+    answer:
+      "Yes. Your information and photo are handled privately and used only to deliver your reading.",
+  },
+  {
+    question: "What will I receive exactly?",
+    answer:
+      "A personalized palm reading focused on love timing, patterns, and practical next steps.",
+  },
+  {
+    question: "Is this for love only or also career/future?",
+    answer:
+      "It’s love-focused, but it also covers fate line and life line themes like direction and timing.",
+  },
+];
 
 const VSL = () => {
   const navigate = useNavigate();
+  const { search } = useLocation();
   const setHasSeenVsl = useHandReadingStore((s) => s.setHasSeenVsl);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
 
-  const videoSrc = import.meta.env.VITE_VSL_VIDEO_URL || "https://vsl-madame-aurora.b-cdn.net/0129.mp4";
+  const videoSrc =
+    import.meta.env.VITE_VSL_VIDEO_URL || "https://vsl-madame-aurora.b-cdn.net/0129.mp4";
+
+  useEffect(() => {
+    persistAttribution(new URLSearchParams(search));
+  }, [search]);
+
+  const { utm, angle, focus, heroVariant } = useMemo(() => {
+    const params = new URLSearchParams(search);
+    const parsedUtm = parseUtm(params);
+    const resolvedAngle = getAngle(params, parsedUtm);
+    const resolvedFocus = getFocus(params);
+    const variantOverride = (params.get("v") || "").trim();
+    const heroKey =
+      variantOverride === "2" ? "B" : resolvedAngle === "B" ? "B" : "A";
+    return {
+      utm: parsedUtm,
+      angle: resolvedAngle,
+      focus: resolvedFocus,
+      heroVariant: heroKey as keyof typeof HERO_VARIANTS,
+    };
+  }, [search]);
+
+  const hero = HERO_VARIANTS[heroVariant];
+  const personalizedLine = getPersonalizedHeroLine(utm, angle);
+  const focusLabel = focus ? `Focus: ${focus}` : null;
 
   const handleCTA = () => {
+    track("Lead", {
+      event_id: getOrCreateEventId("lead_vsl_cta"),
+      page_path: "/",
+      angle,
+      focus,
+      ...getAttributionParams(),
+    });
     setHasSeenVsl(true);
-    navigate("/formulario");
+    navigate(appendUtmToPath("/formulario", { angle, focus }));
   };
 
   const handlePlayPause = async () => {
@@ -56,89 +173,119 @@ const VSL = () => {
     setIsMuted(newMuted);
   };
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ_ITEMS.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
+      <Helmet>
+        <title>Online Palm Reading for Marriage Line | Madam Aurora</title>
+        <meta
+          name="description"
+          content="Online palm reading focused on your marriage line, heart line, and timing. Discover love patterns and next steps without promises of certainty."
+        />
+        <link rel="canonical" href="https://madam-aurora.co/" />
+        <meta property="og:title" content="Online Palm Reading for Marriage Line | Madam Aurora" />
+        <meta
+          property="og:description"
+          content="Marriage line palm reading online with love timing, heart line patterns, and fate line context."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://madam-aurora.co/" />
+        <meta property="og:site_name" content="Madam Aurora" />
+        <meta name="twitter:title" content="Online Palm Reading for Marriage Line | Madam Aurora" />
+        <meta
+          name="twitter:description"
+          content="Personalized online palm reading for love timing, marriage line patterns, and clarity."
+        />
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+      </Helmet>
+
       <ParticlesBackground />
       <FloatingOrbs />
 
-      {/* ========== 1. PRIMEIRA DOBRA (CRÍTICA) ========== */}
-      <section className="relative pt-12 md:pt-20 pb-8 px-4">
-        <div className="container mx-auto max-w-2xl">
+      {/* Hero */}
+      <section className="relative pt-10 md:pt-16 pb-8 px-4">
+        <div className="container mx-auto max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            {/* Pré-headline */}
-            <p className="text-base md:text-lg text-muted-foreground mb-4 font-medium">
-              If you’ve been going through a hard season lately, this is for you.
+            <p className="text-base md:text-lg text-muted-foreground mb-3 font-medium">
+              Online palm reading focused on love timing and your marriage line.
             </p>
 
-            {/* Headline principal */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-foreground leading-tight mb-5 px-2">
-              What you’re living through right now is leaving active signs in your hands.
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-foreground leading-tight mb-4 px-2">
+              {hero.h1}
             </h1>
 
-            {/* Subheadline explicativa */}
-            <p className="text-base md:text-lg text-muted-foreground mb-3 leading-relaxed max-w-xl mx-auto px-2">
-              If it feels like the same decisions keep looping, here’s your next step: upload a photo of your palm and receive a reading of what’s active for you right now.
+            <p className="text-base md:text-lg text-muted-foreground mb-3 leading-relaxed max-w-2xl mx-auto px-2">
+              {hero.subheadline}
             </p>
 
-            {/* Linha de urgência */}
-            <p className="text-sm text-muted-foreground/80 italic mb-8 px-2">
-              These signs tend to surface in very specific seasons of life.
-            </p>
+            {angle === "C" && (
+              <p className="text-sm text-muted-foreground/90 mb-3">
+                If you’re facing a career turning point, your fate line often reveals timing and pressure.
+              </p>
+            )}
 
-            {/* Lista de benefícios rápidos */}
-            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mb-8 px-2">
+            {personalizedLine && (
+              <p className="text-sm text-primary/90 mb-4">{personalizedLine}</p>
+            )}
+
+            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mb-6 px-2">
               <div className="flex items-center gap-2 text-sm md:text-base text-foreground/90">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>Decisions keep getting stuck at the same point</span>
+                <span>Marriage line timing</span>
               </div>
               <div className="flex items-center gap-2 text-sm md:text-base text-foreground/90">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>The same pattern keeps returning</span>
+                <span>Heart line patterns</span>
               </div>
               <div className="flex items-center gap-2 text-sm md:text-base text-foreground/90">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>You want clarity to move forward now</span>
+                <span>Fate line context</span>
               </div>
             </div>
 
-            {/* CTA principal */}
-            <div className="mb-6">
+            <div className="mb-4">
               <Button
                 onClick={handleCTA}
                 size="lg"
                 className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20"
               >
-                Continue now
+                {hero.cta}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
 
-            {/* Microcopy abaixo do botão */}
-            <p className="text-sm text-muted-foreground mb-2">
-              Takes 1 minute • Simple process • Accessible price
-            </p>
-
-            {/* Micro-selo de segurança */}
+            <p className="text-sm text-muted-foreground mb-2">{hero.microcopy}</p>
             <p className="text-xs text-muted-foreground/70 mb-4">
-              🔒 Secure checkout • Confidential reading
+              Private • Personalized • 2–3 minutes to start
             </p>
+            {focusLabel && (
+              <p className="text-xs uppercase tracking-wide text-primary/80 mb-3">{focusLabel}</p>
+            )}
 
-            {/* Vídeo opcional (abaixo do texto) */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="mt-10"
+              className="mt-8"
             >
-              <p className="text-sm text-muted-foreground mb-4">
-                Optional: watch 40 seconds.
-              </p>
-              {/* Player de vídeo */}
+              <p className="text-sm text-muted-foreground mb-4">Optional: watch 40 seconds.</p>
               <div className="relative max-w-2xl mx-auto rounded-xl overflow-hidden bg-card/30 border border-border/20 shadow-lg">
                 <div className="relative aspect-video bg-black">
                   <video
@@ -150,7 +297,6 @@ const VSL = () => {
                     aria-label="Madam Aurora introduction video"
                   />
 
-                  {/* Overlay de play inicial */}
                   {!hasStarted && (
                     <button
                       onClick={handlePlayPause}
@@ -163,7 +309,6 @@ const VSL = () => {
                     </button>
                   )}
 
-                  {/* Controles quando está tocando */}
                   {hasStarted && (
                     <div className="absolute bottom-3 right-3 flex gap-2">
                       <button
@@ -171,22 +316,14 @@ const VSL = () => {
                         className="w-10 h-10 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
                         aria-label={isPlaying ? "Pause" : "Play"}
                       >
-                        {isPlaying ? (
-                          <Pause className="w-5 h-5" />
-                        ) : (
-                          <Play className="w-5 h-5 ml-0.5" />
-                        )}
+                        {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
                       </button>
                       <button
                         onClick={toggleMute}
                         className="w-10 h-10 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
                         aria-label={isMuted ? "Unmute" : "Mute"}
                       >
-                        {isMuted ? (
-                          <VolumeX className="w-5 h-5" />
-                        ) : (
-                          <Volume2 className="w-5 h-5" />
-                        )}
+                        {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                       </button>
                     </div>
                   )}
@@ -197,7 +334,115 @@ const VSL = () => {
         </div>
       </section>
 
-      {/* ========== 2. BLOCO "COMO FUNCIONA" (ULTRA SIMPLES) ========== */}
+      {/* Section 1 */}
+      <section className="relative py-12 md:py-16 px-4 bg-card/20" id="marriage-line">
+        <div className="container mx-auto max-w-3xl">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-6"
+          >
+            What Your Marriage Line Can Reveal About Love & Commitment Timing
+          </motion.h2>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className={`space-y-4 rounded-2xl p-6 md:p-8 border border-border/20 bg-card/40 ${
+              focus === "marriage" ? "ring-2 ring-primary/50" : ""
+            }`}
+          >
+            {[
+              "Why relationships repeat the same cycle",
+              "Signs of delay vs. a real turning point",
+              "Commitment patterns (and what usually triggers them)",
+              "What your palm suggests you do next",
+            ].map((item, index) => (
+              <div key={index} className="flex items-start gap-4">
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <CircleDot className="w-4 h-4 text-primary" />
+                </div>
+                <p className="text-base md:text-lg text-foreground/90 leading-relaxed">{item}</p>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Section 2 */}
+      <section className="relative py-12 md:py-16 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-6"
+          >
+            Love Isn’t Separate From Destiny
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center text-base md:text-lg text-muted-foreground mb-6"
+          >
+            When love feels blocked, it’s often timing and direction — not effort. Your fate line can explain
+            pressure points that affect relationships.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className={`grid md:grid-cols-3 gap-4 ${
+              focus === "love" ? "ring-2 ring-primary/40 rounded-2xl p-2" : ""
+            }`}
+          >
+            {[
+              { label: "Emotional pattern", line: "heart line" },
+              { label: "Timing/pressure", line: "fate line" },
+              { label: "Energy cycles", line: "life line" },
+            ].map((item, index) => (
+              <div key={index} className="p-5 rounded-xl bg-card/40 border border-border/20">
+                <p className="text-sm text-muted-foreground mb-1">{item.label}</p>
+                <p className="text-base font-semibold text-foreground">{item.line}</p>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Section 3 */}
+      <section className="relative py-12 md:py-16 px-4 bg-card/20">
+        <div className="container mx-auto max-w-3xl">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-6"
+          >
+            Is Palm Reading Accurate Online?
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center text-base md:text-lg text-muted-foreground max-w-2xl mx-auto"
+          >
+            It can be — because palm reading is about lines, mounts, and markers. The reading doesn’t depend on
+            distance, it depends on clarity and interpretation.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* Section 4 */}
       <section className="relative py-12 md:py-16 px-4">
         <div className="container mx-auto max-w-3xl">
           <motion.h2
@@ -207,295 +452,107 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-10"
           >
-            How it works
+            How it works (palm reading online)
           </motion.h2>
 
           <div className="grid md:grid-cols-3 gap-6 md:gap-8 mb-8">
-            {/* Passo 1 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-center"
-            >
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary/40">
-                <span className="text-2xl font-bold text-primary">1</span>
-              </div>
-              <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
-                Upload your palm photo
-              </h3>
-              <p className="text-sm md:text-base text-muted-foreground">
-                Either hand works.
-              </p>
-            </motion.div>
-
-            {/* Passo 2 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-center"
-            >
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary/40">
-                <span className="text-2xl font-bold text-primary">2</span>
-              </div>
-              <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
-                Answer 3 quick questions
-              </h3>
-              <p className="text-sm md:text-base text-muted-foreground">
-                So we understand what’s happening right now.
-              </p>
-            </motion.div>
-
-            {/* Passo 3 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="text-center"
-            >
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary/40">
-                <span className="text-2xl font-bold text-primary">3</span>
-              </div>
-              <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
-                Receive your reading
-              </h3>
-              <p className="text-sm md:text-base text-muted-foreground">
-                Clear, grounded guidance.
-              </p>
-            </motion.div>
-          </div>
-
-          {/* Frase anti-ceticismo */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-center text-base md:text-lg text-foreground/80 font-medium italic max-w-xl mx-auto"
-          >
-            You don’t need to “believe” in anything — just show up honestly.
-          </motion.p>
-        </div>
-      </section>
-
-      {/* ========== 3. BLOCO "O QUE SUA MÃO PODE REVELAR" ========== */}
-      <section className="relative py-12 md:py-16 px-4 bg-card/20">
-        <div className="container mx-auto max-w-2xl">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-10"
-          >
-            What your palm can reveal
-          </motion.h2>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="space-y-4"
-          >
             {[
-              "Which cycle in your life is closing out",
-              "What’s quietly blocking your momentum right now",
-              "Where a decision wants to be made (love, money, or purpose)",
-              "A clear next step you can take from here",
+              { step: "1", title: "Upload your palm photo", desc: "Or follow the quick guide." },
+              { step: "2", title: "Receive your personalized reading", desc: "Love + timing focus." },
+              { step: "3", title: "Get your next steps", desc: "Clarity on what to watch for." },
             ].map((item, index) => (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                key={item.step}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.1 + index * 0.1 }}
-                className="flex items-start gap-4 p-4 rounded-xl bg-card/40 border border-border/20"
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="text-center p-5 rounded-xl bg-card/40 border border-border/20"
               >
-                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Star className="w-4 h-4 text-primary" />
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary/40">
+                  <span className="text-2xl font-bold text-primary">{item.step}</span>
                 </div>
-                <p className="text-base md:text-lg text-foreground leading-relaxed">{item}</p>
+                <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-sm md:text-base text-muted-foreground">{item.desc}</p>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="mt-10 text-center"
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-center"
           >
             <Button
               onClick={handleCTA}
               size="lg"
               className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-2"
             >
-              Continue
+              Start My Reading
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <p className="text-xs text-muted-foreground">
-              Takes less than a minute
-            </p>
+            <p className="text-xs text-muted-foreground">Private • Personalized • 2–3 minutes to start</p>
           </motion.div>
         </div>
       </section>
 
-      {/* ========== 4. BLOCO DE PROVA SOCIAL ========== */}
-      <section className="relative py-12 md:py-16 px-4">
-        <div className="container mx-auto max-w-2xl">
+      {/* Section 5: FAQ */}
+      <section className="relative py-12 md:py-16 px-4 bg-card/20" id="faq">
+        <div className="container mx-auto max-w-3xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-10"
+            className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-8"
           >
-            What people often feel after a reading
+            Frequently Asked Questions
           </motion.h2>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="space-y-4"
-          >
-            {[
-              "Clarity about what’s happening right now",
-              "A sense of relief and inner confirmation",
-              "More confidence around an important decision",
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.1 + index * 0.1 }}
-                className="flex items-start gap-4 p-5 rounded-xl bg-card/30 border border-border/20"
-              >
-                <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Heart className="w-4 h-4 text-accent" />
-                </div>
-                <p className="text-base md:text-lg text-foreground/90 leading-relaxed">{item}</p>
-              </motion.div>
+          <div className="space-y-4">
+            {FAQ_ITEMS.map((item) => (
+              <div key={item.question} className="p-5 rounded-xl bg-card/40 border border-border/20">
+                <p className="text-base font-semibold text-foreground mb-2">{item.question}</p>
+                <p className="text-sm text-muted-foreground">{item.answer}</p>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ========== 5. BLOCO DE AUTORIDADE (Madam Aurora) ========== */}
-      <section className="relative py-12 md:py-16 px-4 bg-card/20">
-        <div className="container mx-auto max-w-2xl">
+      {/* Final CTA */}
+      <section className="relative py-12 md:py-16 px-4">
+        <div className="container mx-auto max-w-3xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-center p-8 md:p-10 rounded-2xl bg-card/40 border border-border/20"
+            className="p-8 md:p-10 rounded-2xl bg-card/30 border border-border/30"
           >
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full overflow-hidden border border-primary/40 shadow-sm shadow-primary/10 bg-card/30">
-              <img
-                src="/asasasas.png"
-                alt="Madam Aurora"
-                className="w-full h-full object-cover"
-                loading="lazy"
-                {...({
-                  [["on", "Er", "ror"].join("")]: (e: unknown) => {
-                    const evt = e as { currentTarget?: unknown };
-                    const img = evt.currentTarget as unknown as Record<string, unknown> & { src: string };
-                    img[["on", "er", "ror"].join("")] = null;
-                    img.src = "/placeholder.svg";
-                  },
-                } as unknown as Record<string, unknown>)}
-              />
-            </div>
-
-            <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-6">
-              I’m Madam Aurora
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-4">
+              Ready for clarity?
             </h2>
-
-            <p className="text-base md:text-lg text-foreground/90 leading-relaxed mb-8 max-w-xl mx-auto">
-              For over two decades, I’ve studied patterns, symbols, and meaning — the quiet language people carry in their hands.
-              <br /><br />
-              My work isn’t about “predicting the future.” It’s about helping you recognize cycles, understand your patterns, and move forward with clarity.
+            <p className="text-base md:text-lg text-muted-foreground mb-6">
+              Start your personalized reading now — focused on love timing and the patterns your palm shows.
             </p>
-
-            {/* Selos */}
-            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-              <div className="flex items-center gap-2 text-sm text-foreground/80">
-                <Shield className="w-4 h-4 text-primary" />
-                <span>Confidential</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-foreground/80">
-                <Heart className="w-4 h-4 text-accent" />
-                <span>Judgment-free</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-foreground/80">
-                <Clock className="w-4 h-4 text-primary" />
-                <span>Respect for your privacy</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ========== 6. BLOCO DE REDUÇÃO DE RISCO ========== */}
-      <section className="relative py-12 md:py-16 px-4">
-        <div className="container mx-auto max-w-2xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="p-6 md:p-8 rounded-xl bg-card/30 border border-border/30"
-          >
-            <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-4">
-              A quick note:
-            </h3>
-            <p className="text-base md:text-lg text-foreground/90 leading-relaxed">
-              This is for entertainment and self-reflection purposes.
-              <br /><br />
-              It’s an intuitive, symbolic reading designed to bring clarity to what you’re living through — not a promise of outcomes.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ========== 7. CTA FINAL (REFORÇO DE TIMING) ========== */}
-      <section className="relative py-12 md:py-16 px-4">
-        <div className="container mx-auto max-w-2xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
             <Button
               onClick={handleCTA}
               size="lg"
               className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-4"
             >
-              Start my reading
+              Start My Reading
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-
-            {/* Microcopy com urgência sutil */}
-            <p className="text-sm text-muted-foreground italic mb-6">
-              Some patterns only surface in very specific seasons of life.
+            <p className="text-sm text-muted-foreground italic">
+              Private • Personalized • 2–3 minutes to start
             </p>
-
-            {/* US market: no chat CTA */}
           </motion.div>
         </div>
       </section>
-
-      {/* US market: no chat CTA */}
 
       <Footer />
     </div>

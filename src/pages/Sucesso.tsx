@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 import { getEntitlement } from "@/lib/entitlement";
 import { PRICE_MAP } from "@/lib/pricing";
 import { getAdIds, getOrCreateEventId, track } from "@/lib/tracking";
+import { getAttributionParams, getStoredAngle, getStoredFocus } from "@/lib/marketing";
 import { supabase } from "@/integrations/supabase/client";
 
 const Sucesso = () => {
@@ -71,6 +72,9 @@ const Sucesso = () => {
               value: PRICE_MAP[primary].amountUsd,
               currency: "USD",
               page_path: "/sucesso",
+              angle: getStoredAngle(),
+              focus: getStoredFocus(),
+              ...getAttributionParams(),
             });
 
             // Google Ads conversion (only after paid is confirmed).
@@ -96,6 +100,7 @@ const Sucesso = () => {
                   currency: "USD",
                   page_url: window.location.href,
                   user: { email: email || undefined },
+                  utm: getAttributionParams(),
                   meta: { fbp, fbc },
                   tiktok: { ttclid },
                 },

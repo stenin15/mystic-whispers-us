@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 import { PRICE_MAP } from '@/lib/pricing';
 import { createCheckoutSessionUrl } from '@/lib/checkout';
 import { getOrCreateEventId, track } from '@/lib/tracking';
+import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 
 const Upsell = () => {
   const navigate = useNavigate();
@@ -43,6 +44,9 @@ const Upsell = () => {
         value: PRICE_MAP.guide.amountUsd,
         currency: "USD",
         page_path: "/upsell",
+        angle: getStoredAngle(),
+        focus: getStoredFocus(),
+        ...getAttributionParams(),
       });
       const url = await createCheckoutSessionUrl("upsell", { email });
       window.location.href = url;

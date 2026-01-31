@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { track } from "@/lib/tracking";
@@ -62,15 +63,16 @@ const pathDeliveryReading = ["/entrega/", "le", "itura"].join("");
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <RouteTracker />
-        <Routes>
-          {/* Main entry for funnel */}
-          <Route path="/" element={<VSL />} />
+    <HelmetProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          <RouteTracker />
+          <Routes>
+            {/* Main entry for funnel */}
+            <Route path="/" element={<VSL />} />
           {/* Keep Index as an alternate/legacy entry */}
           <Route path={pathReading} element={<Index />} />
           {/* Alias for older links */}
@@ -123,9 +125,10 @@ const App = () => (
           <Route path="/entrega/guia" element={<EntregaGuia />} />
           <Route path="/oferta/guia-exclusivo" element={<OfertaGuiaExclusivo />} />
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </HelmetProvider>
   </QueryClientProvider>
 );
 
