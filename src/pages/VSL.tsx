@@ -128,8 +128,8 @@ const VSL = () => {
   const focusLabel = focus ? `Focus: ${focus}` : null;
 
   const handleCTA = () => {
-    track("Lead", {
-      event_id: getOrCreateEventId("lead_vsl_cta"),
+    track("StartFlow", {
+      event_id: getOrCreateEventId("start_flow"),
       page_path: "/",
       angle,
       focus,
