@@ -81,7 +81,10 @@ const Sucesso = () => {
             try {
               const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
               gtag?.("event", "conversion", {
-                send_to: "AW-17913229333/5qS2CPury-4bEXJQ2NIC",
+                send_to: "AW-17913229333/5q52CPury-4bEJXg2N1C",
+                value: PRICE_MAP[primary].amountUsd,
+                currency: "USD",
+                transaction_id: sessionId,
               });
             } catch {
               // ignore (do not block UX)
