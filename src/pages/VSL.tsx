@@ -33,17 +33,25 @@ import {
 
 const HERO_VARIANTS = {
   A: {
-    h1: "Online Palm Reading for Love Timing — Based on Your Marriage Line",
+    h1: "Online Palm Reading for Love Timing & Relationship Patterns",
     subheadline:
-      "If you feel stuck in love, unsure about commitment, or repeating the same pattern… your marriage line + heart line usually explains why.",
-    cta: "Start My Personalized Reading",
+      "See what your palm reveals about delays, cycles, and turning points in love.",
+    leadIn:
+      "If you feel stuck in love, unsure about direction, or repeating the same pattern — your palm often explains why.",
+    marriageNote:
+      "For some people, the marriage line shows timing. For others, it reveals why commitment feels delayed — or pressured.",
+    cta: "Start My Love Reading",
     microcopy: "Private • Personalized • Takes 2–3 minutes to begin",
   },
   B: {
-    h1: "Online Palm Reading for Marriage Line Patterns — Your Palm Doesn’t ‘Guess’ Love",
+    h1: "Online Palm Reading for Love Timing & Relationship Patterns",
     subheadline:
-      "Most readings are generic. This one connects your heart line + marriage line to reveal what keeps repeating — and what changes next.",
-    cta: "Get My Reading Now",
+      "See what your palm reveals about delays, cycles, and turning points in love.",
+    leadIn:
+      "If you feel stuck in love, unsure about direction, or repeating the same pattern — your palm often explains why.",
+    marriageNote:
+      "For some people, the marriage line shows timing. For others, it reveals why commitment feels delayed — or pressured.",
+    cta: "See What Your Palm Reveals",
     microcopy: "No accounts • No fluff • Focused on your lines",
   },
 } as const;
@@ -234,6 +242,14 @@ const VSL = () => {
 
             <p className="text-base md:text-lg text-muted-foreground mb-3 leading-relaxed max-w-2xl mx-auto px-2">
               {hero.subheadline}
+            </p>
+
+            <p className="text-sm text-muted-foreground/90 mb-3 max-w-2xl mx-auto">
+              {hero.leadIn}
+            </p>
+
+            <p className="text-sm text-muted-foreground/85 mb-4 max-w-2xl mx-auto">
+              {hero.marriageNote}
             </p>
 
             {angle === "C" && (
