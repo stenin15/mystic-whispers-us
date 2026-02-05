@@ -39,8 +39,8 @@ const HERO_VARIANTS = {
     leadIn:
       "If you feel stuck in love, unsure about direction, or repeating the same pattern — your palm often explains why.",
     marriageNote:
-      "For some people, the marriage line shows timing. For others, it reveals why commitment feels delayed — or pressured.",
-    cta: "Start My Love Reading",
+      "For some people, this includes marriage timing. For others, it reveals why commitment feels delayed — or pressured.",
+    cta: "See What Your Palm Reveals",
     microcopy: "Private • Personalized • Takes 2–3 minutes to begin",
   },
   B: {
@@ -50,8 +50,8 @@ const HERO_VARIANTS = {
     leadIn:
       "If you feel stuck in love, unsure about direction, or repeating the same pattern — your palm often explains why.",
     marriageNote:
-      "For some people, the marriage line shows timing. For others, it reveals why commitment feels delayed — or pressured.",
-    cta: "See What Your Palm Reveals",
+      "For some people, this includes marriage timing. For others, it reveals why commitment feels delayed — or pressured.",
+    cta: "Explore Your Love Patterns",
     microcopy: "No accounts • No fluff • Focused on your lines",
   },
 } as const;
@@ -90,7 +90,7 @@ const FAQ_ITEMS = [
   {
     question: "What will I receive exactly?",
     answer:
-      "A personalized palm reading focused on love timing, patterns, and practical next steps.",
+      "A personalized reading with love timing insight, pattern loops, and directional next steps — plus marriage/commitment timing if it’s relevant.",
   },
   {
     question: "Is this for love only or also career/future?",
@@ -233,7 +233,7 @@ const VSL = () => {
             className="text-center"
           >
             <p className="text-base md:text-lg text-muted-foreground mb-3 font-medium">
-              Online palm reading focused on love timing and your marriage line.
+              Online palm reading focused on love timing, emotional patterns, and clarity.
             </p>
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-foreground leading-tight mb-4 px-2">
@@ -252,6 +252,10 @@ const VSL = () => {
               {hero.marriageNote}
             </p>
 
+            <p className="text-sm text-muted-foreground/80 mb-4 max-w-2xl mx-auto">
+              No predictions. No pressure. Just patterns and clarity.
+            </p>
+
             {angle === "C" && (
               <p className="text-sm text-muted-foreground/90 mb-3">
                 If you’re facing a career turning point, your fate line often reveals timing and pressure.
@@ -265,15 +269,15 @@ const VSL = () => {
             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mb-6 px-2">
               <div className="flex items-center gap-2 text-sm md:text-base text-foreground/90">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>Marriage line timing</span>
+                <span>Love timing clarity</span>
               </div>
               <div className="flex items-center gap-2 text-sm md:text-base text-foreground/90">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>Heart line patterns</span>
+                <span>Repeating relationship patterns</span>
               </div>
               <div className="flex items-center gap-2 text-sm md:text-base text-foreground/90">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>Fate line context</span>
+                <span>Emotional clarity & direction</span>
               </div>
             </div>
 
@@ -292,6 +296,7 @@ const VSL = () => {
             <p className="text-xs text-muted-foreground/70 mb-4">
               Private • Personalized • 2–3 minutes to start
             </p>
+            <p className="text-xs text-muted-foreground/80 mb-4">Next: choose your reading option.</p>
             {focusLabel && (
               <p className="text-xs uppercase tracking-wide text-primary/80 mb-3">{focusLabel}</p>
             )}
@@ -302,7 +307,9 @@ const VSL = () => {
               transition={{ delay: 0.3, duration: 0.6 }}
               className="mt-8"
             >
-              <p className="text-sm text-muted-foreground mb-4">Optional: watch 40 seconds.</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Optional: watch 40 seconds to see how the reading works and what you’ll receive.
+            </p>
               <div className="relative max-w-2xl mx-auto rounded-xl overflow-hidden bg-card/30 border border-border/20 shadow-lg">
                 <div className="relative aspect-video bg-black">
                   <video
@@ -361,7 +368,7 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-6"
           >
-            What Your Marriage Line Can Reveal About Love & Commitment Timing
+            What Your Palm Can Reveal About Love Timing & Commitment
           </motion.h2>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -373,10 +380,11 @@ const VSL = () => {
             }`}
           >
             {[
-              "Why relationships repeat the same cycle",
-              "Signs of delay vs. a real turning point",
-              "Commitment patterns (and what usually triggers them)",
-              "What your palm suggests you do next",
+              "Feeling stuck in love or unsure what phase you’re in",
+              "Repeating the same relationship outcome",
+              "Confusion about commitment pressure or delay",
+              "Emotional timing not matching your effort",
+              "Curiosity about long-term potential",
             ].map((item, index) => (
               <div key={index} className="flex items-start gap-4">
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -475,8 +483,9 @@ const VSL = () => {
           <div className="grid md:grid-cols-3 gap-6 md:gap-8 mb-8">
             {[
               { step: "1", title: "Upload your palm photo", desc: "Or follow the quick guide." },
-              { step: "2", title: "Receive your personalized reading", desc: "Love + timing focus." },
-              { step: "3", title: "Get your next steps", desc: "Clarity on what to watch for." },
+              { step: "2", title: "Answer a few questions", desc: "So we can personalize the reading." },
+              { step: "3", title: "Choose your reading option", desc: "Pick the level of depth you want." },
+              { step: "4", title: "Receive your personalized reading", desc: "Timing, patterns, and next steps." },
             ].map((item, index) => (
               <motion.div
                 key={item.step}
@@ -509,10 +518,10 @@ const VSL = () => {
               size="lg"
               className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-2"
             >
-              Start My Reading
+              See What Your Palm Reveals
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <p className="text-xs text-muted-foreground">Private • Personalized • 2–3 minutes to start</p>
+            <p className="text-xs text-muted-foreground">Next: choose your reading option.</p>
           </motion.div>
         </div>
       </section>
@@ -554,18 +563,18 @@ const VSL = () => {
               Ready for clarity?
             </h2>
             <p className="text-base md:text-lg text-muted-foreground mb-6">
-              Start your personalized reading now — focused on love timing and the patterns your palm shows.
+              Explore your love patterns with clarity and direction — no pressure, just insight.
             </p>
             <Button
               onClick={handleCTA}
               size="lg"
               className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-8 md:px-12 py-6 md:py-7 text-base md:text-lg font-semibold shadow-lg shadow-primary/20 mb-4"
             >
-              Start My Reading
+              Explore Your Love Patterns
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <p className="text-sm text-muted-foreground italic">
-              Private • Personalized • 2–3 minutes to start
+              You’ll review your options before payment.
             </p>
           </motion.div>
         </div>
