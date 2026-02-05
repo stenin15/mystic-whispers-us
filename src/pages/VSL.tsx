@@ -111,29 +111,28 @@ const VSL = () => {
     const sections = Array.from(document.querySelectorAll("[data-track-section]"));
     if (sections.length === 0) return;
     const seen = new Set<string>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const el = entry.target as HTMLElement;
-          const name = el.dataset.trackSection || "";
-          if (!name || seen.has(name)) return;
-          seen.add(name);
-          track("SectionView", {
-            section: name,
-            page_path: "/",
-            angle,
-            focus,
-            ...getAttributionParams(),
-          });
-          observer.unobserve(entry.target);
+    let observer: IntersectionObserver | null = null;
+    const handleEntries = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target as HTMLElement;
+        const name = el.dataset.trackSection || "";
+        if (!name || seen.has(name)) return;
+        seen.add(name);
+        track("SectionView", {
+          section: name,
+          page_path: "/",
+          angle,
+          focus,
+          ...getAttributionParams(),
         });
-      },
-      { threshold: 0.35 }
-    );
+        observer?.unobserve(entry.target);
+      });
+    };
 
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    observer = new IntersectionObserver(handleEntries, { threshold: 0.35 });
+    sections.forEach((section) => observer?.observe(section));
+    return () => observer?.disconnect();
   }, [angle, focus]);
 
   const { utm, angle, focus, heroVariant } = useMemo(() => {
