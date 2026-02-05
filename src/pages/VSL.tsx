@@ -35,22 +35,22 @@ const HERO_VARIANTS = {
   A: {
     h1: "Online Palm Reading for Love Timing & Relationship Patterns",
     subheadline:
-      "See what your palm reveals about delays, cycles, and turning points in love.",
+      "Understand delays, repeating cycles, and emotional timing in love.",
     leadIn:
       "If you feel stuck in love, unsure about direction, or repeating the same pattern — your palm often explains why.",
     marriageNote:
-      "For some people, this includes marriage timing. For others, it reveals why commitment feels delayed — or pressured.",
-    cta: "See What Your Palm Reveals",
+      "For some people, this includes marriage timing. For others, it shows why commitment feels delayed — or pressured.",
+    cta: "See What Your Palm Shows",
     microcopy: "Private • Personalized • Takes 2–3 minutes to begin",
   },
   B: {
     h1: "Online Palm Reading for Love Timing & Relationship Patterns",
     subheadline:
-      "See what your palm reveals about delays, cycles, and turning points in love.",
+      "Understand delays, repeating cycles, and emotional timing in love.",
     leadIn:
       "If you feel stuck in love, unsure about direction, or repeating the same pattern — your palm often explains why.",
     marriageNote:
-      "For some people, this includes marriage timing. For others, it reveals why commitment feels delayed — or pressured.",
+      "For some people, this includes marriage timing. For others, it shows why commitment feels delayed — or pressured.",
     cta: "Explore Your Love Patterns",
     microcopy: "No accounts • No fluff • Focused on your lines",
   },
@@ -248,17 +248,16 @@ const VSL = () => {
               {hero.leadIn}
             </p>
 
+            <p className="text-sm text-muted-foreground/80 mb-4 max-w-2xl mx-auto">
+              No predictions. No pressure. Just patterns and clarity.
+            </p>
             <p className="text-sm text-muted-foreground/85 mb-4 max-w-2xl mx-auto">
               {hero.marriageNote}
             </p>
 
-            <p className="text-sm text-muted-foreground/80 mb-4 max-w-2xl mx-auto">
-              No predictions. No pressure. Just patterns and clarity.
-            </p>
-
             {angle === "C" && (
               <p className="text-sm text-muted-foreground/90 mb-3">
-                If you’re facing a career turning point, your fate line often reveals timing and pressure.
+                If you’re facing a career turning point, your life patterns often show timing and pressure.
               </p>
             )}
 
@@ -368,7 +367,7 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-6"
           >
-            What Your Palm Can Reveal About Love Timing & Commitment
+            What Your Palm Can Show About Love Timing & Commitment
           </motion.h2>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
