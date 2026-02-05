@@ -107,6 +107,35 @@ const VSL = () => {
     persistAttribution(new URLSearchParams(search));
   }, [search]);
 
+  useEffect(() => {
+    const sections = Array.from(document.querySelectorAll("[data-track-section]"));
+    if (sections.length === 0) return;
+    const seen = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target as HTMLElement;
+          const name = el.dataset.trackSection || "";
+          if (!name || seen.has(name)) return;
+          seen.add(name);
+          track("SectionView", {
+            section: name,
+            page_path: "/",
+            angle,
+            focus,
+            ...getAttributionParams(),
+          });
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.35 }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [angle, focus]);
+
   const { utm, angle, focus, heroVariant } = useMemo(() => {
     const params = new URLSearchParams(search);
     const parsedUtm = parseUtm(params);
@@ -215,7 +244,7 @@ const VSL = () => {
       <FloatingOrbs />
 
       {/* Hero */}
-      <section className="relative pt-10 md:pt-16 pb-8 px-4">
+      <section className="relative pt-10 md:pt-16 pb-8 px-4" data-track-section="hero">
         <div className="container mx-auto max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -335,7 +364,11 @@ const VSL = () => {
       </section>
 
       {/* Section 1 */}
-      <section className="relative py-12 md:py-16 px-4 bg-card/20" id="marriage-line">
+      <section
+        className="relative py-12 md:py-16 px-4 bg-card/20"
+        id="marriage-line"
+        data-track-section="marriage-line"
+      >
         <div className="container mx-auto max-w-3xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -373,7 +406,7 @@ const VSL = () => {
       </section>
 
       {/* Section 2 */}
-      <section className="relative py-12 md:py-16 px-4">
+      <section className="relative py-12 md:py-16 px-4" data-track-section="destiny-lines">
         <div className="container mx-auto max-w-3xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -418,7 +451,7 @@ const VSL = () => {
       </section>
 
       {/* Section 3 */}
-      <section className="relative py-12 md:py-16 px-4 bg-card/20">
+      <section className="relative py-12 md:py-16 px-4 bg-card/20" data-track-section="accuracy">
         <div className="container mx-auto max-w-3xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -443,7 +476,7 @@ const VSL = () => {
       </section>
 
       {/* Section 4 */}
-      <section className="relative py-12 md:py-16 px-4">
+      <section className="relative py-12 md:py-16 px-4" data-track-section="how-it-works">
         <div className="container mx-auto max-w-3xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -501,7 +534,7 @@ const VSL = () => {
       </section>
 
       {/* Section 5: FAQ */}
-      <section className="relative py-12 md:py-16 px-4 bg-card/20" id="faq">
+      <section className="relative py-12 md:py-16 px-4 bg-card/20" id="faq" data-track-section="faq">
         <div className="container mx-auto max-w-3xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -524,7 +557,7 @@ const VSL = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="relative py-12 md:py-16 px-4">
+      <section className="relative py-12 md:py-16 px-4" data-track-section="final-cta">
         <div className="container mx-auto max-w-3xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

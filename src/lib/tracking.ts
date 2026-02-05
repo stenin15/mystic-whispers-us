@@ -3,6 +3,7 @@ type AnyRecord = Record<string, unknown>;
 declare global {
   interface Window {
     dataLayer?: AnyRecord[];
+    fbq?: (...args: unknown[]) => void;
   }
 }
 
@@ -36,6 +37,25 @@ export function track(event: string, params: AnyRecord = {}) {
       event,
       ...params,
     });
+  } catch {
+    // ignore
+  }
+
+  try {
+    if (typeof window.fbq !== "function") return;
+    const standardEvents = new Set([
+      "PageView",
+      "ViewContent",
+      "Lead",
+      "CompleteRegistration",
+      "InitiateCheckout",
+      "Purchase",
+    ]);
+    if (standardEvents.has(event)) {
+      window.fbq("track", event, params);
+    } else {
+      window.fbq("trackCustom", event, params);
+    }
   } catch {
     // ignore
   }

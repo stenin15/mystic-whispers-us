@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { track } from "@/lib/tracking";
+import { getAttributionParams, getStoredAngle, getStoredFocus } from "@/lib/marketing";
 
 // Pages
 import Index from "./pages/Index";
@@ -49,9 +50,21 @@ const RouteTracker = () => {
   const { pathname, search } = useLocation();
   useEffect(() => {
     // Generic route pageview for GTM -> GA4/Meta/TikTok mappings
-    track("PageView", { page_path: pathname, page_search: search || "" });
+    track("PageView", {
+      page_path: pathname,
+      page_search: search || "",
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
     if (pathname === "/") {
-      track("ViewContent", { content_name: "VSL", page_path: pathname });
+      track("ViewContent", {
+        content_name: "VSL",
+        page_path: pathname,
+        angle: getStoredAngle(),
+        focus: getStoredFocus(),
+        ...getAttributionParams(),
+      });
     }
   }, [pathname, search]);
   return null;

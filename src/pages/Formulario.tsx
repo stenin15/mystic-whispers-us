@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -57,6 +57,7 @@ const Formulario = () => {
   const { setFormData, resetQuiz } = useHandReadingStore();
   const [photoIssue, setPhotoIssue] = useState('');
   const [handPhotoPreview, setHandPhotoPreview] = useState<string>('');
+  const hasTrackedFormStart = useRef(false);
   const [birthDay, setBirthDay] = useState('');
   const [birthMonth, setBirthMonth] = useState('');
   const [birthYear, setBirthYear] = useState('');
@@ -105,6 +106,18 @@ const Formulario = () => {
     setHandPhotoPreview(url);
     setFormData({ hasHandPhoto: !!url });
     if (url) setPhotoIssue('');
+  };
+
+  const handleFormStart = () => {
+    if (hasTrackedFormStart.current) return;
+    hasTrackedFormStart.current = true;
+    track("FormStart", {
+      event_id: getOrCreateEventId("form_start"),
+      page_path: "/formulario",
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
   };
 
   const onSubmit = async (data: FormData) => {
@@ -204,6 +217,7 @@ const Formulario = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           onSubmit={handleSubmit(onSubmit)}
+          onFocusCapture={handleFormStart}
           className="space-y-8"
         >
           {/* Personal Info Card */}

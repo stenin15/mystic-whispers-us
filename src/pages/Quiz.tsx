@@ -152,8 +152,8 @@ const Quiz = () => {
   const handleAudioPromptConfirm = () => {
     setShowAudioPrompt(false);
     setQuizStarted(true);
-    track("ViewContent", {
-      event_id: getOrCreateEventId("viewcontent_quiz_start"),
+    track("QuizStart", {
+      event_id: getOrCreateEventId("quiz_start"),
       page_path: "/quiz",
       step: "quiz",
       angle: getStoredAngle(),
