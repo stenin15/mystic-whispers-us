@@ -85,6 +85,8 @@
         try {
           var pixelId = "%VITE_META_PIXEL_ID%";
           if (!pixelId) return;
+          if (pixelId.indexOf("VITE_") !== -1 || pixelId.indexOf("%") !== -1) return;
+          if (!/^\d+$/.test(pixelId)) return;
           !(function(f, b, e, v, n, t, s) {
             if (f.fbq) return;
             n = f.fbq = function() {
