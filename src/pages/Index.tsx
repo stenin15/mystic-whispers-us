@@ -37,7 +37,7 @@ const Index = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-5 leading-tight text-foreground text-center"
           >
-            What you’re living through right now is leaving active signs in your hands.
+            What you're living through right now is leaving active signs in your hands.
           </motion.h1>
 
           {/* Subheadline */}
@@ -47,9 +47,9 @@ const Index = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed text-center"
           >
-            If it feels like the same decisions keep looping, here’s your next step:
+            If it feels like the same decisions keep looping, here's your next step:
             <br />
-            upload a photo of your palm and receive a reading of what’s active right now.
+            upload a photo of your palm and receive a reading of what's active right now.
           </motion.p>
 
           {/* Bloco emocional - sem título */}
@@ -104,7 +104,7 @@ const Index = () => {
             className="mt-8 p-5 rounded-xl bg-card/30 border border-border/20"
           >
             <p className="text-xs font-medium text-foreground/70 mb-3 text-center">
-              Before you continue, here’s what to know:
+              Before you continue, here's what to know:
             </p>
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
               <span>• Not a subscription</span>
@@ -141,7 +141,7 @@ const Index = () => {
               { 
                 step: "2", 
                 title: "Answer 3 quick questions", 
-                desc: "So we understand what’s happening right now." 
+                desc: "So we understand what's happening right now." 
               },
               { 
                 step: "3", 
@@ -175,7 +175,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center mt-8 text-sm text-muted-foreground italic"
           >
-            You don’t need to “believe” in anything — just show up honestly.
+            You don't need to "believe" in anything — just show up honestly.
           </motion.p>
 
           {/* Vídeo opcional - claramente OPCIONAL */}
@@ -186,7 +186,7 @@ const Index = () => {
             className="mt-10 text-center"
           >
             <p className="text-xs text-muted-foreground/70 mb-3">
-              Optional: if you’d like to watch before continuing
+              Optional: if you'd like to watch before continuing
             </p>
             <div className="aspect-video w-full max-w-xl mx-auto rounded-2xl bg-card/50 border border-border/30 flex items-center justify-center">
               <div className="text-muted-foreground text-sm">
@@ -218,7 +218,7 @@ const Index = () => {
             <div className="grid gap-4">
               {[
                 { icon: CircleDot, text: "Which cycle in your life is closing out" },
-                { icon: Eye, text: "What’s quietly blocking your momentum right now" },
+                { icon: Eye, text: "What's quietly blocking your momentum right now" },
                 { icon: Heart, text: "Where a decision wants to be made (love, money, or purpose)" },
                 { icon: Sparkles, text: "A clear next step you can take from here" },
               ].map((item, index) => (
@@ -284,7 +284,7 @@ const Index = () => {
           >
             <div className="grid gap-4">
               {[
-                { icon: CheckCircle2, text: "Clarity about what’s happening right now" },
+                { icon: CheckCircle2, text: "Clarity about what's happening right now" },
                 { icon: CheckCircle2, text: "A sense of relief and inner confirmation" },
                 { icon: CheckCircle2, text: "More confidence around an important decision" },
               ].map((item, index) => (
@@ -320,9 +320,9 @@ const Index = () => {
             </div>
             
             <p className="text-base md:text-lg text-foreground leading-relaxed mb-6">
-              "I’m <span className="font-semibold">Madam Aurora</span>. For over two decades, I’ve studied patterns, symbols, and meaning — the quiet language people carry in their hands.
+              "I'm <span className="font-semibold">Madam Aurora</span>. For over two decades, I've studied patterns, symbols, and meaning — the quiet language people carry in their hands.
               <br /><br />
-              My work isn’t about “predicting the future.” It’s about helping you recognize cycles, understand your patterns, and move forward with clarity."
+              My work isn't about "predicting the future." It's about helping you recognize cycles, understand your patterns, and move forward with clarity."
             </p>
             
             {/* Selos */}
@@ -356,7 +356,7 @@ const Index = () => {
               <br />
               This is not a guarantee of outcomes.
               <br />
-              It’s an intuitive, symbolic reading designed for entertainment and self-reflection.
+              It's an intuitive, symbolic reading designed for entertainment and self-reflection.
             </p>
           </motion.div>
         </div>

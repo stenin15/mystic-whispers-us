@@ -67,7 +67,7 @@ const EntregaGuia = () => {
       icon: BookOpen,
       title: "Read with intention",
       description:
-        "Go slowly. Each section is meant to help you notice patterns and make sense of what you’re feeling.",
+        "Go slowly. Each section is meant to help you notice patterns and make sense of what you're feeling.",
     },
     {
       icon: Sun,
@@ -119,7 +119,7 @@ const EntregaGuia = () => {
           </p>
         </motion.div>
 
-        {/* What’s included */}
+        {/* What's included */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -129,7 +129,7 @@ const EntregaGuia = () => {
           <div className="flex items-center gap-3 mb-6">
             <Gift className="w-6 h-6 text-mystic-gold" />
             <h2 className="text-xl font-serif font-semibold text-foreground">
-              What you’ll receive
+              What you'll receive
             </h2>
           </div>
 
@@ -217,7 +217,7 @@ const EntregaGuia = () => {
             </h3>
           </div>
           <p className="text-muted-foreground leading-relaxed">
-            This guide is yours to keep. You can download it anytime and return to this page whenever you’d like.
+            This guide is yours to keep. You can download it anytime and return to this page whenever you'd like.
             <strong className="text-foreground"> Bookmark it</strong> for quick access.
           </p>
         </motion.div>

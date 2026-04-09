@@ -7,7 +7,7 @@ const Refund = () => {
         <h1 className="text-3xl md:text-4xl font-serif font-bold mb-6">Refund Policy</h1>
         <p className="text-muted-foreground mb-6">
           We offer a 7-day refund policy for digital purchases, unless prohibited by law. If you believe you were
-          charged in error or had a technical issue accessing your purchase, contact us and we’ll help.
+          charged in error or had a technical issue accessing your purchase, contact us and we'll help.
         </p>
 
         <h2 className="text-xl font-serif font-semibold mt-10 mb-3">How to request a refund</h2>

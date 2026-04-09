@@ -70,7 +70,7 @@ const FAQ_ITEMS = [
   {
     question: "What if my marriage line is faint or multiple?",
     answer:
-      "That’s normal. The reading looks at patterns across the marriage line and heart line together.",
+      "That's normal. The reading looks at patterns across the marriage line and heart line together.",
   },
   {
     question: "Can my lines change over time?",
@@ -90,12 +90,12 @@ const FAQ_ITEMS = [
   {
     question: "What will I receive exactly?",
     answer:
-      "A personalized reading with love timing insight, pattern loops, and directional next steps — plus marriage/commitment timing if it’s relevant.",
+      "A personalized reading with love timing insight, pattern loops, and directional next steps — plus marriage/commitment timing if it's relevant.",
   },
   {
     question: "Is this for love only or also career/future?",
     answer:
-      "It’s love-focused, but it also covers fate line and life line themes like direction and timing.",
+      "It's love-focused, but it also covers fate line and life line themes like direction and timing.",
   },
 ];
 
@@ -257,7 +257,7 @@ const VSL = () => {
 
             {angle === "C" && (
               <p className="text-sm text-muted-foreground/90 mb-3">
-                If you’re facing a career turning point, your life patterns often show timing and pressure.
+                If you're facing a career turning point, your life patterns often show timing and pressure.
               </p>
             )}
 
@@ -307,7 +307,7 @@ const VSL = () => {
               className="mt-8"
             >
             <p className="text-sm text-muted-foreground mb-4">
-              Optional: watch 40 seconds to see how the reading works and what you’ll receive.
+              Optional: watch 40 seconds to see how the reading works and what you'll receive.
             </p>
               <div className="relative max-w-2xl mx-auto rounded-xl overflow-hidden bg-card/30 border border-border/20 shadow-lg">
                 <div className="relative aspect-video bg-black">
@@ -379,7 +379,7 @@ const VSL = () => {
             }`}
           >
             {[
-              "Feeling stuck in love or unsure what phase you’re in",
+              "Feeling stuck in love or unsure what phase you're in",
               "Repeating the same relationship outcome",
               "Confusion about commitment pressure or delay",
               "Emotional timing not matching your effort",
@@ -406,7 +406,7 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-2xl md:text-3xl font-serif font-bold text-center text-foreground mb-6"
           >
-            Love Isn’t Separate From Destiny
+            Love Isn't Separate From Destiny
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -415,7 +415,7 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-center text-base md:text-lg text-muted-foreground mb-6"
           >
-            When love feels blocked, it’s often timing and direction — not effort. Your fate line can explain
+            When love feels blocked, it's often timing and direction — not effort. Your fate line can explain
             pressure points that affect relationships.
           </motion.p>
           <motion.div
@@ -460,7 +460,7 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-center text-base md:text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            It can be — because palm reading is about lines, mounts, and markers. The reading doesn’t depend on
+            It can be — because palm reading is about lines, mounts, and markers. The reading doesn't depend on
             distance, it depends on clarity and interpretation.
           </motion.p>
         </div>
@@ -573,7 +573,7 @@ const VSL = () => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <p className="text-sm text-muted-foreground italic">
-              You’ll review your options before payment.
+              You'll review your options before payment.
             </p>
           </motion.div>
         </div>

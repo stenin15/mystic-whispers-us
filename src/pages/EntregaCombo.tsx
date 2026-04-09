@@ -67,7 +67,7 @@ const EntregaCombo = () => {
       window.location.href = url;
     } catch (err) {
       console.error("Checkout session creation failed: guide", err);
-      toast("Checkout isn’t available right now. Please try again in a moment.");
+      toast("Checkout isn't available right now. Please try again in a moment.");
     }
   };
 
@@ -117,7 +117,7 @@ const EntregaCombo = () => {
           <div className="flex items-center gap-3 mb-6">
             <Star className="w-6 h-6 text-mystic-gold" />
             <h2 className="text-xl font-serif font-semibold text-foreground">
-              What’s included
+              What's included
             </h2>
           </div>
 
@@ -168,7 +168,7 @@ const EntregaCombo = () => {
           className="glass rounded-2xl p-6 md:p-8 mb-8 border border-border/30"
         >
           <h2 className="text-xl md:text-2xl font-serif font-semibold text-foreground mb-3">
-            Awareness alone doesn’t create change. Integration does.
+            Awareness alone doesn't create change. Integration does.
           </h2>
           <p className="text-muted-foreground leading-relaxed mb-5">
             You now have deeper context — and a practical direction for your next step.

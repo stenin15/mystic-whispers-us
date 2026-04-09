@@ -64,7 +64,7 @@ const OfertaGuiaExclusivo = () => {
       window.location.href = url;
     } catch (err) {
       console.error("Checkout session creation failed: guide", err);
-      toast("Checkout isn’t available right now. Please try again in a moment.");
+      toast("Checkout isn't available right now. Please try again in a moment.");
     }
   };
 
@@ -109,7 +109,7 @@ const OfertaGuiaExclusivo = () => {
         >
           <h2 className="text-xl font-serif font-semibold text-foreground mb-6 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-mystic-gold" />
-            What you’ll discover
+            What you'll discover
           </h2>
 
           <div className="grid gap-4">
@@ -139,7 +139,7 @@ const OfertaGuiaExclusivo = () => {
         >
           <h2 className="text-xl font-serif font-semibold text-foreground mb-6 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-mystic-gold" />
-            What’s included
+            What's included
           </h2>
 
           <ul className="space-y-3">

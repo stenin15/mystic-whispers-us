@@ -40,7 +40,7 @@ const NotFound = () => {
             Page not found
           </h2>
           <p className="text-muted-foreground mb-8">
-            The page you’re looking for doesn’t exist or may have moved.
+            The page you're looking for doesn't exist or may have moved.
           </p>
 
           <Button asChild size="lg" className="gradient-mystic text-primary-foreground hover:opacity-90">

@@ -15,9 +15,9 @@ const getAnalysisPhases = (name: string) => [
     icon: Sparkles,
     duration: 6500,
     sound: 'sparkle' as const,
-    voiceText: `Hi, ${name}… I’m Madam Aurora.
-I’m going to combine what you shared with patterns that often show up in decision seasons.
-This isn’t about luck — it’s about noticing what’s active inside you.`
+    voiceText: `Hi, ${name}… I'm Madam Aurora.
+I'm going to combine what you shared with patterns that often show up in decision seasons.
+This isn't about luck — it's about noticing what's active inside you.`
   },
   { 
     text: "Tuning into your presence...", 
@@ -35,9 +35,9 @@ When your mind is full, life can feel like it keeps asking the same question.`
     icon: Fingerprint,
     duration: 7500,
     sound: 'whoosh' as const,
-    voiceText: `From the way you answered… there’s a weight you’ve been carrying quietly.
+    voiceText: `From the way you answered… there's a weight you've been carrying quietly.
 This often shows up in people who stay strong for a long time…
-and only realize later how tired they’ve become.`
+and only realize later how tired they've become.`
   },
   { 
     text: "Listening to your heart line...", 
@@ -46,7 +46,7 @@ and only realize later how tired they’ve become.`
     duration: 8000,
     sound: 'heartPulse' as const,
     voiceText: `Your age can change how a pattern shows up.
-In certain seasons, you don’t want to make the wrong move… so the decision stalls.
+In certain seasons, you don't want to make the wrong move… so the decision stalls.
 Not from lack of ability — but because the stakes feel heavy.`
   },
   { 
@@ -66,18 +66,18 @@ That often happens when an important choice has been postponed more than once.`
     duration: 7800,
     sound: 'mysticTone' as const,
     voiceText: `When this pattern becomes active, you may start doubting yourself…
-but often it’s a protective mechanism.
+but often it's a protective mechanism.
 It keeps you from acting impulsively — and at the same time, it can keep you stuck.`
   },
   { 
-    text: "Revealing what’s underneath...", 
+    text: "Revealing what's underneath...", 
     subtext: "Bringing the hidden pattern into view",
     icon: Eye,
     duration: 7500,
     sound: 'whoosh' as const,
     voiceText: `Now I can see which strengths are most present for you.
 And which blocks tend to show up when you try to move forward.
-This is where many people finally understand why they’ve felt “stuck” in the same place.`
+This is where many people finally understand why they've felt "stuck" in the same place.`
   },
   { 
     text: "Looking at the bigger picture...", 
@@ -85,8 +85,8 @@ This is where many people finally understand why they’ve felt “stuck” in t
     icon: Moon,
     duration: 7000,
     sound: 'mysticTone' as const,
-    voiceText: `The path isn’t to force it.
-It’s to choose with awareness… and interrupt one specific repetition.
+    voiceText: `The path isn't to force it.
+It's to choose with awareness… and interrupt one specific repetition.
 When you do, your energy shifts quickly — because you stop negotiating with what drains you.`
   },
   { 
@@ -95,9 +95,9 @@ When you do, your energy shifts quickly — because you stop negotiating with wh
     icon: Star,
     duration: 6500,
     sound: 'sparkle' as const,
-    voiceText: `All right… now I’m turning this into a clear, structured reading.
+    voiceText: `All right… now I'm turning this into a clear, structured reading.
 No fluff, no over-the-top mystery.
-You’ll understand what’s active — and how to work with it in everyday life.`
+You'll understand what's active — and how to work with it in everyday life.`
   },
   { 
     text: "Finishing up...", 
@@ -106,9 +106,9 @@ You’ll understand what’s active — and how to work with it in everyday life
     duration: 5000,
     sound: 'chime' as const,
     voiceText: `Done.
-And gently — you’re not “confused” for no reason.
-You’re in a decision cycle. And cycles ask for courage, but also direction.
-Let’s look at your reading.`
+And gently — you're not "confused" for no reason.
+You're in a decision cycle. And cycles ask for courage, but also direction.
+Let's look at your reading.`
   },
 ];
 
@@ -119,6 +119,7 @@ const Analise = () => {
     age,
     emotionalState,
     mainConcern,
+    handPhotoData,
     quizAnswers,
     setAnalysisResult,
     setIsAnalyzing,
@@ -298,7 +299,7 @@ const Analise = () => {
       try {
         // Mostrar loading imediato (já está sendo feito pelo setIsAnalyzing(true))
         const result = await processAnalysis(
-          { name, age, emotionalState, mainConcern },
+          { name, age, emotionalState, mainConcern, handPhotoData },
           quizAnswers
         );
         setAnalysisResult(result);
@@ -316,7 +317,7 @@ const Analise = () => {
       } catch (err) {
         console.warn('Analysis failed:', err);
         // Even on failure, processAnalysis returns a fallback result.
-        // Mark as done so we don’t get stuck.
+        // Mark as done so we don't get stuck.
         setIsApiDone(true);
       }
     };
@@ -384,7 +385,7 @@ const Analise = () => {
         
         setTimeout(() => {
           setIsAnalyzing(false);
-          navigate('/checkout');
+          navigate('/resultado');
         }, 1000);
       }
     }, 500);
@@ -396,7 +397,7 @@ const Analise = () => {
       clearInterval(checkCompletion);
       playCompletion();
       setIsAnalyzing(false);
-      navigate('/checkout');
+      navigate('/resultado');
     }, 45000);
 
     return () => {
@@ -418,7 +419,7 @@ const Analise = () => {
       playCompletion();
       setTimeout(() => {
         setIsAnalyzing(false);
-        navigate('/checkout');
+        navigate('/resultado');
       }, 1000);
     }
   }, [isApiDone, progress, playCompletion]);

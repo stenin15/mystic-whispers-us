@@ -52,7 +52,7 @@ const Upsell = () => {
       window.location.href = url;
     } catch (err) {
       console.error("Checkout session creation failed: upsell", err);
-      toast("Checkout isn’t available right now. Please try again in a moment.");
+      toast("Checkout isn't available right now. Please try again in a moment.");
     }
   };
 
@@ -81,7 +81,7 @@ const Upsell = () => {
             </h1>
 
             <p className="text-muted-foreground/80 max-w-2xl mx-auto text-lg mb-6">
-              You’ve identified what may be holding you back. Now you can upgrade for a guided ritual
+              You've identified what may be holding you back. Now you can upgrade for a guided ritual
               designed to help you move forward with clarity.
             </p>
           </motion.div>
@@ -98,7 +98,7 @@ const Upsell = () => {
           >
             <VSLCard
               title="See how the ritual works"
-              description="Watch this short 3‑minute video to understand what you’ll receive and how to use it"
+              description="Watch this short 3‑minute video to understand what you'll receive and how to use it"
               onPlay={() => console.log('Play VSL')}
             />
           </motion.div>
@@ -149,7 +149,7 @@ const Upsell = () => {
               <span className="gradient-text">Guided release ritual</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              A 7‑day guided practice to help you release what’s stuck and reconnect with your momentum.
+              A 7‑day guided practice to help you release what's stuck and reconnect with your momentum.
             </p>
           </motion.div>
 
@@ -161,7 +161,7 @@ const Upsell = () => {
             className="p-8 rounded-3xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 mb-10"
           >
             <h3 className="text-xl font-serif font-medium text-center mb-6 text-foreground">
-              What you’ll receive
+              What you'll receive
             </h3>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -259,11 +259,11 @@ const Upsell = () => {
             {[
               {
                 name: "Lauren M.",
-                text: "It helped me slow down and see what I’d been avoiding. The steps felt doable, not overwhelming.",
+                text: "It helped me slow down and see what I'd been avoiding. The steps felt doable, not overwhelming.",
               },
               {
                 name: "Daniel R.",
-                text: "I didn’t expect it to feel this personal. The ritual gave me clarity and a calmer way to move forward.",
+                text: "I didn't expect it to feel this personal. The ritual gave me clarity and a calmer way to move forward.",
               },
             ].map((testimonial, index) => (
               <motion.div

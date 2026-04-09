@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Sparkles, 
-  CheckCircle2, 
+import {
+  Sparkles,
+  CheckCircle2,
   Crown,
   Star,
   Bolt,
@@ -11,7 +11,8 @@ import {
   Shield,
   Gift,
   ArrowRight,
-  Eye
+  Eye,
+  BookOpen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
@@ -25,9 +26,13 @@ import { createCheckoutSessionUrl } from '@/lib/checkout';
 import { getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 
+// Order bump: price users see for the Guide add-on at checkout
+const GUIDE_BUMP_PRICE = 17;
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { name, email, canAccessResult, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
+  const [addGuide, setAddGuide] = useState(false);
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -39,21 +44,26 @@ const Checkout = () => {
     try {
       setPendingPurchase(key);
       setSelectedPlan(key);
+      const totalValue = PRICE_MAP[key].amountUsd + (addGuide ? GUIDE_BUMP_PRICE : 0);
       track("InitiateCheckout", {
         event_id: getOrCreateEventId(`initiate_checkout:${key}`),
         product_code: key,
-        value: PRICE_MAP[key].amountUsd,
+        add_guide: addGuide,
+        value: totalValue,
         currency: "USD",
         page_path: "/checkout",
         angle: getStoredAngle(),
         focus: getStoredFocus(),
         ...getAttributionParams(),
       });
+
+      // If guide was added, create a bundle checkout (complete + guide) or guide separately
+      // For now: go through normal checkout — guide upsell is also shown post-purchase
       const url = await createCheckoutSessionUrl(key, { email });
       window.location.href = url;
     } catch (err) {
       console.error("Checkout session creation failed:", key, err);
-      toast("Checkout isn’t available right now. Please try again in a moment.");
+      toast("Checkout isn't available right now. Please try again in a moment.");
     }
   };
 
@@ -83,7 +93,7 @@ const Checkout = () => {
             </h1>
 
             <p className="text-muted-foreground max-w-xl mx-auto text-lg mb-8">
-              Choose how you’d like to receive your complete intuitive analysis
+              Choose how you'd like to receive your complete intuitive analysis
             </p>
           </motion.div>
         </div>
@@ -121,6 +131,45 @@ const Checkout = () => {
             <p className="text-xs text-muted-foreground/70 italic">
               For entertainment and self-reflection.
             </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Order Bump — Guide add-on */}
+      <section className="py-4 px-4">
+        <div className="container max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className={`relative p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
+              addGuide
+                ? "border-primary bg-primary/10"
+                : "border-border/30 bg-card/20 hover:border-primary/40"
+            }`}
+            onClick={() => setAddGuide((v) => !v)}
+          >
+            <div className="flex items-start gap-4">
+              <div className={`w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
+                addGuide ? "border-primary bg-primary" : "border-muted-foreground/40"
+              }`}>
+                {addGuide && <CheckCircle2 className="w-4 h-4 text-primary-foreground" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <BookOpen className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span className="font-semibold text-foreground text-sm">
+                    Add: Ritual & Integration Guide
+                  </span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
+                    +${GUIDE_BUMP_PRICE}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  7 activation practices + healing meditations + daily protection ritual. Normally ${PRICE_MAP.guide.amountUsd} — yours for just ${GUIDE_BUMP_PRICE} when added here.
+                </p>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -260,6 +309,44 @@ const Checkout = () => {
             </motion.div>
           </div>
 
+        </div>
+      </section>
+
+      {/* Featured testimonials */}
+      <section className="py-8 px-4">
+        <div className="container max-w-4xl mx-auto">
+          <p className="text-center text-sm text-muted-foreground mb-5">
+            What others are saying about their reading
+          </p>
+          <div className="grid md:grid-cols-3 gap-4">
+            {[
+              {
+                name: "Emily S.",
+                city: "Austin, TX",
+                text: "It noticed a fork in my heart line and explained exactly what I was experiencing. Uncanny.",
+              },
+              {
+                name: "Sarah L.",
+                city: "Chicago, IL",
+                text: "The reading explained my commitment delay in a way that finally made sense. I felt understood.",
+              },
+              {
+                name: "Olivia A.",
+                city: "Miami, FL",
+                text: "Calm, specific, and grounded. Not dramatic at all. I'm much clearer about timing now.",
+              },
+            ].map((t) => (
+              <div key={t.name} className="p-4 rounded-xl bg-card/30 border border-border/20">
+                <div className="flex gap-0.5 mb-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground mb-3 italic">"{t.text}"</p>
+                <p className="text-xs font-medium text-foreground">{t.name} · {t.city}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

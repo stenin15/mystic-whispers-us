@@ -65,7 +65,7 @@ const EntregaLeitura = () => {
           const ErrCtor = (
             (globalThis as unknown as Record<string, unknown>)[["Er", "ror"].join("")]
           ) as new (msg?: string) => unknown;
-          throw new ErrCtor("We couldn’t generate your reading.");
+          throw new ErrCtor("We couldn't generate your reading.");
         }
       } catch (err) {
         console.warn("Reading generation failed:", err);
@@ -82,7 +82,7 @@ const EntregaLeitura = () => {
   }, [name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, navigate]);
 
   const highlights = [
-    { icon: Crown, title: "Deep energy insight", desc: "A clear map of what’s active for you now" },
+    { icon: Crown, title: "Deep energy insight", desc: "A clear map of what's active for you now" },
     { icon: Heart, title: "Your strengths", desc: "Gifts you can lean on and develop" },
     { icon: Bolt, title: "Patterns to watch", desc: "What may be slowing your momentum" },
     { icon: Stars, title: "Personal message", desc: "Intuitive guidance created for you" },
@@ -96,7 +96,7 @@ const EntregaLeitura = () => {
       window.location.href = url;
     } catch (err) {
       console.error("Checkout session creation failed: complete", err);
-      toast("Checkout isn’t available right now. Please try again in a moment.");
+      toast("Checkout isn't available right now. Please try again in a moment.");
     }
   };
 
@@ -138,7 +138,7 @@ const EntregaLeitura = () => {
           </p>
         </motion.div>
 
-        {/* What you’re receiving */}
+        {/* What you're receiving */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -196,7 +196,7 @@ const EntregaLeitura = () => {
                     Finalizing your reading...
                   </h3>
                   <p className="text-muted-foreground">
-                    We’re putting the final details together with care.
+                    We're putting the final details together with care.
                   </p>
                 </div>
                 <Loader2 className="w-6 h-6 text-mystic-gold animate-spin" />
@@ -270,11 +270,11 @@ const EntregaLeitura = () => {
                 {/* Loop opener */}
                 <div className="mt-10 p-6 rounded-2xl bg-card/30 border border-border/30 text-center">
                   <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
-                    What this covers — and what it doesn’t (yet)
+                    What this covers — and what it doesn't (yet)
                   </h3>
                   <p className="text-muted-foreground leading-relaxed">
                     This reading highlights what is active — but not yet how to work with it.
-                    That’s where deeper guidance becomes important.
+                    That's where deeper guidance becomes important.
                   </p>
                 </div>
 

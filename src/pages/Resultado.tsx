@@ -1,77 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Sparkles, 
-  Quote, 
+import {
+  Sparkles,
   ArrowRight,
-  Volume2,
-  Pause,
-  Gift
+  Lock,
+  CheckCircle2,
+  Star,
+  Shield,
+  Eye,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
-import { SectionTitle } from '@/components/shared/SectionTitle';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { getIcon } from '@/lib/iconMapper';
 import { Footer } from '@/components/layout/Footer';
-import { generateVoiceMessage } from '@/lib/api';
-import { toast } from 'sonner';
 import { getOrCreateEventId, track } from '@/lib/tracking';
-
-type WebkitAudioContextWindow = Window & {
-  webkitAudioContext?: typeof AudioContext;
-};
-
-// Ambient audio context for mystical effects
-const createAmbientEffect = () => {
-  try {
-    const AudioContextCtor =
-      window.AudioContext || (window as WebkitAudioContextWindow).webkitAudioContext;
-    if (!AudioContextCtor) return null;
-
-    const audioContext = new AudioContextCtor();
-    
-    // Create oscillator for subtle ambient drone
-    const oscillator = audioContext.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(85, audioContext.currentTime); // Low frequency drone
-    
-    // Create gain node for volume control
-    const gainNode = audioContext.createGain();
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    
-    // Create filter for warmer sound
-    const filter = audioContext.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(200, audioContext.currentTime);
-    
-    // Connect nodes
-    oscillator.connect(filter);
-    filter.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.start();
-    
-    return {
-      fadeIn: () => {
-        gainNode.gain.linearRampToValueAtTime(0.08, audioContext.currentTime + 2);
-      },
-      fadeOut: () => {
-        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1.5);
-      },
-      stop: () => {
-        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.5);
-        setTimeout(() => {
-          oscillator.stop();
-          audioContext.close();
-        }, 600);
-      },
-    };
-  } catch {
-    return null;
-  }
-};
+import { getAttributionParams, getStoredAngle, getStoredFocus, appendUtmToPath } from '@/lib/marketing';
+import { PRICE_MAP } from '@/lib/pricing';
 
 const Resultado = () => {
   const navigate = useNavigate();
@@ -79,394 +25,308 @@ const Resultado = () => {
     name,
     analysisResult,
     canAccessResult,
-    audioUrl,
-    setAudioUrl,
-    isPlayingAudio,
-    setIsPlayingAudio,
   } = useHandReadingStore();
 
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const ambientRef = useRef<ReturnType<typeof createAmbientEffect> | null>(null);
-  const [audioLoading, setAudioLoading] = useState(false);
-  const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
+  const hasTrackedRef = useRef(false);
 
   useEffect(() => {
     if (!canAccessResult()) {
       navigate('/formulario');
+      return;
+    }
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      track("ViewContent", {
+        event_id: getOrCreateEventId("view_resultado"),
+        content_name: "Resultado",
+        page_path: "/resultado",
+        angle: getStoredAngle(),
+        focus: getStoredFocus(),
+        ...getAttributionParams(),
+      });
     }
   }, [canAccessResult, navigate]);
 
-  // Auto-play audio when available
-  useEffect(() => {
-    if (import.meta.env.PROD) return;
-    if (audioUrl && audioRef.current && !hasAutoPlayed && !isPlayingAudio) {
-      // Small delay for better UX
-      const timer = setTimeout(() => {
-        startAudioWithEffects();
-        setHasAutoPlayed(true);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [audioUrl, hasAutoPlayed, isPlayingAudio]);
-
-  // Cleanup ambient on unmount
-  useEffect(() => {
-    return () => {
-      if (ambientRef.current) {
-        ambientRef.current.stop();
-      }
-    };
-  }, []);
-
-  const startAudioWithEffects = () => {
-    if (!audioRef.current) return;
-    
-    // Start ambient effect
-    ambientRef.current = createAmbientEffect();
-    if (ambientRef.current) {
-      ambientRef.current.fadeIn();
-    }
-    
-    // Play main audio
-    audioRef.current.play();
-    setIsPlayingAudio(true);
-  };
-
-  const stopAudioWithEffects = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    if (ambientRef.current) {
-      ambientRef.current.fadeOut();
-    }
-    setIsPlayingAudio(false);
-  };
-
-  const handleAudioEnded = () => {
-    if (ambientRef.current) {
-      ambientRef.current.fadeOut();
-    }
-    setIsPlayingAudio(false);
-  };
-
-  const handlePlayVoice = async () => {
-    if (!analysisResult) return;
-    // Production policy: no per-user TTS audio generation.
-    if (import.meta.env.PROD) return;
-
-    // If already playing, pause
-    if (isPlayingAudio) {
-      stopAudioWithEffects();
-      return;
-    }
-
-    // If we already have audio, play it
-    if (audioUrl && audioRef.current) {
-      startAudioWithEffects();
-      return;
-    }
-
-    // Generate audio
-    setAudioLoading(true);
-    try {
-      const generatedUrl = await generateVoiceMessage(analysisResult.spiritualMessage);
-      
-      if (generatedUrl) {
-        setAudioUrl(generatedUrl);
-        // Wait for audio element to update
-        setTimeout(() => {
-          startAudioWithEffects();
-        }, 100);
-      } else {
-        toast("We couldn’t generate the audio. Please try again.");
-      }
-    } catch (err) {
-      console.warn('Voice generation failed:', err);
-      toast("Something went wrong generating the audio. Please try again.");
-    } finally {
-      setAudioLoading(false);
-    }
+  const handleCTA = () => {
+    track("InitiateCheckout", {
+      event_id: getOrCreateEventId("resultado_cta"),
+      page_path: "/resultado",
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+    navigate(appendUtmToPath('/checkout'));
   };
 
   if (!analysisResult) return null;
 
   const EnergyIcon = getIcon(analysisResult.energyType.icon);
 
+  // First strength shown as teaser, rest blurred/locked
+  const [firstStrength, ...lockedStrengths] = analysisResult.strengths;
+  const [firstBlock] = analysisResult.blocks;
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <ParticlesBackground />
       <FloatingOrbs />
 
-      {/* Hidden audio element for voice playback (DEV only) */}
-      {!import.meta.env.PROD && (
-        <audio
-          ref={audioRef}
-          src={audioUrl || undefined}
-          onEnded={handleAudioEnded}
-          onPause={() => setIsPlayingAudio(false)}
-        />
-      )}
-
-      {/* Header Section */}
-      <section className="pt-20 pb-10 px-4">
-        <div className="container max-w-4xl mx-auto text-center">
+      {/* Header */}
+      <section className="pt-16 pb-8 px-4">
+        <div className="container max-w-3xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mystic-gold/20 border border-mystic-gold/40 mb-6">
-              <Sparkles className="w-4 h-4 text-mystic-gold" />
-              <span className="text-sm text-mystic-gold">Your complete reading</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-5">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm text-primary font-medium">Your palm reading is ready</span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold mb-4">
-              <span className="text-foreground">{name}, here’s what </span>
-              <span className="gradient-text">your palm reveals</span>
+            <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3">
+              <span className="text-foreground">{name}, we found something</span>{' '}
+              <span className="gradient-text">important in your palm</span>
             </h1>
 
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              A deeper look at your energy, strengths, and what’s asking for your attention right now.
+            <p className="text-muted-foreground max-w-xl mx-auto text-base md:text-lg">
+              Your reading has been prepared. Below is a preview — unlock the full version to see everything.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Energy Type Section */}
-      <section className="py-10 px-4">
-        <div className="container max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="relative p-8 md:p-10 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 glow-mystic text-center"
-          >
-            <div className="relative w-24 h-24 mx-auto mb-6">
-              <div className="absolute inset-0 rounded-full bg-primary/20 animate-glow-pulse" />
-              <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
-                <EnergyIcon className="w-12 h-12 text-primary" />
-              </div>
-            </div>
-
-            <h2 className="text-2xl md:text-3xl font-serif font-bold gradient-text mb-4">
-              {analysisResult.energyType.name}
-            </h2>
-
-            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              {analysisResult.energyType.description}
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Strengths Section */}
-      <section className="py-10 px-4">
-        <div className="container max-w-4xl mx-auto">
-          <SectionTitle
-            title="Your strengths"
-            subtitle="Gifts and qualities you can lean on right now"
-          />
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {analysisResult.strengths.map((strength, index) => {
-              const StrengthIcon = getIcon(strength.icon);
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
-                  className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 hover:border-primary/30 transition-all duration-300"
-                >
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mb-4">
-                    <StrengthIcon className="w-5 h-5 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-serif font-medium text-foreground mb-2">
-                    {strength.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {strength.desc}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Blocks Section */}
-      <section className="py-10 px-4">
-        <div className="container max-w-4xl mx-auto">
-          <SectionTitle
-            title="Potential blocks"
-            subtitle="Areas to bring awareness, care, and healing"
-          />
-
-          <div className="space-y-4 max-w-2xl mx-auto">
-            {analysisResult.blocks.map((block, index) => {
-              const BlockIcon = getIcon(block.icon);
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
-                  className="p-5 rounded-xl bg-card/30 backdrop-blur-xl border border-destructive/10 hover:border-destructive/20 transition-all duration-300"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-9 h-9 rounded-lg bg-destructive/5 flex items-center justify-center flex-shrink-0">
-                      <BlockIcon className="w-4 h-4 text-destructive/80" />
-                    </div>
-                    <div>
-                      <h3 className="font-serif font-medium text-foreground mb-1">
-                        {block.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {block.desc}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Spiritual Message Section */}
-      <section className="py-10 px-4">
-        <div className="container max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="relative p-8 md:p-10 rounded-3xl bg-card/30 backdrop-blur-xl border border-mystic-gold/20"
-          >
-            <Quote className="absolute top-6 left-6 w-10 h-10 text-mystic-gold/20" />
-            
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-serif font-bold gradient-text mb-2">
-                Your intuitive message
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                A message crafted just for you
-              </p>
-            </div>
-
-            {/* Voice Playback Button (DEV only; no per-user TTS in production) */}
-            {!import.meta.env.PROD && (
-              <div className="flex justify-center mb-6">
-                <Button
-                  onClick={handlePlayVoice}
-                  disabled={audioLoading}
-                  variant="outline"
-                  className={`border-mystic-gold/30 text-mystic-gold hover:bg-mystic-gold/10 transition-all duration-300 ${
-                    isPlayingAudio ? 'animate-pulse ring-2 ring-mystic-gold/40' : ''
-                  }`}
-                >
-                  {audioLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-mystic-gold border-t-transparent rounded-full animate-spin mr-2" />
-                      Generating audio...
-                    </>
-                  ) : isPlayingAudio ? (
-                    <>
-                      <Pause className="w-4 h-4 mr-2" />
-                      Pause
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-4 h-4 mr-2" />
-                      Play audio message
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
-
-            {/* Playing indicator */}
-            {isPlayingAudio && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex items-center justify-center gap-1 mb-4"
-              >
-                {[...Array(5)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="w-1 bg-mystic-gold/60 rounded-full"
-                    animate={{
-                      height: [8, 20, 8],
-                    }}
-                    transition={{
-                      duration: 0.8,
-                      repeat: Infinity,
-                      delay: i * 0.1,
-                    }}
-                  />
-                ))}
-              </motion.div>
-            )}
-
-            <div className="relative">
-              <p className="text-foreground/90 leading-relaxed whitespace-pre-line font-serif italic text-center text-lg">
-                {analysisResult.spiritualMessage}
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 px-4">
+      {/* Energy Type — fully visible */}
+      <section className="py-6 px-4">
         <div className="container max-w-3xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
-            className="text-center p-10 rounded-3xl bg-gradient-to-br from-mystic-gold/10 to-accent/10 border border-mystic-gold/30"
+            transition={{ delay: 0.1 }}
+            className="relative p-7 md:p-9 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 text-center"
           >
-            <Sparkles className="w-12 h-12 text-mystic-gold mx-auto mb-4" />
-            
-            <h2 className="text-2xl md:text-3xl font-serif font-semibold mb-4 text-foreground">
-              Want deeper guidance?
+            <div className="relative w-20 h-20 mx-auto mb-5">
+              <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
+              <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
+                <EnergyIcon className="w-10 h-10 text-primary" />
+              </div>
+            </div>
+
+            <h2 className="text-2xl md:text-3xl font-serif font-bold gradient-text mb-3">
+              {analysisResult.energyType.name}
             </h2>
-            
-            <p className="text-muted-foreground/80 mb-6 max-w-xl mx-auto">
-              Upgrade for a personalized ritual and practical steps to help you move through what’s active right now.
+            <p className="text-muted-foreground leading-relaxed max-w-xl mx-auto">
+              {analysisResult.energyType.description}
             </p>
 
+            {/* Palm observation teaser if available */}
+            {analysisResult.palmObservations && (
+              <div className="mt-5 p-4 rounded-xl bg-card/40 border border-primary/20 text-left">
+                <div className="flex items-center gap-2 mb-2">
+                  <Eye className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium text-primary">What we observed in your palm</span>
+                </div>
+                <p className="text-sm text-muted-foreground/90 italic leading-relaxed">
+                  {analysisResult.palmObservations}
+                </p>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* First strength — visible */}
+      <section className="py-4 px-4">
+        <div className="container max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-primary/70 mb-4 px-1">
+              Your strengths (preview)
+            </h3>
+
+            {/* First strength — visible */}
+            {firstStrength && (() => {
+              const StrengthIcon = getIcon(firstStrength.icon);
+              return (
+                <div className="p-5 rounded-2xl bg-card/30 border border-border/20 mb-3">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center flex-shrink-0">
+                      <StrengthIcon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-serif font-semibold text-foreground mb-1">{firstStrength.title}</h4>
+                      <p className="text-sm text-muted-foreground">{firstStrength.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Locked strengths — blurred */}
+            <div className="relative">
+              <div className="space-y-3 select-none pointer-events-none">
+                {lockedStrengths.map((s, i) => {
+                  const Icon = getIcon(s.icon);
+                  return (
+                    <div key={i} className="p-5 rounded-2xl bg-card/30 border border-border/20 blur-[6px] opacity-60">
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-serif font-semibold text-foreground mb-1">{s.title}</h4>
+                          <p className="text-sm text-muted-foreground">{s.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Locked overlay */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/40 backdrop-blur-[2px] rounded-2xl">
+                <Lock className="w-6 h-6 text-primary mb-2" />
+                <p className="text-sm font-medium text-foreground">Unlock to see all strengths</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Blocks — fully blurred */}
+      <section className="py-4 px-4">
+        <div className="container max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-primary/70 mb-4 px-1">
+              Patterns to be aware of (locked)
+            </h3>
+
+            <div className="relative">
+              <div className="space-y-3 select-none pointer-events-none">
+                {analysisResult.blocks.map((b, i) => {
+                  const Icon = getIcon(b.icon);
+                  return (
+                    <div key={i} className="p-5 rounded-2xl bg-card/30 border border-border/20 blur-[7px] opacity-50">
+                      <div className="flex items-start gap-4">
+                        <div className="w-9 h-9 rounded-lg bg-destructive/5 flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-4 h-4 text-destructive/70" />
+                        </div>
+                        <div>
+                          <h4 className="font-serif font-medium text-foreground mb-1">{b.title}</h4>
+                          <p className="text-sm text-muted-foreground">{b.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/40 backdrop-blur-[2px] rounded-2xl">
+                <Lock className="w-6 h-6 text-primary mb-2" />
+                <p className="text-sm font-medium text-foreground">Unlock to see what may be blocking you</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Spiritual message — fully locked */}
+      <section className="py-4 px-4">
+        <div className="container max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="relative p-7 rounded-3xl bg-card/30 border border-primary/20 overflow-hidden"
+          >
+            <div className="select-none pointer-events-none blur-[8px] opacity-40 whitespace-pre-line font-serif italic text-foreground/80 text-base leading-relaxed">
+              {analysisResult.spiritualMessage}
+            </div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 backdrop-blur-[3px]">
+              <Lock className="w-8 h-8 text-primary mb-3" />
+              <p className="text-base font-serif font-semibold text-foreground mb-1">Your personal message is locked</p>
+              <p className="text-sm text-muted-foreground">Unlock the full reading to receive it</p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA — sticky + section */}
+      <section className="py-10 px-4">
+        <div className="container max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="p-8 md:p-10 rounded-3xl bg-gradient-to-br from-primary/10 via-accent/10 to-primary/5 border border-primary/30 text-center"
+          >
+            <Sparkles className="w-10 h-10 text-primary mx-auto mb-4" />
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-3">
+              Unlock your complete reading
+            </h2>
+            <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
+              See your full strengths, what's blocking your momentum, your personal intuitive message, and a complete palm analysis — starting at {PRICE_MAP.basic.display}.
+            </p>
+
+            {/* What's inside */}
+            <div className="grid sm:grid-cols-2 gap-3 mb-8 text-left">
+              {[
+                "All 3 strengths revealed",
+                "Patterns blocking your path",
+                "Your personal intuitive message",
+                "Full palm line analysis",
+                "Love timing & relationship patterns",
+                "Next steps for clarity",
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-2 text-sm text-foreground/90">
+                  <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+
             <Button
-              onClick={() => {
-                track("ViewContent", {
-                  event_id: getOrCreateEventId("view_upsell"),
-                  content_name: "Upsell",
-                  page_path: "/resultado",
-                });
-                navigate('/upsell');
-              }}
+              onClick={handleCTA}
               size="lg"
-              className="gradient-gold text-background hover:opacity-90 px-10 py-6 text-lg"
+              className="w-full sm:w-auto gradient-gold text-background hover:opacity-90 px-10 py-7 text-lg font-semibold shadow-lg shadow-primary/20 mb-3"
             >
-              <Sparkles className="w-5 h-5 mr-2" />
-              Upgrade my reading
+              See my full reading
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
 
-            <p className="mt-4 text-sm text-muted-foreground flex items-center justify-center gap-2">
-              <Gift className="w-4 h-4" />
-              Limited-time offer
+            <p className="text-xs text-muted-foreground">
+              Starts at {PRICE_MAP.basic.display} • One-time payment • Instant access
             </p>
+
+            <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted-foreground">
+              <Shield className="w-3.5 h-3.5 text-green-500" />
+              <span>7-day refund policy • Secure checkout</span>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Back to start link */}
-      <div className="text-center pb-10">
-        <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          ← Back to home
-        </Link>
-      </div>
+      {/* Social proof strip */}
+      <section className="py-6 px-4">
+        <div className="container max-w-3xl mx-auto">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+              ))}
+              <span className="ml-1">4.9/5 average</span>
+            </div>
+            <span>·</span>
+            <span>27,000+ readings delivered</span>
+            <span>·</span>
+            <span>Private & confidential</span>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>

@@ -41,7 +41,7 @@ const Sucesso = () => {
     // Stripe payments are confirmed via webhook -> DB. The frontend must never trust query params alone.
     if (!sessionId) {
       setVerified(false);
-      setMessage("We couldn’t confirm your payment. Please return to checkout and try again.");
+      setMessage("We couldn't confirm your payment. Please return to checkout and try again.");
       return;
     }
 
@@ -128,7 +128,7 @@ const Sucesso = () => {
       } catch (err) {
         console.error("Entitlement check failed:", err);
         setVerified(false);
-        setMessage("We couldn’t confirm your payment yet. Please refresh this page in a moment.");
+        setMessage("We couldn't confirm your payment yet. Please refresh this page in a moment.");
       }
     };
 

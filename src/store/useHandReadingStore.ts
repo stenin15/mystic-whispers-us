@@ -30,6 +30,7 @@ export interface AnalysisResult {
   strengths: Strength[];
   blocks: Block[];
   spiritualMessage: string;
+  palmObservations?: string; // from GPT-4o Vision — specific palm features observed
   audioUrl?: string;
 }
 
@@ -47,6 +48,7 @@ interface HandReadingState {
   emotionalState: string;
   mainConcern: string;
   hasHandPhoto: boolean;
+  handPhotoData: string | null; // compressed base64 for vision analysis
 
   // Quiz
   quizAnswers: QuizAnswer[];
@@ -77,6 +79,7 @@ interface HandReadingState {
     emotionalState: string;
     mainConcern: string;
     hasHandPhoto: boolean;
+    handPhotoData: string | null;
   }>) => void;
   setQuizAnswer: (answer: QuizAnswer) => void;
   setCurrentQuestionIndex: (index: number) => void;
@@ -106,6 +109,7 @@ const initialState = {
   emotionalState: '',
   mainConcern: '',
   hasHandPhoto: false,
+  handPhotoData: null,
   quizAnswers: [],
   currentQuestionIndex: 0,
   analysisResult: null,
@@ -233,6 +237,7 @@ export const useHandReadingStore = create<HandReadingState>()(
         emotionalState: state.emotionalState,
         mainConcern: state.mainConcern,
         hasHandPhoto: state.hasHandPhoto,
+        handPhotoData: state.handPhotoData,
         quizAnswers: state.quizAnswers,
         currentQuestionIndex: state.currentQuestionIndex,
         analysisResult: state.analysisResult,

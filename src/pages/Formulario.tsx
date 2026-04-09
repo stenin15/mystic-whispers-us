@@ -1,53 +1,34 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { differenceInYears } from 'date-fns';
-import { Sparkles, ArrowRight, User, Calendar, Heart, MessageCircle, Mail } from 'lucide-react';
+import { Sparkles, ArrowRight, User, Heart, MessageCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { HandImageUpload } from '@/components/shared/HandImageUpload';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
-import { cn } from '@/lib/utils';
+import { cn, compressImageForVision } from '@/lib/utils';
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from 'sonner';
 import { getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
-
-const months = [
-  { value: '1', label: 'January' },
-  { value: '2', label: 'February' },
-  { value: '3', label: 'March' },
-  { value: '4', label: 'April' },
-  { value: '5', label: 'May' },
-  { value: '6', label: 'June' },
-  { value: '7', label: 'July' },
-  { value: '8', label: 'August' },
-  { value: '9', label: 'September' },
-  { value: '10', label: 'October' },
-  { value: '11', label: 'November' },
-  { value: '12', label: 'December' },
-];
-
-// Helper function to calculate age from birth date
-const calculateAge = (birthDate: Date): number => {
-  return differenceInYears(new Date(), birthDate);
-};
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email'),
-  birthDay: z.string().min(1, 'Select a day'),
-  birthMonth: z.string().min(1, 'Select a month'),
-  birthYear: z.string().min(1, 'Select a year'),
-  emotionalState: z.string().min(3, 'Tell us how you’re feeling'),
-  mainConcern: z.string().min(10, 'Share a bit more (min. 10 characters)'),
+  age: z
+    .string()
+    .min(1, 'Please enter your age')
+    .refine((v) => {
+      const n = parseInt(v, 10);
+      return !isNaN(n) && n >= 16 && n <= 99;
+    }, 'Please enter a valid age (16–99)'),
+  emotionalState: z.string().min(3, "Tell us how you're feeling"),
+  mainConcern: z.string().min(5, 'Share a bit more (min. 5 characters)'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -58,54 +39,41 @@ const Formulario = () => {
   const [photoIssue, setPhotoIssue] = useState('');
   const [handPhotoPreview, setHandPhotoPreview] = useState<string>('');
   const hasTrackedFormStart = useRef(false);
-  const [birthDay, setBirthDay] = useState('');
-  const [birthMonth, setBirthMonth] = useState('');
-  const [birthYear, setBirthYear] = useState('');
 
   const {
     register,
     handleSubmit,
-    setValue,
     formState,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
       email: '',
-      birthDay: '',
-      birthMonth: '',
-      birthYear: '',
+      age: '',
       emotionalState: '',
       mainConcern: '',
     },
   });
+
   const isSubmitting = formState.isSubmitting;
   const formIssues = (
     (formState as unknown as Record<string, unknown>)[["er", "rors"].join("")]
   ) as Record<string, { message?: string }>;
 
-  // Generate years from 1920 to current year
-  const years = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    return Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i);
-  }, []);
-
-  // Generate days 1-31
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
-
-  // Calculate age from selected values
-  const calculatedAge = useMemo(() => {
-    if (birthDay && birthMonth && birthYear) {
-      const date = new Date(parseInt(birthYear), parseInt(birthMonth) - 1, parseInt(birthDay));
-      return calculateAge(date);
-    }
-    return null;
-  }, [birthDay, birthMonth, birthYear]);
-
-  const handlePhotoChange = (url: string) => {
+  const handlePhotoChange = async (url: string) => {
     setHandPhotoPreview(url);
     setFormData({ hasHandPhoto: !!url });
-    if (url) setPhotoIssue('');
+    if (url) {
+      setPhotoIssue('');
+      try {
+        const compressed = await compressImageForVision(url);
+        setFormData({ handPhotoData: compressed });
+      } catch {
+        setFormData({ handPhotoData: url });
+      }
+    } else {
+      setFormData({ handPhotoData: null });
+    }
   };
 
   const handleFormStart = () => {
@@ -127,7 +95,6 @@ const Formulario = () => {
     }
 
     try {
-      // Lead event (first-party). GTM can route to GA4/Meta/TikTok.
       track("Lead", {
         event_id: getOrCreateEventId("lead_form_submit"),
         page_path: "/formulario",
@@ -136,52 +103,30 @@ const Formulario = () => {
         ...getAttributionParams(),
       });
 
-      // Send welcome email
-      const mailRes = await supabase.functions.invoke('send-welcome-email', {
-        body: { name: data.name, email: data.email }
-      });
+      // Send welcome email (non-blocking)
+      supabase.functions.invoke('send-welcome-email', {
+        body: { name: data.name, email: data.email },
+      }).catch(() => { /* ignore */ });
 
-      const errKey = ["er", "ror"].join("");
-      const mailRec = mailRes as unknown as Record<string, unknown>;
-      const mailIssue = mailRec[errKey] as unknown;
-      const emailResult = mailRec.data as { emailSent?: boolean } | null | undefined;
-
-      if (mailIssue) {
-        console.warn('Email send failed:', mailIssue);
-      } else if (emailResult?.emailSent) {
-        // Email is a nice-to-have here; keep UX instant/quiet.
-      } else {
-        console.warn('Email not sent:', emailResult);
-      }
-
-      // Calculate age from birth date fields
-      const birthDate = new Date(parseInt(data.birthYear), parseInt(data.birthMonth) - 1, parseInt(data.birthDay));
-      const age = calculateAge(birthDate).toString();
       setFormData({
         name: data.name,
         email: data.email,
-        age,
+        age: data.age,
         emotionalState: data.emotionalState,
         mainConcern: data.mainConcern,
       });
-      
-      // Reset quiz to start fresh
+
       resetQuiz();
       navigate('/quiz');
     } catch (err) {
       console.warn('Submit failed:', err);
-      
-      // Still allow navigation even if email fails
-      const birthDate = new Date(parseInt(data.birthYear), parseInt(data.birthMonth) - 1, parseInt(data.birthDay));
-      const age = calculateAge(birthDate).toString();
       setFormData({
         name: data.name,
         email: data.email,
-        age,
+        age: data.age,
         emotionalState: data.emotionalState,
         mainConcern: data.mainConcern,
       });
-      // Reset quiz to start fresh
       resetQuiz();
       navigate('/quiz');
     }
@@ -207,7 +152,7 @@ const Formulario = () => {
             <span className="gradient-text">Tell us about you</span>
           </h1>
           <p className="text-muted-foreground/80">
-            Your answers help personalize your reading
+            Your answers personalize the reading
           </p>
         </motion.div>
 
@@ -220,21 +165,22 @@ const Formulario = () => {
           onFocusCapture={handleFormStart}
           className="space-y-8"
         >
-          {/* Personal Info Card */}
-          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-6">
+          {/* Personal Info */}
+          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-5">
             <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
               <User className="w-5 h-5 text-primary" />
               Personal details
             </h2>
 
+            {/* Name + Email */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full name</Label>
+                <Label htmlFor="name">First name</Label>
                 <Input
                   id="name"
-                  placeholder="Emily Carter"
+                  placeholder="Emily"
                   {...register('name')}
-                  autoComplete="off"
+                  autoComplete="given-name"
                   className="bg-input/50 border-border/50 focus:border-primary"
                 />
                 {formIssues?.name && (
@@ -245,17 +191,18 @@ const Formulario = () => {
               <div className="space-y-2">
                 <Label htmlFor="email" className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-muted-foreground" />
-                  Where should we send updates about your reading?
+                  Email
                 </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="emily.carter@example.com"
+                  placeholder="you@email.com"
                   {...register('email')}
+                  autoComplete="email"
                   className="bg-input/50 border-border/50 focus:border-primary"
                 />
-                <p className="text-xs text-muted-foreground/80">
-                  This helps us start your reading and notify you when it’s ready.
+                <p className="text-xs text-muted-foreground/70">
+                  We'll send your reading here.
                 </p>
                 {formIssues?.email && (
                   <p className="text-sm text-destructive">{formIssues.email.message}</p>
@@ -263,81 +210,27 @@ const Formulario = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-                Date of birth
-              </Label>
-              <div className="grid grid-cols-3 gap-2">
-                {/* Day Select */}
-                <Select
-                  value={birthDay}
-                  onValueChange={(value) => {
-                    setBirthDay(value);
-                    setValue('birthDay', value);
-                  }}
-                >
-                  <SelectTrigger className="bg-input/50 border-border/50">
-                    <SelectValue placeholder="Day" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border-border max-h-60">
-                    {days.map((day) => (
-                      <SelectItem key={day} value={day.toString()}>
-                        {day}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Month Select */}
-                <Select
-                  value={birthMonth}
-                  onValueChange={(value) => {
-                    setBirthMonth(value);
-                    setValue('birthMonth', value);
-                  }}
-                >
-                  <SelectTrigger className="bg-input/50 border-border/50">
-                    <SelectValue placeholder="Month" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border-border max-h-60">
-                    {months.map((month) => (
-                      <SelectItem key={month.value} value={month.value}>
-                        {month.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Year Select */}
-                <Select
-                  value={birthYear}
-                  onValueChange={(value) => {
-                    setBirthYear(value);
-                    setValue('birthYear', value);
-                  }}
-                >
-                  <SelectTrigger className="bg-input/50 border-border/50">
-                    <SelectValue placeholder="Year" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border-border max-h-60">
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {/* Intentionally avoid showing “You are X years old” in UI */}
-              {(formIssues?.birthDay || formIssues?.birthMonth || formIssues?.birthYear) && (
-                <p className="text-sm text-destructive">Please complete your full birth date</p>
+            {/* Age — single field, no dropdowns */}
+            <div className="space-y-2 max-w-[140px]">
+              <Label htmlFor="age">Your age</Label>
+              <Input
+                id="age"
+                type="number"
+                inputMode="numeric"
+                placeholder="e.g. 32"
+                min={16}
+                max={99}
+                {...register('age')}
+                className="bg-input/50 border-border/50 focus:border-primary"
+              />
+              {formIssues?.age && (
+                <p className="text-sm text-destructive">{formIssues.age.message}</p>
               )}
             </div>
           </div>
 
-          {/* Emotional State Card */}
-          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-6">
+          {/* Emotional State */}
+          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-5">
             <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
               <Heart className="w-5 h-5 text-accent" />
               Your current season
@@ -347,7 +240,7 @@ const Formulario = () => {
               <Label htmlFor="emotionalState">How are you feeling right now?</Label>
               <Input
                 id="emotionalState"
-                placeholder="Example: anxious, hopeful, overwhelmed, calm…"
+                placeholder="e.g. anxious, hopeful, stuck, calm…"
                 {...register('emotionalState')}
                 className="bg-input/50 border-border/50 focus:border-primary"
               />
@@ -359,13 +252,13 @@ const Formulario = () => {
             <div className="space-y-2">
               <Label htmlFor="mainConcern" className="flex items-center gap-2">
                 <MessageCircle className="w-4 h-4 text-muted-foreground" />
-                What’s on your mind most?
+                What's on your mind most?
               </Label>
               <Textarea
                 id="mainConcern"
-                placeholder="What are you trying to understand or decide right now?"
+                placeholder="What are you trying to understand right now?"
                 {...register('mainConcern')}
-                className="bg-input/50 border-border/50 focus:border-primary min-h-[100px] resize-none"
+                className="bg-input/50 border-border/50 focus:border-primary min-h-[90px] resize-none"
               />
               {formIssues?.mainConcern && (
                 <p className="text-sm text-destructive">{formIssues.mainConcern.message}</p>
@@ -373,13 +266,16 @@ const Formulario = () => {
             </div>
           </div>
 
-          {/* Hand Photo Upload Card */}
-          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-6">
+          {/* Palm Photo */}
+          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-5">
             <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-mystic-gold" />
               Your palm photo
             </h2>
-            
+            <p className="text-sm text-muted-foreground/80 -mt-2">
+              Our AI will analyze your actual palm lines — heart line, fate line, marriage lines — to personalize your reading.
+            </p>
+
             <HandImageUpload
               value={handPhotoPreview}
               onChange={handlePhotoChange}
@@ -387,24 +283,27 @@ const Formulario = () => {
             />
 
             {handPhotoPreview && (
-              <p className="text-sm text-muted-foreground text-center">
-                Your reading has been opened. Uploading your palm helps us continue.
+              <p className="text-sm text-primary/80 text-center">
+                ✓ Palm photo received — analysis will begin after the quiz.
               </p>
             )}
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="text-center pt-4"
+            className="text-center pt-2"
           >
             <Button
               type="submit"
               size="lg"
               disabled={isSubmitting}
-              className="gradient-mystic text-primary-foreground hover:opacity-90 glow-mystic px-10 py-6 text-lg"
+              className={cn(
+                "gradient-mystic text-primary-foreground hover:opacity-90 glow-mystic px-10 py-6 text-lg",
+                isSubmitting && "opacity-70 cursor-not-allowed"
+              )}
             >
               <Sparkles className="w-5 h-5 mr-2" />
               Continue to the quiz
@@ -412,9 +311,8 @@ const Formulario = () => {
             </Button>
           </motion.div>
 
-          {/* Back Link */}
-          <div className="text-center">
-            <Link to="/conexao" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <div className="text-center pb-4">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               ← Back
             </Link>
           </div>

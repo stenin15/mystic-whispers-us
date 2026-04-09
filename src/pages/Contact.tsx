@@ -6,7 +6,7 @@ const Contact = () => {
       <main className="container max-w-3xl mx-auto px-4 py-16">
         <h1 className="text-3xl md:text-4xl font-serif font-bold mb-6">Contact</h1>
         <p className="text-muted-foreground mb-6">
-          Need help with your order or access? Reach out and we’ll assist.
+          Need help with your order or access? Reach out and we'll assist.
         </p>
 
         <div className="rounded-2xl border border-border/30 p-6 bg-card/20">

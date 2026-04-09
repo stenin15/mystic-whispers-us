@@ -30,14 +30,14 @@ const defaultFAQItems: FAQItem[] = [
       "Absolutely. Your reading stays available on this page whenever you want to revisit it. We recommend bookmarking it for easy access.",
   },
   {
-    question: "What’s included in my reading?",
+    question: "What's included in my reading?",
     answer:
       "Your reading includes: an overview of your dominant energy, your natural strengths, the blocks currently holding you back, and clear guidance you can use right away.",
   },
   {
     question: "Need support or have a question?",
     answer:
-      "Email us at suporte@madameaurora.com. We’re here to help.",
+      "Email us at suporte@madameaurora.com. We're here to help.",
   },
 ];
 

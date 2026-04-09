@@ -10,21 +10,21 @@ const COACH_MESSAGES = [
     "This often shows up during turning points.",
     "Noted. That detail changes the picture.",
     "Interesting… this suggests a repeating pattern.",
-    "There’s something important in this choice.",
+    "There's something important in this choice.",
   ],
   // Group 2 — validation
   [
     "Your energy is coming through clearly.",
     "This confirms something you already felt.",
-    "Noted — there’s a connection here.",
+    "Noted — there's a connection here.",
     "This aligns with what showed up earlier.",
   ],
   // Group 3 — depth
   [
-    "I’m picking up a deeper layer here.",
-    "There’s a hidden meaning in that answer.",
+    "I'm picking up a deeper layer here.",
+    "There's a hidden meaning in that answer.",
     "This points to an important cycle.",
-    "There’s strong energy here.",
+    "There's strong energy here.",
   ],
 ];
 

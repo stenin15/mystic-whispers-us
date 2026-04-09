@@ -65,7 +65,7 @@ const Conexao = () => {
             This is a quiet moment to reconnect with yourself.
           </p>
           <p className="text-muted-foreground leading-relaxed">
-            Over the next couple minutes, you’ll share a few details about your current energy and what’s on your mind.
+            Over the next couple minutes, you'll share a few details about your current energy and what's on your mind.
             The more honest you are, the more accurate your reading will feel.
           </p>
           <p className="text-lg text-foreground font-medium flex items-center justify-center gap-2">
@@ -107,7 +107,7 @@ const Conexao = () => {
             className="gradient-mystic text-primary-foreground hover:opacity-90 glow-mystic px-10 py-6 text-lg"
           >
             <Sparkles className="w-5 h-5 mr-2" />
-            I’m ready
+            I'm ready
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </motion.div>

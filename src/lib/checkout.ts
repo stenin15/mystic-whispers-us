@@ -17,13 +17,13 @@ export async function createCheckoutSessionUrl(
   const rec = res as unknown as Record<string, unknown>;
   const fnErr = rec[errKey] as { message?: string } | null | undefined;
   if (fnErr) {
-    throw new Error(fnErr.message || "Checkout isn’t available right now.");
+    throw new Error(fnErr.message || "Checkout isn't available right now.");
   }
 
   const data = rec.data as { url?: string } | null | undefined;
   const url = data?.url;
   if (!url) {
-    throw new Error("Checkout isn’t available right now.");
+    throw new Error("Checkout isn't available right now.");
   }
 
   return url;

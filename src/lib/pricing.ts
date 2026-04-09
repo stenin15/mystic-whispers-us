@@ -6,8 +6,8 @@ export const PRICE_MAP: Record<
 > = {
   basic: {
     label: "Personal Palm Reading",
-    amountUsd: 9.9,
-    display: "$9.90",
+    amountUsd: 19.9,
+    display: "$19.90",
   },
   complete: {
     label: "Complete Palm Reading",
