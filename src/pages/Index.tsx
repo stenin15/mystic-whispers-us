@@ -16,9 +16,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/layout/Footer';
 import { StickyCTA } from '@/components/landing/StickyCTA';
+import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 
 // ==================== CONFIGURAÇÕES ====================
-const QUIZ_ROUTE = "/conexao";
+const QUIZ_ROUTE = "/formulario";
 // =======================================================
 
 const PalmVisual = () => (
@@ -298,6 +299,9 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* ========== SOCIAL PROOF CAROUSEL ========== */}
+      <SocialProofCarousel />
 
       {/* ========== WHAT YOUR PALM REVEALS ========== */}
       <section className="relative py-20 px-4">
