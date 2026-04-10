@@ -20,7 +20,7 @@ const energyTypes: Record<string, EnergyType> = {
   lunar: {
     name: "Lunar Energy",
     description:
-      "You're naturally intuitive and emotionally aware. Lunar energy tends to show up in people who feel deeply, notice subtleties, and need quiet moments to return to themselves. Your strength is your sensitivity — when you use it with boundaries, it becomes clear guidance.",
+      "You're naturally intuitive and emotionally aware. Lunar energy tends to show up in people who feel deeply, notice subtleties, and need quiet moments to return to themselves. Your strength is your sensitivity -- when you use it with boundaries, it becomes clear guidance.",
     icon: "Moon",
   },
   solar: {
@@ -32,21 +32,21 @@ const energyTypes: Record<string, EnergyType> = {
   stellar: {
     name: "Stellar Energy",
     description:
-      "You're creative, perceptive, and future‑oriented. Stellar energy often shows up as vision — seeing patterns, imagining what's possible, and looking for meaning beyond the obvious. Your gift is perspective: you can connect dots others miss.",
+      "You're creative, perceptive, and future‑oriented. Stellar energy often shows up as vision -- seeing patterns, imagining what's possible, and looking for meaning beyond the obvious. Your gift is perspective: you can connect dots others miss.",
     icon: "Star",
   },
 };
 
 // Strengths pool
 const strengthsPool: Strength[] = [
-  { title: "Strong intuition", desc: "You tend to sense what's true beneath the surface — especially in important moments.", icon: "Eye" },
+  { title: "Strong intuition", desc: "You tend to sense what's true beneath the surface -- especially in important moments.", icon: "Eye" },
   { title: "Deep empathy", desc: "You can read emotional nuance and understand people without them explaining much.", icon: "Heart" },
   { title: "Creative thinking", desc: "Your mind finds new angles and solutions when others get stuck.", icon: "Sparkles" },
   { title: "Inner resilience", desc: "Even after setbacks, you can regroup and keep moving forward.", icon: "Shield" },
   { title: "Natural wisdom", desc: "You learn quickly from life, and your perspective tends to be grounded.", icon: "Brain" },
-  { title: "Soothing presence", desc: "People feel calmer around you — you bring steadiness to tense moments.", icon: "Leaf" },
+  { title: "Soothing presence", desc: "People feel calmer around you -- you bring steadiness to tense moments.", icon: "Leaf" },
   { title: "Personal magnetism", desc: "When you're aligned, opportunities and connections seem to find you.", icon: "Magnet" },
-  { title: "Spiritual curiosity", desc: "You're drawn to meaning, symbolism, and self‑discovery — in a balanced way.", icon: "Flame" },
+  { title: "Spiritual curiosity", desc: "You're drawn to meaning, symbolism, and self‑discovery -- in a balanced way.", icon: "Flame" },
 ];
 
 // Blocks pool
@@ -62,19 +62,19 @@ const blocksPool: Block[] = [
 // Spiritual messages based on energy type and name
 const generateSpiritualMessage = (name: string, energyType: string): string => {
   const messages: Record<string, string> = {
-    lunar: `${name}, you're in a season where sensitivity is not a weakness — it's information.
+    lunar: `${name}, you're in a season where sensitivity is not a weakness -- it's information.
 
 Your lunar energy suggests you're picking up on subtle signals (in yourself and in others). When you slow down and listen, your intuition becomes clearer and kinder.
 
 Use this moment for reflection and self-honesty. For entertainment and self-reflection purposes.`,
 
-    solar: `${name}, your solar energy is about momentum — the part of you that knows how to move forward.
+    solar: `${name}, your solar energy is about momentum -- the part of you that knows how to move forward.
 
 When you're aligned, you lead with warmth and certainty. The key is choosing direction without forcing outcomes.
 
 Let this reading support your next step with clarity. For entertainment and self-reflection purposes.`,
 
-    stellar: `${name}, your stellar energy points to vision — seeing patterns, meaning, and possibility.
+    stellar: `${name}, your stellar energy points to vision -- seeing patterns, meaning, and possibility.
 
 You're likely in a phase where you're reconnecting with what matters most, and refining what you want your life to feel like.
 

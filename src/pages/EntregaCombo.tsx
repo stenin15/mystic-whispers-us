@@ -101,7 +101,7 @@ const EntregaCombo = () => {
             A deeper look into the patterns shaping your decisions
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            {name?.trim() ? `Hi, ${name.trim()}.` : "Hi."} This is your complete delivery — deeper context, clearer patterns, and a practical integration path.
+            {name?.trim() ? `Hi, ${name.trim()}.` : "Hi."} This is your complete delivery -- deeper context, clearer patterns, and a practical integration path.
             <br />
             <span className="text-muted-foreground/80">For entertainment and self-reflection purposes.</span>
           </p>
@@ -171,7 +171,7 @@ const EntregaCombo = () => {
             Awareness alone doesn't create change. Integration does.
           </h2>
           <p className="text-muted-foreground leading-relaxed mb-5">
-            You now have deeper context — and a practical direction for your next step.
+            You now have deeper context -- and a practical direction for your next step.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <Button onClick={handleBuyGuide} className="w-full gradient-mystic text-primary-foreground hover:opacity-90 py-6">

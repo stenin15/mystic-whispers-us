@@ -132,7 +132,7 @@ const EntregaLeitura = () => {
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             {name?.trim() ? `Hi, ${name.trim()}.` : "Hi."} Thank you for sharing your palm.
-            What appears here is not random — it reflects tendencies, strengths, and internal movements that can influence your current season.
+            What appears here is not random -- it reflects tendencies, strengths, and internal movements that can influence your current season.
             <br />
             <span className="text-muted-foreground/80">For entertainment and self-reflection purposes.</span>
           </p>
@@ -226,7 +226,7 @@ const EntregaLeitura = () => {
                       Your reading (basic)
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Text-first, personalized, and meant to feel human — not robotic.
+                      Text-first, personalized, and meant to feel human -- not robotic.
                     </p>
                   </div>
                 </div>
@@ -264,16 +264,16 @@ const EntregaLeitura = () => {
                   <p className="text-mystic-gold/80 italic font-serif text-xl">
                     "May you move forward with clarity and calm."
                   </p>
-                  <p className="text-muted-foreground mt-2">— Madam Aurora</p>
+                  <p className="text-muted-foreground mt-2">-- Madam Aurora</p>
                 </div>
 
                 {/* Loop opener */}
                 <div className="mt-10 p-6 rounded-2xl bg-card/30 border border-border/30 text-center">
                   <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
-                    What this covers — and what it doesn't (yet)
+                    What this covers -- and what it doesn't (yet)
                   </h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    This reading highlights what is active — but not yet how to work with it.
+                    This reading highlights what is active -- but not yet how to work with it.
                     That's where deeper guidance becomes important.
                   </p>
                 </div>

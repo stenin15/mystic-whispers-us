@@ -37,9 +37,9 @@ const HERO_VARIANTS = {
     subheadline:
       "Understand delays, repeating cycles, and emotional timing in love.",
     leadIn:
-      "If you feel stuck in love, unsure about direction, or repeating the same pattern — your palm often explains why.",
+      "If you feel stuck in love, unsure about direction, or repeating the same pattern -- your palm often explains why.",
     marriageNote:
-      "For some people, this includes marriage timing. For others, it shows why commitment feels delayed — or pressured.",
+      "For some people, this includes marriage timing. For others, it shows why commitment feels delayed -- or pressured.",
     cta: "See What Your Palm Shows",
     microcopy: "Private • Personalized • Takes 2–3 minutes to begin",
   },
@@ -48,9 +48,9 @@ const HERO_VARIANTS = {
     subheadline:
       "Understand delays, repeating cycles, and emotional timing in love.",
     leadIn:
-      "If you feel stuck in love, unsure about direction, or repeating the same pattern — your palm often explains why.",
+      "If you feel stuck in love, unsure about direction, or repeating the same pattern -- your palm often explains why.",
     marriageNote:
-      "For some people, this includes marriage timing. For others, it shows why commitment feels delayed — or pressured.",
+      "For some people, this includes marriage timing. For others, it shows why commitment feels delayed -- or pressured.",
     cta: "Explore Your Love Patterns",
     microcopy: "No accounts • No fluff • Focused on your lines",
   },
@@ -58,7 +58,7 @@ const HERO_VARIANTS = {
 
 const FAQ_ITEMS = [
   {
-    question: "Which hand do you read — left or right?",
+    question: "Which hand do you read -- left or right?",
     answer:
       "Either hand works. Many people use the dominant hand, but both can show helpful patterns.",
   },
@@ -90,7 +90,7 @@ const FAQ_ITEMS = [
   {
     question: "What will I receive exactly?",
     answer:
-      "A personalized reading with love timing insight, pattern loops, and directional next steps — plus marriage/commitment timing if it's relevant.",
+      "A personalized reading with love timing insight, pattern loops, and directional next steps -- plus marriage/commitment timing if it's relevant.",
   },
   {
     question: "Is this for love only or also career/future?",
@@ -415,7 +415,7 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-center text-base md:text-lg text-muted-foreground mb-6"
           >
-            When love feels blocked, it's often timing and direction — not effort. Your fate line can explain
+            When love feels blocked, it's often timing and direction -- not effort. Your fate line can explain
             pressure points that affect relationships.
           </motion.p>
           <motion.div
@@ -460,7 +460,7 @@ const VSL = () => {
             transition={{ duration: 0.5 }}
             className="text-center text-base md:text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            It can be — because palm reading is about lines, mounts, and markers. The reading doesn't depend on
+            It can be -- because palm reading is about lines, mounts, and markers. The reading doesn't depend on
             distance, it depends on clarity and interpretation.
           </motion.p>
         </div>
@@ -562,7 +562,7 @@ const VSL = () => {
               Ready for clarity?
             </h2>
             <p className="text-base md:text-lg text-muted-foreground mb-6">
-              Explore your love patterns with clarity and direction — no pressure, just insight.
+              Explore your love patterns with clarity and direction -- no pressure, just insight.
             </p>
             <Button
               onClick={handleCTA}

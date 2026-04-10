@@ -30,7 +30,7 @@ export interface AnalysisResult {
   strengths: Strength[];
   blocks: Block[];
   spiritualMessage: string;
-  palmObservations?: string; // from GPT-4o Vision — specific palm features observed
+  palmObservations?: string; // from GPT-4o Vision -- specific palm features observed
   audioUrl?: string;
 }
 

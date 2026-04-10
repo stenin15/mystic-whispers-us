@@ -17,7 +17,7 @@ const getAnalysisPhases = (name: string) => [
     sound: 'sparkle' as const,
     voiceText: `Hi, ${name}… I'm Madam Aurora.
 I'm going to combine what you shared with patterns that often show up in decision seasons.
-This isn't about luck — it's about noticing what's active inside you.`
+This isn't about luck -- it's about noticing what's active inside you.`
   },
   { 
     text: "Tuning into your presence...", 
@@ -47,7 +47,7 @@ and only realize later how tired they've become.`
     sound: 'heartPulse' as const,
     voiceText: `Your age can change how a pattern shows up.
 In certain seasons, you don't want to make the wrong move… so the decision stalls.
-Not from lack of ability — but because the stakes feel heavy.`
+Not from lack of ability -- but because the stakes feel heavy.`
   },
   { 
     text: "Clarifying your mind...", 
@@ -56,7 +56,7 @@ Not from lack of ability — but because the stakes feel heavy.`
     duration: 7200,
     sound: 'chime' as const,
     voiceText: `What stands out most is a repeating signal.
-It can feel like something keeps returning — like life taps the same spot again.
+It can feel like something keeps returning -- like life taps the same spot again.
 That often happens when an important choice has been postponed more than once.`
   },
   { 
@@ -67,7 +67,7 @@ That often happens when an important choice has been postponed more than once.`
     sound: 'mysticTone' as const,
     voiceText: `When this pattern becomes active, you may start doubting yourself…
 but often it's a protective mechanism.
-It keeps you from acting impulsively — and at the same time, it can keep you stuck.`
+It keeps you from acting impulsively -- and at the same time, it can keep you stuck.`
   },
   { 
     text: "Revealing what's underneath...", 
@@ -87,7 +87,7 @@ This is where many people finally understand why they've felt "stuck" in the sam
     sound: 'mysticTone' as const,
     voiceText: `The path isn't to force it.
 It's to choose with awareness… and interrupt one specific repetition.
-When you do, your energy shifts quickly — because you stop negotiating with what drains you.`
+When you do, your energy shifts quickly -- because you stop negotiating with what drains you.`
   },
   { 
     text: "Organizing your reading...", 
@@ -97,7 +97,7 @@ When you do, your energy shifts quickly — because you stop negotiating with wh
     sound: 'sparkle' as const,
     voiceText: `All right… now I'm turning this into a clear, structured reading.
 No fluff, no over-the-top mystery.
-You'll understand what's active — and how to work with it in everyday life.`
+You'll understand what's active -- and how to work with it in everyday life.`
   },
   { 
     text: "Finishing up...", 
@@ -106,7 +106,7 @@ You'll understand what's active — and how to work with it in everyday life.`
     duration: 5000,
     sound: 'chime' as const,
     voiceText: `Done.
-And gently — you're not "confused" for no reason.
+And gently -- you're not "confused" for no reason.
 You're in a decision cycle. And cycles ask for courage, but also direction.
 Let's look at your reading.`
   },
@@ -621,7 +621,7 @@ const Analise = () => {
           transition={{ delay: 3 }}
           className="text-xs text-muted-foreground/60 mt-8 italic max-w-sm mx-auto"
         >
-          "Your palm lines carry patterns — and patterns can be understood."
+          "Your palm lines carry patterns -- and patterns can be understood."
         </motion.p>
       </div>
     </div>

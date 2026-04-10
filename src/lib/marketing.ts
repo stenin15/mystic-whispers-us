@@ -131,13 +131,13 @@ export function getPersonalizedHeroLine(utm: UtmRecord, angle: AngleKey): string
   const focus = `${utm.utm_content || ""} ${utm.utm_term || ""}`.toLowerCase();
   if (!focus) return null;
   if (angle === "A") {
-    return "You clicked for marriage line timing — this is built exactly for that.";
+    return "You clicked for marriage line timing -- this is built exactly for that.";
   }
   if (angle === "B") {
-    return "You're here for love patterns — this focuses on what keeps repeating.";
+    return "You're here for love patterns -- this focuses on what keeps repeating.";
   }
   if (angle === "C") {
-    return "You're here for career/fate timing — this highlights your turning points.";
+    return "You're here for career/fate timing -- this highlights your turning points.";
   }
   return null;
 }

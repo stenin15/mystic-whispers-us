@@ -129,7 +129,7 @@ const Upsell = () => {
             </div>
 
             <p className="text-muted-foreground/80 text-center text-sm">
-              Without real attention, these patterns can keep showing up — in your energy, relationships,
+              Without real attention, these patterns can keep showing up -- in your energy, relationships,
               and the choices you want to make.
             </p>
           </motion.div>
@@ -242,7 +242,7 @@ const Upsell = () => {
               to="/resultado"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
             >
-              No thanks — back to my reading.
+              No thanks -- back to my reading.
             </Link>
           </motion.div>
         </div>

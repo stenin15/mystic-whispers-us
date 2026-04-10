@@ -14,10 +14,10 @@ export const quizQuestions: QuizQuestion[] = [
     question: "How would you describe your energy right now?",
     voiceIntro: "{name}, tell me... how are you feeling right now? How would you describe your energy in this moment?",
     options: [
-      { id: "a", text: "Intense and alive — ideas flowing" },
-      { id: "b", text: "Calm and reflective — more inward" },
-      { id: "c", text: "Up and down — emotionally unpredictable" },
-      { id: "d", text: "Blocked — it's hard to connect with myself" },
+      { id: "a", text: "Intense and alive -- ideas flowing" },
+      { id: "b", text: "Calm and reflective -- more inward" },
+      { id: "c", text: "Up and down -- emotionally unpredictable" },
+      { id: "d", text: "Blocked -- it's hard to connect with myself" },
     ],
   },
   {
@@ -33,22 +33,22 @@ export const quizQuestions: QuizQuestion[] = [
   },
   {
     id: 8,
-    question: "Look at the top line crossing your palm — your heart line. How does it appear?",
-    voiceIntro: "{name}, let's look at your palm together for a moment. Find the top horizontal line — your heart line. What does it look like?",
+    question: "Look at the top line crossing your palm -- your heart line. How does it appear?",
+    voiceIntro: "{name}, let's look at your palm together for a moment. Find the top horizontal line -- your heart line. What does it look like?",
     options: [
       { id: "a", text: "It curves up clearly toward my index or middle finger" },
       { id: "b", text: "It stays mostly horizontal across my palm" },
       { id: "c", text: "It's broken or has forks at the end" },
-      { id: "d", text: "I can't tell clearly — the line is faint or unclear" },
+      { id: "d", text: "I can't tell clearly -- the line is faint or unclear" },
     ],
   },
   {
     id: 9,
-    question: "Look at the pinky side of your palm — do you see small horizontal lines near the base of your little finger?",
+    question: "Look at the pinky side of your palm -- do you see small horizontal lines near the base of your little finger?",
     voiceIntro: "{name}, now look at the edge of your palm, just below your little finger. These are often called marriage or affection lines.",
     options: [
-      { id: "a", text: "Yes — I can see one clear line" },
-      { id: "b", text: "Yes — I can see two or more lines" },
+      { id: "a", text: "Yes -- I can see one clear line" },
+      { id: "b", text: "Yes -- I can see two or more lines" },
       { id: "c", text: "There's something faint but it's not clear" },
       { id: "d", text: "I don't see any lines there" },
     ],
@@ -69,10 +69,10 @@ export const quizQuestions: QuizQuestion[] = [
     question: "Which element of nature resonates most with you?",
     voiceIntro: "{name}, here's a special one... which element of nature feels most aligned with your essence?",
     options: [
-      { id: "a", text: "Fire — passion and transformation" },
-      { id: "b", text: "Water — emotion and intuition" },
-      { id: "c", text: "Earth — stability and grounding" },
-      { id: "d", text: "Air — freedom and communication" },
+      { id: "a", text: "Fire -- passion and transformation" },
+      { id: "b", text: "Water -- emotion and intuition" },
+      { id: "c", text: "Earth -- stability and grounding" },
+      { id: "d", text: "Air -- freedom and communication" },
     ],
   },
   {
@@ -80,10 +80,10 @@ export const quizQuestions: QuizQuestion[] = [
     question: "How do you feel about your future?",
     voiceIntro: "{name}, looking ahead... how do you feel when you think about your future?",
     options: [
-      { id: "a", text: "Optimistic — it feels full of possibilities" },
-      { id: "b", text: "Anxious — there's a lot of uncertainty" },
-      { id: "c", text: "Neutral — I'm letting life unfold" },
-      { id: "d", text: "Worried — I need clearer direction" },
+      { id: "a", text: "Optimistic -- it feels full of possibilities" },
+      { id: "b", text: "Anxious -- there's a lot of uncertainty" },
+      { id: "c", text: "Neutral -- I'm letting life unfold" },
+      { id: "d", text: "Worried -- I need clearer direction" },
     ],
   },
   {

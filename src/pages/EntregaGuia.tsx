@@ -114,7 +114,7 @@ const EntregaGuia = () => {
             {name ? `${name}, your Sacred Guide is ready` : "Your Sacred Guide is ready"}
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            This guide was created to help you integrate what your reading revealed into daily life — gently, realistically, and at your own pace.
+            This guide was created to help you integrate what your reading revealed into daily life -- gently, realistically, and at your own pace.
             For entertainment and self-reflection purposes.
           </p>
         </motion.div>
@@ -233,7 +233,7 @@ const EntregaGuia = () => {
             "Real change begins when you choose to look inward and honor your own path.
             Let this guide be a simple, steady companion as you move forward."
           </p>
-          <p className="text-mystic-gold mt-4 font-semibold">— Madam Aurora</p>
+          <p className="text-mystic-gold mt-4 font-semibold">-- Madam Aurora</p>
         </motion.div>
 
         {/* Legal Footer */}

@@ -22,7 +22,7 @@ const Cancelado = () => {
             </div>
 
             <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3 text-foreground">
-              No worries — you can try again.
+              No worries -- you can try again.
             </h1>
             <p className="text-muted-foreground mb-8">
               If something went wrong at checkout, tap below to go back and choose your plan.

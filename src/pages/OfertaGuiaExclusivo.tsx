@@ -218,9 +218,9 @@ const OfertaGuiaExclusivo = () => {
             ))}
           </div>
           <p className="text-muted-foreground italic mb-3">
-            "The guide helped me understand what kept repeating — and the steps felt grounded and easy to follow."
+            "The guide helped me understand what kept repeating -- and the steps felt grounded and easy to follow."
           </p>
-          <p className="text-foreground font-medium">— Michelle S.</p>
+          <p className="text-foreground font-medium">-- Michelle S.</p>
         </motion.div>
 
         {/* Legal Footer */}

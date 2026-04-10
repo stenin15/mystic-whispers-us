@@ -1,25 +1,25 @@
 /**
  * Micro feedback during the quiz.
  * Returns short text only on a few specific questions (indices 1, 3, 5).
- * No AI calls — local rules only.
+ * No AI calls -- local rules only.
  */
 
 const COACH_MESSAGES = [
-  // Group 1 — gentle nudges
+  // Group 1 -- gentle nudges
   [
     "This often shows up during turning points.",
     "Noted. That detail changes the picture.",
     "Interesting… this suggests a repeating pattern.",
     "There's something important in this choice.",
   ],
-  // Group 2 — validation
+  // Group 2 -- validation
   [
     "Your energy is coming through clearly.",
     "This confirms something you already felt.",
-    "Noted — there's a connection here.",
+    "Noted -- there's a connection here.",
     "This aligns with what showed up earlier.",
   ],
-  // Group 3 — depth
+  // Group 3 -- depth
   [
     "I'm picking up a deeper layer here.",
     "There's a hidden meaning in that answer.",

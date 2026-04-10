@@ -19,7 +19,7 @@ const testimonials = [
   {
     name: 'Sarah L.',
     city: 'Chicago, IL',
-    text: '"I kept delaying a commitment decision. The reading explained why — and what to do. Worth every penny."',
+    text: '"I kept delaying a commitment decision. The reading explained why -- and what to do. Worth every penny."',
     avatar: avatarPatricia,
     rating: 5,
   },
@@ -33,14 +33,14 @@ const testimonials = [
   {
     name: 'Jessica H.',
     city: 'Nashville, TN',
-    text: '"The marriage line analysis was specific and real. I cried a little — not from sadness, from recognition."',
+    text: '"The marriage line analysis was specific and real. I cried a little -- not from sadness, from recognition."',
     avatar: avatarMariana,
     rating: 5,
   },
   {
     name: 'Rachel M.',
     city: 'Phoenix, AZ',
-    text: `"It named repeating patterns I've had in relationships for years. It's not magic — it's clarity."`,
+    text: `"It named repeating patterns I've had in relationships for years. It's not magic -- it's clarity."`,
     avatar: avatarEduardo,
     rating: 5,
   },
@@ -54,45 +54,51 @@ const testimonials = [
 ];
 
 export const SocialProofCarousel = () => {
-  // Duplicate for infinite scroll effect
+  // Triplicate for seamless infinite scroll
   const duplicatedTestimonials = [...testimonials, ...testimonials, ...testimonials];
 
   return (
-    <div className="w-full overflow-hidden bg-background/50 backdrop-blur-sm border-t border-border/30 py-4">
+    <div className="w-full overflow-hidden border-t border-white/[0.06] border-b border-b-white/[0.03] py-5 relative">
+      {/* Subtle top ambient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_50%,hsl(280_60%_55%_/_0.03)_0%,transparent_70%)] pointer-events-none" />
+
       <div className="relative">
-        {/* Gradient overlays for smooth edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-        
-        {/* Scrolling container */}
-        <div className="flex animate-scroll-slow gap-4 hover:pause-animation">
+        {/* Edge fades */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+
+        {/* Scrolling track */}
+        <div className="flex animate-scroll-slow gap-3 hover:pause-animation">
           {duplicatedTestimonials.map((testimonial, index) => (
             <div
               key={`${testimonial.name}-${index}`}
-              className="flex-shrink-0 flex items-center gap-3 bg-card/80 backdrop-blur-sm border border-border/30 rounded-xl px-4 py-3 min-w-[280px]"
+              className="flex-shrink-0 flex items-start gap-3 glass-card rounded-2xl px-5 py-4 min-w-[300px] max-w-[320px] border border-white/[0.08] hover:border-primary/20 transition-colors duration-300"
             >
               {/* Avatar */}
               <img
                 src={testimonial.avatar}
                 alt={testimonial.name}
-                className="w-10 h-10 rounded-full object-cover border-2 border-primary/30"
+                className="w-10 h-10 rounded-full object-cover border-2 border-primary/25 flex-shrink-0 mt-0.5"
               />
-              
+
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-foreground text-sm">{testimonial.name}</span>
-                  <span className="text-xs text-muted-foreground">{testimonial.city}</span>
-                </div>
-                
                 {/* Stars */}
-                <div className="flex gap-0.5 my-0.5">
+                <div className="flex gap-0.5 mb-1.5">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
                     <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                
-                <p className="text-xs text-muted-foreground line-clamp-1">{testimonial.text}</p>
+
+                <p className="text-xs text-muted-foreground/85 leading-relaxed line-clamp-2 mb-2 italic">
+                  {testimonial.text}
+                </p>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-foreground/80">{testimonial.name}</span>
+                  <span className="text-[10px] text-muted-foreground/50">·</span>
+                  <span className="text-[10px] text-muted-foreground/50">{testimonial.city}</span>
+                </div>
               </div>
             </div>
           ))}

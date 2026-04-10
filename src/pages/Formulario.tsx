@@ -210,7 +210,7 @@ const Formulario = () => {
               </div>
             </div>
 
-            {/* Age — single field, no dropdowns */}
+            {/* Age -- single field, no dropdowns */}
             <div className="space-y-2 max-w-[140px]">
               <Label htmlFor="age">Your age</Label>
               <Input
@@ -273,7 +273,7 @@ const Formulario = () => {
               Your palm photo
             </h2>
             <p className="text-sm text-muted-foreground/80 -mt-2">
-              Our AI will analyze your actual palm lines — heart line, fate line, marriage lines — to personalize your reading.
+              Our AI will analyze your actual palm lines -- heart line, fate line, marriage lines -- to personalize your reading.
             </p>
 
             <HandImageUpload
@@ -284,7 +284,7 @@ const Formulario = () => {
 
             {handPhotoPreview && (
               <p className="text-sm text-primary/80 text-center">
-                ✓ Palm photo received — analysis will begin after the quiz.
+                ✓ Palm photo received -- analysis will begin after the quiz.
               </p>
             )}
           </div>

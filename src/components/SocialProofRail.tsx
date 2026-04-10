@@ -10,10 +10,10 @@ const TESTIMONIALS = [
   { name: 'Olivia A.', city: 'Miami, FL', rating: 5, text: 'I felt seen. Calm, grounded, and comforting.' },
   { name: 'Michael C.', city: 'Seattle, WA', rating: 5, text: "If you're looking for clarity, this is worth it." },
   { name: 'Sophia T.', city: 'Denver, CO', rating: 5, text: 'The timing was perfect. It eased my anxiety.' },
-  { name: 'Ethan P.', city: 'Nashville, TN', rating: 5, text: 'Not a "prediction" — more like direction. Loved it.' },
-  { name: 'Amanda R.', city: 'Phoenix, AZ', rating: 5, text: 'It changed how I see my patterns — in a good way.' },
+  { name: 'Ethan P.', city: 'Nashville, TN', rating: 5, text: 'Not a "prediction" -- more like direction. Loved it.' },
+  { name: 'Amanda R.', city: 'Phoenix, AZ', rating: 5, text: 'It changed how I see my patterns -- in a good way.' },
   { name: 'Brandon G.', city: 'Brooklyn, NY', rating: 5, text: 'A unique experience. Beautifully written.' },
-  { name: 'Julia F.', city: 'Atlanta, GA', rating: 5, text: 'I felt supported and guided — not judged.' },
+  { name: 'Julia F.', city: 'Atlanta, GA', rating: 5, text: 'I felt supported and guided -- not judged.' },
   { name: 'Tyler M.', city: 'Dallas, TX', rating: 5, text: 'Worth it. Clear, practical, and surprisingly deep.' },
   { name: 'Kayla D.', city: 'San Jose, CA', rating: 5, text: "It highlighted patterns I hadn't admitted to myself." },
 ];

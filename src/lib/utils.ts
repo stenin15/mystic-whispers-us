@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Compresses an image data URL to a smaller JPEG for sending to AI vision APIs.
  * Resizes to max 1024px on longest side, JPEG quality 0.82.
- * Typical output: 80–250KB base64 — well within Supabase Edge Function limits.
+ * Typical output: 80–250KB base64 -- well within Supabase Edge Function limits.
  */
 export async function compressImageForVision(
   dataUrl: string,

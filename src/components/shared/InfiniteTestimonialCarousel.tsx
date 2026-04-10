@@ -15,7 +15,7 @@ const testimonials = [
   { name: "Ashley K., 38", text: "It gave me a softer, clearer way to look at my relationship dynamics. The next steps felt practical." },
   { name: "Marcus T., 42", text: "I'm skeptical by nature, but this gave me a new perspective. It helped me notice what was actually blocking me." },
   { name: "Sofia L., 27", text: "I felt lost, and this helped me get my direction back. I left feeling calmer and more confident." },
-  { name: "Jordan B., 35", text: "It pinpointed what I've been carrying emotionally. It didn't feel dramatic — just honest and helpful." },
+  { name: "Jordan B., 35", text: "It pinpointed what I've been carrying emotionally. It didn't feel dramatic -- just honest and helpful." },
   { name: "Erin S., 41", text: "I liked how it focused on reflection, not promises. It helped me see my choices more clearly." },
   { name: "Chris N., 33", text: "The insights around my work path were surprisingly on point. It helped me reframe what I want next." },
   { name: "Hannah G., 26", text: "The message felt like a gentle reset. It helped me feel less overwhelmed and more grounded." },
