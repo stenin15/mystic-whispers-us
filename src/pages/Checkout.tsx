@@ -31,7 +31,7 @@ const GUIDE_BUMP_PRICE = 17;
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { name, email, canAccessResult, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
+  const { name, email, analysisResult, canAccessResult, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
   const [addGuide, setAddGuide] = useState(false);
 
   useEffect(() => {
@@ -124,11 +124,20 @@ const Checkout = () => {
               </h3>
             </div>
             <ul className="space-y-3 mb-5">
-              {[
-                'An energy pattern tied to recurring cycles.',
-                'A sign of an unresolved decision point.',
-                'The complete reading shows where it starts.',
-              ].map((text, i) => (
+              {(analysisResult
+                ? [
+                    `Your dominant energy: ${analysisResult.energyType.name}.`,
+                    analysisResult.palmObservations
+                      ? analysisResult.palmObservations.split('.')[0] + '.'
+                      : 'A sign of an unresolved decision point.',
+                    'The complete reading reveals what to do with it.',
+                  ]
+                : [
+                    'An energy pattern tied to recurring cycles.',
+                    'A sign of an unresolved decision point.',
+                    'The complete reading shows where it starts.',
+                  ]
+              ).map((text, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground/90">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary/60 mt-1.5 flex-shrink-0" />
                   <span>{text}</span>

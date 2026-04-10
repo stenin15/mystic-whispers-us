@@ -338,11 +338,11 @@ const Resultado = () => {
             {/* What's inside */}
             <div className="grid sm:grid-cols-2 gap-3 mb-8 text-left max-w-lg mx-auto relative">
               {[
-                'All 3 strengths revealed',
-                'Patterns blocking your path',
-                'Your personal intuitive message',
-                'Full palm line analysis',
-                'Love timing & relationship patterns',
+                'Heart Line — emotional patterns & depth',
+                'Marriage Line — timing & commitment signals',
+                'Love Timing Window — when energy peaks',
+                'Repeating Pattern — what keeps coming back',
+                'Narrated personal message (audio)',
                 'Next steps for clarity',
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2.5 text-sm text-foreground/85">
@@ -357,13 +357,17 @@ const Resultado = () => {
               size="lg"
               className="w-full sm:w-auto bg-white text-gray-900 hover:bg-white/92 px-12 py-7 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] mb-4 rounded-2xl relative"
             >
-              Unlock Full Reading
+              Unlock My Full Reading
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
 
             <p className="text-xs text-muted-foreground/60 mb-3 relative">
               This reading expires in 24 hours
             </p>
+
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground/60 mb-2 relative">
+              <span>Basic {PRICE_MAP.basic.display} · Complete {PRICE_MAP.complete.display} · Instant access · Photo never shared</span>
+            </div>
 
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground relative">
               <Shield className="w-3.5 h-3.5 text-green-400" />
