@@ -28,8 +28,8 @@ const Quiz = () => {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [showAudioPrompt, setShowAudioPrompt] = useState(true);
-  const [quizStarted, setQuizStarted] = useState(false);
+  const [showAudioBanner, setShowAudioBanner] = useState(true);
+  const [quizStarted, setQuizStarted] = useState(true); // start immediately
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Redirect if coming from wrong place
@@ -149,9 +149,8 @@ const Quiz = () => {
     setAudioEnabled(!audioEnabled);
   };
 
-  const handleAudioPromptConfirm = () => {
-    setShowAudioPrompt(false);
-    setQuizStarted(true);
+  // Track quiz start on mount
+  useEffect(() => {
     track("QuizStart", {
       event_id: getOrCreateEventId("quiz_start"),
       page_path: "/quiz",
@@ -160,7 +159,8 @@ const Quiz = () => {
       focus: getStoredFocus(),
       ...getAttributionParams(),
     });
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSelectOption = (optionId: string, optionText: string) => {
     if (!currentQuestion) return;
@@ -215,12 +215,24 @@ const Quiz = () => {
       <ParticlesBackground />
       <FloatingOrbs />
       
-      {/* Audio Prompt Modal */}
-      <AudioPromptModal 
-        isOpen={showAudioPrompt} 
-        onConfirm={handleAudioPromptConfirm}
-        userName={name}
-      />
+      {/* Audio banner — não bloqueante */}
+      {showAudioBanner && audioEnabled && (
+        <motion.div
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-full glass-card border border-primary/25 shadow-lg"
+        >
+          <Volume2 className="w-4 h-4 text-primary flex-shrink-0" />
+          <span className="text-sm text-foreground/80">Madam Aurora is speaking — tap to enable audio</span>
+          <button
+            onClick={() => setShowAudioBanner(false)}
+            className="ml-2 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+          >
+            ✕
+          </button>
+        </motion.div>
+      )}
 
       <div className="container max-w-2xl mx-auto relative">
         {/* Header */}

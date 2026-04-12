@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -9,6 +9,7 @@ import {
   Star,
   Shield,
   Eye,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
@@ -17,6 +18,30 @@ import { Footer } from '@/components/layout/Footer';
 import { getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus, appendUtmToPath } from '@/lib/marketing';
 import { PRICE_MAP } from '@/lib/pricing';
+
+// 24-hour countdown from first visit
+function useCountdown24h() {
+  const KEY = 'aurora_resultado_expiry';
+  const getExpiry = () => {
+    const stored = localStorage.getItem(KEY);
+    if (stored) return Number(stored);
+    const expiry = Date.now() + 24 * 60 * 60 * 1000;
+    localStorage.setItem(KEY, String(expiry));
+    return expiry;
+  };
+  const [expiry] = useState(getExpiry);
+  const [timeLeft, setTimeLeft] = useState(expiry - Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setTimeLeft(expiry - Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [expiry]);
+
+  const h = Math.max(0, Math.floor(timeLeft / 3600000));
+  const m = Math.max(0, Math.floor((timeLeft % 3600000) / 60000));
+  const s = Math.max(0, Math.floor((timeLeft % 60000) / 1000));
+  return { h, m, s, expired: timeLeft <= 0 };
+}
 
 const Resultado = () => {
   const navigate = useNavigate();
@@ -27,6 +52,7 @@ const Resultado = () => {
   } = useHandReadingStore();
 
   const hasTrackedRef = useRef(false);
+  const { h, m, s } = useCountdown24h();
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -62,6 +88,8 @@ const Resultado = () => {
   const EnergyIcon = getIcon(analysisResult.energyType.icon);
   const [firstStrength, ...lockedStrengths] = analysisResult.strengths;
 
+  const pad = (n: number) => String(n).padStart(2, '0');
+
   return (
     <div className="min-h-screen relative overflow-hidden bg-background">
       {/* Layered background */}
@@ -72,7 +100,7 @@ const Resultado = () => {
       </div>
 
       {/* ========== HEADER ========== */}
-      <section className="relative pt-14 pb-8 px-4">
+      <section className="relative pt-14 pb-6 px-4">
         <div className="container max-w-3xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -85,7 +113,7 @@ const Resultado = () => {
             </div>
 
             <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4 leading-tight text-foreground">
-              {name}, your reading is ready
+              {name}, your reading found something specific
             </h1>
 
             {/* Aurora divider */}
@@ -95,15 +123,26 @@ const Resultado = () => {
               <div className="h-px w-20 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent" />
             </div>
 
-            <p className="text-muted-foreground max-w-xl mx-auto text-base md:text-lg leading-relaxed">
-              Below is a preview of your reading. Unlock the full version to see everything.
+            <p className="text-muted-foreground max-w-xl mx-auto text-base md:text-lg leading-relaxed mb-6">
+              Madam Aurora identified an active pattern in your palm. Below is a preview — unlock the full reading before it expires.
             </p>
+
+            {/* 24h Countdown */}
+            <div className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl border border-rose-500/25 bg-rose-500/5 mb-2">
+              <Clock className="w-4 h-4 text-rose-400 flex-shrink-0" />
+              <span className="text-sm text-rose-300/90">
+                Reading held for you:{' '}
+                <span className="font-mono font-bold text-rose-300">
+                  {pad(h)}:{pad(m)}:{pad(s)}
+                </span>
+              </span>
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* ========== ENERGY CARD ========== */}
-      <section className="py-5 px-4">
+      <section className="py-4 px-4">
         <div className="container max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -113,7 +152,6 @@ const Resultado = () => {
           >
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,hsl(280_60%_55%_/_0.08)_0%,transparent_70%)] pointer-events-none" />
 
-            {/* Energy icon */}
             <div className="relative w-24 h-24 mx-auto mb-6">
               <div className="absolute inset-0 rounded-full bg-primary/15 blur-2xl scale-150 animate-breathe" />
               <div className="relative w-full h-full rounded-full bg-gradient-to-br from-primary/25 to-accent/20 flex items-center justify-center border border-primary/30 aurora-glow">
@@ -128,7 +166,6 @@ const Resultado = () => {
               {analysisResult.energyType.description}
             </p>
 
-            {/* Palm observations */}
             {analysisResult.palmObservations && (
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
@@ -144,7 +181,7 @@ const Resultado = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <Eye className="w-4 h-4 flex-shrink-0" style={{ color: 'hsl(45 95% 60%)' }} />
                   <span className="text-sm font-semibold tracking-wide" style={{ color: 'hsl(45 95% 60%)' }}>
-                    What your palm revealed:
+                    What Madam Aurora noticed in your palm:
                   </span>
                 </div>
                 <p className="text-sm text-foreground/80 italic leading-relaxed">
@@ -156,8 +193,8 @@ const Resultado = () => {
         </div>
       </section>
 
-      {/* ========== STRENGTHS ========== */}
-      <section className="py-5 px-4">
+      {/* ========== FIRST STRENGTH (VISIBLE) ========== */}
+      <section className="py-4 px-4">
         <div className="container max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -165,10 +202,9 @@ const Resultado = () => {
             transition={{ delay: 0.2 }}
           >
             <h3 className="text-xs font-semibold uppercase tracking-widest text-primary/50 mb-4 px-1">
-              Your Inner Gifts
+              Your Inner Gifts — preview
             </h3>
 
-            {/* First strength -- visible */}
             {firstStrength && (() => {
               const StrengthIcon = getIcon(firstStrength.icon);
               return (
@@ -186,54 +222,122 @@ const Resultado = () => {
               );
             })()}
 
-            {/* Locked strengths */}
-            <div className="relative rounded-2xl overflow-hidden">
-              <div className="space-y-3 select-none pointer-events-none">
-                {lockedStrengths.map((s, i) => {
-                  const Icon = getIcon(s.icon);
-                  return (
-                    <div
-                      key={i}
-                      className="p-6 rounded-2xl bg-card/20 border border-border/15"
-                      style={{ filter: 'blur(6px)', opacity: 0.45 }}
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center flex-shrink-0">
-                          <Icon className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="font-serif font-semibold text-foreground mb-1">{s.title}</h4>
-                          <p className="text-sm text-muted-foreground">{s.desc}</p>
+            {/* Locked strengths — titles visible, desc blurred */}
+            {lockedStrengths.length > 0 && (
+              <div className="relative rounded-2xl overflow-hidden">
+                <div className="space-y-3 select-none pointer-events-none">
+                  {lockedStrengths.map((s, i) => {
+                    const Icon = getIcon(s.icon);
+                    return (
+                      <div key={i} className="p-6 rounded-2xl bg-card/20 border border-border/15">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center flex-shrink-0 opacity-50">
+                            <Icon className="w-5 h-5 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-serif font-semibold text-foreground/60 mb-1.5 text-sm">{s.title}</h4>
+                            <p className="text-sm text-muted-foreground" style={{ filter: 'blur(5px)', opacity: 0.5 }}>{s.desc}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div
-                className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl"
-                style={{ background: 'rgba(10, 6, 20, 0.52)', backdropFilter: 'blur(2px)' }}
-              >
-                <div className="w-11 h-11 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center mb-3">
-                  <Lock className="w-5 h-5 text-primary" />
+                    );
+                  })}
                 </div>
-                <p className="text-sm font-semibold text-foreground">Unlock to see all your gifts</p>
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl"
+                  style={{ background: 'rgba(10, 6, 20, 0.45)', backdropFilter: 'blur(1px)' }}
+                >
+                  <div className="w-11 h-11 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center mb-3">
+                    <Lock className="w-5 h-5 text-primary" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">{lockedStrengths.length} more gifts identified — unlock to see</p>
+                </div>
               </div>
+            )}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ========== CTA BOX — BEFORE BLOCKS ========== */}
+      <section className="py-8 px-4">
+        <div className="container max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="rounded-3xl p-8 md:p-10 text-center relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, hsl(280 60% 55% / 0.15) 0%, hsl(320 55% 55% / 0.12) 50%, hsl(45 95% 55% / 0.08) 100%)',
+              border: '1px solid hsl(280 60% 55% / 0.3)',
+              boxShadow: '0 0 60px hsl(280 60% 55% / 0.08)',
+            }}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(280_60%_55%_/_0.1)_0%,transparent_70%)] pointer-events-none" />
+
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-3 relative">
+              Your reading found something specific
+            </h2>
+            <p className="text-muted-foreground mb-2 max-w-lg mx-auto text-sm md:text-base relative">
+              Madam Aurora identified an active pattern that explains the timing — and what shifts it. Unlock the full reading to see all your gifts, blocks, and your personal message.
+            </p>
+
+            {/* What's locked */}
+            <div className="grid sm:grid-cols-2 gap-3 mb-7 text-left max-w-lg mx-auto relative mt-6">
+              {[
+                'Heart Line — emotional patterns & depth',
+                'Marriage Line — timing & commitment signals',
+                'Love Timing Window — when energy peaks',
+                'Repeating Pattern — what keeps coming back',
+                'Narrated personal message (audio)',
+                'Active blocks & how to move past them',
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-2.5 text-sm text-foreground/85">
+                  <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Price — no fake strikethrough */}
+            <div className="mb-6 relative">
+              <div className="text-xs text-muted-foreground/60 mb-1">One-time · No subscription · Instant access</div>
+              <span className="text-4xl font-bold text-foreground">from {PRICE_MAP.basic.display}</span>
+              <div className="text-xs text-primary/70 mt-1">Less than a coffee — yours to keep</div>
+            </div>
+
+            <Button
+              onClick={handleCTA}
+              size="lg"
+              className="w-full sm:w-auto bg-white text-gray-900 hover:bg-white/92 px-12 py-7 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] mb-4 rounded-2xl relative"
+            >
+              Unlock My Full Reading
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+
+            {/* Countdown inline */}
+            <div className="flex items-center justify-center gap-2 text-xs text-rose-400/80 mb-3 relative">
+              <Clock className="w-3.5 h-3.5" />
+              <span>Reading expires in {pad(h)}:{pad(m)}:{pad(s)}</span>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground relative">
+              <Shield className="w-3.5 h-3.5 text-green-400" />
+              <span>7-day refund policy · Secure checkout · Photo never shared</span>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ========== BLOCKS ========== */}
-      <section className="py-5 px-4">
+      {/* ========== BLOCKS (locked) ========== */}
+      <section className="py-4 px-4">
         <div className="container max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
+            transition={{ delay: 0.3 }}
           >
             <h3 className="text-xs font-semibold uppercase tracking-widest text-primary/50 mb-4 px-1">
-              Active Blocks
+              Active Blocks — locked
             </h3>
 
             <div className="relative rounded-2xl overflow-hidden">
@@ -241,18 +345,14 @@ const Resultado = () => {
                 {analysisResult.blocks.map((b, i) => {
                   const Icon = getIcon(b.icon);
                   return (
-                    <div
-                      key={i}
-                      className="p-6 rounded-2xl bg-card/20 border border-border/15"
-                      style={{ filter: 'blur(7px)', opacity: 0.4 }}
-                    >
+                    <div key={i} className="p-6 rounded-2xl bg-card/20 border border-border/15">
                       <div className="flex items-start gap-4">
-                        <div className="w-11 h-11 rounded-lg bg-rose-500/10 flex items-center justify-center flex-shrink-0">
+                        <div className="w-11 h-11 rounded-lg bg-rose-500/10 flex items-center justify-center flex-shrink-0 opacity-50">
                           <Icon className="w-4 h-4 text-rose-400/70" />
                         </div>
-                        <div>
-                          <h4 className="font-serif font-medium text-foreground mb-1">{b.title}</h4>
-                          <p className="text-sm text-muted-foreground">{b.desc}</p>
+                        <div className="flex-1">
+                          <h4 className="font-serif font-medium text-foreground/60 mb-1 text-sm">{b.title}</h4>
+                          <p className="text-sm text-muted-foreground" style={{ filter: 'blur(5px)', opacity: 0.45 }}>{b.desc}</p>
                         </div>
                       </div>
                     </div>
@@ -261,7 +361,7 @@ const Resultado = () => {
               </div>
               <div
                 className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl"
-                style={{ background: 'rgba(10, 6, 20, 0.55)', backdropFilter: 'blur(2px)' }}
+                style={{ background: 'rgba(10, 6, 20, 0.45)', backdropFilter: 'blur(1px)' }}
               >
                 <div className="w-11 h-11 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center mb-3">
                   <Lock className="w-5 h-5 text-primary" />
@@ -273,13 +373,13 @@ const Resultado = () => {
         </div>
       </section>
 
-      {/* ========== SPIRITUAL MESSAGE ========== */}
-      <section className="py-5 px-4">
+      {/* ========== SPIRITUAL MESSAGE (locked) ========== */}
+      <section className="py-4 px-4">
         <div className="container max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.35 }}
             className="relative rounded-3xl overflow-hidden"
             style={{
               background: 'rgba(255,255,255,0.02)',
@@ -296,7 +396,7 @@ const Resultado = () => {
               className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
               style={{ backdropFilter: 'blur(3px)', background: 'rgba(10, 6, 20, 0.5)' }}
             >
-              <div className="w-13 h-13 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center mb-3">
+              <div className="w-12 h-12 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center mb-3">
                 <Lock className="w-6 h-6 text-primary" />
               </div>
               <p className="text-base font-serif font-semibold text-foreground mb-1">Your personal message is locked</p>
@@ -306,73 +406,23 @@ const Resultado = () => {
         </div>
       </section>
 
-      {/* ========== CTA BOX ========== */}
-      <section className="py-10 px-4">
-        <div className="container max-w-3xl mx-auto">
+      {/* ========== SECOND CTA (repeated) ========== */}
+      <section className="py-8 px-4">
+        <div className="container max-w-3xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="rounded-3xl p-8 md:p-10 text-center relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, hsl(280 60% 55% / 0.15) 0%, hsl(320 55% 55% / 0.12) 50%, hsl(45 95% 55% / 0.08) 100%)',
-              border: '1px solid hsl(280 60% 55% / 0.3)',
-              boxShadow: '0 0 60px hsl(280 60% 55% / 0.08)',
-            }}
+            transition={{ delay: 0.4 }}
           >
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(280_60%_55%_/_0.1)_0%,transparent_70%)] pointer-events-none" />
-
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-3 relative">
-              Your complete reading is waiting
-            </h2>
-            <p className="text-muted-foreground mb-6 max-w-lg mx-auto text-sm md:text-base relative">
-              See all your gifts, active blocks, your personal intuitive message, and full palm analysis.
-            </p>
-
-            {/* Price */}
-            <div className="flex items-center justify-center gap-3 mb-7 relative">
-              <span className="text-muted-foreground/45 line-through text-base">was $39.90</span>
-              <span className="text-4xl font-bold text-foreground">{PRICE_MAP.basic.display}</span>
-            </div>
-
-            {/* What's inside */}
-            <div className="grid sm:grid-cols-2 gap-3 mb-8 text-left max-w-lg mx-auto relative">
-              {[
-                'Heart Line — emotional patterns & depth',
-                'Marriage Line — timing & commitment signals',
-                'Love Timing Window — when energy peaks',
-                'Repeating Pattern — what keeps coming back',
-                'Narrated personal message (audio)',
-                'Next steps for clarity',
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-2.5 text-sm text-foreground/85">
-                  <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>{item}</span>
-                </div>
-              ))}
-            </div>
-
             <Button
               onClick={handleCTA}
               size="lg"
-              className="w-full sm:w-auto bg-white text-gray-900 hover:bg-white/92 px-12 py-7 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] mb-4 rounded-2xl relative"
+              className="w-full sm:w-auto bg-white text-gray-900 hover:bg-white/92 px-12 py-7 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] rounded-2xl"
             >
               Unlock My Full Reading
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-
-            <p className="text-xs text-muted-foreground/60 mb-3 relative">
-              This reading expires in 24 hours
-            </p>
-
-            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground/60 mb-2 relative">
-              <span>Basic {PRICE_MAP.basic.display} · Complete {PRICE_MAP.complete.display} · Instant access · Photo never shared</span>
-            </div>
-
-            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground relative">
-              <Shield className="w-3.5 h-3.5 text-green-400" />
-              <span>7-day refund policy · Secure checkout</span>
-            </div>
+            <p className="text-xs text-muted-foreground/50 mt-3">from {PRICE_MAP.basic.display} · Instant access · 7-day refund</p>
           </motion.div>
         </div>
       </section>
@@ -380,7 +430,6 @@ const Resultado = () => {
       {/* ========== SOCIAL PROOF ========== */}
       <section className="py-6 px-4">
         <div className="container max-w-3xl mx-auto">
-          {/* Stats row */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground mb-8">
             <div className="flex items-center gap-1.5">
               {[...Array(5)].map((_, i) => (
@@ -394,14 +443,13 @@ const Resultado = () => {
             <span>Private & confidential</span>
           </div>
 
-          {/* Testimonial card */}
+          {/* New testimonial — specific result, not generic */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 }}
             className="glass-card rounded-2xl p-7 relative overflow-hidden"
           >
-            {/* Big quote mark */}
             <div className="absolute top-3 left-5 text-5xl font-serif text-primary/10 leading-none select-none">"</div>
 
             <div className="flex gap-0.5 mb-4">
@@ -410,16 +458,15 @@ const Resultado = () => {
               ))}
             </div>
             <p className="text-sm text-foreground/80 leading-relaxed italic mb-5">
-              "It noticed a fork in my heart line and explained exactly what I was experiencing
-              in my relationship. I hadn't told it anything -- it just saw it. That was enough for me."
+              "I'd been going back and forth with the same guy for 8 months. The reading described a fork in my heart line and said I was holding a decision I already knew the answer to. I did. I stopped waiting."
             </p>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                <span className="text-[9px] font-bold text-white">E</span>
+                <span className="text-[9px] font-bold text-white">R</span>
               </div>
               <div>
-                <p className="text-sm font-semibold text-foreground">Emily S.</p>
-                <p className="text-xs text-muted-foreground">Austin, TX</p>
+                <p className="text-sm font-semibold text-foreground">Rachel M.</p>
+                <p className="text-xs text-muted-foreground">Denver, CO</p>
               </div>
             </div>
           </motion.div>

@@ -45,6 +45,12 @@ const HERO_VARIANTS = {
     cta: "See What My Palm Shows",
     microcopy: "No subscriptions · No fluff · Focused on your lines",
   },
+  C: {
+    h1: "For Women Who Know Something Needs to Change — But Can't Name It Yet",
+    subheadline: "Your palm lines carry a pattern. Most people never look. Yours might explain the timing, the hesitation, and what keeps coming back.",
+    cta: "Show Me What My Palm Says",
+    microcopy: "Free to start · Private · No account required",
+  },
 } as const;
 
 const FAQ_ITEMS = [
@@ -123,7 +129,7 @@ const VSL = () => {
     const resolvedAngle = getAngle(params, parsedUtm);
     const resolvedFocus = getFocus(params);
     const variantOverride = (params.get("v") || "").trim();
-    const heroKey = variantOverride === "2" ? "B" : resolvedAngle === "B" ? "B" : "A";
+    const heroKey = variantOverride === "3" ? "C" : variantOverride === "2" ? "B" : resolvedAngle === "B" ? "B" : "A";
     return { utm: parsedUtm, angle: resolvedAngle, focus: resolvedFocus, heroVariant: heroKey as keyof typeof HERO_VARIANTS };
   }, [search]);
 

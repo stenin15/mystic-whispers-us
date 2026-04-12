@@ -361,7 +361,7 @@ const Analise = () => {
     const progressInterval = setInterval(() => {
       setProgress(prev => {
         // Slow down near the end, speed up in the middle
-        const speedFactor = prev < 30 ? 0.3 : prev < 70 ? 0.5 : prev < 90 ? 0.2 : 0.05;
+        const speedFactor = prev < 30 ? 0.3 : prev < 70 ? 0.5 : prev < 90 ? 0.2 : 0.15;
         const increment = Math.random() * speedFactor;
         return Math.min(prev + increment, 95); // Never reach 100 until done
       });
@@ -373,7 +373,7 @@ const Analise = () => {
     }, 100);
 
     // Minimum time before navigation (ensures good UX)
-    const minTime = 25000; // 25 seconds minimum
+    const minTime = 18000; // 18 seconds minimum
     const checkCompletion = setInterval(() => {
       if (isApiDone && progress >= 90) {
         setProgress(100);
@@ -549,7 +549,9 @@ const Analise = () => {
               {currentPhase.text}
             </h2>
             <p className="text-sm text-muted-foreground/70 italic">
-              {currentPhase.subtext}
+              {progress > 85 && !isApiDone
+                ? "The more specific your reading, the longer this takes. Your palm has details most readings miss."
+                : currentPhase.subtext}
             </p>
           </motion.div>
         </AnimatePresence>

@@ -176,15 +176,15 @@ const Checkout = () => {
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                   <BookOpen className="w-4 h-4 text-primary flex-shrink-0" />
                   <span className="font-semibold text-foreground text-sm">
-                    Add: Ritual & Integration Guide
+                    Add the practice that goes with your reading
                   </span>
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/20 text-primary font-medium border border-primary/20">
                     +${GUIDE_BUMP_PRICE}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  7 activation practices + healing meditations + daily protection ritual.
-                  Normally ${PRICE_MAP.guide.amountUsd} -- yours for just ${GUIDE_BUMP_PRICE} when added here.
+                  7 specific practices matched to your energy type + daily ritual + healing meditations.
+                  Most women who get clarity from the reading use this to act on it. Normally ${PRICE_MAP.guide.amountUsd} — just ${GUIDE_BUMP_PRICE} here.
                 </p>
               </div>
             </div>
@@ -192,142 +192,94 @@ const Checkout = () => {
         </div>
       </section>
 
-      {/* ========== PRICING CARDS ========== */}
+      {/* ========== PRICING — Complete como oferta principal ========== */}
       <section className="py-10 px-4">
-        <div className="container max-w-5xl mx-auto px-2 md:px-4">
-          <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+        <div className="container max-w-2xl mx-auto">
 
-            {/* Basic Plan */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="relative p-8 rounded-3xl glass-card border border-border/20 hover:border-primary/30 hover-glow-border transition-all duration-300"
+          {/* Complete Plan — oferta principal */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.6 }}
+            className="relative p-8 md:p-10 rounded-3xl border border-yellow-400/25 overflow-hidden mb-4"
+            style={{
+              background: 'linear-gradient(135deg, hsl(45 95% 55% / 0.08) 0%, hsl(320 55% 55% / 0.06) 50%, hsl(280 60% 55% / 0.04) 100%)',
+              boxShadow: '0 0 50px hsl(45 95% 55% / 0.1), inset 0 1px 0 rgba(255,255,255,0.06)',
+            }}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(45_95%_55%_/_0.06)_0%,transparent_70%)] pointer-events-none" />
+
+            {/* Badge */}
+            <div className="flex justify-center mb-6">
+              <div className="px-5 py-1.5 rounded-full bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 text-sm font-semibold flex items-center gap-1.5 shadow-lg shadow-yellow-400/20">
+                <Crown className="w-3.5 h-3.5" />
+                Most chosen
+              </div>
+            </div>
+
+            <div className="text-center mb-7">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-400/10 border border-yellow-400/25 flex items-center justify-center">
+                <Crown className="w-8 h-8 text-yellow-400" />
+              </div>
+              <h3 className="text-2xl font-serif font-bold gradient-text mb-2">
+                Your Complete Reading
+              </h3>
+              <p className="text-sm text-muted-foreground/80">
+                Everything Madam Aurora found — delivered now.
+              </p>
+            </div>
+
+            <div className="space-y-3.5 mb-8">
+              {[
+                { text: "Complete palm reading — all patterns revealed", icon: Star },
+                { text: "7 activation practices matched to your energy type", icon: Zap },
+                { text: "Healing meditations (audio)", icon: Heart },
+                { text: "Manifestation map (PDF)", icon: Gift },
+                { text: "Daily protection ritual", icon: Shield },
+                { text: "Bonus: Tarot mini-reading", icon: Sparkles },
+              ].map((item, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <item.icon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                  <span className="text-sm text-foreground/90">{item.text}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mb-7">
+              <span className="text-4xl font-bold gradient-text">{PRICE_MAP.complete.display}</span>
+              <div className="text-sm text-muted-foreground mt-1">One-time · Instant access · 7-day refund</div>
+            </div>
+
+            <Button
+              onClick={() => handleCheckoutClick("complete")}
+              size="lg"
+              className="w-full gradient-gold text-gray-900 hover:opacity-90 py-7 text-base font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-yellow-400/10 rounded-2xl"
             >
-              <div className="text-center mb-7">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
-                  <Star className="w-7 h-7 text-primary" />
-                </div>
-                <h3 className="text-xl font-serif font-semibold text-foreground mb-1">
-                  Palm reading
-                </h3>
-                <p className="text-sm text-muted-foreground/80 mb-1">
-                  A clear, initial view of your energy
-                </p>
-                <p className="text-xs text-muted-foreground/50 italic">
-                  A simple starting point.
-                </p>
-              </div>
+              <Sparkles className="w-4 h-4 mr-2" />
+              Unlock My Complete Reading
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
 
-              <div className="space-y-3.5 mb-8">
-                {[
-                  "Your dominant energy, explained clearly",
-                  "Your strengths and natural gifts",
-                  "What may be blocking your momentum",
-                  "A personalized intuitive message",
-                  "Optional short audio (generic)",
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-sm text-foreground/85">{item}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
+              <Shield className="w-4 h-4 text-green-400" />
+              <span>7-day refund policy · Secure checkout</span>
+            </div>
+          </motion.div>
 
-              <div className="text-center mb-7">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <span className="text-4xl font-bold text-foreground">{PRICE_MAP.basic.display}</span>
-                </div>
-                <span className="text-sm text-muted-foreground">One-time payment · Instant access</span>
-              </div>
-
-              <Button
-                onClick={() => handleCheckoutClick("basic")}
-                variant="outline"
-                size="lg"
-                className="w-full border-primary/30 text-foreground hover:bg-primary/10 py-6 transition-all duration-200"
-              >
-                Get the basic reading
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </motion.div>
-
-            {/* Complete Plan */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="relative p-8 rounded-3xl border border-yellow-400/25 overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, hsl(45 95% 55% / 0.08) 0%, hsl(320 55% 55% / 0.06) 50%, hsl(280 60% 55% / 0.04) 100%)',
-                boxShadow: '0 0 40px hsl(45 95% 55% / 0.08), inset 0 1px 0 rgba(255,255,255,0.06)',
-              }}
+          {/* Basic — link secundário discreto */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+            className="text-center"
+          >
+            <button
+              onClick={() => handleCheckoutClick("basic")}
+              className="text-sm text-muted-foreground/50 hover:text-muted-foreground/80 underline underline-offset-4 transition-colors duration-200"
             >
-              {/* Background accent */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(45_95%_55%_/_0.06)_0%,transparent_70%)] pointer-events-none" />
-
-              {/* Popular Badge */}
-              <div className="absolute -top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className="px-5 py-1.5 rounded-full bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900 text-sm font-semibold flex items-center gap-1.5 shadow-lg shadow-yellow-400/20">
-                  <Crown className="w-3.5 h-3.5" />
-                  Most popular
-                </div>
-              </div>
-
-              <div className="text-center mb-7 mt-3">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-yellow-400/10 border border-yellow-400/25 flex items-center justify-center">
-                  <Crown className="w-7 h-7 text-yellow-400" />
-                </div>
-                <h3 className="text-xl font-serif font-semibold gradient-text mb-1">
-                  Complete package
-                </h3>
-                <p className="text-sm text-muted-foreground/80 mb-1">
-                  Deeper guidance + practical next steps
-                </p>
-                <p className="text-xs text-muted-foreground/50 italic">
-                  Best for major decisions and clarity.
-                </p>
-              </div>
-
-              <div className="space-y-3.5 mb-8">
-                {[
-                  { text: "Complete palm reading", icon: Star },
-                  { text: "7 guided activation practices", icon: Zap },
-                  { text: "Healing meditations (audio)", icon: Heart },
-                  { text: "Manifestation map (PDF)", icon: Gift },
-                  { text: "Daily protection ritual", icon: Shield },
-                  { text: "Bonus: Tarot mini-reading", icon: Sparkles },
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <item.icon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-                    <span className="text-sm text-foreground/90">{item.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="text-center mb-7">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <span className="text-4xl font-bold gradient-text">{PRICE_MAP.complete.display}</span>
-                </div>
-                <span className="text-sm text-muted-foreground">One-time payment · Instant access</span>
-              </div>
-
-              <Button
-                onClick={() => handleCheckoutClick("complete")}
-                size="lg"
-                className="w-full gradient-gold text-gray-900 hover:opacity-90 py-6 text-base font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-yellow-400/10"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Upgrade to the complete package
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-
-              <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
-                <Shield className="w-4 h-4 text-green-400" />
-                <span>7-day refund policy</span>
-              </div>
-            </motion.div>
-          </div>
+              Prefer the basic reading? {PRICE_MAP.basic.display} →
+            </button>
+          </motion.div>
         </div>
       </section>
 
@@ -340,24 +292,24 @@ const Checkout = () => {
           <div className="grid md:grid-cols-3 gap-4">
             {[
               {
-                name: "Emily S.",
-                city: "Austin, TX",
-                text: "It noticed a fork in my heart line and explained exactly what I was experiencing. Uncanny.",
-                initial: "E",
+                name: "Rachel M.",
+                city: "Denver, CO",
+                text: "I got the complete package. I used the daily ritual for 3 weeks. I don't know what shifted, but something did. I stopped waiting for him to decide.",
+                initial: "R",
                 gradient: "from-purple-500 to-pink-500",
               },
               {
-                name: "Sarah L.",
-                city: "Chicago, IL",
-                text: "The reading explained my commitment delay in a way that finally made sense. I felt understood.",
-                initial: "S",
+                name: "Jamie L.",
+                city: "Nashville, TN",
+                text: "I almost didn't do it — thought it was going to be generic. It wasn't. It described a pattern I'd never talked about out loud. That was enough.",
+                initial: "J",
                 gradient: "from-pink-500 to-rose-400",
               },
               {
-                name: "Olivia A.",
-                city: "Miami, FL",
-                text: "Calm, specific, and grounded. Not dramatic at all. I'm much clearer about timing now.",
-                initial: "O",
+                name: "Morgan K.",
+                city: "Portland, OR",
+                text: "The reading called out the exact block I had around commitment. It didn't judge it — just named it clearly. First time I understood why.",
+                initial: "M",
                 gradient: "from-violet-500 to-purple-400",
               },
             ].map((t, i) => (
