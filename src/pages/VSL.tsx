@@ -32,6 +32,10 @@ import {
   persistAttribution,
 } from "@/lib/marketing";
 
+import avatarCarla from '@/assets/avatar-carla.jpg';
+import avatarFernanda from '@/assets/avatar-fernanda.jpg';
+import avatarMariana from '@/assets/avatar-mariana.jpg';
+
 const HERO_VARIANTS = {
   A: {
     h1: "Your Palm Holds Answers About Love, Timing & What Comes Next",
@@ -90,15 +94,16 @@ const FAQ_ITEMS = [
 
 const AvatarStack = () => (
   <div className="flex items-center gap-3 justify-center">
-    <div className="flex -space-x-2">
-      {["from-purple-500 to-pink-500", "from-pink-500 to-rose-400", "from-violet-500 to-purple-400"].map((gradient, i) => (
-        <div
+    <div className="flex -space-x-2.5">
+      {[avatarCarla, avatarFernanda, avatarMariana].map((src, i) => (
+        <img
           key={i}
-          className={`w-8 h-8 rounded-full bg-gradient-to-br ${gradient} border-2 border-background flex items-center justify-center shadow-lg`}
+          src={src}
+          alt=""
+          loading="lazy"
+          className="w-9 h-9 rounded-full object-cover border-2 border-background shadow-lg"
           style={{ zIndex: 3 - i }}
-        >
-          <span className="text-[9px] font-bold text-white">{["E", "S", "O"][i]}</span>
-        </div>
+        />
       ))}
     </div>
     <p className="text-sm text-muted-foreground">

@@ -135,6 +135,8 @@ export const SocialProofCarousel = () => {
                   <img
                     src={t.avatar}
                     alt={t.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-9 h-9 rounded-full object-cover border-2 border-primary/25 flex-shrink-0 mt-0.5"
                   />
                   <div className="flex-1 min-w-0">
