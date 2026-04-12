@@ -72,7 +72,7 @@ const FAQ_ITEMS = [
   },
   {
     question: "How long does it take?",
-    answer: "It takes 2-3 minutes to start, and your personalized reading is delivered shortly after.",
+    answer: "It takes 2–3 minutes to start, and your personalized reading is delivered shortly after.",
   },
   {
     question: "Is this private?",
@@ -80,7 +80,7 @@ const FAQ_ITEMS = [
   },
   {
     question: "What will I receive exactly?",
-    answer: "A personalized reading with love timing insight, pattern loops, and directional next steps -- plus marriage/commitment timing if relevant.",
+    answer: "A personalized reading with love timing insight, pattern loops, and directional next steps — plus marriage/commitment timing if relevant.",
   },
   {
     question: "Is this for love only or also career/future?",
@@ -298,16 +298,22 @@ const VSL = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-6 mb-10 pb-8 border-b border-white/[0.06]"
+            className="flex flex-wrap items-center justify-center gap-3 mb-10 pb-8 border-b border-white/[0.06]"
           >
             {[
-              { icon: Lock, label: "Private & Secure" },
-              { icon: Star, label: "4.9/5 Rating" },
-              { icon: Shield, label: "Money-back" },
+              { icon: Lock, label: "Private & Secure", sub: "SSL encrypted" },
+              { icon: Star, label: "4.9 / 5 Rating", sub: "27k+ readings" },
+              { icon: Shield, label: "7-Day Refund", sub: "No questions" },
             ].map((item) => (
-              <div key={item.label} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <item.icon className="w-4 h-4 text-primary/50" />
-                <span>{item.label}</span>
+              <div
+                key={item.label}
+                className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-white/[0.07] bg-white/[0.03]"
+              >
+                <item.icon className="w-4 h-4 text-primary/60 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-semibold text-foreground/80 leading-tight">{item.label}</p>
+                  <p className="text-[10px] text-muted-foreground/50">{item.sub}</p>
+                </div>
               </div>
             ))}
           </motion.div>
@@ -399,7 +405,7 @@ const VSL = () => {
               {
                 icon: Eye,
                 title: "Love timing",
-                text: "Why commitment feels delayed -- or pressured -- right now.",
+                text: "Why commitment feels delayed — or pressured — right now.",
                 iconColor: "text-primary",
                 color: "from-primary/20 to-accent/10",
               },

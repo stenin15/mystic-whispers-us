@@ -260,9 +260,30 @@ const Checkout = () => {
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
 
-            <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
-              <Shield className="w-4 h-4 text-green-400" />
-              <span>7-day refund policy · Secure checkout</span>
+            {/* Trust + payment row */}
+            <div className="mt-5 space-y-3">
+              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground/70">
+                <Shield className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+                <span>7-day refund · SSL encrypted · No subscription</span>
+              </div>
+              {/* Payment logos */}
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                <span className="text-[9px] text-muted-foreground/30 uppercase tracking-widest">Pay with</span>
+                {[
+                  { label: 'VISA', style: { fontStyle: 'italic', fontWeight: 800, letterSpacing: '-0.5px' } },
+                  { label: 'MC', style: { fontWeight: 700, letterSpacing: '0px' } },
+                  { label: 'AMEX', style: { fontWeight: 700, fontSize: '9px' } },
+                  { label: 'Stripe', style: { fontWeight: 600, color: '#6772E5' } },
+                ].map((p) => (
+                  <span
+                    key={p.label}
+                    className="px-2 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] text-white/50"
+                    style={p.style}
+                  >
+                    {p.label}
+                  </span>
+                ))}
+              </div>
             </div>
           </motion.div>
 
