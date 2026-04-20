@@ -152,8 +152,8 @@ const Checkout = () => {
         </div>
       </section>
 
-      {/* ========== ORDER BUMP ========== */}
-      <section className="py-4 px-4">
+      {/* ORDER BUMP — moved below pricing card (see inside Complete card) */}
+      {false && <section className="py-4 px-4">
         <div className="container max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -191,7 +191,7 @@ const Checkout = () => {
             </div>
           </motion.div>
         </div>
-      </section>
+      </section>}
 
       {/* ========== PRICING — Complete como oferta principal ========== */}
       <section className="py-10 px-4">
@@ -270,10 +270,41 @@ const Checkout = () => {
               ))}
             </div>
 
-            <div className="text-center mb-7">
+            <div className="text-center mb-6">
               <span className="text-4xl font-bold gradient-text">{PRICE_MAP.complete.display}</span>
               <div className="text-sm text-muted-foreground mt-1">One-time · Instant access · 7-day refund</div>
             </div>
+
+            {/* ORDER BUMP — inside card, after price, before CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className={`relative p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 mb-6 ${
+                addGuide
+                  ? "border-primary bg-primary/8 shadow-[0_0_20px_hsl(var(--primary)/0.15)]"
+                  : "border-border/30 bg-card/20 hover:border-primary/40"
+              }`}
+              onClick={() => setAddGuide((v) => !v)}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all duration-200 ${
+                  addGuide ? "border-primary bg-primary" : "border-muted-foreground/40"
+                }`}>
+                  {addGuide && <CheckCircle2 className="w-3.5 h-3.5 text-primary-foreground" />}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <BookOpen className="w-4 h-4 text-primary flex-shrink-0" />
+                    <span className="font-semibold text-foreground text-sm">Add the practice guide — +${GUIDE_BUMP_PRICE}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium border border-primary/20">Save ${PRICE_MAP.guide.amountUsd - GUIDE_BUMP_PRICE}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    7 practices matched specifically to your energy type — what most women use to actually act on what Aurora revealed. Usually ${PRICE_MAP.guide.amountUsd}, just ${GUIDE_BUMP_PRICE} here.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
 
             {/* Social proof contextual */}
             <div className="flex items-center justify-center gap-2 mb-4">

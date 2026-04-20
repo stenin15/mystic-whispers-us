@@ -202,10 +202,10 @@ const Sucesso = () => {
                     Aurora is waiting for you
                   </p>
                   <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-2">
-                    Your private voice session is live.
+                    Before you open your reading — Aurora wants to speak to you first.
                   </h2>
                   <p className="text-sm text-muted-foreground mb-1 max-w-sm mx-auto leading-relaxed">
-                    Aurora already knows your name, your palm lines, and what she found. This session was made only for you — and it expires in <span className="text-purple-300 font-semibold">48 hours</span>.
+                    Your written reading will still be there. But Aurora's voice session expires in <span className="text-purple-300 font-semibold">48 hours</span> — and she already knows what she found in your palm.
                   </p>
                   <p className="text-xs text-muted-foreground/50 mb-6">After that, access closes permanently.</p>
                   <Button

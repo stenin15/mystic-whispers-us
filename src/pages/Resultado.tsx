@@ -113,7 +113,7 @@ const Resultado = () => {
             </div>
 
             <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4 leading-tight text-foreground">
-              {name}, your reading found something specific
+              {name}, Madam Aurora found a pattern in your palm — and it explains more than you think
             </h1>
 
             {/* Aurora divider */}
@@ -275,7 +275,7 @@ const Resultado = () => {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(280_60%_55%_/_0.1)_0%,transparent_70%)] pointer-events-none" />
 
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-3 relative">
-              Your reading found something specific
+              Unlock everything Aurora found about you
             </h2>
             <p className="text-muted-foreground mb-2 max-w-lg mx-auto text-sm md:text-base relative">
               Madam Aurora identified an active pattern that explains the timing — and what shifts it. Unlock the full reading to see all your gifts, blocks, and your personal message.
@@ -329,8 +329,8 @@ const Resultado = () => {
             {/* Price — no fake strikethrough */}
             <div className="mb-6 relative">
               <div className="text-xs text-muted-foreground/60 mb-1">One-time · No subscription · Instant access</div>
-              <span className="text-4xl font-bold text-foreground">from {PRICE_MAP.basic.display}</span>
-              <div className="text-xs text-primary/70 mt-1">Less than a coffee — yours to keep</div>
+              <span className="text-4xl font-bold text-foreground">{PRICE_MAP.complete.display}</span>
+              <div className="text-xs text-primary/70 mt-1">Complete reading · Voice session included · One-time</div>
             </div>
 
             <Button

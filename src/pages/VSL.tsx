@@ -17,7 +17,10 @@ import {
   Eye,
   Zap,
   Mic2,
+  XCircle,
+  Mail,
 } from "lucide-react";
+import { PRICE_MAP } from "@/lib/pricing";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/layout/Footer";
 import { SocialProofCarousel } from "@/components/shared/SocialProofCarousel";
