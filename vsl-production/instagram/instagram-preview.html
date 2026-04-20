@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madam Aurora — Instagram Complete Assets</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d0a18; color: #e8e0d5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+  .page-header {
+    text-align: center; padding: 48px 24px 32px;
+    border-bottom: 1px solid #2a1f44;
+  }
+  .page-header h1 { font-size: 26px; color: #c9a84c; letter-spacing: 3px; font-weight: 300; }
+  .page-header p { color: #7a6a9a; margin-top: 8px; font-size: 13px; }
+  .stat-row { display: flex; justify-content: center; gap: 32px; margin-top: 20px; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-num { font-size: 22px; color: #c9a84c; font-weight: 600; }
+  .stat-label { font-size: 11px; color: #5a4a7a; letter-spacing: 1px; margin-top: 2px; }
+
+  .section { max-width: 1400px; margin: 0 auto; padding: 48px 24px; }
+  .section-title {
+    font-size: 11px; letter-spacing: 4px; color: #c9a84c; text-transform: uppercase;
+    margin-bottom: 32px; padding-bottom: 12px; border-bottom: 1px solid #2a1f44;
+  }
+  .divider { border: none; border-top: 1px solid #2a1f44; margin: 0; }
+  .note {
+    background: #1a1435; border: 1px solid #2a1f44; border-radius: 8px;
+    padding: 16px; font-size: 13px; line-height: 1.8; color: #a89ab5; margin-bottom: 32px;
+  }
+  .note strong { color: #c9a84c; }
+
+  /* PROFILE */
+  .profile-block { display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap; }
+  .profile-img-wrap img {
+    width: 180px; height: 180px; border-radius: 50%; object-fit: cover;
+    border: 3px solid #c9a84c; box-shadow: 0 0 30px rgba(201,168,76,0.25);
+  }
+  .profile-info h3 { color: #c9a84c; font-size: 18px; margin-bottom: 4px; }
+  .profile-info .handle { color: #7a6a9a; font-size: 14px; margin-bottom: 16px; }
+  .profile-info .bio { color: #e8e0d5; line-height: 1.7; font-size: 14px; white-space: pre-line; }
+  .profile-info .link { color: #c9a84c; font-size: 14px; margin-top: 12px; }
+
+  /* HIGHLIGHTS */
+  .highlights-row { display: flex; gap: 24px; flex-wrap: wrap; }
+  .highlight-group { display: flex; flex-direction: column; gap: 12px; }
+  .highlight-cover-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 8px; width: 130px;
+  }
+  .highlight-cover-wrap img {
+    width: 110px; height: 110px; border-radius: 50%; object-fit: cover;
+    border: 3px solid #c9a84c; box-shadow: 0 0 16px rgba(201,168,76,0.2);
+  }
+  .hl-name { font-size: 11px; color: #c9a84c; text-align: center; letter-spacing: 1px; font-weight: 600; }
+  .hl-stories { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .hl-story-thumb {
+    width: 60px; height: 107px; object-fit: cover; border-radius: 6px;
+    border: 1px solid #2a1f44; cursor: pointer; transition: transform 0.2s;
+  }
+  .hl-story-thumb:hover { transform: scale(1.05); border-color: #c9a84c; }
+
+  /* HIGHLIGHTS EXPANDED */
+  .highlights-full { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; }
+  @media (max-width: 1000px) { .highlights-full { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .highlights-full { grid-template-columns: 1fr; } }
+
+  .hl-block { background: #140e26; border: 1px solid #2a1f44; border-radius: 12px; overflow: hidden; }
+  .hl-block-header {
+    display: flex; align-items: center; gap: 10px; padding: 14px 16px;
+    background: #1a1435; border-bottom: 1px solid #2a1f44;
+  }
+  .hl-block-header img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #c9a84c; }
+  .hl-block-name { font-size: 13px; color: #c9a84c; font-weight: 600; letter-spacing: 1px; }
+  .hl-block-count { font-size: 11px; color: #5a4a7a; }
+  .hl-stories-col { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .story-row { display: flex; gap: 10px; align-items: center; }
+  .story-row img { width: 54px; height: 96px; object-fit: cover; border-radius: 6px; border: 1px solid #2a1f44; flex-shrink: 0; }
+  .story-info { font-size: 11px; color: #7a6a9a; line-height: 1.5; }
+  .story-info strong { color: #a89ab5; display: block; margin-bottom: 2px; }
+
+  /* GRID POSTS */
+  .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 28px; }
+  .post-card { background: #140e26; border: 1px solid #2a1f44; border-radius: 12px; overflow: hidden; }
+  .post-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #1e1635; }
+  .post-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 2px solid #c9a84c; }
+  .post-handle { font-size: 13px; color: #e8e0d5; font-weight: 600; }
+  .post-tag { margin-left: auto; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; }
+  .tag-pin { background: #2a1f44; color: #c9a84c; }
+  .tag-grid { background: #1a2a1f; color: #6ac97a; }
+  .post-img { width: 100%; display: block; object-fit: cover; }
+  .post-img.portrait { max-height: 450px; }
+  .post-img.square { max-height: 360px; }
+  .post-caption {
+    padding: 14px 16px; font-size: 12px; line-height: 1.65; color: #c8bdd8;
+    white-space: pre-line; border-top: 1px solid #1e1635;
+    max-height: 200px; overflow-y: auto;
+  }
+  .post-caption::-webkit-scrollbar { width: 3px; }
+  .post-caption::-webkit-scrollbar-thumb { background: #2a1f44; border-radius: 2px; }
+  .post-label { padding: 8px 16px; font-size: 10px; letter-spacing: 2px; color: #5a4a7a; text-transform: uppercase; border-top: 1px solid #1e1635; }
+
+  /* GRID VISUAL */
+  .ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; max-width: 540px; margin-bottom: 48px; }
+  .ig-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+
+  /* LIGHTBOX */
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; align-items: center; justify-content: center; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-height: 90vh; max-width: 90vw; border-radius: 8px; border: 2px solid #c9a84c; }
+  .lightbox-close { position: fixed; top: 20px; right: 24px; color: #c9a84c; font-size: 32px; cursor: pointer; z-index: 1001; }
+
+  /* CHECKLIST */
+  .checklist { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+  .check-card { background: #140e26; border: 1px solid #2a1f44; border-radius: 10px; padding: 20px; }
+  .check-card h4 { color: #c9a84c; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
+  .check-card ul { list-style: none; }
+  .check-card li { font-size: 13px; color: #a89ab5; line-height: 1.8; padding-left: 20px; position: relative; }
+  .check-card li::before { content: '☐'; position: absolute; left: 0; color: #c9a84c; }
+
+  .footer { text-align: center; padding: 32px; color: #2a1f44; font-size: 11px; letter-spacing: 2px; }
+</style>
+</head>
+<body>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lb" onclick="document.getElementById('lb').classList.remove('open')">
+  <span class="lightbox-close">✕</span>
+  <img id="lb-img" src="">
+</div>
+<script>
+function openLB(src){ document.getElementById('lb-img').src=src; document.getElementById('lb').classList.add('open'); }
+</script>
+
+<!-- HEADER -->
+<div class="page-header">
+  <h1>MADAM AURORA — INSTAGRAM COMPLETE ASSETS</h1>
+  <p>36 assets prontos para publicação · Clique em qualquer imagem para ampliar</p>
+  <div class="stat-row">
+    <div class="stat"><div class="stat-num">1</div><div class="stat-label">Foto de Perfil</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">Capas de Highlight</div></div>
+    <div class="stat"><div class="stat-num">18</div><div class="stat-label">Stories (conteúdo)</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Posts Fixados</div></div>
+    <div class="stat"><div class="stat-num">9</div><div class="stat-label">Posts do Grid</div></div>
+  </div>
+</div>
+
+<!-- ══ SEÇÃO 1 — PERFIL ══ -->
+<div class="section">
+  <div class="section-title">01 — Foto de Perfil &amp; Bio</div>
+  <div class="profile-block">
+    <div class="profile-img-wrap">
+      <img src="images/00_profile.png" alt="Profile" onclick="openLB(this.src)" style="cursor:pointer">
+    </div>
+    <div class="profile-info">
+      <h3>Madam Aurora</h3>
+      <div class="handle">@madamauroraofficial</div>
+      <div class="bio">✦ Your palm already has the answer.
+Free personalized reading — takes 3 minutes.
+500,000+ women have found clarity here.
+
+👇 Upload your palm below</div>
+      <div class="link">🔗 madam-aurora.co</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══ SEÇÃO 2 — HIGHLIGHTS (visão completa) ══ -->
+<div class="section">
+  <div class="section-title">02 — Highlights: Capas + Conteúdo (18 stories)</div>
+  <div class="note">
+    <strong>Como configurar:</strong> Poste 1 story qualquer → salve como highlight → troque a capa pela imagem correspondente abaixo.<br>
+    <strong>Nomes exatos:</strong> Free Read · Results · Palm Lines · About Aurora · FAQ
+  </div>
+
+  <div class="highlights-full">
+
+    <!-- FREE READ -->
+    <div class="hl-block">
+      <div class="hl-block-header">
+        <img src="images/hl_free_read.png">
+        <div><div class="hl-block-name">FREE READ</div><div class="hl-block-count">3 stories</div></div>
+      </div>
+      <div class="hl-stories-col">
+        <div class="story-row">
+          <img src="stories/fr01_cta_link.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 1</strong>CTA principal com link direto para o quiz</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/fr02_how_it_works.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 2</strong>Passo a passo do processo</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/fr03_what_you_get.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 3</strong>O que a leitura inclui</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="hl-block">
+      <div class="hl-block-header">
+        <img src="images/hl_results.png">
+        <div><div class="hl-block-name">RESULTS</div><div class="hl-block-count">4 stories</div></div>
+      </div>
+      <div class="hl-stories-col">
+        <div class="story-row">
+          <img src="stories/re01_sarah.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 1</strong>Sarah M., 41 — Tennessee</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/re02_dana.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 2</strong>Dana, 38 — Oregon</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/re03_rachel.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 3</strong>Rachel, 41 — Tennessee</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/re04_500k.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 4</strong>500,000+ readings — marco social</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PALM LINES -->
+    <div class="hl-block">
+      <div class="hl-block-header">
+        <img src="images/hl_palm_lines.png">
+        <div><div class="hl-block-name">PALM LINES</div><div class="hl-block-count">4 stories</div></div>
+      </div>
+      <div class="hl-stories-col">
+        <div class="story-row">
+          <img src="stories/pl01_heart_line.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 1</strong>Heart Line — o que revela</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/pl02_head_line.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 2</strong>Head Line — o que revela</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/pl03_life_line.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 3</strong>Life Line — mito desvendado</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/pl04_fate_line.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 4</strong>Fate Line — o que revela</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABOUT AURORA -->
+    <div class="hl-block">
+      <div class="hl-block-header">
+        <img src="images/hl_about.png">
+        <div><div class="hl-block-name">ABOUT AURORA</div><div class="hl-block-count">3 stories</div></div>
+      </div>
+      <div class="hl-stories-col">
+        <div class="story-row">
+          <img src="stories/ab01_who.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 1</strong>Quem é Madam Aurora</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/ab02_why_palm.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 2</strong>Por que palm reading funciona</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/ab03_mission.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 3</strong>A missão — por que existe</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="hl-block">
+      <div class="hl-block-header">
+        <img src="images/hl_faq.png">
+        <div><div class="hl-block-name">FAQ</div><div class="hl-block-count">4 stories</div></div>
+      </div>
+      <div class="hl-stories-col">
+        <div class="story-row">
+          <img src="stories/fq01_is_it_real.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 1</strong>"Is this actually real?"</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/fq02_how_does_it_work.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 2</strong>"How does it work?"</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/fq03_really_free.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 3</strong>"Is it really free?"</div>
+        </div>
+        <div class="story-row">
+          <img src="stories/fq04_skeptic.png" onclick="openLB(this.src)" style="cursor:pointer">
+          <div class="story-info"><strong>Story 4</strong>"I'm skeptical" — resposta</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══ SEÇÃO 3 — POSTS FIXADOS ══ -->
+<div class="section">
+  <div class="section-title">03 — Posts Fixados (publicar e fixar na ordem abaixo)</div>
+  <div class="posts-grid">
+
+    <div class="post-card">
+      <div class="post-header">
+        <img class="post-avatar" src="images/00_profile.png">
+        <div class="post-handle">madamauroraofficial</div>
+        <span class="post-tag tag-pin">📌 Pin 1</span>
+      </div>
+      <img class="post-img portrait" src="images/01_pin_anchor.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">Your palm has always held the answer.
+
+The marriage line doesn't just show who — it shows when, and why timing keeps shifting.
+
+A free palm reading reveals what's been quietly waiting to surface.
+
+Drop PALM in the comments and I'll send you the link. Or go directly:
+→ madam-aurora.co (link in bio)
+
+#palmreading #palmistry #lovereading #spiritualwomen #freereading #mystical</div>
+      <div class="post-label">Ancora do perfil · 4:5</div>
+    </div>
+
+    <div class="post-card">
+      <div class="post-header">
+        <img class="post-avatar" src="images/00_profile.png">
+        <div class="post-handle">madamauroraofficial</div>
+        <span class="post-tag tag-pin">📌 Pin 2</span>
+      </div>
+      <img class="post-img portrait" src="images/02_pin_social_proof.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">I don't ask you to believe in palmistry.
+
+I ask you to believe these women.
+
+"I've never felt so seen. The reading described my exact situation in ways I couldn't even articulate to my therapist." — Sarah M., Texas
+
+"She was 38 and thought her time had passed. 6 weeks after her reading, she met him." — Real story
+
+"I didn't believe in palm reading either. Then I saw what my heart line actually meant." — Dana, Oregon
+
+Your free reading is waiting → link in bio
+
+#palmreading #testimonial #spiritualwomen #lovereading #realresults</div>
+      <div class="post-label">Prova Social · 4:5</div>
+    </div>
+
+    <div class="post-card">
+      <div class="post-header">
+        <img class="post-avatar" src="images/00_profile.png">
+        <div class="post-handle">madamauroraofficial</div>
+        <span class="post-tag tag-pin">📌 Pin 3</span>
+      </div>
+      <img class="post-img portrait" src="images/03_pin_how_it_works.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">No crystal balls. No vague predictions.
+
+Here's exactly how your free palm reading works:
+
+Step 1 → Take a photo of your palm (any smartphone works)
+Step 2 → Answer 7 questions about your love life
+Step 3 → Receive your personalized reading
+
+What you get:
+✦ Your dominant palm line meaning
+✦ What your patterns reveal right now
+✦ Your next aligned action
+
+Free. Private. Takes 3 minutes.
+→ madam-aurora.co (link in bio)
+
+#palmreading #howto #freereading #spiritualwomen #palmistry</div>
+      <div class="post-label">Como Funciona · 4:5</div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══ SEÇÃO 4 — GRID 9 POSTS ══ -->
+<div class="section">
+  <div class="section-title">04 — Grid de 9 Posts</div>
+  <div class="note">
+    <strong>Ordem de publicação:</strong> G09 → G08 → G07 → G06 → G05 → G04 → G03 → G02 → G01 (inverso = grid certo)
+  </div>
+
+  <div class="ig-grid">
+    <img src="images/g01_anchor_text.png" onclick="openLB(this.src)" style="cursor:pointer" title="Grid 1">
+    <img src="images/g02_heart_line.png" onclick="openLB(this.src)" style="cursor:pointer" title="Grid 2">
+    <img src="images/g03_testimonial_card.png" onclick="openLB(this.src)" style="cursor:pointer" title="Grid 3">
+    <img src="images/g04_pain_mirror.png" onclick="openLB(this.src)" style="cursor:pointer" title="Grid 4">
+    <img src="images/g05_how_it_works.png" onclick="openLB(this.src)" style="cursor:pointer" title="Grid 5">
+    <img src="images/g06_life_line_myth.png" onclick="openLB(this.src)" style="cursor:pointer" title="Grid 6">
+    <img src="images/g07_social_proof_volume.png" onclick="openLB(this.src)" style="cursor:pointer" title="Grid 7">
+    <img src="images/g08_pattern_quiz.png" onclick="openLB(this.src)" style="cursor:pointer" title="Grid 8">
+    <img src="images/g09_final_cta.png" onclick="openLB(this.src)" style="cursor:pointer" title="Grid 9">
+  </div>
+
+  <div class="posts-grid">
+
+    <div class="post-card">
+      <div class="post-header"><img class="post-avatar" src="images/00_profile.png"><div class="post-handle">madamauroraofficial</div><span class="post-tag tag-grid">Grid 1</span></div>
+      <img class="post-img square" src="images/g01_anchor_text.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">Most women feel it before they understand it.
+
+Something is off.
+Something is about to change.
+Something has been waiting.
+
+Your palm knows which one it is.
+
+Free reading → link in bio
+
+Comment PALM if you feel this.
+
+#palmreading #spiritualwomen #intuition #lovereading #mystical #palmistry</div>
+      <div class="post-label">Ancora tipográfica · 1:1</div>
+    </div>
+
+    <div class="post-card">
+      <div class="post-header"><img class="post-avatar" src="images/00_profile.png"><div class="post-handle">madamauroraofficial</div><span class="post-tag tag-grid">Grid 2</span></div>
+      <img class="post-img square" src="images/g02_heart_line.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">Your heart line doesn't just predict love.
+
+It reveals HOW you love — and what's been blocking you from receiving it.
+
+If your heart line curves up toward your index finger:
+→ You're a natural giver. You've probably been with partners who take.
+
+If your heart line runs straight across:
+→ You lead with logic. You protect yourself — sometimes too much.
+
+Which one are you? Comment below.
+
+Get your full free reading → link in bio
+
+#heartline #palmreading #palmistry #lovereading #spiritualwomen</div>
+      <div class="post-label">Linha do coração · 1:1</div>
+    </div>
+
+    <div class="post-card">
+      <div class="post-header"><img class="post-avatar" src="images/00_profile.png"><div class="post-handle">madamauroraofficial</div><span class="post-tag tag-grid">Grid 3</span></div>
+      <img class="post-img square" src="images/g03_testimonial_card.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">Sarah almost didn't do her reading.
+
+"It feels too mystical for me," she said.
+
+Three minutes later:
+
+"How is this so accurate?"
+
+That's what happens when your palm does the talking.
+
+Your turn → link in bio
+
+#palmreading #testimonial #spiritualwomen #accurate #freereading</div>
+      <div class="post-label">Depoimento · 1:1</div>
+    </div>
+
+    <div class="post-card">
+      <div class="post-header"><img class="post-avatar" src="images/00_profile.png"><div class="post-handle">madamauroraofficial</div><span class="post-tag tag-grid">Grid 4</span></div>
+      <img class="post-img square" src="images/g04_pain_mirror.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">You've read every self-help book.
+Journaled. Meditated. Talked to friends.
+
+And something still feels... unclear.
+
+Your palm reads differently than all of that.
+
+It doesn't tell you what to do.
+It shows you what you already know.
+
+Save this if you needed to hear it.
+Free reading → link in bio
+
+#spiritualawakening #selfdiscovery #palmreading #women #clarity</div>
+      <div class="post-label">Espelho de dor · 1:1</div>
+    </div>
+
+    <div class="post-card">
+      <div class="post-header"><img class="post-avatar" src="images/00_profile.png"><div class="post-handle">madamauroraofficial</div><span class="post-tag tag-grid">Grid 5</span></div>
+      <img class="post-img square" src="images/g05_how_it_works.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">No crystal balls. No vague predictions.
+
+Here's exactly what happens:
+
+📸 You take a photo of your palm
+❓ You answer 7 questions
+✨ You receive your personalized reading
+
+What you get back:
+→ What your dominant line reveals
+→ The pattern blocking you in love
+→ Your next aligned action
+
+Free. Private. 3 minutes.
+→ madam-aurora.co (link in bio)
+
+#palmreading #howto #free #spiritualwomen #palmistry</div>
+      <div class="post-label">Como funciona · 1:1</div>
+    </div>
+
+    <div class="post-card">
+      <div class="post-header"><img class="post-avatar" src="images/00_profile.png"><div class="post-handle">madamauroraofficial</div><span class="post-tag tag-grid">Grid 6</span></div>
+      <img class="post-img square" src="images/g06_life_line_myth.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">The #1 myth in palmistry — busted.
+
+Your life line does NOT predict when you'll die.
+
+It actually reveals:
+→ Your vitality and energy in relationships
+→ Periods of major change ahead
+→ Whether you're emotionally guarded or expansive in love
+
+A life line that runs close to the thumb?
+You're cautious. Self-protective. Slow to fully open up.
+
+A life line that sweeps wide?
+You fall hard. You give everything. You need a partner who matches that.
+
+Get your full reading free → link in bio
+
+#lifeline #palmistry #palmreading #myth #spiritualwomen</div>
+      <div class="post-label">Mito da linha da vida · 1:1</div>
+    </div>
+
+    <div class="post-card">
+      <div class="post-header"><img class="post-avatar" src="images/00_profile.png"><div class="post-handle">madamauroraofficial</div><span class="post-tag tag-grid">Grid 7</span></div>
+      <img class="post-img square" src="images/g07_social_proof_volume.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">Half a million women.
+
+Different ages. Different cities. Different questions.
+
+Same result: clarity.
+
+"I finally understood why every relationship ended the same way." — 34, New York
+"She was 38 and thought her time had passed. 6 weeks later, she met him." — Real story
+"I didn't believe in this. Then I saw what my heart line actually meant." — 29, LA
+
+When was the last time something gave you actual clarity?
+
+→ Link in bio. Your reading is free and waiting.
+
+#palmreading #500k #spiritualwomen #lovereading #results</div>
+      <div class="post-label">Prova social volume · 1:1</div>
+    </div>
+
+    <div class="post-card">
+      <div class="post-header"><img class="post-avatar" src="images/00_profile.png"><div class="post-handle">madamauroraofficial</div><span class="post-tag tag-grid">Grid 8</span></div>
+      <img class="post-img square" src="images/g08_pattern_quiz.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">Look at your palm right now.
+
+Which line is MOST visible?
+
+❤️ Heart line (curves across top) → you lead with emotion
+🧠 Head line (runs across middle) → you lead with logic
+✨ Life line (curves around thumb) → you lead with instinct
+⭐ Fate line (runs vertically center) → you're driven by purpose
+
+Comment below: Heart / Head / Life / Fate
+
+Then get your full free reading → link in bio
+
+#palmreading #quiz #palmlines #spiritualwomen #palmistry #whichone</div>
+      <div class="post-label">Quiz interativo · 1:1</div>
+    </div>
+
+    <div class="post-card">
+      <div class="post-header"><img class="post-avatar" src="images/00_profile.png"><div class="post-handle">madamauroraofficial</div><span class="post-tag tag-grid">Grid 9</span></div>
+      <img class="post-img square" src="images/g09_final_cta.png" onclick="openLB(this.src)" style="cursor:pointer">
+      <div class="post-caption">You've seen enough.
+
+You know what this is.
+
+And you're still here — which means part of you already knows your palm has something to say.
+
+The reading is free.
+It takes 3 minutes.
+And it might be the most accurate thing you've read about yourself in years.
+
+→ madam-aurora.co (link in bio)
+
+No credit card. No catch. Just your palm and your truth.
+
+#palmreading #freereading #spiritualwomen #lovereading #palmistry #now</div>
+      <div class="post-label">CTA final · 1:1</div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══ SEÇÃO 5 — CHECKLIST ══ -->
+<div class="section">
+  <div class="section-title">05 — Checklist de Publicação</div>
+  <div class="checklist">
+
+    <div class="check-card">
+      <h4>Configurar Perfil</h4>
+      <ul>
+        <li>Nome: Madam Aurora</li>
+        <li>Handle: @madamauroraofficial</li>
+        <li>Foto: images/00_profile.png</li>
+        <li>Bio: copiar texto da seção 01</li>
+        <li>Link: madam-aurora.co</li>
+        <li>Categoria: Entertainment Website</li>
+        <li>Conta Profissional ativada</li>
+      </ul>
+    </div>
+
+    <div class="check-card">
+      <h4>Postar o Grid (ordem inversa)</h4>
+      <ul>
+        <li>G09 — CTA final (primeiro a postar)</li>
+        <li>G08 — Quiz interativo</li>
+        <li>G07 — 500k prova social</li>
+        <li>G06 — Mito life line</li>
+        <li>G05 — Como funciona</li>
+        <li>G04 — Espelho de dor</li>
+        <li>G03 — Depoimento Sarah</li>
+        <li>G02 — Heart line</li>
+        <li>G01 — Ancora (último a postar)</li>
+      </ul>
+    </div>
+
+    <div class="check-card">
+      <h4>Postar e Fixar os Pins</h4>
+      <ul>
+        <li>Postar Pin 3 — Como funciona</li>
+        <li>Postar Pin 2 — Prova social</li>
+        <li>Postar Pin 1 — Ancora (último)</li>
+        <li>Fixar Pin 1 no topo do perfil</li>
+        <li>Fixar Pin 2 (segundo)</li>
+        <li>Fixar Pin 3 (terceiro)</li>
+      </ul>
+    </div>
+
+    <div class="check-card">
+      <h4>Criar Highlights</h4>
+      <ul>
+        <li>Postar 1 story qualquer</li>
+        <li>Criar highlight "Free Read" → capa hl_free_read.png</li>
+        <li>Criar highlight "Results" → capa hl_results.png</li>
+        <li>Criar highlight "Palm Lines" → capa hl_palm_lines.png</li>
+        <li>Criar highlight "About Aurora" → capa hl_about.png</li>
+        <li>Criar highlight "FAQ" → capa hl_faq.png</li>
+        <li>Adicionar stories de cada highlight</li>
+      </ul>
+    </div>
+
+    <div class="check-card">
+      <h4>ManyChat (após conectar conta)</h4>
+      <ul>
+        <li>Trigger: comentário "PALM" → DM com link</li>
+        <li>Trigger: DM "READING" → envio automático</li>
+        <li>Trigger: novo seguidor → boas-vindas 24h</li>
+        <li>Mensagem de DM com link do quiz</li>
+        <li>Testar todos os flows</li>
+      </ul>
+    </div>
+
+    <div class="check-card">
+      <h4>Conectar ao Tráfego Pago</h4>
+      <ul>
+        <li>Perfil conectado à página do Facebook</li>
+        <li>Handle correto nos anúncios Meta</li>
+        <li>Link na bio funcionando</li>
+        <li>Testar DM trigger antes de ativar ads</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  MADAM AURORA · 36 INSTAGRAM ASSETS · SEEDREAM 4.5 · madam-aurora.co
+</div>
+
+</body>
+</html>

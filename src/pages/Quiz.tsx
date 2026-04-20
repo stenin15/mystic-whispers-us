@@ -183,7 +183,14 @@ const Quiz = () => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Quiz completed, go to analysis
+      // Quiz completed — fire CompleteRegistration before navigating
+      track("CompleteRegistration", {
+        event_id: getOrCreateEventId("quiz_complete"),
+        page_path: "/quiz",
+        angle: getStoredAngle(),
+        focus: getStoredFocus(),
+        ...getAttributionParams(),
+      });
       navigate('/analise');
     }
   };

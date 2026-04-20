@@ -16,6 +16,7 @@ import {
   Hand,
   Eye,
   Zap,
+  Mic2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/layout/Footer";
@@ -506,6 +507,97 @@ const VSL = () => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <p className="text-sm text-muted-foreground/60 mt-3">Takes 2-3 minutes to begin</p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ========== AURORA VOICE SESSION ========== */}
+      <section className="relative py-20 px-4" id="aurora-session">
+        <div className="container mx-auto max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative rounded-3xl overflow-hidden border border-yellow-400/20 p-8 md:p-12 text-center"
+            style={{
+              background:
+                "linear-gradient(135deg, hsl(280 60% 10% / 0.9) 0%, hsl(320 55% 8% / 0.95) 50%, hsl(260 50% 8% / 0.9) 100%)",
+              boxShadow:
+                "0 0 60px hsl(45 95% 55% / 0.08), inset 0 1px 0 rgba(255,215,100,0.07)",
+            }}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_50%_at_50%_0%,hsl(45_95%_55%_/_0.07)_0%,transparent_70%)] pointer-events-none" />
+
+            <div className="relative flex justify-center mb-6">
+              <div className="relative w-16 h-16 rounded-full bg-yellow-400/10 border border-yellow-400/25 flex items-center justify-center">
+                <span className="absolute inset-0 rounded-full animate-ping bg-yellow-400/10" />
+                <Mic2 className="w-7 h-7 text-yellow-400 relative z-10" />
+              </div>
+            </div>
+
+            <p className="text-xs font-semibold uppercase tracking-widest text-yellow-400/60 mb-4">
+              Included after purchase
+            </p>
+
+            <h2 className="text-2xl md:text-4xl font-serif font-bold text-foreground leading-tight mb-3">
+              Your reading doesn't end on the page.
+            </h2>
+            <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed">
+              After your purchase, you get private voice access to Madam Aurora herself — she speaks, she listens, and she already knows you.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4 text-left mb-10">
+              {[
+                {
+                  emoji: "🎙️",
+                  title: "Aurora speaks to you",
+                  desc: "Every response is delivered in her voice — not text on a screen. You hear her.",
+                },
+                {
+                  emoji: "🔮",
+                  title: "She already knows you",
+                  desc: "Aurora reads your quiz answers, your energy type, and your palm patterns before you say a word.",
+                },
+                {
+                  emoji: "💬",
+                  title: "Ask anything",
+                  desc: "Love timing, career crossroads, recurring patterns, what your lines really mean — nothing is off limits.",
+                },
+                {
+                  emoji: "🔒",
+                  title: "Completely private",
+                  desc: "Your session, your questions, your answers. No one else reads this.",
+                },
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08 }}
+                  className="flex items-start gap-4 rounded-2xl p-5 border border-white/[0.06] bg-white/[0.03]"
+                >
+                  <span className="text-2xl flex-shrink-0">{item.emoji}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground mb-1">{item.title}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <Button
+              onClick={handleCTA}
+              size="lg"
+              className="gradient-gold text-background hover:opacity-90 px-10 py-6 text-base font-semibold rounded-2xl"
+            >
+              <Mic2 className="w-5 h-5 mr-2" />
+              Start My Private Session
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+            <p className="mt-4 text-xs text-muted-foreground/50">
+              Available immediately after purchase · Session expires in 48 hours
+            </p>
           </motion.div>
         </div>
       </section>

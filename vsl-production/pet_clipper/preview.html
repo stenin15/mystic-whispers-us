@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pet Nail Clipper LED — Criativos</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0a; color: #f0f0f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  .header {
+    text-align: center;
+    padding: 48px 24px 32px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .header h1 { font-size: 13px; letter-spacing: 4px; color: #555; text-transform: uppercase; margin-bottom: 12px; }
+  .header h2 { font-size: 28px; color: #fff; font-weight: 700; margin-bottom: 8px; }
+  .header p { color: #555; font-size: 13px; }
+  .badge {
+    display: inline-block; margin-top: 16px;
+    background: #1a1a1a; border: 1px solid #2a2a2a;
+    padding: 6px 16px; border-radius: 20px;
+    font-size: 11px; color: #888; letter-spacing: 2px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 1200px;
+    margin: 48px auto;
+    padding: 0 24px;
+  }
+
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; max-width: 420px; } }
+
+  .card {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: #333; }
+
+  .card-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .angle-tag {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .tag-medo    { background: #2a1010; color: #e05555; border: 1px solid #3a1515; }
+  .tag-mec     { background: #0f1e2a; color: #4a9fd4; border: 1px solid #152a3a; }
+  .tag-alivio  { background: #0f2a15; color: #4ad47a; border: 1px solid #153a1e; }
+
+  .card-num { font-size: 11px; color: #333; letter-spacing: 1px; }
+
+  .video-wrap {
+    position: relative;
+    background: #000;
+    aspect-ratio: 9/16;
+    max-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .video-wrap video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .card-info {
+    padding: 18px;
+    border-top: 1px solid #1a1a1a;
+  }
+  .card-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .card-desc  { font-size: 12px; color: #555; line-height: 1.6; }
+
+  .card-meta {
+    display: flex;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #1a1a1a;
+  }
+  .meta-item { font-size: 10px; color: #333; letter-spacing: 1px; }
+  .meta-item span { color: #555; display: block; margin-top: 2px; }
+
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: #222;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border-top: 1px solid #111;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Pipeline de Criativos</h1>
+  <h2>Pet Nail Clipper LED</h2>
+  <p>3 ângulos para tráfego pago — Meta Ads</p>
+  <div class="badge">VEO 3.1 · 1080p · 9:16 · 8s · ÁUDIO NATIVO</div>
+</div>
+
+<div class="grid">
+
+  <!-- V1 MEDO -->
+  <div class="card">
+    <div class="card-label">
+      <span class="angle-tag tag-medo">Medo</span>
+      <span class="card-num">01 / 03</span>
+    </div>
+    <div class="video-wrap">
+      <video controls playsinline preload="metadata" poster="">
+        <source src="videos/v1_medo.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Você pode estar machucando sem perceber</div>
+      <div class="card-desc">Hook de hesitação → LED revela a veia → alívio e corte seguro. Ângulo emocional mais forte para conversão.</div>
+      <div class="card-meta">
+        <div class="meta-item">DURAÇÃO<span>8 segundos</span></div>
+        <div class="meta-item">FORMATO<span>1080p 9:16</span></div>
+        <div class="meta-item">MODELO<span>Veo 3.1</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V2 MECANISMO -->
+  <div class="card">
+    <div class="card-label">
+      <span class="angle-tag tag-mec">Mecanismo</span>
+      <span class="card-num">02 / 03</span>
+    </div>
+    <div class="video-wrap">
+      <video controls playsinline preload="metadata">
+        <source src="videos/v2_mecanismo.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Veja exatamente onde cortar</div>
+      <div class="card-desc">Macro do LED iluminando a veia → corte preciso → sem sangue. Ângulo racional para audiência que pesquisa antes de comprar.</div>
+      <div class="card-meta">
+        <div class="meta-item">DURAÇÃO<span>8 segundos</span></div>
+        <div class="meta-item">FORMATO<span>1080p 9:16</span></div>
+        <div class="meta-item">MODELO<span>Veo 3.1</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V3 ALÍVIO -->
+  <div class="card">
+    <div class="card-label">
+      <span class="angle-tag tag-alivio">Alívio</span>
+      <span class="card-num">03 / 03</span>
+    </div>
+    <div class="video-wrap">
+      <video controls playsinline preload="metadata">
+        <source src="videos/v3_alivio.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Antes difícil. Agora fácil.</div>
+      <div class="card-desc">Antes: frustração e resistência do pet. Depois: confiança, calma, corte limpo. Ângulo de transformação — converte bem em retargeting.</div>
+      <div class="card-meta">
+        <div class="meta-item">DURAÇÃO<span>8 segundos</span></div>
+        <div class="meta-item">FORMATO<span>1080p 9:16</span></div>
+        <div class="meta-item">MODELO<span>Veo 3.1</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Pet Nail Clipper LED · 3 criativos · Veo 3.1 · Meta Ads Pipeline
+</div>
+
+</body>
+</html>

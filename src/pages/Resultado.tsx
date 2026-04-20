@@ -131,7 +131,7 @@ const Resultado = () => {
             <div className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl border border-rose-500/25 bg-rose-500/5 mb-2">
               <Clock className="w-4 h-4 text-rose-400 flex-shrink-0" />
               <span className="text-sm text-rose-300/90">
-                Reading held for you:{' '}
+                Reading + voice session reserved for you:{' '}
                 <span className="font-mono font-bold text-rose-300">
                   {pad(h)}:{pad(m)}:{pad(s)}
                 </span>
@@ -281,8 +281,36 @@ const Resultado = () => {
               Madam Aurora identified an active pattern that explains the timing — and what shifts it. Unlock the full reading to see all your gifts, blocks, and your personal message.
             </p>
 
+            {/* Aurora Voice Session — featured benefit */}
+            <div className="relative mt-6 mb-4 max-w-lg mx-auto rounded-2xl overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, hsl(280 60% 55% / 0.18) 0%, hsl(320 55% 55% / 0.14) 100%)',
+                border: '1px solid hsl(280 60% 55% / 0.45)',
+                boxShadow: '0 0 28px hsl(280 60% 55% / 0.12)',
+              }}
+            >
+              <div className="flex items-start gap-3.5 p-4">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'hsl(280 60% 55% / 0.2)', border: '1px solid hsl(280 60% 55% / 0.35)' }}>
+                  <span className="text-lg">🎙️</span>
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-sm font-bold text-foreground">Live voice session with Aurora</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                      style={{ background: 'hsl(280 60% 55% / 0.25)', color: 'hsl(280 80% 80%)', border: '1px solid hsl(280 60% 55% / 0.3)' }}>
+                      INCLUDED
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Hear Aurora speak your name. She already knows your energy type — and will guide the conversation around <em>your</em> lines, patterns, and the question you haven't said out loud yet.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* What's locked */}
-            <div className="grid sm:grid-cols-2 gap-3 mb-7 text-left max-w-lg mx-auto relative mt-6">
+            <div className="grid sm:grid-cols-2 gap-3 mb-7 text-left max-w-lg mx-auto relative">
               {[
                 'Heart Line — emotional patterns & depth',
                 'Marriage Line — timing & commitment signals',

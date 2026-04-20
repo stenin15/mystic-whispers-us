@@ -13,6 +13,7 @@ import {
   Eye,
   BookOpen,
   Zap,
+  Mic2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
@@ -229,6 +230,30 @@ const Checkout = () => {
               </p>
             </div>
 
+            {/* Voice session — highlighted separately */}
+            <div className="mb-5 rounded-xl p-4"
+              style={{
+                background: 'linear-gradient(135deg, hsl(280 60% 55% / 0.15) 0%, hsl(320 55% 55% / 0.1) 100%)',
+                border: '1px solid hsl(280 60% 55% / 0.4)',
+              }}
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-xl flex-shrink-0 mt-0.5">🎙️</span>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-sm font-bold text-foreground">Live voice session with Madam Aurora</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                      style={{ background: 'hsl(45 95% 55% / 0.2)', color: 'hsl(45 95% 70%)', border: '1px solid hsl(45 95% 55% / 0.3)' }}>
+                      $97 value
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Aurora already knows your energy type. Listen as she speaks your name, reads your lines, and guides you through exactly what she found — in her own voice.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-3.5 mb-8">
               {[
                 { text: "Complete palm reading — all patterns revealed", icon: Star },
@@ -250,13 +275,27 @@ const Checkout = () => {
               <div className="text-sm text-muted-foreground mt-1">One-time · Instant access · 7-day refund</div>
             </div>
 
+            {/* Social proof contextual */}
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="flex -space-x-1.5">
+                {['from-purple-500 to-pink-500','from-pink-500 to-rose-400','from-violet-500 to-purple-400','from-blue-500 to-indigo-400'].map((g, i) => (
+                  <div key={i} className={`w-6 h-6 rounded-full bg-gradient-to-br ${g} border-2 border-background flex items-center justify-center`}>
+                    <span className="text-[7px] font-bold text-white">{'RJMK'[i]}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground/80">
+                <span className="text-foreground/90 font-medium">12,000+ women</span> already heard Aurora speak to them
+              </p>
+            </div>
+
             <Button
               onClick={() => handleCheckoutClick("complete")}
               size="lg"
               className="w-full gradient-gold text-gray-900 hover:opacity-90 py-7 text-base font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-yellow-400/10 rounded-2xl"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Unlock My Complete Reading
+              <Mic2 className="w-4 h-4 mr-2" />
+              Unlock My Reading + Hear Aurora
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
 

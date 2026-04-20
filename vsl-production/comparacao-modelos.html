@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Madam Aurora — Comparacao de Modelos</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0a; color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 32px 16px; }
+    h1 { text-align: center; font-size: 20px; font-weight: 600; color: #d4af37; margin-bottom: 6px; }
+    .subtitle { text-align: center; font-size: 12px; color: #444; margin-bottom: 48px; }
+    .creative-block { max-width: 1100px; margin: 0 auto 56px; }
+    .creative-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: #444; margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .creative-title strong { color: #ccc; font-size: 13px; letter-spacing: 0; text-transform: none; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .model-card { background: #111; border: 1px solid #1e1e1e; border-radius: 12px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; cursor: pointer; }
+    .model-card:hover { border-color: #d4af37; transform: translateY(-3px); }
+    .model-card img { width: 100%; display: block; }
+    .model-info { padding: 10px 12px 12px; }
+    .model-badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 4px; padding: 3px 8px; margin-bottom: 6px; }
+    .badge-seed  { color: #60a5fa; background: #0a1a2e; border: 1px solid #60a5fa25; }
+    .badge-gpt   { color: #4ade80; background: #0a1e0f; border: 1px solid #4ade8025; }
+    .badge-gem   { color: #f59e0b; background: #1e1400; border: 1px solid #f59e0b25; }
+    .model-desc { font-size: 10px; color: #555; line-height: 1.4; }
+  </style>
+</head>
+<body>
+
+<h1>MADAM AURORA — Comparacao de Modelos IA</h1>
+<p class="subtitle">Mesmo prompt · 3 modelos · Escolha o melhor para cada criativo</p>
+
+<script>
+const MODELS = [
+  { key: 'seedream',   label: 'Seedream 4.5',      badge: 'badge-seed', desc: 'ByteDance · Realismo atmosferico' },
+  { key: 'gpt5mini',  label: 'GPT-5 Image Mini',   badge: 'badge-gpt',  desc: 'OpenAI · Rosto hiper-realista' },
+  { key: 'gemini_pro',label: 'Gemini 3 Pro',        badge: 'badge-gem',  desc: 'Google · Foto de estudio' },
+];
+
+const CREATIVES = [
+  { id: '01_mechanism',   title: '01 · Mechanism',      headline: "There's a line on your palm that reveals how you love" },
+  { id: '02_pattern',     title: '02 · Pattern',        headline: 'Why does love always feel like this?' },
+  { id: '03_timing',      title: '03 · Timing',         headline: 'Your love timing window may be open right now' },
+  { id: '04_social_proof',title: '04 · Social Proof',   headline: '"She was 38 and thought her time had passed"' },
+  { id: '05_spiritual',   title: '05 · Spiritual',      headline: "Your palm lines don't lie." },
+  { id: '06_timing_window',title:'06 · Timing Window',  headline: 'Are you in a love timing window?' },
+  { id: '07_curiosity',   title: '07 · Curiosity',      headline: 'I finally understood why every relationship ended the same way' },
+  { id: '08_skeptic',     title: '08 · Skeptic',        headline: '"I didn\'t believe in palm reading either"' },
+  { id: '09_retargeting', title: '09 · Retargeting',    headline: "You started. You didn't finish. Your reading is still waiting." },
+  { id: '10_awareness',   title: '10 · Awareness',      headline: 'What does your palm say about love?' },
+];
+
+const BASE = 'scenes/ad_images_v2/all';
+
+CREATIVES.forEach(c => {
+  const block = document.createElement('div');
+  block.className = 'creative-block';
+  block.innerHTML = `<div class="creative-title"><strong>${c.title}</strong> &nbsp;·&nbsp; ${c.headline}</div><div class="cols"></div>`;
+  const cols = block.querySelector('.cols');
+  MODELS.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'model-card';
+    card.innerHTML = `
+      <img src="${BASE}/${m.key}/${c.id}.png" loading="lazy" />
+      <div class="model-info">
+        <div class="model-badge ${m.badge}">${m.label}</div>
+        <div class="model-desc">${m.desc}</div>
+      </div>`;
+    cols.appendChild(card);
+  });
+  document.body.appendChild(block);
+});
+</script>
+
+</body>
+</html>

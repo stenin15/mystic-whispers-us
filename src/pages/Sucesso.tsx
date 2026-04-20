@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
@@ -177,6 +177,55 @@ const Sucesso = () => {
               {buttonLabel}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
+
+            {/* Aurora Session CTA — urgency block */}
+            {verified && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-8 rounded-3xl overflow-hidden text-center"
+                style={{
+                  background: "linear-gradient(135deg, hsl(280 60% 10% / 0.95) 0%, hsl(320 55% 8% / 0.98) 100%)",
+                  border: "1px solid hsl(280 60% 55% / 0.4)",
+                  boxShadow: "0 0 40px hsl(280 60% 55% / 0.12)",
+                }}
+              >
+                <div className="p-6 md:p-8">
+                  <div className="flex justify-center mb-4">
+                    <div className="relative w-14 h-14 rounded-full bg-purple-500/15 border border-purple-400/30 flex items-center justify-center">
+                      <span className="absolute inset-0 rounded-full animate-ping bg-purple-400/10" />
+                      <Sparkles className="w-6 h-6 text-purple-300 relative z-10" />
+                    </div>
+                  </div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-purple-400/70 mb-2">
+                    Aurora is waiting for you
+                  </p>
+                  <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-2">
+                    Your private voice session is live.
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-1 max-w-sm mx-auto leading-relaxed">
+                    Aurora already knows your name, your palm lines, and what she found. This session was made only for you — and it expires in <span className="text-purple-300 font-semibold">48 hours</span>.
+                  </p>
+                  <p className="text-xs text-muted-foreground/50 mb-6">After that, access closes permanently.</p>
+                  <Button
+                    onClick={() => navigate("/sessao-aurora")}
+                    size="lg"
+                    className="gradient-gold text-background hover:opacity-90 px-8 py-5 text-base font-semibold rounded-2xl w-full"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Start My Session with Aurora
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                  <button
+                    onClick={() => navigate(destination)}
+                    className="mt-4 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors underline underline-offset-2"
+                  >
+                    Or open my written reading first →
+                  </button>
+                </div>
+              </motion.div>
+            )}
 
             <div className="mt-6">
               <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

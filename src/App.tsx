@@ -33,6 +33,7 @@ import Terms from "./pages/Terms";
 import Refund from "./pages/Refund";
 import Contact from "./pages/Contact";
 import { VslGate } from "./components/shared/VslGate";
+import SessaoAurora from "./pages/SessaoAurora";
 
 const queryClient = new QueryClient();
 
@@ -138,6 +139,7 @@ const App = () => (
           <Route path="/entrega/completa" element={<EntregaCombo />} />
           <Route path="/entrega/guia" element={<EntregaGuia />} />
           <Route path="/oferta/guia-exclusivo" element={<OfertaGuiaExclusivo />} />
+          <Route path="/sessao-aurora" element={<SessaoAurora />} />
           <Route path="*" element={<NotFound />} />
           </Routes>
           <Analytics />

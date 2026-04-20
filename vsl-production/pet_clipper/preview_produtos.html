@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Cortador de Unhas LED — Assets Premium</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #050505; color: #f0f0f0; font-family: -apple-system, 'Segoe UI', sans-serif; }
+
+  .header { text-align: center; padding: 52px 24px 36px; border-bottom: 1px solid #1a1a1a; }
+  .header h1 { font-size: 11px; letter-spacing: 5px; color: #444; text-transform: uppercase; margin-bottom: 12px; }
+  .header h2 { font-size: 30px; color: #fff; font-weight: 700; margin-bottom: 6px; }
+  .header p { color: #555; font-size: 14px; }
+  .badges { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+  .badge { background: #111; border: 1px solid #222; padding: 5px 14px; border-radius: 20px; font-size: 11px; color: #666; letter-spacing: 1px; }
+  .badge.orange { border-color: #e07820; color: #e07820; }
+
+  .section { max-width: 1400px; margin: 0 auto; padding: 52px 32px; }
+  .section-label { font-size: 10px; letter-spacing: 4px; color: #e07820; text-transform: uppercase; margin-bottom: 28px; padding-bottom: 12px; border-bottom: 1px solid #1a1a1a; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  @media(max-width:900px) { .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; } }
+
+  .card { background: #0e0e0e; border: 1px solid #1a1a1a; border-radius: 14px; overflow: hidden; transition: border-color .2s; }
+  .card:hover { border-color: #333; }
+  .card img { width: 100%; display: block; cursor: zoom-in; }
+  .card-info { padding: 16px 18px; border-top: 1px solid #141414; }
+  .card-title { font-size: 13px; font-weight: 600; color: #ddd; margin-bottom: 4px; }
+  .card-sub { font-size: 11px; color: #444; letter-spacing: 1px; }
+
+  .divider { border: none; border-top: 1px solid #111; margin: 0; }
+  .footer { text-align: center; padding: 32px; color: #1a1a1a; font-size: 10px; letter-spacing: 3px; }
+
+  /* Lightbox */
+  .lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,.95); z-index:1000; align-items:center; justify-content:center; cursor:zoom-out; }
+  .lb.open { display:flex; }
+  .lb img { max-height:94vh; max-width:94vw; border-radius:8px; border:1px solid #2a2a2a; }
+  .lb-close { position:fixed; top:20px; right:28px; color:#e07820; font-size:28px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="lb" id="lb" onclick="closeLB()">
+  <span class="lb-close">✕</span>
+  <img id="lb-img" src="">
+</div>
+<script>
+  function openLB(src){ document.getElementById('lb-img').src=src; document.getElementById('lb').classList.add('open'); }
+  function closeLB(){ document.getElementById('lb').classList.remove('open'); }
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeLB(); });
+</script>
+
+<div class="header">
+  <h1>Assets Premium — Português</h1>
+  <h2>Cortador de Unhas com LED</h2>
+  <p>10 imagens geradas · Design dark premium · Traduzido e melhorado</p>
+  <div class="badges">
+    <span class="badge orange">4 fotos IA · Seedream 4.5</span>
+    <span class="badge">6 cards infográficos · Pillow</span>
+    <span class="badge">Português BR</span>
+    <span class="badge">1080px premium</span>
+  </div>
+</div>
+
+<!-- FOTOS DE PRODUTO (AI) -->
+<div class="section">
+  <div class="section-label">01 — Fotos de Produto (IA Seedream 4.5)</div>
+  <div class="grid-4">
+
+    <div class="card">
+      <img src="product_images/01_hero_produto.png" onclick="openLB(this.src)" alt="Hero">
+      <div class="card-info">
+        <div class="card-title">Hero — Fundo Branco Studio</div>
+        <div class="card-sub">PRODUTO · 1:1</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="product_images/02_led_macro.png" onclick="openLB(this.src)" alt="LED Macro">
+      <div class="card-info">
+        <div class="card-title">LED Iluminando a Veia</div>
+        <div class="card-sub">MACRO · FUNDO ESCURO</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="product_images/03_uso_gato.png" onclick="openLB(this.src)" alt="Uso em gato">
+      <div class="card-info">
+        <div class="card-title">Uso em Gato — Lifestyle</div>
+        <div class="card-sub">LIFESTYLE · 3:4</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="product_images/07_varios_pets.png" onclick="openLB(this.src)" alt="Varios pets">
+      <div class="card-info">
+        <div class="card-title">Compatível com Vários Pets</div>
+        <div class="card-sub">LIFESTYLE · 1:1</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- CARDS INFORMATIVOS (Pillow) -->
+<div class="section">
+  <div class="section-label">02 — Cards Informativos em Português</div>
+  <div class="grid-3">
+
+    <div class="card">
+      <img src="product_images/04_modos_led.png" onclick="openLB(this.src)" alt="Modos LED">
+      <div class="card-info">
+        <div class="card-title">3 Modos de Iluminação LED</div>
+        <div class="card-sub">INFOGRÁFICO · 1080×1080</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="product_images/05_por_que_escolher.png" onclick="openLB(this.src)" alt="Por que escolher">
+      <div class="card-info">
+        <div class="card-title">Por Que Escolher</div>
+        <div class="card-sub">INFOGRÁFICO · 1080×1080</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="product_images/06_duplo_uso.png" onclick="openLB(this.src)" alt="Duplo uso">
+      <div class="card-info">
+        <div class="card-title">Uma Capa, Dupla Utilidade</div>
+        <div class="card-sub">INFOGRÁFICO · 1080×1080</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="product_images/10_postura_correta.png" onclick="openLB(this.src)" alt="Postura correta">
+      <div class="card-info">
+        <div class="card-title">Postura Correta de Corte</div>
+        <div class="card-sub">INFOGRÁFICO · 1080×1080</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="product_images/08_estrutura.png" onclick="openLB(this.src)" alt="Estrutura">
+      <div class="card-info">
+        <div class="card-title">Estrutura do Produto</div>
+        <div class="card-sub">INFOGRÁFICO · 1080×1350</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="product_images/09_instrucoes.png" onclick="openLB(this.src)" alt="Instrucoes">
+      <div class="card-info">
+        <div class="card-title">Como Usar — 4 Passos</div>
+        <div class="card-sub">INFOGRÁFICO · 1080×1350</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">CORTADOR DE UNHAS LED · 10 ASSETS PREMIUM · PT-BR</div>
+
+</body>
+</html>
