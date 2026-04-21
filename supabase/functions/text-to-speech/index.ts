@@ -5,7 +5,6 @@ const ALLOWED_ORIGINS = [
   "https://madam-aurora.co",
   "https://www.madam-aurora.co",
   "http://localhost:5173",
-  "http://localhost:5174",
   "http://localhost:8080",
   "http://localhost:8910",
 ];
@@ -19,6 +18,7 @@ const isAllowedOrigin = (origin: string | null): boolean => {
 
 const getCorsHeaders = (origin: string | null) => {
   const allowedOrigin = isAllowedOrigin(origin) ? origin! : "null";
+
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -27,20 +27,24 @@ const getCorsHeaders = (origin: string | null) => {
   };
 };
 
+const VALID_VOICES = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"];
+
 serve(async (req) => {
   const request_id = getRequestId();
   const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
 
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
+  // Validate origin for actual requests
   if (!isAllowedOrigin(origin)) {
-    return new Response(JSON.stringify({ error: "Origin not allowed" }), {
-      status: 403,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "Origin not allowed" }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 
   try {
@@ -57,106 +61,89 @@ serve(async (req) => {
     if (!rl.allowed) {
       return new Response(JSON.stringify({ error: "rate_limited", request_id }), {
         status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(rl.retryAfterSeconds ?? 60) },
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Retry-After": String(rl.retryAfterSeconds ?? 60),
+        },
       });
     }
 
-    const { text } = await req.json();
+    const { text, voice } = await req.json();
 
     if (!text || typeof text !== "string" || text.length === 0) {
-      return new Response(JSON.stringify({ error: "Text is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: "Text is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    const truncated = text.slice(0, 4096);
+    // Limit text length to prevent abuse
+    if (text.length > 5000) {
+      return new Response(
+        JSON.stringify({ error: "Text too long" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    // Try ElevenLabs first, fall back to OpenAI TTS
-    const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
-    const ELEVENLABS_VOICE_ID = Deno.env.get("ELEVENLABS_VOICE_ID") ?? "uIZsnBL0YK1S5j69bAih";
+    // Default voice for "Madam Aurora". Can be overridden via Edge Function secret DEFAULT_TTS_VOICE.
+    const defaultVoice = Deno.env.get("DEFAULT_TTS_VOICE") ?? "shimmer";
+    const fallbackVoice = VALID_VOICES.includes(defaultVoice) ? defaultVoice : "shimmer";
+    const selectedVoice = voice && VALID_VOICES.includes(voice) ? voice : fallbackVoice;
+
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-
-    let audioBuffer: ArrayBuffer | null = null;
-
-    // Attempt ElevenLabs
-    if (ELEVENLABS_API_KEY) {
-      try {
-        const elRes = await fetch(
-          `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,
-          {
-            method: "POST",
-            headers: {
-              "xi-api-key": ELEVENLABS_API_KEY,
-              "Content-Type": "application/json",
-              "Accept": "audio/mpeg",
-            },
-            body: JSON.stringify({
-              text: truncated,
-              model_id: "eleven_turbo_v2_5",
-              voice_settings: { stability: 0.45, similarity_boost: 0.82, style: 0.35, use_speaker_boost: true },
-            }),
-          },
-        );
-        if (elRes.ok) {
-          audioBuffer = await elRes.arrayBuffer();
-        } else {
-          console.warn("ElevenLabs failed:", elRes.status, "— falling back to OpenAI TTS");
-        }
-      } catch (e) {
-        console.warn("ElevenLabs error:", e, "— falling back to OpenAI TTS");
-      }
+    
+    if (!OPENAI_API_KEY) {
+      return new Response(
+        JSON.stringify({ error: "Service unavailable" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // Fall back to OpenAI TTS
-    if (!audioBuffer && OPENAI_API_KEY) {
-      const oaiRes = await fetch("https://api.openai.com/v1/audio/speech", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "tts-1-hd",
-          input: truncated,
-          voice: "shimmer",
-          response_format: "mp3",
-          speed: 0.88,
-        }),
-      });
-      if (oaiRes.ok) {
-        audioBuffer = await oaiRes.arrayBuffer();
-      } else {
-        const err = await oaiRes.text();
-        console.error("OpenAI TTS failed:", oaiRes.status, err);
-      }
+    const response = await fetch("https://api.openai.com/v1/audio/speech", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "tts-1-hd",
+        input: text,
+        voice: selectedVoice,
+        response_format: "mp3",
+        // Slightly slower reads tend to feel more "mature"
+        speed: 0.85,
+      }),
+    });
+
+    if (!response.ok) {
+      return new Response(
+        JSON.stringify({ error: "Speech generation failed" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    if (!audioBuffer) {
-      return new Response(JSON.stringify({ error: "Speech generation failed" }), {
-        status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const uint8Array = new Uint8Array(audioBuffer);
+    const arrayBuffer = await response.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    
+    // Convert to base64 in chunks to avoid stack overflow
     let binary = "";
     const chunkSize = 0x8000;
     for (let i = 0; i < uint8Array.length; i += chunkSize) {
       const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
       binary += String.fromCharCode.apply(null, Array.from(chunk));
     }
-    const audioContent = btoa(binary);
+    const base64Audio = btoa(binary);
 
-    return new Response(JSON.stringify({ audioContent }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ audioContent: base64Audio }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error: unknown) {
     console.error("text-to-speech failed", { request_id, error });
-    return new Response(JSON.stringify({ error: "An error occurred" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "An error occurred" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });
