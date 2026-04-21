@@ -204,7 +204,7 @@ const VSL = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-background">
+    <div className="min-h-screen relative bg-background">
       <ParticlesBackground />
       <FloatingOrbs />
       {/* Noise texture overlay */}
@@ -237,8 +237,9 @@ const VSL = () => {
       </div>
 
       {/* ========== HERO ========== */}
-      <section className="relative pt-12 pb-16 px-4">
-        <div className="container mx-auto max-w-3xl">
+      <section className="relative pt-8 pb-12 px-4 sm:pt-12 sm:pb-16">
+        <div className="mx-auto w-full max-w-xl sm:max-w-2xl md:max-w-3xl">
+          <div className="section-panel px-5 py-8 sm:px-8 sm:py-10 md:px-12">
 
           {/* Live badge */}
           <motion.div
@@ -334,31 +335,6 @@ const VSL = () => {
             <p className="text-sm text-muted-foreground/70">{hero.microcopy}</p>
           </motion.div>
 
-          {/* Trust row */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-3 mb-10 pb-8 border-b border-white/[0.06]"
-          >
-            {[
-              { icon: Lock, label: "Private & Secure", sub: "SSL encrypted" },
-              { icon: Star, label: "4.9 / 5 Rating", sub: "27k+ readings" },
-              { icon: Shield, label: "7-Day Refund", sub: "No questions" },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-white/[0.07] bg-white/[0.03]"
-              >
-                <item.icon className="w-4 h-4 text-primary/60 flex-shrink-0" />
-                <div>
-                  <p className="text-xs font-semibold text-foreground/80 leading-tight">{item.label}</p>
-                  <p className="text-[10px] text-muted-foreground/50">{item.sub}</p>
-                </div>
-              </div>
-            ))}
-          </motion.div>
-
           {/* Video */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -410,6 +386,7 @@ const VSL = () => {
               </div>
             </div>
           </motion.div>
+          </div>{/* end hero panel */}
         </div>
       </section>
 
@@ -417,8 +394,8 @@ const VSL = () => {
       <SocialProofCarousel />
 
       {/* ========== WHAT YOUR PALM REVEALS ========== */}
-      <section className="relative py-20 px-4" id="marriage-line">
-        <div className="container mx-auto max-w-3xl">
+      <section className="relative py-12 px-4 sm:py-16 md:py-20" id="marriage-line">
+        <div className="mx-auto w-full max-w-xl sm:max-w-2xl md:max-w-3xl section-panel px-5 py-8 sm:px-8 sm:py-10 md:px-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -490,8 +467,8 @@ const VSL = () => {
       </section>
 
       {/* ========== HOW IT WORKS ========== */}
-      <section className="relative py-20 px-4">
-        <div className="container mx-auto max-w-3xl">
+      <section className="relative py-12 px-4 sm:py-16 md:py-20">
+        <div className="mx-auto w-full max-w-xl sm:max-w-2xl md:max-w-3xl section-panel px-5 py-8 sm:px-8 sm:py-10 md:px-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -553,8 +530,8 @@ const VSL = () => {
       </section>
 
       {/* ========== AURORA VOICE SESSION ========== */}
-      <section className="relative py-20 px-4" id="aurora-session">
-        <div className="container mx-auto max-w-3xl">
+      <section className="relative py-12 px-4 sm:py-16 md:py-20" id="aurora-session">
+        <div className="mx-auto w-full max-w-xl sm:max-w-2xl md:max-w-3xl section-panel px-5 py-8 sm:px-8 sm:py-10 md:px-12">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -644,8 +621,8 @@ const VSL = () => {
       </section>
 
       {/* ========== FAQ ========== */}
-      <section className="relative py-20 px-4" id="faq">
-        <div className="container mx-auto max-w-3xl">
+      <section className="relative py-12 px-4 sm:py-16 md:py-20" id="faq">
+        <div className="mx-auto w-full max-w-xl sm:max-w-2xl md:max-w-3xl section-panel px-5 py-8 sm:px-8 sm:py-10 md:px-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -676,8 +653,8 @@ const VSL = () => {
       </section>
 
       {/* ========== FINAL CTA ========== */}
-      <section className="relative py-24 px-4">
-        <div className="container mx-auto max-w-2xl">
+      <section className="relative py-12 px-4 sm:py-16 md:py-24">
+        <div className="mx-auto w-full max-w-xl sm:max-w-2xl section-panel px-5 py-10 sm:px-10 sm:py-14 md:px-16 md:py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -705,6 +682,7 @@ const VSL = () => {
             </Button>
             <p className="mt-5 text-sm text-muted-foreground/60">Private · Takes 2-3 minutes to begin</p>
           </motion.div>
+
         </div>
       </section>
 
