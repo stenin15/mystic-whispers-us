@@ -35,6 +35,9 @@ import {
   parseUtm,
   persistAttribution,
 } from "@/lib/marketing";
+import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
+import { Card3D } from "@/components/shared/Card3D";
+import { MysticHandScene } from "@/components/shared/MysticHandScene";
 
 import avatarCarla from '@/assets/avatar-carla.jpg';
 import avatarFernanda from '@/assets/avatar-fernanda.jpg';
@@ -202,6 +205,17 @@ const VSL = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-background">
+      <ParticlesBackground />
+      <FloatingOrbs />
+      {/* Noise texture overlay */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
+          opacity: 0.025,
+        }}
+        aria-hidden="true"
+      />
       <Helmet>
         <title>Online Palm Reading for Marriage Line | Madam Aurora</title>
         <meta name="description" content="Online palm reading focused on your marriage line, heart line, and timing. Discover love patterns and next steps without promises of certainty." />
@@ -247,7 +261,13 @@ const VSL = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-3xl md:text-5xl font-serif font-bold text-foreground leading-tight mb-5 text-center px-2"
+            className="text-3xl md:text-5xl font-serif font-bold leading-tight mb-5 text-center px-2"
+            style={{
+              background: "linear-gradient(135deg, hsl(280 60% 85%) 0%, hsl(320 55% 80%) 40%, hsl(45 95% 75%) 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
           >
             {hero.h1}
           </motion.h1>
@@ -272,6 +292,18 @@ const VSL = () => {
               {personalizedLine}
             </motion.p>
           )}
+
+          {/* Mystic Hand — 3D interactive hero visual */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.25, ease: [0.23, 1, 0.32, 1] }}
+            className="flex justify-center mb-6"
+          >
+            <div className="w-full max-w-sm md:max-w-md">
+              <MysticHandScene />
+            </div>
+          </motion.div>
 
           {/* Social proof */}
           <motion.div
@@ -439,15 +471,18 @@ const VSL = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.08 }}
-                className="glass-card rounded-2xl p-6 flex items-start gap-4 hover-glow-border group"
               >
-                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300`}>
-                  <item.icon className={`w-5 h-5 ${item.iconColor}`} />
-                </div>
-                <div>
-                  <h3 className="font-serif font-semibold text-foreground mb-1 text-sm">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.text}</p>
-                </div>
+                <Card3D className="w-full h-full">
+                  <div className="glass-card rounded-2xl p-6 flex items-start gap-4 hover-glow-border group h-full">
+                    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300`}>
+                      <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+                    </div>
+                    <div>
+                      <h3 className="font-serif font-semibold text-foreground mb-1 text-sm">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.text}</p>
+                    </div>
+                  </div>
+                </Card3D>
               </motion.div>
             ))}
           </div>
@@ -482,13 +517,16 @@ const VSL = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="glass-card rounded-2xl p-5 text-center"
               >
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full gradient-aurora flex items-center justify-center aurora-glow">
-                  <span className="text-lg font-bold text-white">{item.step}</span>
-                </div>
-                <h3 className="font-serif font-semibold text-foreground mb-1.5 text-sm">{item.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                <Card3D className="w-full h-full">
+                  <div className="glass-card rounded-2xl p-5 text-center h-full">
+                    <div className="w-12 h-12 mx-auto mb-4 rounded-full gradient-aurora flex items-center justify-center aurora-glow">
+                      <span className="text-lg font-bold text-white">{item.step}</span>
+                    </div>
+                    <h3 className="font-serif font-semibold text-foreground mb-1.5 text-sm">{item.title}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                </Card3D>
               </motion.div>
             ))}
           </div>
