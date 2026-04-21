@@ -5,19 +5,87 @@ export type VoiceStatus = "idle" | "loading" | "playing" | "paused" | "error";
 
 interface UseAuroraVoiceReturn {
   status: VoiceStatus;
-  play: (text: string) => Promise<void>;
+  playAndWait: (text: string) => Promise<void>;
+  play: (text: string) => void;
   pause: () => void;
   resume: () => void;
   stop: () => void;
   error: string | null;
 }
 
+// ---------------------------------------------------------------------------
+// Web Speech API fallback — used in preview/dev mode (no API call needed)
+// ---------------------------------------------------------------------------
+const speakWithBrowser = (text: string): Promise<void> => {
+  return new Promise((resolve) => {
+    if (!window.speechSynthesis) { resolve(); return; }
+    window.speechSynthesis.cancel();
+
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.rate = 0.88;
+    utt.pitch = 1.0;
+    utt.volume = 1.0;
+
+    // Prefer an English female voice
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(
+      (v) => v.lang.startsWith("en") && /female|woman|samantha|victoria|karen|moira|fiona|zira/i.test(v.name),
+    ) ?? voices.find((v) => v.lang.startsWith("en")) ?? voices[0];
+    if (preferred) utt.voice = preferred;
+
+    utt.onend = () => resolve();
+    utt.onerror = () => resolve();
+    window.speechSynthesis.speak(utt);
+  });
+};
+
+// ---------------------------------------------------------------------------
+// ElevenLabs / OpenAI TTS via Edge Function — used in production
+// ---------------------------------------------------------------------------
+const fetchAndPlay = (text: string, signal: AbortSignal): Promise<void> => {
+  return new Promise(async (resolve) => {
+    try {
+      const { data, error: fnErr } = await supabase.functions.invoke("text-to-speech", {
+        body: { text: text.slice(0, 4096) },
+      });
+
+      if (signal.aborted) { resolve(); return; }
+      if (fnErr) throw new Error(fnErr.message);
+
+      const base64: string =
+        (data as Record<string, string>)?.audioContent ??
+        (data as Record<string, string>)?.audio ?? "";
+      if (!base64) throw new Error("No audio data");
+
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: "audio/mpeg" });
+      const src = URL.createObjectURL(blob);
+
+      if (signal.aborted) { URL.revokeObjectURL(src); resolve(); return; }
+
+      const audio = new Audio(src);
+      audio.onended = () => { URL.revokeObjectURL(src); resolve(); };
+      audio.onerror = () => { URL.revokeObjectURL(src); resolve(); };
+      await audio.play();
+    } catch {
+      resolve();
+    }
+  });
+};
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
 export function useAuroraVoice(): UseAuroraVoiceReturn {
   const [status, setStatus] = useState<VoiceStatus>("idle");
-  const [error, setError] = useState<string | null>(null);
-
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [error] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const isPreview = () =>
+    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
   const stop = useCallback(() => {
     abortRef.current?.abort();
@@ -26,87 +94,50 @@ export function useAuroraVoice(): UseAuroraVoiceReturn {
       audioRef.current.src = "";
       audioRef.current = null;
     }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
     setStatus("idle");
   }, []);
 
-  const play = useCallback(
-    async (text: string) => {
-      // Cancel any ongoing request/playback
+  const playAndWait = useCallback(
+    async (text: string): Promise<void> => {
       stop();
-
       const ac = new AbortController();
       abortRef.current = ac;
-
       setStatus("loading");
-      setError(null);
 
-      try {
-        const { data, error: fnErr } = await supabase.functions.invoke("text-to-speech", {
-          body: { text: text.slice(0, 4096) },
-        });
-
-        if (ac.signal.aborted) return;
-
-        if (fnErr) {
-          throw new Error(fnErr.message || "TTS function failed");
+      if (isPreview()) {
+        // Ensure voices are loaded (Chrome lazy-loads them)
+        if (window.speechSynthesis && window.speechSynthesis.getVoices().length === 0) {
+          await new Promise<void>((r) => {
+            window.speechSynthesis.onvoiceschanged = () => r();
+            setTimeout(r, 800); // fallback timeout
+          });
         }
-
-        // The text-to-speech function returns { audioUrl } or raw base64 audio
-        let src: string;
-        if (data?.audioUrl) {
-          src = data.audioUrl;
-        } else if (data?.audio) {
-          // base64 mp3 blob
-          const binary = atob(data.audio);
-          const bytes = new Uint8Array(binary.length);
-          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-          const blob = new Blob([bytes], { type: "audio/mpeg" });
-          src = URL.createObjectURL(blob);
-        } else {
-          throw new Error("No audio data returned");
-        }
-
-        if (ac.signal.aborted) return;
-
-        const audio = new Audio(src);
-        audioRef.current = audio;
-
-        audio.onplay = () => setStatus("playing");
-        audio.onpause = () => {
-          if (!audio.ended) setStatus("paused");
-        };
-        audio.onended = () => {
-          setStatus("idle");
-          audioRef.current = null;
-        };
-        audio.onerror = () => {
-          setStatus("error");
-          setError("Audio playback failed");
-          audioRef.current = null;
-        };
-
-        await audio.play();
-      } catch (err) {
-        if (ac.signal.aborted) return;
-        const msg = err instanceof Error ? err.message : "Unknown TTS error";
-        setError(msg);
-        setStatus("error");
+        setStatus("playing");
+        await speakWithBrowser(text);
+        setStatus("idle");
+      } else {
+        setStatus("loading");
+        await fetchAndPlay(text, ac.signal);
+        if (!ac.signal.aborted) setStatus("idle");
       }
     },
     [stop],
   );
 
+  const play = useCallback((text: string) => { playAndWait(text); }, [playAndWait]);
+
   const pause = useCallback(() => {
-    audioRef.current?.pause();
+    if (isPreview()) { window.speechSynthesis?.pause(); }
+    else { audioRef.current?.pause(); }
     setStatus("paused");
   }, []);
 
   const resume = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.play().catch(() => setStatus("error"));
-      setStatus("playing");
-    }
+    if (isPreview()) { window.speechSynthesis?.resume(); }
+    else { audioRef.current?.play().catch(() => setStatus("error")); }
+    setStatus("playing");
   }, []);
 
-  return { status, play, pause, resume, stop, error };
+  return { status, playAndWait, play, pause, resume, stop, error };
 }
