@@ -22,23 +22,83 @@ import avatarMariana from "@/assets/avatar-mariana.jpg";
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const PAIN_CARDS = [
-  { icon: Heart, text: "You keep attracting the wrong person." },
-  { icon: Clock, text: "You miss the right timing — again." },
-  { icon: Lock, text: "You feel blocked, but don't know why." },
-  { icon: Search, text: "You've searched for answers… nothing clicks." },
+  {
+    icon: Heart,
+    text: "You keep attracting the wrong person.",
+    border: "rgba(217,70,239,0.52)",
+    glow: "rgba(217,70,239,0.28)",
+    iconGlow: "0 0 32px rgba(217,70,239,0.65)",
+    iconBg: "linear-gradient(135deg, rgba(192,38,211,0.55), rgba(126,34,206,0.35))",
+    iconColor: "text-fuchsia-200",
+  },
+  {
+    icon: Clock,
+    text: "You miss the right timing — again.",
+    border: "rgba(236,72,153,0.48)",
+    glow: "rgba(236,72,153,0.25)",
+    iconGlow: "0 0 28px rgba(236,72,153,0.6)",
+    iconBg: "linear-gradient(135deg, rgba(219,39,119,0.55), rgba(185,28,28,0.25))",
+    iconColor: "text-pink-200",
+  },
+  {
+    icon: Lock,
+    text: "You feel blocked, but don't know why.",
+    border: "rgba(168,85,247,0.48)",
+    glow: "rgba(168,85,247,0.25)",
+    iconGlow: "0 0 26px rgba(168,85,247,0.6)",
+    iconBg: "linear-gradient(135deg, rgba(124,58,237,0.55), rgba(91,33,182,0.35))",
+    iconColor: "text-violet-200",
+  },
+  {
+    icon: Search,
+    text: "You've searched for answers… nothing clicks.",
+    border: "rgba(244,114,182,0.48)",
+    glow: "rgba(244,114,182,0.25)",
+    iconGlow: "0 0 28px rgba(244,114,182,0.6)",
+    iconBg: "linear-gradient(135deg, rgba(217,70,239,0.55), rgba(236,72,153,0.3))",
+    iconColor: "text-pink-100",
+  },
 ];
 
 const REVIEWS = [
-  { quote: "It described something I never said out loud.", name: "Sarah K.", location: "New York, NY", avatar: avatarCarla },
-  { quote: "Finally, I understand my patterns.", name: "Jessica M.", location: "Austin, TX", avatar: avatarFernanda },
-  { quote: "This reading was shockingly accurate.", name: "Daniela R.", location: "Toronto, CA", avatar: avatarMariana },
+  {
+    quote: "It described something I never said out loud.",
+    name: "Sarah K.", location: "New York, NY", avatar: avatarCarla,
+    border: "rgba(217,70,239,0.45)", glow: "rgba(217,70,239,0.22)",
+  },
+  {
+    quote: "Finally, I understand my patterns.",
+    name: "Jessica M.", location: "Austin, TX", avatar: avatarFernanda,
+    border: "rgba(236,72,153,0.42)", glow: "rgba(236,72,153,0.2)",
+  },
+  {
+    quote: "This reading was shockingly accurate.",
+    name: "Daniela R.", location: "Toronto, CA", avatar: avatarMariana,
+    border: "rgba(168,85,247,0.45)", glow: "rgba(168,85,247,0.22)",
+  },
 ];
 
 const DISCOVERY_CARDS = [
-  { icon: Heart, title: "Love Patterns", desc: "Understand the cycles you keep repeating." },
-  { icon: Clock, title: "Timing Errors", desc: "See why the timing never seems right." },
-  { icon: Key, title: "Hidden Decisions", desc: "Uncover what's blocking your next chapter." },
-  { icon: Eye, title: "What's Next", desc: "Get clarity on the love and timing ahead." },
+  {
+    icon: Heart, title: "Love Patterns", desc: "Understand the cycles you keep repeating.",
+    border: "rgba(217,70,239,0.5)", glow: "rgba(217,70,239,0.25)",
+    iconBg: "linear-gradient(135deg, #c026d3, #7e22ce)",
+  },
+  {
+    icon: Clock, title: "Timing Errors", desc: "See why the timing never seems right.",
+    border: "rgba(236,72,153,0.45)", glow: "rgba(236,72,153,0.22)",
+    iconBg: "linear-gradient(135deg, #db2777, #9d174d)",
+  },
+  {
+    icon: Key, title: "Hidden Decisions", desc: "Uncover what's blocking your next chapter.",
+    border: "rgba(168,85,247,0.48)", glow: "rgba(168,85,247,0.25)",
+    iconBg: "linear-gradient(135deg, #7c3aed, #4c1d95)",
+  },
+  {
+    icon: Eye, title: "What's Next", desc: "Get clarity on the love and timing ahead.",
+    border: "rgba(244,114,182,0.48)", glow: "rgba(244,114,182,0.22)",
+    iconBg: "linear-gradient(135deg, #ec4899, #be185d)",
+  },
 ];
 
 const HOW_IT_WORKS = [
@@ -49,10 +109,10 @@ const HOW_IT_WORKS = [
 ];
 
 const PREMIUM_FEATURES = [
-  { icon: Clock, title: "Access Anytime", desc: "Your reading is saved so you can return anytime." },
-  { icon: Zap, title: "New Insights", desc: "New tools and insights added regularly." },
-  { icon: CheckCircle2, title: "Actionable Guidance", desc: "Practical steps based on your reading." },
-  { icon: Shield, title: "100% Private", desc: "Your data is never shared. Ever." },
+  { icon: Clock, title: "Access Anytime", desc: "Your reading saved so you can return anytime.", border: "rgba(217,70,239,0.45)", glow: "rgba(217,70,239,0.22)" },
+  { icon: Zap, title: "New Insights", desc: "New tools and insights added regularly.", border: "rgba(236,72,153,0.42)", glow: "rgba(236,72,153,0.2)" },
+  { icon: CheckCircle2, title: "Actionable Guidance", desc: "Practical steps based on your reading.", border: "rgba(168,85,247,0.45)", glow: "rgba(168,85,247,0.22)" },
+  { icon: Shield, title: "100% Private", desc: "Your data is never shared. Ever.", border: "rgba(244,114,182,0.42)", glow: "rgba(244,114,182,0.2)" },
 ];
 
 const FAQ_ITEMS = [
@@ -64,25 +124,13 @@ const FAQ_ITEMS = [
   { q: "Is this for love or other areas too?", a: "The reading focuses on love, timing, and relationship patterns. It also touches on life direction and emotional clarity." },
 ];
 
-// ── Styles ─────────────────────────────────────────────────────────────────────
-
-const glassCard = {
-  background: "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(13,0,24,0.97) 100%)",
-  boxShadow: "inset 0 1px 0 rgba(217,70,239,0.18), 0 8px 32px rgba(139,0,255,0.18), 0 0 0 1px rgba(168,85,247,0.15)",
-  backdropFilter: "blur(12px)",
-} as const;
-
-const glassCardHover = {
-  boxShadow: "inset 0 1px 0 rgba(217,70,239,0.25), 0 16px 48px rgba(139,0,255,0.28), 0 0 0 1px rgba(217,70,239,0.3)",
-} as const;
-
 // ── Countdown ─────────────────────────────────────────────────────────────────
 
 function useVslCountdown() {
   const KEY = "aurora_vsl_expiry";
   const getExpiry = () => {
-    const s = localStorage.getItem(KEY);
-    if (s) return Number(s);
+    const stored = localStorage.getItem(KEY);
+    if (stored) return Number(stored);
     const e = Date.now() + 24 * 60 * 60 * 1000;
     localStorage.setItem(KEY, String(e));
     return e;
@@ -113,59 +161,138 @@ const Stars = ({ count = 5, className = "" }: { count?: number; className?: stri
 // ── Section Badge ─────────────────────────────────────────────────────────────
 
 const SectionBadge = ({ children }: { children: React.ReactNode }) => (
-  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/25 text-[11px] font-bold uppercase tracking-widest text-fuchsia-300 mb-5">
+  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-fuchsia-300 mb-5"
+    style={{ background: "rgba(217,70,239,0.08)", border: "1px solid rgba(217,70,239,0.22)" }}
+  >
     <Sparkles className="w-3 h-3 text-fuchsia-300" />
     {children}
   </div>
 );
 
+// ── Gradient Border Card ──────────────────────────────────────────────────────
+
+const GBCard = ({
+  children,
+  border = "rgba(217,70,239,0.45)",
+  glow = "rgba(217,70,239,0.22)",
+  className = "",
+}: {
+  children: React.ReactNode;
+  border?: string;
+  glow?: string;
+  className?: string;
+}) => (
+  <motion.div
+    className={`p-[1px] rounded-2xl ${className}`}
+    style={{
+      background: `linear-gradient(145deg, ${border} 0%, rgba(88,28,135,0.18) 60%, rgba(0,0,0,0) 100%)`,
+      boxShadow: "0 8px 40px rgba(0,0,0,0.55)",
+    }}
+    whileHover={{
+      y: -6,
+      scale: 1.03,
+      boxShadow: `0 24px 70px ${glow}, 0 0 0 0 transparent`,
+    }}
+    transition={{ duration: 0.18 }}
+  >
+    <div
+      className="rounded-[15px] h-full"
+      style={{
+        background: "linear-gradient(145deg, rgba(255,255,255,0.055) 0%, rgba(8,0,18,0.98) 100%)",
+        backdropFilter: "blur(18px)",
+      }}
+    >
+      {children}
+    </div>
+  </motion.div>
+);
+
 // ── CTA Button ────────────────────────────────────────────────────────────────
 
-const CTAButton = ({ onClick, children, className = "", size = "lg" }: {
+const CTAButton = ({
+  onClick, children, className = "", size = "lg",
+}: {
   onClick: () => void;
   children: React.ReactNode;
   className?: string;
-  size?: "sm" | "lg";
+  size?: "sm" | "lg" | "xl";
 }) => (
   <motion.button
     onClick={onClick}
     className={`
-      inline-flex items-center justify-center gap-2 font-black uppercase tracking-wide
+      inline-flex items-center justify-center gap-2.5 font-black uppercase tracking-wide
       rounded-full cursor-pointer
-      ${size === "lg" ? "px-10 py-4 text-base md:text-lg" : "px-7 py-3.5 text-sm"}
       bg-gradient-to-r from-fuchsia-600 via-pink-500 to-fuchsia-600 text-white
+      ${size === "xl" ? "px-14 py-6 text-xl md:text-2xl"
+        : size === "lg" ? "px-12 py-5 text-lg md:text-xl"
+        : "px-8 py-4 text-sm md:text-base"}
       ${className}
     `}
     animate={{
       boxShadow: [
-        "0 0 28px rgba(217,70,239,0.5), 0 4px 16px rgba(0,0,0,0.4)",
-        "0 0 55px rgba(217,70,239,0.85), 0 0 80px rgba(217,70,239,0.3), 0 4px 16px rgba(0,0,0,0.4)",
-        "0 0 28px rgba(217,70,239,0.5), 0 4px 16px rgba(0,0,0,0.4)",
+        "0 0 32px rgba(217,70,239,0.58), 0 6px 24px rgba(0,0,0,0.55)",
+        "0 0 70px rgba(217,70,239,0.92), 0 0 110px rgba(217,70,239,0.38), 0 6px 24px rgba(0,0,0,0.55)",
+        "0 0 32px rgba(217,70,239,0.58), 0 6px 24px rgba(0,0,0,0.55)",
       ],
     }}
-    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-    whileHover={{ scale: 1.03, boxShadow: "0 0 70px rgba(217,70,239,0.9), 0 4px 20px rgba(0,0,0,0.4)" }}
+    transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+    whileHover={{
+      scale: 1.04,
+      boxShadow: "0 0 85px rgba(217,70,239,0.98), 0 0 130px rgba(217,70,239,0.45), 0 6px 28px rgba(0,0,0,0.55)",
+    }}
     whileTap={{ scale: 0.97 }}
   >
     {children}
   </motion.button>
 );
 
-// ── Countdown Display ─────────────────────────────────────────────────────────
+// ── Countdown Badge ───────────────────────────────────────────────────────────
 
 const CountdownBadge = ({ h, m, s, pad }: { h: number; m: number; s: number; pad: (n: number) => string }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 8 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.5 }}
-    className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-[#f59e0b]/30 bg-[#f59e0b]/8"
+  <div
+    className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full"
+    style={{ border: "1px solid rgba(245,158,11,0.32)", background: "rgba(245,158,11,0.07)" }}
   >
     <Clock className="w-3.5 h-3.5 text-[#f59e0b] flex-shrink-0" />
-    <span className="text-xs text-white/55">Offer ends in</span>
+    <span className="text-xs text-white/50">Offer ends in</span>
     <span className="text-sm font-black text-[#f59e0b] font-mono tabular-nums tracking-wider">
       {pad(h)}:{pad(m)}:{pad(s)}
     </span>
-  </motion.div>
+  </div>
+);
+
+// ── Floating Particles ────────────────────────────────────────────────────────
+
+const PTS = [
+  { w: 5, c: "rgba(217,70,239,0.9)", t: "14%", l: "7%", dur: 3.2, delay: 0 },
+  { w: 3, c: "rgba(168,85,247,0.75)", t: "30%", l: "93%", dur: 4.1, delay: 0.6 },
+  { w: 4, c: "rgba(244,114,182,0.8)", t: "62%", l: "4%", dur: 3.6, delay: 1.0 },
+  { w: 3, c: "rgba(217,70,239,0.65)", t: "82%", l: "89%", dur: 4.5, delay: 0.3 },
+  { w: 5, c: "rgba(168,85,247,0.85)", t: "47%", l: "97%", dur: 3.8, delay: 1.4 },
+  { w: 3, c: "rgba(244,114,182,0.7)", t: "8%", l: "52%", dur: 4.2, delay: 0.8 },
+  { w: 4, c: "rgba(217,70,239,0.7)", t: "91%", l: "38%", dur: 3.5, delay: 1.8 },
+  { w: 3, c: "rgba(168,85,247,0.65)", t: "55%", l: "1%", dur: 4.8, delay: 0.2 },
+];
+
+const FloatingParticles = () => (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    {PTS.map((p, i) => (
+      <motion.div
+        key={i}
+        className="absolute rounded-full"
+        style={{
+          width: p.w,
+          height: p.w,
+          background: p.c,
+          top: p.t,
+          left: p.l,
+          boxShadow: `0 0 ${p.w * 3}px ${p.c}`,
+        }}
+        animate={{ y: [0, -20, 0], opacity: [0.45, 1, 0.45] }}
+        transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
+      />
+    ))}
+  </div>
 );
 
 // ── Main Component ─────────────────────────────────────────────────────────────
@@ -185,9 +312,7 @@ const VSL = () => {
   const { h, m, s, pad } = useVslCountdown();
   const videoSrc = import.meta.env.VITE_VSL_VIDEO_URL || "https://vsl-madame-aurora.b-cdn.net/0129.mp4";
 
-  useEffect(() => {
-    persistAttribution(new URLSearchParams(search));
-  }, [search]);
+  useEffect(() => { persistAttribution(new URLSearchParams(search)); }, [search]);
 
   const { angle, focus } = useMemo(() => {
     const params = new URLSearchParams(search);
@@ -256,7 +381,7 @@ const VSL = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070009] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#060008] text-white overflow-x-hidden">
       <Helmet>
         <title>Online Palm Reading for Marriage Line | Madam Aurora</title>
         <meta name="description" content="AI palm reading focused on your marriage line, heart line, and love timing. Discover patterns and what comes next in under 60 seconds." />
@@ -269,12 +394,20 @@ const VSL = () => {
       </Helmet>
 
       {/* ── HEADER ─────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 bg-[#070009]/90 backdrop-blur-lg border-b border-fuchsia-900/20"
-        style={{ boxShadow: "0 1px 0 rgba(217,70,239,0.08), 0 4px 24px rgba(0,0,0,0.6)" }}
+      <header
+        className="sticky top-0 z-50 backdrop-blur-xl"
+        style={{
+          background: "rgba(6,0,8,0.88)",
+          borderBottom: "1px solid rgba(217,70,239,0.1)",
+          boxShadow: "0 1px 0 rgba(217,70,239,0.06), 0 8px 40px rgba(0,0,0,0.75)",
+        }}
       >
         <div className="max-w-7xl mx-auto px-4 h-14 md:h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-700 flex items-center justify-center shadow-[0_0_12px_rgba(217,70,239,0.5)]">
+            <div
+              className="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-700 flex items-center justify-center"
+              style={{ boxShadow: "0 0 16px rgba(217,70,239,0.65)" }}
+            >
               <Star className="w-3.5 h-3.5 text-white fill-white" />
             </div>
             <span className="text-sm font-black uppercase tracking-widest text-white">Madam Aurora</span>
@@ -287,17 +420,18 @@ const VSL = () => {
               { label: "Reviews", href: "#reviews" },
               { label: "FAQ", href: "#faq" },
             ].map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-xs font-semibold text-white/55 hover:text-white transition-colors tracking-wide uppercase"
+              <a key={link.href} href={link.href}
+                className="text-xs font-semibold text-white/50 hover:text-white transition-colors tracking-wide uppercase"
               >
                 {link.label}
               </a>
             ))}
           </nav>
 
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#f59e0b]/40 bg-[#f59e0b]/8 flex-shrink-0">
+          <div
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full flex-shrink-0"
+            style={{ border: "1px solid rgba(245,158,11,0.35)", background: "rgba(245,158,11,0.07)" }}
+          >
             <Lock className="w-3 h-3 text-[#f59e0b]" />
             <span className="text-[10px] font-bold text-[#f59e0b] uppercase tracking-wide hidden sm:block">Secure & Private</span>
           </div>
@@ -305,99 +439,129 @@ const VSL = () => {
       </header>
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        {/* Deep background gradients */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#100025] via-[#070009] to-[#0b001a] pointer-events-none" />
-        <div className="absolute top-[-10%] right-[-5%] w-[700px] h-[700px] bg-fuchsia-800/25 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-[30%] left-[40%] w-[300px] h-[300px] bg-pink-800/10 rounded-full blur-[80px] pointer-events-none" />
+      <section className="relative overflow-hidden min-h-[88vh] md:min-h-screen flex items-center">
+        {/* Layered background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#130030] via-[#060008] to-[#0e001e]" />
+        <div className="absolute top-[-18%] right-[-10%] w-[900px] h-[900px] bg-fuchsia-700/22 rounded-full blur-[180px]" />
+        <div className="absolute bottom-[-18%] left-[-10%] w-[700px] h-[700px] bg-purple-800/18 rounded-full blur-[160px]" />
+        <div className="absolute top-[25%] left-[28%] w-[450px] h-[450px] bg-pink-700/12 rounded-full blur-[110px]" />
+        <div className="absolute bottom-[5%] right-[15%] w-[350px] h-[350px] bg-violet-700/14 rounded-full blur-[90px]" />
+        <FloatingParticles />
 
-        <div className="relative max-w-7xl mx-auto px-4 pt-10 pb-20 md:pt-16 md:pb-24">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-14 items-center">
+        <div className="relative w-full max-w-7xl mx-auto px-4 py-10 md:py-0">
+          <div className="grid md:grid-cols-[1fr_1.2fr] gap-6 md:gap-4 items-center">
 
             {/* Left: Copy */}
             <motion.div
-              initial={{ opacity: 0, y: 28 }}
+              initial={{ opacity: 0, y: 36 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65 }}
-              className="order-2 md:order-1"
+              className="order-2 md:order-1 max-w-[560px]"
             >
-              {/* Eyebrow */}
+              {/* Social proof */}
               <motion.div
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="flex items-center gap-2 mb-5"
+                transition={{ delay: 0.15 }}
+                className="flex items-center gap-2.5 mb-6"
               >
-                <div className="flex -space-x-1.5">
+                <div className="flex -space-x-2">
                   {[avatarCarla, avatarFernanda, avatarMariana].map((src, i) => (
-                    <img key={i} src={src} alt="" className="w-6 h-6 rounded-full object-cover border-2 border-[#070009]" style={{ zIndex: 3 - i }} />
+                    <img key={i} src={src} alt=""
+                      className="w-7 h-7 rounded-full object-cover"
+                      style={{ border: "2px solid #060008", zIndex: 3 - i }}
+                    />
                   ))}
                 </div>
-                <span className="text-xs text-white/55 font-medium">27,241+ readings completed</span>
                 <Stars count={5} />
+                <span className="text-xs text-white/50 font-medium">27,241+ readings</span>
               </motion.div>
 
-              <h1 className="text-[2.6rem] sm:text-5xl md:text-[3.25rem] lg:text-[4rem] font-black uppercase leading-[0.95] mb-5 tracking-tight">
-                THERE'S A REASON THIS KEEPS HAPPENING IN YOUR{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-fuchsia-300">LOVE LIFE.</span>
+              {/* Headline */}
+              <h1 className="text-[2.85rem] sm:text-[3.4rem] md:text-[3.6rem] lg:text-[4.4rem] font-black uppercase leading-[0.9] mb-6 tracking-tight">
+                THERE'S A REASON
+                <br />
+                THIS KEEPS HAPPENING
+                <br />
+                IN YOUR{" "}
+                <span
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-300 to-fuchsia-400"
+                  style={{ filter: "drop-shadow(0 0 28px rgba(217,70,239,0.55))" }}
+                >
+                  LOVE LIFE.
+                </span>
               </h1>
 
-              <p className="text-base md:text-lg text-white/65 mb-6 leading-relaxed font-light">
-                You've felt it before — the pattern you can't explain.<br className="hidden sm:block" />
-                This shows you <span className="text-white/90 font-semibold">exactly why it keeps happening.</span>
+              <p className="text-base md:text-[1.05rem] text-white/58 mb-7 leading-relaxed max-w-[430px]">
+                You've felt it before — the pattern you can't explain.
+                <br />
+                This shows you{" "}
+                <span className="text-white/90 font-semibold">exactly why it keeps happening.</span>
               </p>
 
               {/* Bullets */}
-              <ul className="space-y-3 mb-7">
+              <ul className="space-y-3 mb-8">
                 {[
                   "AI reads your palm lines in seconds",
                   "Reveals your hidden timing patterns",
                   "Personalized reading, just for you",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(217,70,239,0.4)]">
+                    <div
+                      className="w-5 h-5 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center flex-shrink-0"
+                      style={{ boxShadow: "0 0 12px rgba(217,70,239,0.5)" }}
+                    >
                       <CheckCircle2 className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-sm md:text-base text-white/80">{item}</span>
+                    <span className="text-sm md:text-base text-white/75">{item}</span>
                   </li>
                 ))}
               </ul>
 
-              {/* CTA */}
-              <div className="flex flex-col sm:flex-row items-start gap-3 mb-5">
+              {/* CTA block */}
+              <div className="flex flex-col items-start gap-2 mb-5">
                 <CTAButton onClick={handleCTA} size="lg" className="w-full sm:w-auto">
                   REVEAL MY TIMING <ArrowRight className="w-5 h-5" />
                 </CTAButton>
+                <p className="text-xs text-white/32 italic pl-1">Most people never notice this.</p>
               </div>
 
               {/* Countdown */}
-              <div className="mb-5">
+              <div className="mb-4">
                 <CountdownBadge h={h} m={m} s={s} pad={pad} />
               </div>
 
-              {/* Microcopy */}
-              <p className="text-xs text-white/35 tracking-wide">
+              <p className="text-[11px] text-white/26 tracking-wide">
                 Private · AI-Powered · Takes 60 Seconds · No credit card to start
               </p>
             </motion.div>
 
-            {/* Right: Visual */}
+            {/* Right: Palm visual — bigger, invasive */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.94 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.75, delay: 0.2 }}
-              className="order-1 md:order-2 relative flex justify-center"
+              initial={{ opacity: 0, scale: 0.91, x: 24 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              transition={{ duration: 0.85, delay: 0.2 }}
+              className="order-1 md:order-2 relative flex justify-center md:justify-end md:-mr-6 lg:-mr-12"
             >
-              <div className="relative w-full max-w-[340px] md:max-w-[420px]">
-                {/* Outer glow ring */}
-                <div className="absolute inset-[-12px] bg-gradient-to-br from-fuchsia-600/30 to-purple-800/15 rounded-[36px] blur-[30px]" />
-                <div className="absolute inset-[-4px] rounded-[28px] bg-gradient-to-br from-fuchsia-500/20 to-transparent blur-[8px]" />
+              <div className="relative w-full max-w-[380px] sm:max-w-[460px] md:max-w-none md:w-full">
+                {/* Aura layers */}
+                <div className="absolute inset-[-28px] bg-gradient-to-br from-fuchsia-600/38 to-purple-800/22 rounded-[52px] blur-[60px]" />
+                <div className="absolute inset-[-12px] bg-gradient-to-tr from-fuchsia-500/28 via-pink-500/18 to-transparent rounded-[40px] blur-[24px]" />
+                <div className="absolute inset-[-3px] bg-gradient-to-br from-fuchsia-400/16 to-transparent rounded-[32px] blur-[8px]" />
 
-                {/* Palm image */}
-                <div className="relative rounded-[24px] overflow-hidden"
+                {/* Pulsing ring */}
+                <motion.div
+                  className="absolute inset-0 rounded-[26px]"
+                  animate={{ opacity: [0.3, 0.7, 0.3] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  style={{ border: "1px solid rgba(217,70,239,0.35)" }}
+                />
+
+                {/* Image */}
+                <div
+                  className="relative rounded-[24px] overflow-hidden"
                   style={{
-                    boxShadow: "0 0 0 1px rgba(217,70,239,0.25), 0 24px 80px rgba(139,0,255,0.35), 0 8px 32px rgba(0,0,0,0.6)",
+                    boxShadow: "0 0 0 1px rgba(217,70,239,0.32), 0 40px 120px rgba(139,0,255,0.5), 0 16px 48px rgba(0,0,0,0.75)",
                   }}
                 >
                   <img
@@ -405,59 +569,55 @@ const VSL = () => {
                     alt="Palm reading"
                     className="w-full h-auto object-cover"
                     loading="eager"
+                    style={{ filter: "contrast(1.06) saturate(1.12) brightness(0.97)" }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#070009]/70 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#060008]/60 via-transparent to-transparent" />
 
-                  {/* SVG palm lines */}
+                  {/* Animated palm lines */}
                   <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice">
                     <defs>
-                      <filter id="lineglow">
-                        <feGaussianBlur stdDeviation="4" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                      </filter>
+                      <filter id="gl1"><feGaussianBlur stdDeviation="5" result="b" /><feComposite in="SourceGraphic" in2="b" operator="over" /></filter>
+                      <filter id="gl2"><feGaussianBlur stdDeviation="3" result="b" /><feComposite in="SourceGraphic" in2="b" operator="over" /></filter>
                     </defs>
-                    <motion.path
-                      d="M120 360 Q140 260 155 180 Q165 120 175 60"
-                      stroke="#e879f9" strokeWidth="2.5" fill="none" strokeLinecap="round"
-                      filter="url(#lineglow)"
+                    <motion.path d="M120 360 Q140 260 155 180 Q165 120 175 60"
+                      stroke="#e879f9" strokeWidth="3.5" fill="none" strokeLinecap="round" filter="url(#gl1)"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 0.88 }}
+                      transition={{ duration: 1.8, delay: 0.9, ease: "easeOut" }}
+                    />
+                    <motion.path d="M100 350 Q130 280 145 200 Q155 150 160 90"
+                      stroke="#a855f7" strokeWidth="2.5" fill="none" strokeLinecap="round" filter="url(#gl2)"
                       initial={{ pathLength: 0, opacity: 0 }}
                       animate={{ pathLength: 1, opacity: 0.7 }}
-                      transition={{ duration: 1.5, delay: 0.8, ease: "easeOut" }}
+                      transition={{ duration: 1.8, delay: 1.2, ease: "easeOut" }}
                     />
-                    <motion.path
-                      d="M100 350 Q130 280 145 200 Q155 150 160 90"
-                      stroke="#a855f7" strokeWidth="2" fill="none" strokeLinecap="round"
-                      filter="url(#lineglow)"
+                    <motion.path d="M78 330 Q110 290 152 270 Q194 252 234 244"
+                      stroke="#f472b6" strokeWidth="2.5" fill="none" strokeLinecap="round" filter="url(#gl2)"
                       initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 0.55 }}
-                      transition={{ duration: 1.5, delay: 1.1, ease: "easeOut" }}
-                    />
-                    <motion.path
-                      d="M80 330 Q110 290 150 270 Q190 250 230 242"
-                      stroke="#f472b6" strokeWidth="2" fill="none" strokeLinecap="round"
-                      filter="url(#lineglow)"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 0.55 }}
-                      transition={{ duration: 1.5, delay: 1.3, ease: "easeOut" }}
+                      animate={{ pathLength: 1, opacity: 0.72 }}
+                      transition={{ duration: 1.8, delay: 1.4, ease: "easeOut" }}
                     />
                   </svg>
                 </div>
 
-                {/* "60 seconds" badge */}
+                {/* 60s badge */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8, x: 10 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  transition={{ delay: 0.9, type: "spring" }}
-                  className="absolute -bottom-5 -right-3 md:bottom-4 md:-right-6 text-center px-4 py-3 rounded-2xl"
+                  initial={{ opacity: 0, scale: 0.72, y: 12 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: 1.1, type: "spring", stiffness: 180 }}
+                  className="absolute -bottom-7 -right-2 md:-bottom-5 md:-right-10 text-center px-5 py-4 rounded-2xl z-10"
                   style={{
-                    background: "linear-gradient(145deg, rgba(26,0,48,0.95), rgba(13,0,24,0.98))",
-                    boxShadow: "inset 0 1px 0 rgba(217,70,239,0.2), 0 8px 32px rgba(139,0,255,0.3), 0 0 0 1px rgba(168,85,247,0.2)",
-                    backdropFilter: "blur(16px)",
+                    background: "linear-gradient(145deg, rgba(32,0,58,0.97), rgba(14,0,26,0.99))",
+                    boxShadow: "inset 0 1px 0 rgba(217,70,239,0.28), 0 16px 50px rgba(139,0,255,0.48), 0 0 0 1px rgba(168,85,247,0.28)",
+                    backdropFilter: "blur(24px)",
                   }}
                 >
-                  <p className="text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Takes less than</p>
-                  <p className="text-3xl font-black text-fuchsia-400 leading-none" style={{ textShadow: "0 0 20px rgba(217,70,239,0.6)" }}>60</p>
-                  <p className="text-[10px] font-black text-white/60 uppercase tracking-wider">Seconds</p>
+                  <p className="text-[9px] uppercase tracking-widest text-white/32 mb-0.5">Takes less than</p>
+                  <p
+                    className="text-[2.5rem] font-black text-fuchsia-400 leading-none"
+                    style={{ textShadow: "0 0 28px rgba(217,70,239,0.75)" }}
+                  >60</p>
+                  <p className="text-[10px] font-black text-white/52 uppercase tracking-wider">Seconds</p>
                 </motion.div>
               </div>
             </motion.div>
@@ -466,48 +626,61 @@ const VSL = () => {
       </section>
 
       {/* ── PAIN SECTION ───────────────────────────────────────────────────── */}
-      <section className="py-16 md:py-24 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[#080010]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(139,0,255,0.12),transparent)]" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/20 to-transparent" />
+      <section className="py-14 md:py-20 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[#080012]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(139,0,255,0.15),transparent)]" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/28 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8"
           >
             <SectionBadge>Sound Familiar?</SectionBadge>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase leading-tight">
+            <h2 className="text-4xl sm:text-5xl md:text-[3.5rem] font-black uppercase leading-[0.93] tracking-tight">
               YOU'VE TRIED{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-fuchsia-300">EVERYTHING.</span>
+              <span
+                className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-fuchsia-300"
+                style={{ filter: "drop-shadow(0 0 22px rgba(217,70,239,0.45))" }}
+              >
+                EVERYTHING.
+              </span>
               <br />
-              <span className="text-white/80">AND IT'S STILL HAPPENING.</span>
+              <span className="text-white/72">AND IT'S STILL HAPPENING.</span>
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
             {PAIN_CARDS.map((card, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -4, ...glassCardHover }}
-                className="rounded-2xl p-5 text-center cursor-default transition-all duration-300"
-                style={glassCard}
+                transition={{ delay: i * 0.09 }}
               >
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-fuchsia-600/40 to-purple-700/30 border border-fuchsia-500/30 flex items-center justify-center mx-auto mb-4 shadow-[0_0_24px_rgba(217,70,239,0.3)]">
-                  <card.icon className="w-6 h-6 text-fuchsia-300" />
-                </div>
-                <p className="text-xs sm:text-sm text-white/70 leading-relaxed">{card.text}</p>
+                <GBCard border={card.border} glow={card.glow}>
+                  <div className="p-5 text-center">
+                    <div
+                      className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+                      style={{
+                        background: card.iconBg,
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        boxShadow: card.iconGlow,
+                      }}
+                    >
+                      <card.icon className={`w-6 h-6 ${card.iconColor}`} />
+                    </div>
+                    <p className="text-xs sm:text-sm text-white/65 leading-relaxed">{card.text}</p>
+                  </div>
+                </GBCard>
               </motion.div>
             ))}
           </div>
 
-          <p className="text-center text-white/55 text-sm md:text-base">
+          <p className="text-center text-white/50 text-sm md:text-base">
             Your reading{" "}
             <span className="text-fuchsia-300 font-bold">connects the dots</span>{" "}
             you've been missing all along.
@@ -516,20 +689,20 @@ const VSL = () => {
       </section>
 
       {/* ── VIDEO SECTION ──────────────────────────────────────────────────── */}
-      <section className="py-16 md:py-24 px-4 bg-[#070009] relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-purple-900/10 rounded-full blur-[100px] pointer-events-none" />
+      <section className="py-14 md:py-20 px-4 bg-[#060008] relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] bg-purple-900/10 rounded-full blur-[130px]" />
 
         <div className="relative max-w-5xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8 md:gap-14 items-center">
 
-            {/* Video card */}
+            {/* Video */}
             <motion.div
-              initial={{ opacity: 0, x: -24 }}
+              initial={{ opacity: 0, x: -26 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               className="relative rounded-2xl overflow-hidden"
               style={{
-                boxShadow: "0 0 0 1px rgba(217,70,239,0.2), 0 24px 80px rgba(139,0,255,0.25), 0 8px 32px rgba(0,0,0,0.6)",
+                boxShadow: "0 0 0 1px rgba(217,70,239,0.24), 0 32px 100px rgba(139,0,255,0.32), 0 12px 44px rgba(0,0,0,0.72)",
               }}
             >
               <div className="relative aspect-video bg-[#0a0015]">
@@ -537,28 +710,25 @@ const VSL = () => {
                   ref={videoRef}
                   src={videoSrc}
                   className="w-full h-full object-contain"
-                  playsInline
-                  muted
-                  loop
-                  autoPlay
+                  playsInline muted loop autoPlay
                   aria-label="Madam Aurora reading preview"
                 />
                 {!soundActivated && (
                   <button
                     onClick={activateSound}
-                    className="absolute inset-0 flex items-center justify-center group focus:outline-none"
+                    className="absolute inset-0 flex items-center justify-center focus:outline-none"
                     aria-label="Activate sound"
                   >
                     <div className="flex flex-col items-center gap-3">
                       <motion.div
-                        animate={{ scale: [1, 1.08, 1] }}
+                        animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
-                        className="w-18 h-18 rounded-full bg-fuchsia-600/90 flex items-center justify-center shadow-[0_0_40px_rgba(217,70,239,0.7)]"
-                        style={{ width: 72, height: 72 }}
+                        className="rounded-full bg-fuchsia-600/90 flex items-center justify-center"
+                        style={{ width: 72, height: 72, boxShadow: "0 0 55px rgba(217,70,239,0.85)" }}
                       >
                         <Volume2 className="w-7 h-7 text-white" />
                       </motion.div>
-                      <span className="text-sm text-white/90 font-semibold bg-black/70 px-4 py-2 rounded-full backdrop-blur-sm">
+                      <span className="text-sm text-white/90 font-semibold bg-black/75 px-4 py-2 rounded-full backdrop-blur-sm">
                         Tap to hear Aurora
                       </span>
                     </div>
@@ -568,20 +738,20 @@ const VSL = () => {
                   <div className="absolute bottom-3 right-3">
                     <button
                       onClick={toggleMute}
-                      className="w-10 h-10 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
+                      className="w-10 h-10 rounded-full bg-black/72 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
                       aria-label={isMuted ? "Unmute" : "Mute"}
                     >
-                      {isMuted ? <VolumeX className="w-4.5 h-4.5" /> : <Volume2 className="w-4.5 h-4.5" />}
+                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                     </button>
                   </div>
                 )}
-                <div className="absolute bottom-3 left-3 text-xs text-white/40 italic">See how it works</div>
+                <div className="absolute bottom-3 left-3 text-xs text-white/35 italic">See how it works</div>
               </div>
             </motion.div>
 
             {/* Copy */}
             <motion.div
-              initial={{ opacity: 0, x: 24 }}
+              initial={{ opacity: 0, x: 26 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
@@ -591,20 +761,16 @@ const VSL = () => {
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">MAGIC</span>
                 <br />FOR YOURSELF
               </h2>
-              <p className="text-white/55 mb-7 leading-relaxed text-sm md:text-base">
-                Watch how Madam Aurora turns your palm lines into powerful clarity about your love life — and what comes next.
+              <p className="text-white/50 mb-7 leading-relaxed text-sm md:text-base">
+                Watch how Madam Aurora turns your palm lines into powerful clarity — and what comes next.
               </p>
               <ul className="space-y-3 mb-8">
-                {[
-                  "Real reading, real results",
-                  "AI-powered line analysis",
-                  "Personalized just for you",
-                ].map((item) => (
+                {["Real reading, real results", "AI-powered line analysis", "Personalized just for you"].map((item) => (
                   <li key={item} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-fuchsia-600/25 border border-fuchsia-500/40 flex items-center justify-center flex-shrink-0">
+                    <div className="w-5 h-5 rounded-full bg-fuchsia-600/22 border border-fuchsia-500/38 flex items-center justify-center flex-shrink-0">
                       <CheckCircle2 className="w-3 h-3 text-fuchsia-400" />
                     </div>
-                    <span className="text-sm text-white/75">{item}</span>
+                    <span className="text-sm text-white/68">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -617,17 +783,17 @@ const VSL = () => {
       </section>
 
       {/* ── REVIEWS ────────────────────────────────────────────────────────── */}
-      <section id="reviews" className="py-16 md:py-24 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[#080010]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_100%,rgba(139,0,255,0.1),transparent)]" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/20 to-transparent" />
+      <section id="reviews" className="py-14 md:py-20 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[#080012]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_100%,rgba(139,0,255,0.12),transparent)]" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/22 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-10"
           >
             <SectionBadge>Real Results</SectionBadge>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase">
@@ -641,24 +807,29 @@ const VSL = () => {
             {REVIEWS.map((r, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 26 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -4, ...glassCardHover }}
-                className="rounded-2xl p-6 cursor-default transition-all duration-300"
-                style={glassCard}
               >
-                <div className="text-fuchsia-400/80 text-5xl font-serif leading-none mb-2 select-none" style={{ textShadow: "0 0 16px rgba(217,70,239,0.4)" }}>"</div>
-                <Stars className="mb-3" />
-                <p className="text-white/80 text-sm leading-relaxed mb-5 italic">"{r.quote}"</p>
-                <div className="flex items-center gap-3 pt-4 border-t border-white/6">
-                  <img src={r.avatar} alt={r.name} className="w-10 h-10 rounded-full object-cover border border-fuchsia-500/30" />
-                  <div>
-                    <p className="text-sm font-bold text-white">{r.name}</p>
-                    <p className="text-xs text-white/35">{r.location}</p>
+                <GBCard border={r.border} glow={r.glow} className="h-full">
+                  <div className="p-6">
+                    <div
+                      className="text-5xl font-serif leading-none mb-2 select-none"
+                      style={{ color: "rgba(217,70,239,0.8)", textShadow: "0 0 22px rgba(217,70,239,0.5)" }}
+                    >"</div>
+                    <Stars className="mb-3" />
+                    <p className="text-white/80 text-sm leading-relaxed mb-5 italic">"{r.quote}"</p>
+                    <div className="flex items-center gap-3 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                      <img src={r.avatar} alt={r.name} className="w-10 h-10 rounded-full object-cover"
+                        style={{ border: "1px solid rgba(217,70,239,0.32)" }} />
+                      <div>
+                        <p className="text-sm font-bold text-white">{r.name}</p>
+                        <p className="text-xs text-white/32">{r.location}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </GBCard>
               </motion.div>
             ))}
           </div>
@@ -668,46 +839,47 @@ const VSL = () => {
             <AnimatePresence mode="wait">
               <motion.div
                 key={reviewIndex}
-                initial={{ opacity: 0, x: 40 }}
+                initial={{ opacity: 0, x: 55 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
-                transition={{ duration: 0.25 }}
-                className="rounded-2xl p-6"
-                style={glassCard}
+                exit={{ opacity: 0, x: -55 }}
+                transition={{ duration: 0.24 }}
               >
-                <div className="text-fuchsia-400/80 text-5xl font-serif leading-none mb-2 select-none">"</div>
-                <Stars className="mb-3" />
-                <p className="text-white/80 text-sm leading-relaxed mb-5 italic">"{REVIEWS[reviewIndex].quote}"</p>
-                <div className="flex items-center gap-3 pt-4 border-t border-white/6">
-                  <img src={REVIEWS[reviewIndex].avatar} alt={REVIEWS[reviewIndex].name} className="w-10 h-10 rounded-full object-cover border border-fuchsia-500/30" />
-                  <div>
-                    <p className="text-sm font-bold text-white">{REVIEWS[reviewIndex].name}</p>
-                    <p className="text-xs text-white/35">{REVIEWS[reviewIndex].location}</p>
+                <GBCard border={REVIEWS[reviewIndex].border} glow={REVIEWS[reviewIndex].glow}>
+                  <div className="p-6">
+                    <div className="text-5xl font-serif leading-none mb-2 select-none" style={{ color: "rgba(217,70,239,0.8)" }}>"</div>
+                    <Stars className="mb-3" />
+                    <p className="text-white/80 text-sm leading-relaxed mb-5 italic">"{REVIEWS[reviewIndex].quote}"</p>
+                    <div className="flex items-center gap-3 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                      <img src={REVIEWS[reviewIndex].avatar} alt={REVIEWS[reviewIndex].name} className="w-10 h-10 rounded-full object-cover"
+                        style={{ border: "1px solid rgba(217,70,239,0.32)" }} />
+                      <div>
+                        <p className="text-sm font-bold text-white">{REVIEWS[reviewIndex].name}</p>
+                        <p className="text-xs text-white/32">{REVIEWS[reviewIndex].location}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </GBCard>
               </motion.div>
             </AnimatePresence>
             <div className="flex items-center justify-center gap-4 mt-5">
               <button
                 onClick={() => setReviewIndex((i) => (i - 1 + REVIEWS.length) % REVIEWS.length)}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-white/50 transition-colors"
-                style={{ ...glassCard }}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white/50"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <div className="flex gap-2">
                 {REVIEWS.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setReviewIndex(i)}
-                    className={`rounded-full transition-all ${i === reviewIndex ? "w-6 h-2 bg-fuchsia-500" : "w-2 h-2 bg-white/20"}`}
+                  <button key={i} onClick={() => setReviewIndex(i)}
+                    className={`rounded-full transition-all duration-200 ${i === reviewIndex ? "w-6 h-2 bg-fuchsia-500" : "w-2 h-2 bg-white/20"}`}
                   />
                 ))}
               </div>
               <button
                 onClick={() => setReviewIndex((i) => (i + 1) % REVIEWS.length)}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-white/50 transition-colors"
-                style={{ ...glassCard }}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white/50"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -717,39 +889,44 @@ const VSL = () => {
       </section>
 
       {/* ── DISCOVERY ──────────────────────────────────────────────────────── */}
-      <section id="discover" className="py-16 md:py-24 px-4 bg-[#070009] relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
+      <section id="discover" className="py-14 md:py-20 px-4 bg-[#060008] relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/22 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-10"
           >
             <SectionBadge>Inside Your Reading</SectionBadge>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase">
-              WHAT YOU'LL DISCOVER
-            </h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase">WHAT YOU'LL DISCOVER</h2>
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             {DISCOVERY_CARDS.map((card, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -6, ...glassCardHover }}
-                className="group rounded-2xl p-5 text-center cursor-default transition-all duration-300"
-                style={glassCard}
+                transition={{ delay: i * 0.09 }}
               >
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(217,70,239,0.45)] group-hover:shadow-[0_0_45px_rgba(217,70,239,0.65)] transition-shadow">
-                  <card.icon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-sm font-black uppercase tracking-wide text-white mb-2">{card.title}</h3>
-                <p className="text-xs text-white/50 leading-relaxed">{card.desc}</p>
+                <GBCard border={card.border} glow={card.glow} className="h-full">
+                  <div className="p-5 text-center">
+                    <div
+                      className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+                      style={{
+                        background: card.iconBg,
+                        boxShadow: "0 0 32px rgba(217,70,239,0.48)",
+                      }}
+                    >
+                      <card.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-sm font-black uppercase tracking-wide text-white mb-2">{card.title}</h3>
+                    <p className="text-xs text-white/48 leading-relaxed">{card.desc}</p>
+                  </div>
+                </GBCard>
               </motion.div>
             ))}
           </div>
@@ -763,78 +940,91 @@ const VSL = () => {
       </section>
 
       {/* ── HOW IT WORKS ───────────────────────────────────────────────────── */}
-      <section id="how-it-works" className="py-16 md:py-24 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[#080010]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_60%_at_50%_50%,rgba(139,0,255,0.08),transparent)]" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/20 to-transparent" />
+      <section id="how-it-works" className="py-14 md:py-20 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[#080012]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_55%_at_50%_50%,rgba(139,0,255,0.1),transparent)]" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/22 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-14"
           >
             <SectionBadge>Simple 4-Step Process</SectionBadge>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase">
-              HOW IT WORKS
-            </h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase">HOW IT WORKS</h2>
           </motion.div>
 
-          {/* Desktop horizontal */}
+          {/* Desktop */}
           <div className="hidden md:block relative mb-14">
-            {/* Timeline connector */}
-            <div className="absolute top-[38px] left-[12.5%] right-[12.5%] h-[2px] bg-gradient-to-r from-fuchsia-600/50 via-purple-500/50 to-fuchsia-600/50" />
-
+            <div
+              className="absolute top-[38px] left-[12.5%] right-[12.5%] h-[2px]"
+              style={{ background: "linear-gradient(90deg, rgba(217,70,239,0.58), rgba(168,85,247,0.58), rgba(217,70,239,0.58))" }}
+            />
             <div className="grid grid-cols-4 gap-4 relative">
               {HOW_IT_WORKS.map((step, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 24 }}
+                  initial={{ opacity: 0, y: 26 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.12 }}
                   className="text-center"
                 >
                   <div className="relative inline-flex mb-5">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center shadow-[0_0_35px_rgba(217,70,239,0.45)]">
+                    <div
+                      className="w-20 h-20 rounded-full bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center"
+                      style={{ boxShadow: "0 0 42px rgba(217,70,239,0.55)" }}
+                    >
                       <step.icon className="w-8 h-8 text-white" />
                     </div>
-                    <div className="absolute -top-1.5 -right-1.5 w-7 h-7 rounded-full bg-[#080010] border-2 border-fuchsia-500/60 flex items-center justify-center shadow-[0_0_10px_rgba(217,70,239,0.4)]">
+                    <div
+                      className="absolute -top-1.5 -right-1.5 w-7 h-7 rounded-full bg-[#080012] flex items-center justify-center"
+                      style={{ border: "2px solid rgba(217,70,239,0.65)", boxShadow: "0 0 12px rgba(217,70,239,0.45)" }}
+                    >
                       <span className="text-[9px] font-black text-fuchsia-300">{step.step}</span>
                     </div>
                   </div>
                   <h3 className="text-sm font-black uppercase tracking-wide text-white mb-1.5">{step.title}</h3>
-                  <p className="text-xs text-white/45 leading-relaxed max-w-[140px] mx-auto">{step.desc}</p>
+                  <p className="text-xs text-white/44 leading-relaxed max-w-[140px] mx-auto">{step.desc}</p>
                 </motion.div>
               ))}
             </div>
           </div>
 
-          {/* Mobile vertical */}
+          {/* Mobile */}
           <div className="md:hidden space-y-3 mb-12">
             {HOW_IT_WORKS.map((step, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -22 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="flex items-start gap-4 rounded-2xl p-4"
-                style={glassCard}
               >
-                <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center shadow-[0_0_20px_rgba(217,70,239,0.35)]">
-                    <step.icon className="w-5.5 h-5.5 text-white" />
+                <GBCard border="rgba(217,70,239,0.4)" glow="rgba(217,70,239,0.2)">
+                  <div className="flex items-start gap-4 p-4">
+                    <div className="relative flex-shrink-0">
+                      <div
+                        className="w-12 h-12 rounded-full bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center"
+                        style={{ boxShadow: "0 0 22px rgba(217,70,239,0.4)" }}
+                      >
+                        <step.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div
+                        className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#080012] flex items-center justify-center"
+                        style={{ border: "1px solid rgba(217,70,239,0.55)" }}
+                      >
+                        <span className="text-[7px] font-black text-fuchsia-400">{step.step}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black uppercase tracking-wide text-white mb-1">{step.title}</h3>
+                      <p className="text-xs text-white/48 leading-relaxed">{step.desc}</p>
+                    </div>
                   </div>
-                  <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#080010] border border-fuchsia-500/50 flex items-center justify-center">
-                    <span className="text-[7px] font-black text-fuchsia-400">{step.step}</span>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-wide text-white mb-1">{step.title}</h3>
-                  <p className="text-xs text-white/50 leading-relaxed">{step.desc}</p>
-                </div>
+                </GBCard>
               </motion.div>
             ))}
           </div>
@@ -843,23 +1033,23 @@ const VSL = () => {
             <CTAButton onClick={handleCTA} size="lg" className="w-full sm:w-auto">
               START MY READING NOW <ArrowRight className="w-5 h-5" />
             </CTAButton>
-            <p className="text-xs text-white/30 mt-3">Takes less than 60 seconds · Completely private</p>
+            <p className="text-xs text-white/26 mt-3">Takes less than 60 seconds · Completely private</p>
           </div>
         </div>
       </section>
 
       {/* ── PREMIUM BLOCK ──────────────────────────────────────────────────── */}
-      <section className="py-16 md:py-24 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#180030] via-[#0d001f] to-[#070009]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(168,85,247,0.15),transparent)]" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+      <section className="py-14 md:py-20 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#190032] via-[#0c0020] to-[#060008]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_72%_60%_at_50%_0%,rgba(168,85,247,0.17),transparent)]" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/32 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-10"
           >
             <SectionBadge>Always With You</SectionBadge>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase leading-tight">
@@ -873,19 +1063,23 @@ const VSL = () => {
             {PREMIUM_FEATURES.map((feat, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 26 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -4, ...glassCardHover }}
-                className="rounded-2xl p-5 transition-all duration-300"
-                style={glassCard}
               >
-                <div className="w-10 h-10 rounded-xl bg-fuchsia-600/20 border border-fuchsia-500/30 flex items-center justify-center mb-3 shadow-[0_0_16px_rgba(217,70,239,0.2)]">
-                  <feat.icon className="w-5 h-5 text-fuchsia-300" />
-                </div>
-                <h3 className="text-xs font-black uppercase tracking-wide text-white mb-2">{feat.title}</h3>
-                <p className="text-xs text-white/45 leading-relaxed">{feat.desc}</p>
+                <GBCard border={feat.border} glow={feat.glow} className="h-full">
+                  <div className="p-5">
+                    <div
+                      className="w-10 h-10 rounded-xl bg-fuchsia-600/18 flex items-center justify-center mb-3"
+                      style={{ border: "1px solid rgba(217,70,239,0.28)", boxShadow: "0 0 18px rgba(217,70,239,0.22)" }}
+                    >
+                      <feat.icon className="w-5 h-5 text-fuchsia-300" />
+                    </div>
+                    <h3 className="text-xs font-black uppercase tracking-wide text-white mb-2">{feat.title}</h3>
+                    <p className="text-xs text-white/44 leading-relaxed">{feat.desc}</p>
+                  </div>
+                </GBCard>
               </motion.div>
             ))}
           </div>
@@ -894,28 +1088,24 @@ const VSL = () => {
             <CTAButton onClick={handleCTA} size="lg" className="w-full sm:w-auto">
               START MY PRIVATE SESSION <ArrowRight className="w-5 h-5" />
             </CTAButton>
-            <p className="text-xs text-white/30 mt-3">
-              Private · Secure · No credit card to start
-            </p>
+            <p className="text-xs text-white/26 mt-3">Private · Secure · No credit card to start</p>
           </div>
         </div>
       </section>
 
       {/* ── FAQ ────────────────────────────────────────────────────────────── */}
-      <section id="faq" className="py-16 md:py-24 px-4 bg-[#070009] relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/15 to-transparent" />
+      <section id="faq" className="py-14 md:py-20 px-4 bg-[#060008] relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/18 to-transparent" />
 
         <div className="max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-10"
           >
             <SectionBadge>Questions Answered</SectionBadge>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase">
-              FREQUENTLY ASKED
-            </h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase">FREQUENTLY ASKED</h2>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -923,30 +1113,36 @@ const VSL = () => {
               {FAQ_ITEMS.map((item, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 12 }}
+                  initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.04 }}
-                  className="rounded-xl overflow-hidden transition-all duration-200"
+                  className="rounded-xl overflow-hidden"
                   style={{
-                    ...glassCard,
-                    ...(openFaq === i ? {
-                      boxShadow: "inset 0 1px 0 rgba(217,70,239,0.25), 0 8px 32px rgba(139,0,255,0.22), 0 0 0 1px rgba(217,70,239,0.25)",
-                    } : {}),
+                    background: openFaq === i
+                      ? "linear-gradient(145deg, rgba(255,255,255,0.055) 0%, rgba(8,0,18,0.98) 100%)"
+                      : "linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(8,0,18,0.97) 100%)",
+                    boxShadow: openFaq === i
+                      ? "inset 0 1px 0 rgba(217,70,239,0.28), 0 8px 32px rgba(139,0,255,0.24), 0 0 0 1px rgba(217,70,239,0.3)"
+                      : "0 0 0 1px rgba(168,85,247,0.12)",
+                    backdropFilter: "blur(16px)",
                   }}
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                     className="w-full flex items-center justify-between p-4 text-left gap-3"
                   >
-                    <span className={`text-sm font-semibold pr-2 transition-colors ${openFaq === i ? "text-fuchsia-300" : "text-white/85"}`}>
+                    <span className={`text-sm font-semibold pr-2 transition-colors ${openFaq === i ? "text-fuchsia-300" : "text-white/80"}`}>
                       {item.q}
                     </span>
-                    <div className={`flex-shrink-0 w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
-                      openFaq === i
-                        ? "border-fuchsia-500/60 bg-fuchsia-500/15 shadow-[0_0_10px_rgba(217,70,239,0.3)]"
-                        : "border-white/15 bg-white/4"
-                    }`}>
+                    <div
+                      className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all"
+                      style={{
+                        border: openFaq === i ? "1px solid rgba(217,70,239,0.65)" : "1px solid rgba(255,255,255,0.12)",
+                        background: openFaq === i ? "rgba(217,70,239,0.16)" : "rgba(255,255,255,0.04)",
+                        boxShadow: openFaq === i ? "0 0 14px rgba(217,70,239,0.35)" : "none",
+                      }}
+                    >
                       {openFaq === i
                         ? <Minus className="w-3.5 h-3.5 text-fuchsia-400" />
                         : <Plus className="w-3.5 h-3.5 text-white/40" />
@@ -962,7 +1158,7 @@ const VSL = () => {
                         transition={{ duration: 0.22 }}
                         className="overflow-hidden"
                       >
-                        <div className="px-4 pb-5 border-l-2 border-fuchsia-500/40 ml-4">
+                        <div className="px-4 pb-5 ml-4" style={{ borderLeft: "2px solid rgba(217,70,239,0.42)" }}>
                           <p className="text-sm text-white/55 leading-relaxed">{item.a}</p>
                         </div>
                       </motion.div>
@@ -972,31 +1168,33 @@ const VSL = () => {
               ))}
             </div>
 
-            {/* Contact card */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 22 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="rounded-2xl p-6 flex flex-col justify-between h-full min-h-[220px]"
-              style={glassCard}
             >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-fuchsia-600/20 border border-fuchsia-500/30 flex items-center justify-center mb-4 shadow-[0_0_16px_rgba(217,70,239,0.2)]">
-                  <Sparkles className="w-5 h-5 text-fuchsia-300" />
+              <GBCard border="rgba(217,70,239,0.42)" glow="rgba(217,70,239,0.22)" className="h-full">
+                <div className="p-6 flex flex-col h-full min-h-[220px]">
+                  <div
+                    className="w-12 h-12 rounded-xl bg-fuchsia-600/18 flex items-center justify-center mb-4"
+                    style={{ border: "1px solid rgba(217,70,239,0.32)", boxShadow: "0 0 18px rgba(217,70,239,0.22)" }}
+                  >
+                    <Sparkles className="w-5 h-5 text-fuchsia-300" />
+                  </div>
+                  <h3 className="text-base font-black uppercase text-white mb-2">Still Have Questions?</h3>
+                  <p className="text-sm text-white/44 mb-6 leading-relaxed flex-1">Our support team is here for you.</p>
+                  <a
+                    href="/contact"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold text-white transition-all"
+                    style={{
+                      background: "linear-gradient(145deg, rgba(168,85,247,0.24), rgba(88,28,135,0.18))",
+                      boxShadow: "inset 0 1px 0 rgba(217,70,239,0.22), 0 0 0 1px rgba(168,85,247,0.26)",
+                    }}
+                  >
+                    Contact Support <ArrowRight className="w-4 h-4" />
+                  </a>
                 </div>
-                <h3 className="text-base font-black uppercase text-white mb-2">Still Have Questions?</h3>
-                <p className="text-sm text-white/45 mb-6 leading-relaxed">Our support team is here for you.</p>
-              </div>
-              <a
-                href="/contact"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold text-white transition-all"
-                style={{
-                  background: "linear-gradient(145deg, rgba(168,85,247,0.25), rgba(88,28,135,0.2))",
-                  boxShadow: "inset 0 1px 0 rgba(217,70,239,0.2), 0 4px 16px rgba(139,0,255,0.15), 0 0 0 1px rgba(168,85,247,0.25)",
-                }}
-              >
-                Contact Support <ArrowRight className="w-4 h-4" />
-              </a>
+              </GBCard>
             </motion.div>
           </div>
         </div>
@@ -1004,51 +1202,63 @@ const VSL = () => {
 
       {/* ── FINAL CTA ──────────────────────────────────────────────────────── */}
       <section className="py-16 md:py-24 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[#060008]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,rgba(139,0,255,0.12),transparent)]" />
+        <div className="absolute inset-0 bg-[#050007]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_50%,rgba(139,0,255,0.16),transparent)]" />
 
         <div className="relative max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="rounded-3xl px-6 py-12 md:px-14 md:py-14 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left"
+            className="rounded-3xl px-6 py-16 md:px-16 md:py-20 flex flex-col items-center text-center relative overflow-hidden"
             style={{
-              background: "linear-gradient(135deg, rgba(88,0,160,0.35) 0%, rgba(26,0,48,0.6) 50%, rgba(88,0,160,0.35) 100%)",
-              boxShadow: "inset 0 1px 0 rgba(217,70,239,0.2), 0 0 80px rgba(139,0,255,0.2), 0 0 0 1px rgba(168,85,247,0.2)",
-              backdropFilter: "blur(20px)",
+              background: "linear-gradient(135deg, rgba(110,0,200,0.42) 0%, rgba(32,0,65,0.68) 50%, rgba(110,0,200,0.42) 100%)",
+              boxShadow: "inset 0 1px 0 rgba(217,70,239,0.28), 0 0 120px rgba(139,0,255,0.28), 0 0 0 1px rgba(168,85,247,0.24)",
+              backdropFilter: "blur(28px)",
             }}
           >
-            {/* Decorative orbs */}
-            <div className="absolute top-[-30px] right-[-30px] w-[200px] h-[200px] bg-fuchsia-600/20 rounded-full blur-[60px] pointer-events-none" />
-            <div className="absolute bottom-[-30px] left-[-30px] w-[150px] h-[150px] bg-purple-600/20 rounded-full blur-[50px] pointer-events-none" />
+            <div className="absolute top-[-50px] right-[-50px] w-[300px] h-[300px] bg-fuchsia-600/22 rounded-full blur-[80px]" />
+            <div className="absolute bottom-[-50px] left-[-50px] w-[250px] h-[250px] bg-purple-600/22 rounded-full blur-[70px]" />
+            <FloatingParticles />
 
-            <div className="relative">
-              <p className="text-xs font-bold uppercase tracking-widest text-fuchsia-400 mb-3">Don't Wait Any Longer</p>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase leading-tight mb-2">
-                YOU ALREADY FELT IT.
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-fuchsia-300">
-                  THIS EXPLAINS WHY.
-                </span>
-              </h2>
-              <p className="text-sm text-white/35 mt-3">Private · Secure · Takes less than 60 seconds</p>
-            </div>
-            <div className="relative flex flex-col items-center gap-3 flex-shrink-0">
-              <CTAButton onClick={handleCTA} size="lg" className="whitespace-nowrap">
-                REVEAL MY TIMING NOW <ArrowRight className="w-5 h-5" />
+            <p className="text-xs font-bold uppercase tracking-widest text-fuchsia-300 mb-5 relative z-10">
+              Don't Wait Any Longer
+            </p>
+
+            <h2
+              className="text-5xl sm:text-6xl md:text-7xl font-black uppercase leading-[0.88] mb-5 max-w-3xl relative z-10"
+            >
+              YOU ALREADY
+              <br />
+              FELT IT.
+              <br />
+              <span
+                className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-300 to-fuchsia-400"
+                style={{ filter: "drop-shadow(0 0 28px rgba(217,70,239,0.6))" }}
+              >
+                THIS EXPLAINS WHY.
+              </span>
+            </h2>
+
+            <p className="text-sm text-white/38 mb-10 relative z-10">
+              Private · Secure · Takes less than 60 seconds
+            </p>
+
+            <div className="relative z-10 flex flex-col items-center gap-4">
+              <CTAButton onClick={handleCTA} size="xl" className="w-full sm:w-auto">
+                REVEAL MY TIMING NOW <ArrowRight className="w-6 h-6" />
               </CTAButton>
               <CountdownBadge h={h} m={m} s={s} pad={pad} />
+              <p className="text-xs italic text-white/28">Most people never notice this.</p>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* ── TRUST FOOTER ───────────────────────────────────────────────────── */}
-      <footer className="bg-[#050007] border-t border-purple-900/25 pt-12 pb-8 px-4">
+      <footer className="bg-[#040006] pt-12 pb-8 px-4" style={{ borderTop: "1px solid rgba(168,85,247,0.1)" }}>
         <div className="max-w-5xl mx-auto">
-          {/* Trust row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 pb-10 border-b border-white/5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 pb-10" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             {[
               { icon: Lock, label: "SSL Secured", sub: "256-bit encryption" },
               { icon: Shield, label: "Safe Checkout", sub: "Powered by Stripe" },
@@ -1056,82 +1266,82 @@ const VSL = () => {
               { icon: Star, label: "4.9/5 Rating", sub: "27,000+ happy customers", gold: true },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${item.gold ? "bg-[#f59e0b]/10 border border-[#f59e0b]/25" : "bg-purple-900/20 border border-purple-700/25"}`}>
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={item.gold
+                    ? { background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.22)" }
+                    : { background: "rgba(139,0,255,0.08)", border: "1px solid rgba(168,85,247,0.2)" }
+                  }
+                >
                   <item.icon className={`w-5 h-5 ${item.gold ? "text-[#f59e0b] fill-[#f59e0b]" : "text-purple-400"}`} />
                 </div>
                 <div>
-                  <p className={`text-xs font-bold ${item.gold ? "text-[#f59e0b]" : "text-white/65"}`}>{item.label}</p>
-                  <p className="text-[10px] text-white/30">{item.sub}</p>
+                  <p className={`text-xs font-bold ${item.gold ? "text-[#f59e0b]" : "text-white/58"}`}>{item.label}</p>
+                  <p className="text-[10px] text-white/26">{item.sub}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Footer columns */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-700 flex items-center justify-center shadow-[0_0_10px_rgba(217,70,239,0.35)]">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-700 flex items-center justify-center"
+                  style={{ boxShadow: "0 0 10px rgba(217,70,239,0.38)" }}>
                   <Star className="w-3 h-3 text-white fill-white" />
                 </div>
                 <span className="text-xs font-black uppercase tracking-widest text-white">Madam Aurora</span>
               </div>
-              <p className="text-xs text-white/30 leading-relaxed mb-4">
+              <p className="text-xs text-white/26 leading-relaxed mb-4">
                 AI-powered palm readings that reveal your love patterns, timing, and what comes next.
               </p>
               <div className="flex gap-3">
                 {[Instagram, Facebook, Youtube].map((Icon, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-white/5 border border-white/8 flex items-center justify-center cursor-pointer hover:bg-fuchsia-800/30 hover:border-fuchsia-700/30 transition-colors">
-                    <Icon className="w-3.5 h-3.5 text-white/35" />
+                  <div key={i} className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer hover:border-fuchsia-700/30 transition-colors"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                    <Icon className="w-3.5 h-3.5 text-white/28" />
                   </div>
                 ))}
               </div>
             </div>
 
             <div>
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-3">Quick Links</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/42 mb-3">Quick Links</h4>
               <ul className="space-y-2">
                 {["Home", "How It Works", "What You'll Discover", "Reviews", "FAQ"].map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-xs text-white/30 hover:text-white/60 transition-colors">{link}</a>
-                  </li>
+                  <li key={link}><a href="#" className="text-xs text-white/26 hover:text-white/55 transition-colors">{link}</a></li>
                 ))}
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-3">Legal</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/42 mb-3">Legal</h4>
               <ul className="space-y-2">
-                {[
-                  { label: "Privacy Policy", href: "/privacy" },
-                  { label: "Terms of Use", href: "/terms" },
-                  { label: "Refund Policy", href: "/refund" },
-                ].map((link) => (
-                  <li key={link.label}>
-                    <a href={link.href} className="text-xs text-white/30 hover:text-white/60 transition-colors">{link.label}</a>
-                  </li>
+                {[{ label: "Privacy Policy", href: "/privacy" }, { label: "Terms of Use", href: "/terms" }, { label: "Refund Policy", href: "/refund" }].map((link) => (
+                  <li key={link.label}><a href={link.href} className="text-xs text-white/26 hover:text-white/55 transition-colors">{link.label}</a></li>
                 ))}
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-3">We Accept</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/42 mb-3">We Accept</h4>
               <div className="flex flex-wrap gap-2 mb-3">
                 {["VISA", "MC", "AMEX", "APPLE"].map((card) => (
-                  <div key={card} className="px-2.5 py-1 bg-white/6 rounded text-[9px] font-bold text-white/40 border border-white/8">
+                  <div key={card} className="px-2.5 py-1 rounded text-[9px] font-bold text-white/36"
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
                     {card}
                   </div>
                 ))}
               </div>
               <div className="flex items-center gap-1.5">
                 <Lock className="w-3 h-3 text-[#f59e0b]" />
-                <span className="text-[9px] text-white/25">Secure Checkout by Stripe</span>
+                <span className="text-[9px] text-white/20">Secure Checkout by Stripe</span>
               </div>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-white/4 text-center">
-            <p className="text-[10px] text-white/18 leading-relaxed max-w-2xl mx-auto">
+          <div className="pt-6 text-center" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+            <p className="text-[10px] text-white/15 leading-relaxed max-w-2xl mx-auto">
               Readings are not a substitute for professional medical, psychological, legal, or financial advice.
               Results are for entertainment and self-reflection purposes only.
             </p>
@@ -1139,7 +1349,7 @@ const VSL = () => {
         </div>
       </footer>
 
-      {/* ── STICKY CTA (mobile) ─────────────────────────────────────────────── */}
+      {/* ── STICKY CTA ─────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {showStickyCTA && (
           <motion.div
@@ -1147,18 +1357,19 @@ const VSL = () => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
             transition={{ duration: 0.22 }}
-            className="fixed bottom-0 left-0 right-0 z-50 md:hidden px-4 py-3"
+            className="fixed bottom-0 left-0 right-0 z-50 md:hidden px-4 pt-3 pb-4"
             style={{
-              background: "rgba(7,0,9,0.9)",
-              backdropFilter: "blur(20px)",
-              borderTop: "1px solid rgba(217,70,239,0.2)",
-              boxShadow: "0 -4px 30px rgba(139,0,255,0.15)",
+              background: "rgba(5,0,7,0.94)",
+              backdropFilter: "blur(28px)",
+              borderTop: "1px solid rgba(217,70,239,0.24)",
+              boxShadow: "0 -6px 50px rgba(139,0,255,0.2)",
+              paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
             }}
           >
-            <CTAButton onClick={handleCTA} size="lg" className="w-full py-4">
+            <CTAButton onClick={handleCTA} size="lg" className="w-full">
               REVEAL MY TIMING NOW →
             </CTAButton>
-            <p className="text-center text-[10px] text-white/30 mt-1.5">
+            <p className="text-center text-[10px] text-white/26 mt-1.5">
               Offer ends: <span className="text-[#f59e0b] font-mono">{pad(h)}:{pad(m)}:{pad(s)}</span>
             </p>
           </motion.div>
