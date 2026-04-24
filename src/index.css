@@ -577,3 +577,14 @@
 .animate-scroll-horizontal {
   animation: scroll-horizontal 30s linear infinite;
 }
+
+@keyframes galaxySpin {
+  from { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.05); }
+  to   { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes kenBurns {
+  from { transform: scale(1)    translateX(0%)    translateY(0%); }
+  to   { transform: scale(1.08) translateX(-2.5%) translateY(-1.5%); }
+}

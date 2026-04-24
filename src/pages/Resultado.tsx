@@ -53,6 +53,7 @@ const Resultado = () => {
 
   const hasTrackedRef = useRef(false);
   const { h, m, s } = useCountdown24h();
+  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'complete'>('complete');
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -76,11 +77,12 @@ const Resultado = () => {
     track("InitiateCheckout", {
       event_id: getOrCreateEventId("resultado_cta"),
       page_path: "/resultado",
+      product_code: selectedPlan,
       angle: getStoredAngle(),
       focus: getStoredFocus(),
       ...getAttributionParams(),
     });
-    navigate(appendUtmToPath('/checkout'));
+    navigate(appendUtmToPath(`/checkout?plan=${selectedPlan}`));
   };
 
   if (!analysisResult) return null;
@@ -326,19 +328,54 @@ const Resultado = () => {
               ))}
             </div>
 
-            {/* Price — no fake strikethrough */}
-            <div className="mb-6 relative">
-              <div className="text-xs text-muted-foreground/60 mb-1">One-time · No subscription · Instant access</div>
-              <span className="text-4xl font-bold text-foreground">{PRICE_MAP.complete.display}</span>
-              <div className="text-xs text-primary/70 mt-1">Complete reading · Voice session included · One-time</div>
+            {/* Inline plan selector — order bump */}
+            <div className="grid grid-cols-2 gap-3 mb-5 text-left max-w-lg mx-auto relative">
+              {/* Basic */}
+              <button
+                onClick={() => setSelectedPlan('basic')}
+                className={`p-4 rounded-2xl border-2 text-left transition-all duration-200 ${
+                  selectedPlan === 'basic'
+                    ? 'border-primary/70 bg-primary/10'
+                    : 'border-border/30 bg-card/20 hover:border-primary/35'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Basic</span>
+                  {selectedPlan === 'basic' && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                </div>
+                <div className="text-xl font-bold text-foreground mb-0.5">{PRICE_MAP.basic.display}</div>
+                <p className="text-[11px] text-muted-foreground leading-snug">Text reading only</p>
+              </button>
+
+              {/* Complete — default */}
+              <button
+                onClick={() => setSelectedPlan('complete')}
+                className={`p-4 rounded-2xl border-2 text-left relative transition-all duration-200 ${
+                  selectedPlan === 'complete'
+                    ? 'border-primary bg-primary/12 shadow-[0_0_20px_hsl(var(--primary)/0.18)]'
+                    : 'border-primary/40 bg-primary/5 hover:border-primary/70'
+                }`}
+              >
+                <div className="absolute -top-2.5 left-3">
+                  <span className="text-[9px] px-2 py-0.5 rounded-full font-bold bg-primary text-white tracking-wide">BEST VALUE</span>
+                </div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-primary">Complete</span>
+                  {selectedPlan === 'complete' && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                </div>
+                <div className="text-xl font-bold text-foreground mb-0.5">{PRICE_MAP.complete.display}</div>
+                <p className="text-[11px] text-muted-foreground leading-snug">Reading + voice session 🎙️</p>
+              </button>
             </div>
+
+            <div className="text-xs text-muted-foreground/50 mb-5 relative">One-time · No subscription · Instant access</div>
 
             <Button
               onClick={handleCTA}
               size="lg"
               className="w-full sm:w-auto bg-white text-gray-900 hover:bg-white/92 px-12 py-7 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] mb-4 rounded-2xl relative"
             >
-              Unlock My Full Reading
+              {selectedPlan === 'complete' ? 'Unlock Complete Reading' : 'Unlock My Reading'}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
 

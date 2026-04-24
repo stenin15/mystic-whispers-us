@@ -7,392 +7,163 @@ import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { processAnalysis, generateVoiceMessage } from '@/lib/api';
 import { useMysticSounds } from '@/hooks/useMysticSounds';
 import AudioPromptModal from '@/components/shared/AudioPromptModal';
-// Generate personalized voice texts for each phase
+
 const getAnalysisPhases = (name: string) => [
-  { 
-    text: "Connecting with your energy...", 
-    subtext: "Setting a calm baseline",
-    icon: Sparkles,
-    duration: 6500,
-    sound: 'sparkle' as const,
-    voiceText: `Hi, ${name}… I'm Madam Aurora.
-I'm going to combine what you shared with patterns that often show up in decision seasons.
-This isn't about luck -- it's about noticing what's active inside you.`
-  },
-  { 
-    text: "Tuning into your presence...", 
-    subtext: "Noticing your unique rhythm",
-    icon: Hand,
-    duration: 7000,
-    sound: 'chime' as const,
-    voiceText: `Take a slow breath.
-This step is simply organizing what feels active for you right now.
-When your mind is full, life can feel like it keeps asking the same question.`
-  },
-  { 
-    text: "Reading the lines in your palm...", 
-    subtext: "Every line carries a story",
-    icon: Fingerprint,
-    duration: 7500,
-    sound: 'whoosh' as const,
-    voiceText: `From the way you answered… there's a weight you've been carrying quietly.
-This often shows up in people who stay strong for a long time…
-and only realize later how tired they've become.`
-  },
-  { 
-    text: "Listening to your heart line...", 
-    subtext: "Making sense of what you feel",
-    icon: Heart,
-    duration: 8000,
-    sound: 'heartPulse' as const,
-    voiceText: `Your age can change how a pattern shows up.
-In certain seasons, you don't want to make the wrong move… so the decision stalls.
-Not from lack of ability -- but because the stakes feel heavy.`
-  },
-  { 
-    text: "Clarifying your mind...", 
-    subtext: "Making your thoughts easier to hold",
-    icon: Brain,
-    duration: 7200,
-    sound: 'chime' as const,
-    voiceText: `What stands out most is a repeating signal.
-It can feel like something keeps returning -- like life taps the same spot again.
-That often happens when an important choice has been postponed more than once.`
-  },
-  { 
-    text: "Gathering intuitive insights...", 
-    subtext: "Tuning into what matters most",
-    icon: Waves,
-    duration: 7800,
-    sound: 'mysticTone' as const,
-    voiceText: `When this pattern becomes active, you may start doubting yourself…
-but often it's a protective mechanism.
-It keeps you from acting impulsively -- and at the same time, it can keep you stuck.`
-  },
-  { 
-    text: "Revealing what's underneath...", 
-    subtext: "Bringing the hidden pattern into view",
-    icon: Eye,
-    duration: 7500,
-    sound: 'whoosh' as const,
-    voiceText: `Now I can see which strengths are most present for you.
-And which blocks tend to show up when you try to move forward.
-This is where many people finally understand why they've felt "stuck" in the same place.`
-  },
-  { 
-    text: "Looking at the bigger picture...", 
-    subtext: "Finding the cleanest next step",
-    icon: Moon,
-    duration: 7000,
-    sound: 'mysticTone' as const,
-    voiceText: `The path isn't to force it.
-It's to choose with awareness… and interrupt one specific repetition.
-When you do, your energy shifts quickly -- because you stop negotiating with what drains you.`
-  },
-  { 
-    text: "Organizing your reading...", 
-    subtext: "Putting everything into clear language",
-    icon: Star,
-    duration: 6500,
-    sound: 'sparkle' as const,
-    voiceText: `All right… now I'm turning this into a clear, structured reading.
-No fluff, no over-the-top mystery.
-You'll understand what's active -- and how to work with it in everyday life.`
-  },
-  { 
-    text: "Finishing up...", 
-    subtext: "Your reading is ready",
-    icon: Volume2,
-    duration: 5000,
-    sound: 'chime' as const,
-    voiceText: `Done.
-And gently -- you're not "confused" for no reason.
-You're in a decision cycle. And cycles ask for courage, but also direction.
-Let's look at your reading.`
-  },
+  { text: "Connecting with your energy...",      subtext: "Setting a calm baseline",              icon: Sparkles,    duration: 6500, sound: 'sparkle'    as const, voiceText: `Hi, ${name}… I'm Madam Aurora. I'm going to combine what you shared with patterns that often show up in decision seasons.` },
+  { text: "Tuning into your presence...",         subtext: "Noticing your unique rhythm",          icon: Hand,        duration: 7000, sound: 'chime'      as const, voiceText: `Take a slow breath. This step is simply organizing what feels active for you right now.` },
+  { text: "Reading the lines in your palm...",    subtext: "Every line carries a story",           icon: Fingerprint, duration: 7500, sound: 'whoosh'     as const, voiceText: `From the way you answered… there's a weight you've been carrying quietly.` },
+  { text: "Listening to your heart line...",      subtext: "Making sense of what you feel",        icon: Heart,       duration: 8000, sound: 'heartPulse' as const, voiceText: `In certain seasons, you don't want to make the wrong move… so the decision stalls.` },
+  { text: "Clarifying your mind...",              subtext: "Making your thoughts easier to hold",  icon: Brain,       duration: 7200, sound: 'chime'      as const, voiceText: `What stands out most is a repeating signal. It can feel like something keeps returning.` },
+  { text: "Gathering intuitive insights...",      subtext: "Tuning into what matters most",        icon: Waves,       duration: 7800, sound: 'mysticTone' as const, voiceText: `When this pattern becomes active, you may start doubting yourself… but it's a protective mechanism.` },
+  { text: "Revealing what's underneath...",       subtext: "Bringing the hidden pattern into view", icon: Eye,        duration: 7500, sound: 'whoosh'     as const, voiceText: `Now I can see which strengths are most present for you. And which blocks tend to show up.` },
+  { text: "Looking at the bigger picture...",     subtext: "Finding the cleanest next step",       icon: Moon,        duration: 7000, sound: 'mysticTone' as const, voiceText: `The path isn't to force it. It's to choose with awareness.` },
+  { text: "Organizing your reading...",           subtext: "Putting everything into clear language", icon: Star,      duration: 6500, sound: 'sparkle'    as const, voiceText: `All right… now I'm turning this into a clear, structured reading.` },
+  { text: "Finishing up...",                      subtext: "Your reading is ready",               icon: Volume2,     duration: 5000, sound: 'chime'      as const, voiceText: `Done. You're in a decision cycle. And cycles ask for courage, but also direction.` },
+];
+
+// SVG palm lines — heart, head, life, fate
+const PALM_LINES = [
+  { id: 'heart', d: 'M 30 55 Q 55 35 80 40 Q 105 45 120 35', color: '#f472b6', delay: 0 },
+  { id: 'head',  d: 'M 28 75 Q 55 70 80 72 Q 105 74 125 65', color: '#a78bfa', delay: 0.6 },
+  { id: 'life',  d: 'M 55 45 Q 42 75 45 105 Q 48 130 52 145', color: '#34d399', delay: 1.2 },
+  { id: 'fate',  d: 'M 80 145 Q 78 110 76 80 Q 74 55 78 38', color: '#fbbf24', delay: 1.8 },
 ];
 
 const Analise = () => {
   const navigate = useNavigate();
-  const {
-    name,
-    age,
-    emotionalState,
-    mainConcern,
-    handPhotoData,
-    quizAnswers,
-    setAnalysisResult,
-    setIsAnalyzing,
-    setAudioUrl,
-    canAccessAnalysis,
-  } = useHandReadingStore();
+  const { name, age, emotionalState, mainConcern, handPhotoData, quizAnswers, setAnalysisResult, setIsAnalyzing, setAudioUrl, canAccessAnalysis } = useHandReadingStore();
 
-  // Generate personalized phases based on user's name
   const safeName = name?.trim() ? name.trim() : "there";
   const analysisPhases = getAnalysisPhases(safeName);
 
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [phaseProgress, setPhaseProgress] = useState(0);
   const [isApiDone, setIsApiDone] = useState(false);
-  const [showPulse, setShowPulse] = useState(false);
   const [showAudioPrompt, setShowAudioPrompt] = useState(false);
+  const [scanLine, setScanLine] = useState(0); // 0-100 for scan beam position
   const analysisStarted = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentPhaseAudioPlayed = useRef<Set<number>>(new Set());
   const audioUnlockedRef = useRef(false);
   const pendingPhaseToReplayRef = useRef<number | null>(null);
   const hasPromptedForAudioRef = useRef(false);
-  
-  const { 
-    playTransitionChime, 
-    playWhoosh, 
-    playMysticTone, 
-    playSparkle, 
-    playHeartPulse, 
-    playCompletion,
-    cleanup 
-  } = useMysticSounds();
 
-  // Function to play the appropriate sound for each phase
-  const playSoundForPhase = (phaseIndex: number) => {
-    const sound = analysisPhases[phaseIndex]?.sound;
-    switch (sound) {
-      case 'chime':
-        playTransitionChime();
-        break;
-      case 'whoosh':
-        playWhoosh();
-        break;
-      case 'mysticTone':
-        playMysticTone();
-        break;
-      case 'sparkle':
-        playSparkle();
-        break;
-      case 'heartPulse':
-        playHeartPulse();
-        break;
-    }
+  const { playTransitionChime, playWhoosh, playMysticTone, playSparkle, playHeartPulse, playCompletion, cleanup } = useMysticSounds();
+
+  const playSoundForPhase = (i: number) => {
+    const s = analysisPhases[i]?.sound;
+    if (s === 'chime') playTransitionChime();
+    else if (s === 'whoosh') playWhoosh();
+    else if (s === 'mysticTone') playMysticTone();
+    else if (s === 'sparkle') playSparkle();
+    else if (s === 'heartPulse') playHeartPulse();
   };
 
-  // Initialize persisted audio unlock state (one-time)
   useEffect(() => {
-    try {
-      const persisted = localStorage.getItem("ma_audio_unlocked");
-      if (persisted === "1") {
-        audioUnlockedRef.current = true;
-      }
-    } catch {
-      // ignore
-    }
+    try { if (localStorage.getItem("ma_audio_unlocked") === "1") audioUnlockedRef.current = true; } catch {}
   }, []);
 
-  // Function to play voice narration for each phase
   const playPhaseVoice = async (phaseIndex: number) => {
-    // Only play if not already played for this phase
     if (currentPhaseAudioPlayed.current.has(phaseIndex)) return;
-
     const voiceText = analysisPhases[phaseIndex]?.voiceText;
     if (!voiceText) return;
-
     try {
-      if (import.meta.env.DEV) {
-        console.log("[ANALISE] playPhaseVoice: start", { phaseIndex, chars: voiceText.length });
-      }
       const audioDataUrl = await generateVoiceMessage(voiceText);
-      if (!audioDataUrl) {
-        if (import.meta.env.DEV) {
-          console.log("[ANALISE] playPhaseVoice: no audioDataUrl", { phaseIndex });
-        }
-        return;
-      }
-
-      // Stop any currently playing audio
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-
+      if (!audioDataUrl) return;
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
       const audio = new Audio(audioDataUrl);
       audioRef.current = audio;
       audio.volume = 0.8;
-
-      audio.onplay = () => {
-        audioUnlockedRef.current = true;
-        try {
-          localStorage.setItem("ma_audio_unlocked", "1");
-        } catch {
-          // ignore
-        }
-        if (import.meta.env.DEV) {
-          console.log("[ANALISE] audio.onplay: unlocked", { phaseIndex });
-        }
-      };
-
-      (audio as unknown as Record<string, unknown>)[["on", "er", "ror"].join("")] = () => {
-        if (import.meta.env.DEV) {
-          console.log("[ANALISE] audio.onFail", { phaseIndex });
-        }
-      };
-
+      audio.onplay = () => { audioUnlockedRef.current = true; try { localStorage.setItem("ma_audio_unlocked", "1"); } catch {} };
       try {
         await audio.play();
-        // Mark as played ONLY after we have valid audio and play() succeeded
         currentPhaseAudioPlayed.current.add(phaseIndex);
-        if (import.meta.env.DEV) {
-          console.log("[ANALISE] audio.play: success", { phaseIndex });
-        }
       } catch (err) {
         const e = err as { name?: string; message?: string };
-        console.warn("[ANALISE] audio.play failed", err);
-
-        // Autoplay blocked → ask for a user gesture, then replay this phase
-        const notAllowedName = ["NotAllowed", "Er", "ror"].join("");
-        if (e?.name === notAllowedName || String(e?.message || "").toLowerCase().includes("not allowed")) {
-          // If we already unlocked audio once, don't keep prompting.
-          // Let the next user interaction (any click) re-trigger naturally via retry.
-          if (!audioUnlockedRef.current && !hasPromptedForAudioRef.current) {
-            hasPromptedForAudioRef.current = true;
-            pendingPhaseToReplayRef.current = phaseIndex;
-            setShowAudioPrompt(true);
-            if (import.meta.env.DEV) {
-              console.log("[ANALISE] autoplay blocked → showing AudioPromptModal", { phaseIndex });
-            }
-          }
+        if ((e?.name === 'NotAllowedError' || String(e?.message || '').toLowerCase().includes('not allowed')) && !audioUnlockedRef.current && !hasPromptedForAudioRef.current) {
+          hasPromptedForAudioRef.current = true;
+          pendingPhaseToReplayRef.current = phaseIndex;
+          setShowAudioPrompt(true);
         }
       }
-    } catch (err) {
-      console.warn('Phase voice failed:', err);
-    }
+    } catch (err) { console.warn('Phase voice failed:', err); }
   };
 
   const handleAudioPromptConfirm = () => {
     setShowAudioPrompt(false);
     audioUnlockedRef.current = true;
-    try {
-      localStorage.setItem("ma_audio_unlocked", "1");
-    } catch {
-      // ignore
-    }
-    const phaseToReplay = pendingPhaseToReplayRef.current ?? currentPhaseIndex;
+    try { localStorage.setItem("ma_audio_unlocked", "1"); } catch {}
+    const p = pendingPhaseToReplayRef.current ?? currentPhaseIndex;
     pendingPhaseToReplayRef.current = null;
-    if (import.meta.env.DEV) {
-      console.log("[ANALISE] AudioPromptModal confirmed → replay phase", { phaseToReplay });
-    }
-    playPhaseVoice(phaseToReplay);
+    playPhaseVoice(p);
   };
 
+  // Scan beam animation
   useEffect(() => {
-    if (!canAccessAnalysis()) {
-      navigate('/formulario');
-      return;
-    }
+    let dir = 1;
+    let pos = 0;
+    const id = setInterval(() => {
+      pos += dir * 1.2;
+      if (pos >= 100) { pos = 100; dir = -1; }
+      if (pos <= 0)   { pos = 0;   dir =  1; }
+      setScanLine(pos);
+    }, 30);
+    return () => clearInterval(id);
+  }, []);
 
+  useEffect(() => {
+    if (!canAccessAnalysis()) { navigate('/formulario'); return; }
     if (analysisStarted.current) return;
     analysisStarted.current = true;
-
     setIsAnalyzing(true);
 
-    // Start API call immediately with loading state
     const runAnalysis = async () => {
       try {
-        // Mostrar loading imediato (já está sendo feito pelo setIsAnalyzing(true))
-        const result = await processAnalysis(
-          { name, age, emotionalState, mainConcern, handPhotoData },
-          quizAnswers
-        );
+        const result = await processAnalysis({ name, age, emotionalState, mainConcern, handPhotoData }, quizAnswers);
         setAnalysisResult(result);
-
-        // Gerar áudio em background (não bloqueia)
-        generateVoiceMessage(result.spiritualMessage).then(audioDataUrl => {
-          if (audioDataUrl) {
-            setAudioUrl(audioDataUrl);
-          }
-        }).catch(err => {
-          console.warn('Audio generation failed, continuing without audio:', err);
-        });
-
+        generateVoiceMessage(result.spiritualMessage).then(u => { if (u) setAudioUrl(u); }).catch(() => {});
         setIsApiDone(true);
-      } catch (err) {
-        console.warn('Analysis failed:', err);
-        // Even on failure, processAnalysis returns a fallback result.
-        // Mark as done so we don't get stuck.
-        setIsApiDone(true);
-      }
+      } catch { setIsApiDone(true); }
     };
+    setTimeout(runAnalysis, 200);
 
-    // Delay mínimo de 200ms para garantir que loading aparece
-    setTimeout(() => {
-      runAnalysis();
-    }, 200);
-
-    // Play initial sound and voice
     playSoundForPhase(0);
     playPhaseVoice(0);
 
-    // Phase progression with realistic timing
     let phaseIndex = 0;
     const advancePhase = () => {
       if (phaseIndex < analysisPhases.length - 1) {
         phaseIndex++;
         setCurrentPhaseIndex(phaseIndex);
-        setPhaseProgress(0);
-        
-        // Play transition sound and voice for new phase
         playSoundForPhase(phaseIndex);
         playPhaseVoice(phaseIndex);
-        
-        // Random pulse effect
-        if (Math.random() > 0.5) {
-          setShowPulse(true);
-          setTimeout(() => setShowPulse(false), 500);
-        }
-
-        // Schedule next phase with variable timing
-        const nextDuration = analysisPhases[phaseIndex].duration + (Math.random() * 800 - 400);
-        setTimeout(advancePhase, nextDuration);
+        const next = analysisPhases[phaseIndex].duration + (Math.random() * 800 - 400);
+        setTimeout(advancePhase, next);
       }
     };
-
     setTimeout(advancePhase, analysisPhases[0].duration);
 
-    // Smooth progress bar animation
     const progressInterval = setInterval(() => {
       setProgress(prev => {
-        // Slow down near the end, speed up in the middle
-        const speedFactor = prev < 30 ? 0.3 : prev < 70 ? 0.5 : prev < 90 ? 0.2 : 0.15;
-        const increment = Math.random() * speedFactor;
-        return Math.min(prev + increment, 95); // Never reach 100 until done
-      });
-
-      setPhaseProgress(prev => {
-        const increment = Math.random() * 3;
-        return Math.min(prev + increment, 100);
+        const speed = prev < 30 ? 0.3 : prev < 70 ? 0.5 : prev < 90 ? 0.2 : 0.1;
+        return Math.min(prev + Math.random() * speed, 95);
       });
     }, 100);
 
-    // Minimum time before navigation (ensures good UX)
-    const minTime = 18000; // 18 seconds minimum
     const checkCompletion = setInterval(() => {
-      if (isApiDone && progress >= 90) {
-        setProgress(100);
-        clearInterval(progressInterval);
-        clearInterval(checkCompletion);
-        
-        // Play completion sound
-        playCompletion();
-        
-        setTimeout(() => {
-          setIsAnalyzing(false);
-          navigate('/resultado');
-        }, 1000);
-      }
+      setProgress(prev => {
+        if (isApiDone && prev >= 90) {
+          clearInterval(progressInterval);
+          clearInterval(checkCompletion);
+          playCompletion();
+          setTimeout(() => { setIsAnalyzing(false); navigate('/resultado'); }, 1000);
+          return 100;
+        }
+        return prev;
+      });
     }, 500);
 
-    // Force complete after max time
     const maxTimeout = setTimeout(() => {
-      setProgress(100);
       clearInterval(progressInterval);
       clearInterval(checkCompletion);
       playCompletion();
@@ -405,227 +176,209 @@ const Analise = () => {
       clearInterval(checkCompletion);
       clearTimeout(maxTimeout);
       cleanup();
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     };
   }, []);
 
-  // Watch for API completion
   useEffect(() => {
     if (isApiDone && progress >= 90) {
       setProgress(100);
       playCompletion();
-      setTimeout(() => {
-        setIsAnalyzing(false);
-        navigate('/resultado');
-      }, 1000);
+      setTimeout(() => { setIsAnalyzing(false); navigate('/resultado'); }, 1000);
     }
-  }, [isApiDone, progress, playCompletion]);
+  }, [isApiDone, progress]);
 
   const CurrentIcon = analysisPhases[currentPhaseIndex].icon;
   const currentPhase = analysisPhases[currentPhaseIndex];
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4">
+    <div className="min-h-screen relative flex items-center justify-center px-4 py-12">
+      {/* Galaxy background — mesma base da VSL */}
+      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: -1, overflow: 'hidden' }}>
+        <div style={{
+          position: 'absolute', inset: '-8%', width: '116%', height: '116%',
+          backgroundImage: 'url(/galaxy-bg.webp)', backgroundSize: 'cover', backgroundPosition: 'center',
+          filter: 'brightness(0.22) saturate(0.9) hue-rotate(210deg)',
+          animation: 'kenBurns 40s ease-in-out infinite alternate', willChange: 'transform',
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse 80% 60% at 50% 40%, hsl(280 60% 15% / 0.55) 0%, hsl(260 40% 4% / 0.85) 100%)',
+        }} />
+      </div>
       <ParticlesBackground />
       <FloatingOrbs />
 
-      <AudioPromptModal
-        isOpen={showAudioPrompt}
-        onConfirm={handleAudioPromptConfirm}
-        userName={name}
-      />
+      <AudioPromptModal isOpen={showAudioPrompt} onConfirm={handleAudioPromptConfirm} userName={name} />
 
-      <div className="relative max-w-lg mx-auto text-center">
-        {/* Main Animation */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative mb-8"
-        >
-          {/* Outer rings */}
-          <div className="relative w-52 h-52 mx-auto">
-            {/* Pulsing background */}
-            <motion.div 
-              animate={{ 
-                scale: showPulse ? [1, 1.3, 1] : 1,
-                opacity: showPulse ? [0.2, 0.5, 0.2] : 0.2
-              }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-3xl" 
-            />
-            
-            {/* Spinning ring 1 */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20"
-            />
-            
-            {/* Spinning ring 2 (opposite direction) */}
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-4 rounded-full border border-accent/30"
-            />
+      {/* Card principal */}
+      <motion.div
+        initial={{ opacity: 0, y: 24, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
+        className="relative w-full max-w-md section-panel px-6 py-10 text-center"
+      >
+        {/* Glow de fundo no card */}
+        <div className="absolute inset-0 rounded-2xl pointer-events-none overflow-hidden">
+          <motion.div
+            animate={{ opacity: [0.15, 0.35, 0.15] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute inset-0 bg-gradient-radial from-primary/20 via-transparent to-transparent"
+          />
+        </div>
 
-            {/* Spinning ring 3 */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-8 rounded-full border border-primary/20"
+        {/* ── Orbe central ── */}
+        <div className="relative w-44 h-44 mx-auto mb-6">
+          {/* Halo pulsante */}
+          <motion.div
+            animate={{ scale: [1, 1.25, 1], opacity: [0.18, 0.38, 0.18] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 to-accent/30 blur-2xl"
+          />
+          {/* Anéis orbitais */}
+          {[{ size: 'inset-0', d: 8, border: 'border-2 border-dashed border-primary/25' },
+            { size: 'inset-3', d: -12, border: 'border border-accent/30' },
+            { size: 'inset-7', d: 18, border: 'border border-yellow-400/20' }
+          ].map((r, i) => (
+            <motion.div key={i}
+              animate={{ rotate: r.d > 0 ? 360 : -360 }}
+              transition={{ duration: Math.abs(r.d), repeat: Infinity, ease: 'linear' }}
+              className={`absolute ${r.size} rounded-full ${r.border}`}
             />
-            
-            {/* Center icon with glow */}
-            <div className="absolute inset-0 flex items-center justify-center">
+          ))}
+
+          {/* ── Palma SVG com linhas sendo lidas ── */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative w-28 h-28">
+              {/* Círculo base */}
               <motion.div
-                animate={{ 
-                  scale: [1, 1.05, 1],
-                  boxShadow: [
-                    '0 0 20px rgba(var(--primary-rgb), 0.3)',
-                    '0 0 40px rgba(var(--primary-rgb), 0.5)',
-                    '0 0 20px rgba(var(--primary-rgb), 0.3)'
-                  ]
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/40 to-accent/40 backdrop-blur-xl border border-primary/50 flex items-center justify-center shadow-lg"
+                animate={{ boxShadow: ['0 0 18px 4px hsl(280 60% 55% / 0.3)', '0 0 36px 8px hsl(280 60% 55% / 0.55)', '0 0 18px 4px hsl(280 60% 55% / 0.3)'] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-full h-full rounded-full bg-gradient-to-br from-primary/30 to-accent/20 backdrop-blur-xl border border-primary/40 flex items-center justify-center overflow-hidden"
               >
+                {/* SVG palm lines */}
+                <svg viewBox="20 30 120 130" className="w-20 h-20" fill="none">
+                  {/* Scan beam */}
+                  <line
+                    x1="20" y1={30 + scanLine * 1.3} x2="140" y2={30 + scanLine * 1.3}
+                    stroke="rgba(168,85,247,0.6)" strokeWidth="1.5"
+                    style={{ filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.9))' }}
+                  />
+                  {/* Palm lines traced progressively */}
+                  {PALM_LINES.map((line) => (
+                    <motion.path
+                      key={line.id}
+                      d={line.d}
+                      stroke={line.color}
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      fill="none"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 0.9 }}
+                      transition={{ duration: 2.5, delay: line.delay, ease: 'easeInOut', repeat: Infinity, repeatDelay: 3 }}
+                      style={{ filter: `drop-shadow(0 0 3px ${line.color})` }}
+                    />
+                  ))}
+                </svg>
+
+                {/* Ícone da fase em cima */}
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentPhaseIndex}
-                    initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
-                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                    exit={{ opacity: 0, scale: 0.5, rotate: 20 }}
+                    initial={{ opacity: 0, scale: 0.4 }}
+                    animate={{ opacity: 0.35, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.4 }}
                     transition={{ duration: 0.4 }}
+                    className="absolute inset-0 flex items-center justify-center"
                   >
-                    <CurrentIcon className="w-12 h-12 text-primary drop-shadow-glow" />
+                    <CurrentIcon className="w-10 h-10 text-primary/60" />
                   </motion.div>
                 </AnimatePresence>
               </motion.div>
+
+              {/* Partículas orbitais */}
+              {[{ dur: 5, color: 'bg-yellow-400', shadow: 'shadow-yellow-400/60', pos: 'top-0 left-1/2 -translate-x-1/2', size: 'w-2.5 h-2.5' },
+                { dur: 9, color: 'bg-fuchsia-400', shadow: 'shadow-fuchsia-400/50', pos: 'bottom-0 left-1/2 -translate-x-1/2', size: 'w-2 h-2' },
+                { dur: 13, color: 'bg-primary/70', shadow: '', pos: 'left-0 top-1/2 -translate-y-1/2', size: 'w-2 h-2' },
+              ].map((p, i) => (
+                <motion.div key={i}
+                  animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
+                  transition={{ duration: p.dur, repeat: Infinity, ease: 'linear' }}
+                  className="absolute inset-0"
+                >
+                  <div className={`absolute ${p.pos} ${p.size} rounded-full ${p.color} shadow-lg ${p.shadow}`} />
+                </motion.div>
+              ))}
             </div>
-
-            {/* Orbiting particles */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0"
-            >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-mystic-gold shadow-lg shadow-mystic-gold/50" />
-            </motion.div>
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0"
-            >
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-mystic-lilac shadow-lg shadow-mystic-lilac/50" />
-            </motion.div>
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0"
-            >
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary/70" />
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Loading Message */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentPhaseIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-            className="mb-4"
-          >
-            <h2 className="text-xl md:text-2xl font-serif font-bold gradient-text mb-2">
-              {currentPhase.text}
-            </h2>
-            <p className="text-sm text-muted-foreground/70 italic">
-              {progress > 85 && !isApiDone
-                ? "The more specific your reading, the longer this takes. Your palm has details most readings miss."
-                : currentPhase.subtext}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Palavras flutuantes sincronizadas com a voz */}
-        <motion.div
-          key={`voice-${currentPhaseIndex}`}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          className="min-h-[80px] flex items-center justify-center mb-4"
-        >
-          <p className="text-base md:text-lg text-center text-foreground/90 font-serif italic max-w-sm px-4 leading-relaxed">
-            "{currentPhase.voiceText}"
-          </p>
-        </motion.div>
-
-        {/* User name acknowledgment */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="text-muted-foreground mb-6"
-        >
-          {name?.trim()
-            ? `${name.trim()}, your reading is being prepared with special care...`
-            : "Your reading is being prepared with special care..."}
-        </motion.p>
-
-        {/* Main Progress Bar */}
-        <div className="w-full max-w-xs mx-auto mb-4">
-          <div className="h-2 bg-muted/30 rounded-full overflow-hidden backdrop-blur-sm border border-primary/10">
-            <motion.div
-              className="h-full bg-gradient-to-r from-primary via-accent to-primary rounded-full"
-              style={{ width: `${progress}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-            <span>Analyzing...</span>
-            <span>{Math.round(progress)}%</span>
           </div>
         </div>
 
-        {/* Phase Progress dots */}
-        <div className="flex justify-center gap-1.5 mt-6">
-          {analysisPhases.map((_, index) => (
+        {/* ── Fase atual ── */}
+        <AnimatePresence mode="wait">
+          <motion.div key={currentPhaseIndex}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.45 }}
+            className="mb-5"
+          >
+            <h2 className="text-xl md:text-2xl font-serif font-bold mb-1"
+              style={{ background: 'linear-gradient(135deg, hsl(280 60% 85%), hsl(320 55% 80%), hsl(45 95% 75%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
+            >
+              {currentPhase.text}
+            </h2>
+            <p className="text-sm text-muted-foreground/70 italic">{currentPhase.subtext}</p>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* ── Nome personalizado ── */}
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
+          className="text-sm text-muted-foreground mb-6"
+        >
+          {safeName !== 'there'
+            ? <><span className="text-primary/90 font-medium">{name}</span>, your reading is being prepared with special care…</>
+            : 'Your reading is being prepared with special care…'}
+        </motion.p>
+
+        {/* ── Barra de progresso ── */}
+        <div className="w-full mb-3">
+          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/[0.07]">
             <motion.div
-              key={index}
-              animate={{
-                scale: index === currentPhaseIndex ? 1.3 : 1,
-                opacity: index <= currentPhaseIndex ? 1 : 0.2,
+              className="h-full rounded-full"
+              style={{
+                width: `${progress}%`,
+                background: 'linear-gradient(90deg, hsl(280 60% 55%), hsl(320 55% 65%), hsl(45 95% 60%))',
+                boxShadow: '0 0 12px hsl(280 60% 55% / 0.7)',
               }}
-              className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
-                index < currentPhaseIndex 
-                  ? 'bg-primary' 
-                  : index === currentPhaseIndex 
-                    ? 'bg-accent' 
-                    : 'bg-muted-foreground/30'
+              transition={{ duration: 0.4 }}
+            />
+          </div>
+          <div className="flex justify-between mt-1.5 text-xs text-muted-foreground/50">
+            <span>Analyzing palm patterns…</span>
+            <span className="font-mono">{Math.round(progress)}%</span>
+          </div>
+        </div>
+
+        {/* ── Dots das fases ── */}
+        <div className="flex justify-center gap-1 mt-4">
+          {analysisPhases.map((_, i) => (
+            <motion.div key={i}
+              animate={{ scale: i === currentPhaseIndex ? 1.5 : 1, opacity: i <= currentPhaseIndex ? 1 : 0.18 }}
+              className={`rounded-full transition-colors duration-300 ${
+                i < currentPhaseIndex  ? 'w-1.5 h-1.5 bg-primary' :
+                i === currentPhaseIndex ? 'w-1.5 h-1.5 bg-yellow-400' : 'w-1 h-1 bg-white/20'
               }`}
             />
           ))}
         </div>
 
-        {/* Mystical quote */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.6 }}
-          transition={{ delay: 3 }}
-          className="text-xs text-muted-foreground/60 mt-8 italic max-w-sm mx-auto"
+        {/* ── Quote ── */}
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.45 }} transition={{ delay: 4 }}
+          className="text-[11px] text-muted-foreground/50 mt-7 italic"
         >
-          "Your palm lines carry patterns -- and patterns can be understood."
+          "Your palm lines carry patterns — and patterns can be understood."
         </motion.p>
-      </div>
+      </motion.div>
     </div>
   );
 };

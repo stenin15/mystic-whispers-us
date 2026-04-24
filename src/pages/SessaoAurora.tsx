@@ -296,9 +296,24 @@ const SessaoAurora = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const didRevealRef = useRef(false);
 
-  // Access guard — PREVIEW bypass
+  // Access guard — verify real Stripe entitlement
   useEffect(() => {
-    setSessionId("preview-session-dev");
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const { ok, sessionId: sid } = await verifyEntitlement("complete");
+        if (cancelled) return;
+        if (ok && sid) {
+          setSessionId(sid);
+        } else {
+          setAccessError("Access requires a Complete Reading purchase. Please complete checkout first.");
+        }
+      } catch {
+        if (!cancelled) setAccessError("Could not verify your access. Please try again.");
+      }
+    };
+    check();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {

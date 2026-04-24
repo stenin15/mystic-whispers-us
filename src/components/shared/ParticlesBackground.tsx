@@ -8,19 +8,20 @@ const isMobile = () => /Mobi|Android/i.test(navigator.userAgent) || window.inner
 function getConfig() {
   const mobile = isMobile();
   return {
-    count:    mobile ? 60_000 : 150_000,
-    radius:   mobile ? 5      : 7,
+    count:    mobile ? 60_000 : 130_000,
+    radius:   mobile ? 6.5    : 10,
     branches: 4,
-    spin:     1.3,
-    rand:     0.65,
+    spin:     1.1,
+    rand:     0.6,
     randPow:  3,
     dpr:      mobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2),
   };
 }
 
-const INNER = new THREE.Color('#f8d560');   // gold brilhante
-const OUTER = new THREE.Color('#a855f7');   // violet
-const FUCH  = new THREE.Color('#e040fb');   // fuchsia
+const INNER = new THREE.Color('#f0abfc');   // pink-violet brilhante (centro)
+const OUTER = new THREE.Color('#9333ea');   // violet (bordas)
+const FUCH  = new THREE.Color('#f472b6');   // hot pink accent
+const GOLD  = new THREE.Color('#fbbf24');   // dourado faísca (raro)
 
 // ── Textura realista de estrela: núcleo nítido + halo suave ──
 function makeStarTexture(): THREE.Texture {
@@ -127,9 +128,10 @@ export const ParticlesBackground = memo(() => {
       positions[i3 + 1] = rY * 0.55;
       positions[i3 + 2] = Math.sin(branch + spin) * r + rZ;
 
-      // Cor por raio + variação fuchsia nas bordas
+      // Cor: pink-violet no centro → violet nas bordas + hot pink accent + faíscas douradas raras
       mix.lerpColors(INNER, OUTER, r / cfg.radius);
-      if (r > cfg.radius * 0.72 && Math.random() > 0.55) mix.lerp(FUCH, 0.45);
+      if (r > cfg.radius * 0.5 && Math.random() > 0.5) mix.lerp(FUCH, 0.55);
+      if (Math.random() > 0.97) mix.lerp(GOLD, 0.8);  // ~3% dourado
 
       colors[i3]     = mix.r;
       colors[i3 + 1] = mix.g;
@@ -157,6 +159,7 @@ export const ParticlesBackground = memo(() => {
       transparent:    true,
       blending:       THREE.AdditiveBlending,
       depthWrite:     false,
+      opacity:        0.82,
     });
 
     const galaxy = new THREE.Points(geo, mat);
@@ -197,7 +200,7 @@ export const ParticlesBackground = memo(() => {
       frameId = requestAnimationFrame(tick);
       const t = clock.getElapsedTime();
 
-      galaxy.rotation.y = t * 0.04;
+      galaxy.rotation.y = t * 0.07;
 
       mouse.x += (mouse.tx - mouse.x) * 0.04;
       mouse.y += (mouse.ty - mouse.y) * 0.04;
