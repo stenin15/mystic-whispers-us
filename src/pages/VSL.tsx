@@ -209,24 +209,24 @@ const CTAButton = ({
       inline-flex items-center justify-center gap-2.5 font-black uppercase tracking-wide
       rounded-full cursor-pointer
       bg-gradient-to-r from-fuchsia-600 via-pink-500 to-fuchsia-600 text-white
-      ${size === "xl" ? "px-14 py-6 text-xl md:text-2xl"
+      ${size === "xl" ? "px-16 py-7 text-xl md:text-2xl"
         : size === "lg" ? "px-12 py-5 text-lg md:text-xl"
         : "px-8 py-4 text-sm md:text-base"}
       ${className}
     `}
     animate={{
       boxShadow: [
-        "0 0 35px rgba(217,70,239,0.65), 0 6px 28px rgba(0,0,0,0.7)",
-        "0 0 75px rgba(217,70,239,1.0), 0 0 120px rgba(217,70,239,0.45), 0 6px 28px rgba(0,0,0,0.7)",
-        "0 0 35px rgba(217,70,239,0.65), 0 6px 28px rgba(0,0,0,0.7)",
+        "0 0 45px rgba(217,70,239,0.75), 0 0 0px rgba(217,70,239,0), 0 8px 32px rgba(0,0,0,0.8)",
+        "0 0 90px rgba(217,70,239,1.0), 0 0 160px rgba(217,70,239,0.5), 0 8px 32px rgba(0,0,0,0.8)",
+        "0 0 45px rgba(217,70,239,0.75), 0 0 0px rgba(217,70,239,0), 0 8px 32px rgba(0,0,0,0.8)",
       ],
     }}
-    transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+    transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
     whileHover={{
-      scale: 1.04,
-      boxShadow: "0 0 90px rgba(217,70,239,1.0), 0 0 140px rgba(217,70,239,0.5), 0 8px 32px rgba(0,0,0,0.7)",
+      scale: 1.06,
+      boxShadow: "0 0 100px rgba(217,70,239,1.0), 0 0 180px rgba(217,70,239,0.6), 0 0 280px rgba(217,70,239,0.25), 0 10px 40px rgba(0,0,0,0.8)",
     }}
-    whileTap={{ scale: 0.97 }}
+    whileTap={{ scale: 0.96 }}
   >
     {children}
   </motion.button>
@@ -360,7 +360,7 @@ const VSL = () => {
   };
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden" style={{ background: "#020003" }}>
+    <div className="vsl-root min-h-screen text-white overflow-x-hidden" style={{ background: "#020003" }}>
       <Helmet>
         <title>Online Palm Reading for Marriage Line | Madam Aurora</title>
         <meta name="description" content="AI palm reading focused on your marriage line, heart line, and love timing. Discover patterns and what comes next in under 60 seconds." />
@@ -418,23 +418,26 @@ const VSL = () => {
       </header>
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
-      {/* Fundo quase preto — um único orb sutil à direita, sem poluição */}
-      <section className="relative overflow-hidden min-h-[88vh] md:min-h-screen flex items-center">
-        <div className="absolute inset-0" style={{ background: "linear-gradient(145deg, #0a001a 0%, #020003 50%, #06000e 100%)" }} />
-        {/* Um único orb — direita, sutil */}
-        <div className="absolute top-[-10%] right-[-8%] w-[700px] h-[700px] bg-fuchsia-900/14 rounded-full blur-[180px]" />
-        <FloatingParticles />
+      <section className="relative px-4 pt-16 pb-28 md:pt-24 md:pb-36">
+        {/* Bg layer — isolated overflow-hidden so image can bleed outside */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0" style={{ background: "linear-gradient(145deg, #0d0018 0%, #020003 45%, #07000f 100%)" }} />
+          {/* Asymmetric orbs — stronger right, faint left */}
+          <div className="absolute top-[-15%] right-[-12%] w-[900px] h-[900px] rounded-full blur-[200px]" style={{ background: "rgba(100,0,160,0.22)" }} />
+          <div className="absolute bottom-[-20%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[160px]" style={{ background: "rgba(168,0,220,0.12)" }} />
+          <div className="absolute top-[30%] left-[-5%] w-[400px] h-[400px] rounded-full blur-[150px]" style={{ background: "rgba(50,0,80,0.1)" }} />
+          <FloatingParticles />
+        </div>
 
-        <div className="relative w-full max-w-7xl mx-auto px-4 py-10 md:py-0">
-          {/* Coluna da imagem maior: 1.45fr */}
-          <div className="grid md:grid-cols-[1fr_1.45fr] gap-6 md:gap-4 items-center">
+        <div className="relative w-full max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-[1fr_1.35fr] gap-8 md:gap-6 items-center">
 
             {/* Left: Copy */}
             <motion.div
               initial={{ opacity: 0, y: 36 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65 }}
-              className="order-2 md:order-1 max-w-[540px]"
+              className="order-2 md:order-1"
             >
               <motion.div
                 initial={{ opacity: 0, y: 14 }}
@@ -493,16 +496,21 @@ const VSL = () => {
                 ))}
               </ul>
 
-              {/* CTA com fundo escuro atrás para contraste máximo */}
-              <div className="flex flex-col items-start gap-2.5 mb-5">
+              {/* CTA */}
+              <div className="flex flex-col items-start gap-3 mb-5">
                 <div className="relative">
-                  {/* Halo escuro cria contraste contra o bg */}
-                  <div className="absolute -inset-5 rounded-full bg-black/50 blur-xl -z-10" />
+                  <div className="absolute -inset-6 rounded-full bg-black/55 blur-2xl -z-10" />
                   <CTAButton onClick={handleCTA} size="lg" className="w-full sm:w-auto">
                     REVEAL MY TIMING <ArrowRight className="w-5 h-5" />
                   </CTAButton>
                 </div>
-                <p className="text-xs text-white/28 italic pl-1">Most people never notice this.</p>
+                {/* Social proof inline */}
+                <div className="flex items-center gap-2 pl-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" style={{ boxShadow: "0 0 6px rgba(52,211,153,0.8)" }} />
+                    <span className="text-xs text-white/45">27,000+ readings done this month</span>
+                  </div>
+                </div>
               </div>
 
               <div className="mb-4">
@@ -514,74 +522,87 @@ const VSL = () => {
               </p>
             </motion.div>
 
-            {/* Right: Palm — maior, glow concentrado só na imagem */}
+            {/* Right: Palm — invade o layout, sem borda, glow assimétrico */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.91, x: 24 }}
+              initial={{ opacity: 0, scale: 0.88, x: 30 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
-              transition={{ duration: 0.85, delay: 0.2 }}
-              className="order-1 md:order-2 relative flex justify-center md:justify-end md:-mr-8 lg:-mr-16"
+              transition={{ duration: 0.9, delay: 0.18 }}
+              className="order-1 md:order-2 relative flex justify-center md:justify-end md:translate-x-10 lg:translate-x-20"
             >
-              <div className="relative w-full max-w-[420px] sm:max-w-[500px] md:max-w-none md:w-full">
-                {/* Glow concentrado NA imagem — não no fundo */}
-                <div className="absolute inset-[-16px] bg-fuchsia-700/18 rounded-[44px] blur-[45px]" />
-                <div className="absolute inset-[-4px] bg-fuchsia-500/12 rounded-[32px] blur-[14px]" />
-
-                {/* Anel pulsante */}
-                <motion.div
-                  className="absolute inset-0 rounded-[26px]"
-                  animate={{ opacity: [0.2, 0.5, 0.2] }}
-                  transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                  style={{ border: "1px solid rgba(217,70,239,0.28)" }}
+              <div className="relative w-full max-w-[400px] sm:max-w-[500px] md:max-w-none md:w-[115%] lg:w-[125%]">
+                {/* Glow assimétrico — concentrado na borda direita e baixo */}
+                <div
+                  className="absolute pointer-events-none"
+                  style={{
+                    inset: "-60px -80px -60px -20px",
+                    background: "radial-gradient(ellipse 70% 60% at 65% 55%, rgba(150,0,255,0.55), transparent)",
+                    filter: "blur(40px)",
+                  }}
+                />
+                <div
+                  className="absolute pointer-events-none"
+                  style={{
+                    inset: "-20px -30px -20px 20px",
+                    background: "radial-gradient(ellipse 50% 50% at 70% 60%, rgba(217,70,239,0.3), transparent)",
+                    filter: "blur(20px)",
+                  }}
                 />
 
-                {/* Imagem */}
-                <div
-                  className="relative rounded-[24px] overflow-hidden"
-                  style={{
-                    boxShadow: "0 0 0 1px rgba(217,70,239,0.28), 0 40px 130px rgba(139,0,255,0.55), 0 16px 50px rgba(0,0,0,0.85)",
-                  }}
-                >
+                {/* Imagem — sem borda, sem rounded no container */}
+                <div className="relative">
                   <img
                     src="/mystic-hand.jpg"
                     alt="Palm reading"
                     className="w-full h-auto object-cover"
                     loading="eager"
-                    style={{ filter: "contrast(1.08) saturate(1.15) brightness(0.95)" }}
+                    style={{
+                      filter: "contrast(1.1) saturate(1.2) brightness(0.92)",
+                      borderRadius: "20px 4px 4px 20px",
+                    }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#020003]/55 via-transparent to-transparent" />
+                  {/* Fade bottom para fundir com bg */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0 h-[35%]"
+                    style={{ background: "linear-gradient(to top, #020003 0%, transparent 100%)" }}
+                  />
+                  {/* Fade right — invade off-screen sem corte brusco */}
+                  <div
+                    className="absolute top-0 right-0 bottom-0 w-[30%] hidden md:block"
+                    style={{ background: "linear-gradient(to right, transparent 0%, rgba(7,0,15,0.85) 100%)" }}
+                  />
 
                   <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice">
                     <defs>
-                      <filter id="gl1"><feGaussianBlur stdDeviation="5" result="b" /><feComposite in="SourceGraphic" in2="b" operator="over" /></filter>
-                      <filter id="gl2"><feGaussianBlur stdDeviation="3" result="b" /><feComposite in="SourceGraphic" in2="b" operator="over" /></filter>
+                      <filter id="gl1"><feGaussianBlur stdDeviation="6" result="b" /><feComposite in="SourceGraphic" in2="b" operator="over" /></filter>
+                      <filter id="gl2"><feGaussianBlur stdDeviation="3.5" result="b" /><feComposite in="SourceGraphic" in2="b" operator="over" /></filter>
                     </defs>
                     <motion.path d="M120 360 Q140 260 155 180 Q165 120 175 60"
-                      stroke="#e879f9" strokeWidth="3.5" fill="none" strokeLinecap="round" filter="url(#gl1)"
+                      stroke="#e879f9" strokeWidth="4" fill="none" strokeLinecap="round" filter="url(#gl1)"
                       initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 0.9 }}
+                      animate={{ pathLength: 1, opacity: 1.0 }}
                       transition={{ duration: 1.8, delay: 0.9, ease: "easeOut" }}
                     />
                     <motion.path d="M100 350 Q130 280 145 200 Q155 150 160 90"
                       stroke="#a855f7" strokeWidth="2.5" fill="none" strokeLinecap="round" filter="url(#gl2)"
                       initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 0.72 }}
+                      animate={{ pathLength: 1, opacity: 0.8 }}
                       transition={{ duration: 1.8, delay: 1.2, ease: "easeOut" }}
                     />
                     <motion.path d="M78 330 Q110 290 152 270 Q194 252 234 244"
                       stroke="#f472b6" strokeWidth="2.5" fill="none" strokeLinecap="round" filter="url(#gl2)"
                       initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 0.74 }}
+                      animate={{ pathLength: 1, opacity: 0.82 }}
                       transition={{ duration: 1.8, delay: 1.4, ease: "easeOut" }}
                     />
                   </svg>
                 </div>
 
-                {/* Badge 60s */}
+                {/* Badge 60s — flutua fora da imagem */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.72, y: 12 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ delay: 1.1, type: "spring", stiffness: 180 }}
-                  className="absolute -bottom-7 -right-2 md:-bottom-5 md:-right-10 text-center px-5 py-4 rounded-2xl z-10"
+                  className="absolute -bottom-6 left-6 md:left-8 text-center px-5 py-4 rounded-2xl z-10"
                   style={{
                     background: "rgba(8,0,15,0.97)",
                     boxShadow: "inset 0 1px 0 rgba(217,70,239,0.22), 0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(168,85,247,0.2)",
@@ -590,7 +611,7 @@ const VSL = () => {
                 >
                   <p className="text-[9px] uppercase tracking-widest text-white/28 mb-0.5">Takes less than</p>
                   <p className="text-[2.5rem] font-black text-fuchsia-400 leading-none"
-                    style={{ textShadow: "0 0 24px rgba(217,70,239,0.7)" }}>60</p>
+                    style={{ textShadow: "0 0 28px rgba(217,70,239,0.85)" }}>60</p>
                   <p className="text-[10px] font-black text-white/48 uppercase tracking-wider">Seconds</p>
                 </motion.div>
               </div>
@@ -659,6 +680,122 @@ const VSL = () => {
             <span className="text-fuchsia-300 font-bold">connects the dots</span>{" "}
             you've been missing all along.
           </p>
+        </div>
+      </section>
+
+      {/* ── PATTERN BREAK ──────────────────────────────────────────────────── */}
+      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "#020003" }}>
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/20 to-transparent" />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 60%, rgba(88,0,140,0.18), transparent)" }} />
+
+        <div className="relative max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <SectionBadge>The Real Reason</SectionBadge>
+            <h2 className="text-4xl sm:text-5xl md:text-[3.6rem] font-black uppercase leading-[0.88] mb-5 tracking-tight">
+              THIS IS WHAT
+              <br />
+              <span
+                className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-300 to-fuchsia-400"
+                style={{ filter: "drop-shadow(0 0 22px rgba(217,70,239,0.55))" }}
+              >
+                MOST PEOPLE MISS.
+              </span>
+            </h2>
+            <p className="text-white/48 text-base md:text-lg max-w-lg mx-auto mb-14 leading-relaxed">
+              There's a line on your palm most people walk past every day.
+              When it curves a specific way — it explains the pattern in your love life that keeps coming back.
+            </p>
+          </motion.div>
+
+          {/* Palm line visual */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.15 }}
+            className="relative inline-block mx-auto mb-12"
+          >
+            <div className="relative w-[300px] md:w-[380px] mx-auto">
+              <div className="absolute inset-0 rounded-full blur-[70px]" style={{ background: "rgba(140,0,220,0.25)" }} />
+              <svg viewBox="0 0 300 220" className="relative w-full">
+                <defs>
+                  <linearGradient id="palmLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#a855f7" />
+                    <stop offset="50%" stopColor="#e879f9" />
+                    <stop offset="100%" stopColor="#f472b6" />
+                  </linearGradient>
+                  <filter id="lineGlow">
+                    <feGaussianBlur stdDeviation="4" result="b" />
+                    <feComposite in="SourceGraphic" in2="b" operator="over" />
+                  </filter>
+                </defs>
+                {/* Finger silhouettes */}
+                {[
+                  "M70 200 Q78 150 82 80 Q84 55 86 30",
+                  "M110 200 Q115 148 118 80 Q120 55 121 30",
+                  "M148 200 Q151 148 153 80 Q154 55 155 30",
+                  "M183 198 Q184 148 185 82 Q185 58 185 34",
+                  "M212 192 Q211 150 210 100 Q210 78 210 58",
+                ].map((d, i) => (
+                  <path key={i} d={d} stroke="rgba(255,255,255,0.07)" strokeWidth={i === 4 ? 14 : 18} fill="none" strokeLinecap="round" />
+                ))}
+                {/* Palm base */}
+                <path d="M60 205 Q120 215 160 215 Q200 215 235 205 Q242 185 238 165" stroke="rgba(255,255,255,0.06)" strokeWidth="22" fill="none" strokeLinecap="round" />
+
+                {/* Glow halo */}
+                <motion.path
+                  d="M40 130 Q80 118 125 120 Q168 122 200 116 Q222 112 248 105"
+                  stroke="rgba(217,70,239,0.25)" strokeWidth="14" fill="none" strokeLinecap="round"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  whileInView={{ pathLength: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 2.2, delay: 0.4, ease: "easeOut" }}
+                />
+                {/* Main glowing line */}
+                <motion.path
+                  d="M40 130 Q80 118 125 120 Q168 122 200 116 Q222 112 248 105"
+                  stroke="url(#palmLineGrad)" strokeWidth="3.5" fill="none" strokeLinecap="round"
+                  filter="url(#lineGlow)"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  whileInView={{ pathLength: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 2.2, delay: 0.4, ease: "easeOut" }}
+                />
+              </svg>
+
+              {/* Label */}
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 2.2 }}
+                className="absolute right-[-20px] md:right-[-40px] top-[44%] flex items-center gap-2"
+              >
+                <div className="h-px w-8 md:w-12" style={{ background: "rgba(217,70,239,0.55)" }} />
+                <div
+                  className="px-3 py-1.5 rounded-full text-xs font-bold text-fuchsia-200 whitespace-nowrap"
+                  style={{ background: "rgba(217,70,239,0.12)", border: "1px solid rgba(217,70,239,0.3)" }}
+                >
+                  Marriage Line
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="text-xs text-white/30 max-w-sm mx-auto"
+          >
+            Most palm readers don't even look for it.{" "}
+            <span className="text-fuchsia-300 font-semibold">Aurora does — in 60 seconds.</span>
+          </motion.p>
         </div>
       </section>
 
@@ -1170,58 +1307,46 @@ const VSL = () => {
         </div>
       </section>
 
-      {/* ── FINAL CTA — máximo contraste, CTA dominante ─────────────────────── */}
-      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "#020003" }}>
-        {/* Orb único centrado — cria foco sem poluição */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_50%,rgba(88,0,140,0.18),transparent)]" />
+      {/* ── FINAL CTA ──────────────────────────────────────────────────────── */}
+      <section className="py-24 md:py-36 px-4 relative overflow-hidden" style={{ background: "#020003" }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(100,0,180,0.22), transparent)" }} />
 
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-4xl mx-auto flex flex-col items-center text-center">
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="rounded-3xl px-6 py-16 md:px-16 md:py-20 flex flex-col items-center text-center relative overflow-hidden"
-            style={{
-              background: "linear-gradient(135deg, rgba(80,0,140,0.35) 0%, rgba(20,0,40,0.6) 50%, rgba(80,0,140,0.35) 100%)",
-              boxShadow: "inset 0 1px 0 rgba(217,70,239,0.2), 0 0 80px rgba(88,0,140,0.2), 0 0 0 1px rgba(140,60,200,0.18)",
-              backdropFilter: "blur(24px)",
-            }}
+            className="w-full"
           >
-            {/* Dois orbs nos cantos — só para enquadramento */}
-            <div className="absolute top-[-30px] right-[-30px] w-[200px] h-[200px] bg-fuchsia-700/15 rounded-full blur-[60px]" />
-            <div className="absolute bottom-[-30px] left-[-30px] w-[180px] h-[180px] bg-purple-700/15 rounded-full blur-[55px]" />
-
-            <p className="text-xs font-bold uppercase tracking-widest text-fuchsia-300 mb-5 relative z-10">
+            <p className="text-xs font-bold uppercase tracking-widest text-fuchsia-300 mb-6">
               Don't Wait Any Longer
             </p>
 
-            <h2 className="text-5xl sm:text-6xl md:text-7xl font-black uppercase leading-[0.88] mb-5 max-w-3xl relative z-10">
+            <h2 className="text-[3.2rem] sm:text-[4rem] md:text-[5.5rem] lg:text-[6.5rem] font-black uppercase leading-[0.86] mb-6 tracking-tight">
               YOU ALREADY
               <br />
               FELT IT.
               <br />
               <span
                 className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-300 to-fuchsia-400"
-                style={{ filter: "drop-shadow(0 0 24px rgba(217,70,239,0.55))" }}
+                style={{ filter: "drop-shadow(0 0 32px rgba(217,70,239,0.65))" }}
               >
                 THIS EXPLAINS WHY.
               </span>
             </h2>
 
-            <p className="text-sm text-white/35 mb-10 relative z-10">
+            <p className="text-sm md:text-base text-white/32 mb-12">
               Private · Secure · Takes less than 60 seconds
             </p>
 
-            <div className="relative z-10 flex flex-col items-center gap-4">
-              {/* Halo escuro para máximo contraste do CTA */}
+            <div className="flex flex-col items-center gap-5">
               <div className="relative">
-                <div className="absolute -inset-6 rounded-full bg-black/55 blur-2xl -z-10" />
+                <div className="absolute -inset-8 rounded-full bg-black/60 blur-3xl -z-10" />
                 <CTAButton onClick={handleCTA} size="xl" className="w-full sm:w-auto">
                   REVEAL MY TIMING NOW <ArrowRight className="w-6 h-6" />
                 </CTAButton>
               </div>
               <CountdownBadge h={h} m={m} s={s} pad={pad} />
-              <p className="text-xs italic text-white/26">Most people never notice this.</p>
             </div>
           </motion.div>
         </div>
