@@ -168,29 +168,36 @@ const SectionBadge = ({ children }: { children: React.ReactNode }) => (
 
 const GBCard = ({
   children, border = "rgba(217,70,239,0.2)", glow = "rgba(217,70,239,0.06)", className = "",
+  innerGlow = "rgba(217,70,239,0.05)",
 }: {
-  children: React.ReactNode; border?: string; glow?: string; className?: string;
+  children: React.ReactNode; border?: string; glow?: string; className?: string; innerGlow?: string;
 }) => (
   <motion.div
     className={`p-[1px] rounded-2xl ${className}`}
     style={{
-      background: `linear-gradient(145deg, ${border} 0%, rgba(40,10,70,0.12) 70%, rgba(0,0,0,0) 100%)`,
-      boxShadow: "0 4px 24px rgba(0,0,0,0.6)",
+      background: `linear-gradient(135deg, ${border} 0%, rgba(60,10,90,0.18) 50%, rgba(0,0,0,0.05) 100%)`,
+      boxShadow: `0 8px 32px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.04)`,
     }}
     whileHover={{
-      y: -4,
+      y: -5,
       scale: 1.02,
-      boxShadow: `0 12px 40px ${glow}, 0 4px 24px rgba(0,0,0,0.6)`,
+      boxShadow: `0 20px 50px ${glow}, 0 8px 32px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.06)`,
     }}
-    transition={{ duration: 0.18 }}
+    transition={{ duration: 0.2 }}
   >
     <div
-      className="rounded-[15px] h-full"
+      className="rounded-[15px] h-full relative overflow-hidden"
       style={{
-        background: "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(6,0,12,0.98) 100%)",
-        backdropFilter: "blur(16px)",
+        background: `linear-gradient(145deg, rgba(255,255,255,0.055) 0%, rgba(20,3,35,0.88) 35%, rgba(6,0,12,0.96) 100%)`,
+        backdropFilter: "blur(20px)",
+        boxShadow: `inset 0 1px 0 rgba(255,255,255,0.09), inset 0 0 40px ${innerGlow}`,
       }}
     >
+      {/* Reflexo superior — canto diagonal */}
+      <div
+        className="absolute top-0 left-0 w-[60%] h-[1px] pointer-events-none"
+        style={{ background: "linear-gradient(90deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 60%, transparent 100%)" }}
+      />
       {children}
     </div>
   </motion.div>
@@ -247,15 +254,140 @@ const CountdownBadge = ({ h, m, s, pad }: { h: number; m: number; s: number; pad
   </div>
 );
 
-// ── Partículas leves — apenas no hero, opacidade reduzida ─────────────────────
+// ── Layer 1: Cinematic Background — ambient light system ─────────────────────
+// Fixed, z-0. Animated radial blobs create depth and atmosphere.
+
+const AMBIENT = [
+  {
+    dur: 20, delay: 0, w: 1000, h: 800,
+    style: { top: "-25%", right: "-20%" },
+    color: "radial-gradient(ellipse, rgba(110,0,200,0.32) 0%, transparent 65%)",
+    driftX: [0, 40, -20, 15, 0], driftY: [0, -25, 20, -10, 0],
+  },
+  {
+    dur: 28, delay: 5, w: 700, h: 600,
+    style: { bottom: "-30%", left: "-15%" },
+    color: "radial-gradient(ellipse, rgba(180,0,110,0.18) 0%, transparent 65%)",
+    driftX: [-10, 20, -5, 30, -10], driftY: [0, 20, -15, 10, 0],
+  },
+  {
+    dur: 16, delay: 2, w: 600, h: 500,
+    style: { top: "25%", left: "5%" },
+    color: "radial-gradient(ellipse, rgba(70,0,160,0.2) 0%, transparent 65%)",
+    driftX: [0, -25, 15, -10, 0], driftY: [0, 30, -20, 10, 0],
+  },
+  {
+    dur: 24, delay: 8, w: 800, h: 600,
+    style: { top: "55%", right: "5%" },
+    color: "radial-gradient(ellipse, rgba(200,0,140,0.12) 0%, transparent 65%)",
+    driftX: [10, -20, 25, -10, 10], driftY: [0, -20, 15, -5, 0],
+  },
+];
+
+const CinematicBackground = () => (
+  <div className="fixed inset-0 pointer-events-none" style={{ zIndex: -1 }}>
+    <div className="absolute inset-0" style={{ background: "#020003" }} />
+    {AMBIENT.map((a, i) => (
+      <motion.div
+        key={i}
+        className="absolute"
+        style={{
+          width: a.w, height: a.h,
+          borderRadius: "50%",
+          background: a.color,
+          filter: "blur(90px)",
+          ...a.style,
+        }}
+        animate={{ x: a.driftX, y: a.driftY }}
+        transition={{ duration: a.dur, delay: a.delay, repeat: Infinity, ease: "easeInOut" }}
+      />
+    ))}
+    {/* Subtle horizontal light bars — depth cue */}
+    <div className="absolute inset-0 overflow-hidden opacity-[0.04]">
+      <div className="absolute w-full h-px" style={{ top: "28%", background: "linear-gradient(90deg, transparent 0%, #d946ef 30%, #a855f7 50%, #d946ef 70%, transparent 100%)" }} />
+      <div className="absolute w-full h-px" style={{ top: "62%", background: "linear-gradient(90deg, transparent 10%, #f472b6 40%, #e879f9 60%, transparent 90%)" }} />
+    </div>
+  </div>
+);
+
+// ── Layer 3: Luminescent Overlay — floating lights and lines ──────────────────
+// Fixed, above content? No — fixed z-1. Pointer-events-none.
+
+const GLOW_ORBS = [
+  { w: 220, x: "8%",  y: "12%", c: "rgba(140,0,220,0.07)", dur: 13, delay: 0  },
+  { w: 160, x: "82%", y: "58%", c: "rgba(217,70,239,0.06)", dur: 18, delay: 3  },
+  { w: 130, x: "48%", y: "78%", c: "rgba(168,85,247,0.08)", dur: 11, delay: 6  },
+  { w: 100, x: "22%", y: "68%", c: "rgba(244,114,182,0.06)", dur: 15, delay: 9 },
+];
+
+const LuminescentOverlay = () => (
+  <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 9999 }}>
+    {/* Diagonal luminous lines */}
+    <svg className="absolute inset-0 w-full h-full">
+      <defs>
+        <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="rgba(217,70,239,0)" />
+          <stop offset="45%" stopColor="rgba(217,70,239,0.18)" />
+          <stop offset="55%" stopColor="rgba(168,85,247,0.22)" />
+          <stop offset="100%" stopColor="rgba(217,70,239,0)" />
+        </linearGradient>
+        <linearGradient id="lg2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(244,114,182,0)" />
+          <stop offset="50%" stopColor="rgba(244,114,182,0.14)" />
+          <stop offset="100%" stopColor="rgba(244,114,182,0)" />
+        </linearGradient>
+        <linearGradient id="lg3" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="rgba(168,85,247,0)" />
+          <stop offset="50%" stopColor="rgba(168,85,247,0.16)" />
+          <stop offset="100%" stopColor="rgba(168,85,247,0)" />
+        </linearGradient>
+      </defs>
+      <motion.line x1="-5%" y1="18%" x2="105%" y2="42%"
+        stroke="url(#lg1)" strokeWidth="1"
+        animate={{ opacity: [0.4, 1, 0.4] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.line x1="75%" y1="-5%" x2="25%" y2="105%"
+        stroke="url(#lg2)" strokeWidth="0.6"
+        animate={{ opacity: [0.2, 0.7, 0.2] }}
+        transition={{ duration: 11, delay: 2.5, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.line x1="0%" y1="75%" x2="60%" y2="20%"
+        stroke="url(#lg3)" strokeWidth="0.5"
+        animate={{ opacity: [0.1, 0.55, 0.1] }}
+        transition={{ duration: 9, delay: 5, repeat: Infinity, ease: "easeInOut" }}
+      />
+    </svg>
+    {/* Breathing orbs */}
+    {GLOW_ORBS.map((o, i) => (
+      <motion.div
+        key={i}
+        className="absolute rounded-full"
+        style={{
+          width: o.w, height: o.w,
+          left: o.x, top: o.y,
+          background: `radial-gradient(circle, ${o.c} 0%, transparent 70%)`,
+          filter: "blur(24px)",
+          transform: "translate(-50%, -50%)",
+        }}
+        animate={{ scale: [1, 1.35, 1], opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: o.dur, delay: o.delay, repeat: Infinity, ease: "easeInOut" }}
+      />
+    ))}
+  </div>
+);
+
+// ── Layer 2b: Section particles — richer, wider spread ───────────────────────
 
 const PTS = [
-  { w: 3, c: "rgba(217,70,239,0.55)", t: "14%", l: "7%", dur: 3.8, delay: 0 },
-  { w: 2, c: "rgba(168,85,247,0.45)", t: "30%", l: "94%", dur: 4.5, delay: 0.7 },
-  { w: 3, c: "rgba(244,114,182,0.5)", t: "65%", l: "4%", dur: 4.0, delay: 1.1 },
-  { w: 2, c: "rgba(217,70,239,0.4)", t: "82%", l: "90%", dur: 5.0, delay: 0.4 },
-  { w: 3, c: "rgba(168,85,247,0.5)", t: "48%", l: "97%", dur: 4.2, delay: 1.5 },
-  { w: 2, c: "rgba(244,114,182,0.42)", t: "8%", l: "54%", dur: 4.8, delay: 0.9 },
+  { w: 3, c: "rgba(217,70,239,0.7)",  t: "12%", l: "6%",  dur: 3.8, delay: 0,   dy: -22 },
+  { w: 2, c: "rgba(168,85,247,0.6)",  t: "28%", l: "93%", dur: 4.5, delay: 0.7, dy: -16 },
+  { w: 3, c: "rgba(244,114,182,0.65)",t: "63%", l: "3%",  dur: 4.0, delay: 1.1, dy: -20 },
+  { w: 2, c: "rgba(217,70,239,0.55)", t: "80%", l: "88%", dur: 5.0, delay: 0.4, dy: -18 },
+  { w: 4, c: "rgba(168,85,247,0.6)",  t: "45%", l: "96%", dur: 4.2, delay: 1.5, dy: -24 },
+  { w: 2, c: "rgba(244,114,182,0.55)",t: "7%",  l: "52%", dur: 4.8, delay: 0.9, dy: -15 },
+  { w: 3, c: "rgba(200,70,239,0.5)",  t: "55%", l: "48%", dur: 6.0, delay: 2.0, dy: -20 },
+  { w: 2, c: "rgba(217,70,239,0.45)", t: "90%", l: "30%", dur: 5.5, delay: 3.2, dy: -18 },
 ];
 
 const FloatingParticles = () => (
@@ -267,9 +399,9 @@ const FloatingParticles = () => (
         style={{
           width: p.w, height: p.w,
           background: p.c, top: p.t, left: p.l,
-          boxShadow: `0 0 ${p.w * 4}px ${p.c}`,
+          boxShadow: `0 0 ${p.w * 5}px ${p.c}`,
         }}
-        animate={{ y: [0, -18, 0], opacity: [0.2, 0.55, 0.2] }}
+        animate={{ y: [0, p.dy, 0], opacity: [0.25, 0.75, 0.25] }}
         transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
       />
     ))}
@@ -360,7 +492,9 @@ const VSL = () => {
   };
 
   return (
-    <div className="vsl-root min-h-screen text-white overflow-x-hidden" style={{ background: "#020003" }}>
+    <div className="vsl-root min-h-screen text-white overflow-x-hidden" style={{ position: "relative" }}>
+      <CinematicBackground />
+      <LuminescentOverlay />
       <Helmet>
         <title>Online Palm Reading for Marriage Line | Madam Aurora</title>
         <meta name="description" content="AI palm reading focused on your marriage line, heart line, and love timing. Discover patterns and what comes next in under 60 seconds." />
@@ -622,7 +756,7 @@ const VSL = () => {
 
       {/* ── PAIN SECTION ───────────────────────────────────────────────────── */}
       {/* Seção escura sem orbs — o título domina */}
-      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "#050007" }}>
+      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/18 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto">
@@ -684,7 +818,7 @@ const VSL = () => {
       </section>
 
       {/* ── PATTERN BREAK ──────────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "#020003" }}>
+      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/20 to-transparent" />
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 60%, rgba(88,0,140,0.18), transparent)" }} />
 
@@ -800,7 +934,7 @@ const VSL = () => {
       </section>
 
       {/* ── VIDEO SECTION ──────────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "#020003" }}>
+      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-800/25 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto">
@@ -894,7 +1028,7 @@ const VSL = () => {
       </section>
 
       {/* ── REVIEWS ────────────────────────────────────────────────────────── */}
-      <section id="reviews" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "#050007" }}>
+      <section id="reviews" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/15 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto">
@@ -994,7 +1128,7 @@ const VSL = () => {
       </section>
 
       {/* ── DISCOVERY ──────────────────────────────────────────────────────── */}
-      <section id="discover" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "#020003" }}>
+      <section id="discover" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-800/22 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto">
@@ -1045,7 +1179,7 @@ const VSL = () => {
       </section>
 
       {/* ── HOW IT WORKS ───────────────────────────────────────────────────── */}
-      <section id="how-it-works" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "#050007" }}>
+      <section id="how-it-works" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/15 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto">
@@ -1143,7 +1277,7 @@ const VSL = () => {
       </section>
 
       {/* ── PREMIUM BLOCK ──────────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "#020003" }}>
+      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-800/22 to-transparent" />
         {/* Único orb sutil nesta seção — no topo */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-900/10 rounded-full blur-[100px]" />
@@ -1201,7 +1335,7 @@ const VSL = () => {
       </section>
 
       {/* ── FAQ ────────────────────────────────────────────────────────────── */}
-      <section id="faq" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "#050007" }}>
+      <section id="faq" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/12 to-transparent" />
 
         <div className="max-w-5xl mx-auto">
@@ -1308,7 +1442,7 @@ const VSL = () => {
       </section>
 
       {/* ── FINAL CTA ──────────────────────────────────────────────────────── */}
-      <section className="py-24 md:py-36 px-4 relative overflow-hidden" style={{ background: "#020003" }}>
+      <section className="py-24 md:py-36 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(100,0,180,0.22), transparent)" }} />
 
         <div className="relative max-w-4xl mx-auto flex flex-col items-center text-center">
