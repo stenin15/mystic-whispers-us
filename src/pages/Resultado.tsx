@@ -15,9 +15,10 @@ import { Button } from '@/components/ui/button';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { getIcon } from '@/lib/iconMapper';
 import { Footer } from '@/components/layout/Footer';
-import { getOrCreateEventId, track } from '@/lib/tracking';
+import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus, appendUtmToPath } from '@/lib/marketing';
 import { PRICE_MAP } from '@/lib/pricing';
+import { supabase } from '@/integrations/supabase/client';
 
 // 24-hour countdown from first visit
 function useCountdown24h() {
@@ -47,6 +48,7 @@ const Resultado = () => {
   const navigate = useNavigate();
   const {
     name,
+    email,
     analysisResult,
     canAccessResult,
   } = useHandReadingStore();
@@ -61,25 +63,53 @@ const Resultado = () => {
     }
     if (!hasTrackedRef.current) {
       hasTrackedRef.current = true;
+      const vcEventId = getOrCreateEventId("view_resultado");
       track("ViewContent", {
-        event_id: getOrCreateEventId("view_resultado"),
+        event_id: vcEventId,
         content_name: "Resultado",
         page_path: "/resultado",
         angle: getStoredAngle(),
         focus: getStoredFocus(),
         ...getAttributionParams(),
       });
+      // Server-side ViewContent for Resultado
+      const { fbp, fbc, ttclid } = getAdIds();
+      supabase.functions.invoke('track-event', {
+        body: {
+          event_name: "ViewContent",
+          event_id: vcEventId,
+          page_url: window.location.href,
+          user: { email: email || undefined },
+          utm: getAttributionParams(),
+          meta: { fbp, fbc },
+          tiktok: { ttclid },
+        },
+      }).catch(() => {});
     }
-  }, [canAccessResult, navigate]);
+  }, [canAccessResult, email, navigate]);
 
   const handleCTA = () => {
+    const icEventId = getOrCreateEventId("resultado_cta");
     track("InitiateCheckout", {
-      event_id: getOrCreateEventId("resultado_cta"),
+      event_id: icEventId,
       page_path: "/resultado",
       angle: getStoredAngle(),
       focus: getStoredFocus(),
       ...getAttributionParams(),
     });
+    // Server-side InitiateCheckout
+    const { fbp, fbc, ttclid } = getAdIds();
+    supabase.functions.invoke('track-event', {
+      body: {
+        event_name: "InitiateCheckout",
+        event_id: icEventId,
+        page_url: window.location.href,
+        user: { email: email || undefined },
+        utm: getAttributionParams(),
+        meta: { fbp, fbc },
+        tiktok: { ttclid },
+      },
+    }).catch(() => {});
     navigate(appendUtmToPath('/checkout'));
   };
 

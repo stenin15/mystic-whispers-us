@@ -8,8 +8,9 @@ import { quizQuestions } from '@/lib/quizQuestions';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useMicroCoach } from '@/lib/useMicroCoach';
-import { getOrCreateEventId, track } from '@/lib/tracking';
+import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
+import { supabase } from '@/integrations/supabase/client';
 
 import AudioWaveVisualizer from '@/components/shared/AudioWaveVisualizer';
 import AudioPromptModal from '@/components/shared/AudioPromptModal';
@@ -18,6 +19,7 @@ const Quiz = () => {
   const navigate = useNavigate();
   const {
     name,
+    email,
     quizAnswers,
     currentQuestionIndex,
     setQuizAnswer,
@@ -184,13 +186,29 @@ const Quiz = () => {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       // Quiz completed — fire CompleteRegistration before navigating
+      const crEventId = getOrCreateEventId("quiz_complete");
       track("CompleteRegistration", {
-        event_id: getOrCreateEventId("quiz_complete"),
+        event_id: crEventId,
         page_path: "/quiz",
         angle: getStoredAngle(),
         focus: getStoredFocus(),
         ...getAttributionParams(),
       });
+
+      // Server-side CompleteRegistration (ad blocker bypass)
+      const { fbp, fbc, ttclid } = getAdIds();
+      supabase.functions.invoke('track-event', {
+        body: {
+          event_name: "CompleteRegistration",
+          event_id: crEventId,
+          page_url: window.location.href,
+          user: { email: email || undefined },
+          utm: getAttributionParams(),
+          meta: { fbp, fbc },
+          tiktok: { ttclid },
+        },
+      }).catch(() => {});
+
       navigate('/analise');
     }
   };

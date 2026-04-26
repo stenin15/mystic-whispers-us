@@ -7,7 +7,9 @@ import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { processAnalysis, generateVoiceMessage } from '@/lib/api';
 import { useMysticSounds } from '@/hooks/useMysticSounds';
 import AudioPromptModal from '@/components/shared/AudioPromptModal';
-// Generate personalized voice texts for each phase
+import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
+import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
+import { supabase } from '@/integrations/supabase/client';
 const getAnalysisPhases = (name: string) => [
   { 
     text: "Connecting with your energy...", 
@@ -116,6 +118,7 @@ const Analise = () => {
   const navigate = useNavigate();
   const {
     name,
+    email,
     age,
     emotionalState,
     mainConcern,
@@ -154,25 +157,43 @@ const Analise = () => {
     cleanup 
   } = useMysticSounds();
 
+  // Track AnaliseView — fires once when user reaches this step
+  const hasTrackedAnaliseRef = useRef(false);
+  useEffect(() => {
+    if (hasTrackedAnaliseRef.current) return;
+    hasTrackedAnaliseRef.current = true;
+    const eventId = getOrCreateEventId("analise_view");
+    track("AnaliseView", {
+      event_id: eventId,
+      page_path: "/analise",
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+    const { fbp, fbc, ttclid } = getAdIds();
+    supabase.functions.invoke('track-event', {
+      body: {
+        event_name: "AnaliseView",
+        event_id: eventId,
+        page_url: window.location.href,
+        user: { email: email || undefined },
+        utm: getAttributionParams(),
+        meta: { fbp, fbc },
+        tiktok: { ttclid },
+      },
+    }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Function to play the appropriate sound for each phase
   const playSoundForPhase = (phaseIndex: number) => {
     const sound = analysisPhases[phaseIndex]?.sound;
     switch (sound) {
-      case 'chime':
-        playTransitionChime();
-        break;
-      case 'whoosh':
-        playWhoosh();
-        break;
-      case 'mysticTone':
-        playMysticTone();
-        break;
-      case 'sparkle':
-        playSparkle();
-        break;
-      case 'heartPulse':
-        playHeartPulse();
-        break;
+      case 'chime':        playTransitionChime(); break;
+      case 'whoosh':       playWhoosh(); break;
+      case 'mysticTone':   playMysticTone(); break;
+      case 'sparkle':      playSparkle(); break;
+      case 'heartPulse':   playHeartPulse(); break;
     }
   };
 
