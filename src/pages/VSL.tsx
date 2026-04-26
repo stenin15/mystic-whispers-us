@@ -266,6 +266,38 @@ const CountdownBadge = ({ h, m, s, pad }: { h: number; m: number; s: number; pad
   </div>
 );
 
+// ── Starfield — fine white dots for cosmic depth ──────────────────────────────
+
+const STARS = Array.from({ length: 80 }, (_, i) => ({
+  id: i,
+  x: `${(i * 137.508 % 100).toFixed(2)}%`,
+  y: `${(i * 97.41 % 100).toFixed(2)}%`,
+  size: i % 5 === 0 ? 2 : i % 3 === 0 ? 1.5 : 1,
+  opacity: 0.1 + (i % 7) * 0.07,
+  dur: 2.5 + (i % 6) * 0.8,
+  delay: (i % 9) * 0.35,
+}));
+
+const HeroStarfield = () => (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    {STARS.map((star) => (
+      <motion.div
+        key={star.id}
+        className="absolute rounded-full bg-white"
+        style={{
+          left: star.x,
+          top: star.y,
+          width: star.size,
+          height: star.size,
+          opacity: star.opacity,
+        }}
+        animate={{ opacity: [star.opacity, star.opacity * 3.5, star.opacity] }}
+        transition={{ duration: star.dur, delay: star.delay, repeat: Infinity, ease: "easeInOut" }}
+      />
+    ))}
+  </div>
+);
+
 // ── Layer 1: Cinematic Background — ambient light system ─────────────────────
 // Fixed, z-0. Animated radial blobs create depth and atmosphere.
 
@@ -273,32 +305,32 @@ const AMBIENT = [
   {
     dur: 20, delay: 0, w: 1000, h: 800,
     style: { top: "-25%", right: "-20%" },
-    color: "radial-gradient(ellipse, rgba(110,0,200,0.32) 0%, transparent 65%)",
+    color: "radial-gradient(ellipse, rgba(130,0,220,0.42) 0%, transparent 65%)",
     driftX: [0, 40, -20, 15, 0], driftY: [0, -25, 20, -10, 0],
   },
   {
     dur: 28, delay: 5, w: 700, h: 600,
     style: { bottom: "-30%", left: "-15%" },
-    color: "radial-gradient(ellipse, rgba(180,0,110,0.18) 0%, transparent 65%)",
+    color: "radial-gradient(ellipse, rgba(200,0,130,0.24) 0%, transparent 65%)",
     driftX: [-10, 20, -5, 30, -10], driftY: [0, 20, -15, 10, 0],
   },
   {
     dur: 16, delay: 2, w: 600, h: 500,
     style: { top: "25%", left: "5%" },
-    color: "radial-gradient(ellipse, rgba(70,0,160,0.2) 0%, transparent 65%)",
+    color: "radial-gradient(ellipse, rgba(90,0,200,0.28) 0%, transparent 65%)",
     driftX: [0, -25, 15, -10, 0], driftY: [0, 30, -20, 10, 0],
   },
   {
     dur: 24, delay: 8, w: 800, h: 600,
     style: { top: "55%", right: "5%" },
-    color: "radial-gradient(ellipse, rgba(200,0,140,0.12) 0%, transparent 65%)",
+    color: "radial-gradient(ellipse, rgba(220,0,160,0.18) 0%, transparent 65%)",
     driftX: [10, -20, 25, -10, 10], driftY: [0, -20, 15, -5, 0],
   },
 ];
 
 const CinematicBackground = () => (
   <div className="fixed inset-0 pointer-events-none" style={{ zIndex: -1 }}>
-    <div className="absolute inset-0" style={{ background: "#020003" }} />
+    <div className="absolute inset-0" style={{ background: "#030004" }} />
     {AMBIENT.map((a, i) => (
       <motion.div
         key={i}
@@ -567,11 +599,13 @@ const VSL = () => {
       <section className="relative px-4 pt-16 pb-28 md:pt-24 md:pb-36">
         {/* Bg layer — isolated overflow-hidden so image can bleed outside */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0" style={{ background: "linear-gradient(145deg, #0d0018 0%, #020003 45%, #07000f 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(145deg, #0e001a 0%, #020003 45%, #08000f 100%)" }} />
           {/* Asymmetric orbs — stronger right, faint left */}
-          <div className="absolute top-[-15%] right-[-12%] w-[900px] h-[900px] rounded-full blur-[200px]" style={{ background: "rgba(100,0,160,0.22)" }} />
-          <div className="absolute bottom-[-20%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[160px]" style={{ background: "rgba(168,0,220,0.12)" }} />
-          <div className="absolute top-[30%] left-[-5%] w-[400px] h-[400px] rounded-full blur-[150px]" style={{ background: "rgba(50,0,80,0.1)" }} />
+          <div className="absolute top-[-15%] right-[-12%] w-[900px] h-[900px] rounded-full blur-[200px]" style={{ background: "rgba(120,0,200,0.38)" }} />
+          <div className="absolute bottom-[-20%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[160px]" style={{ background: "rgba(200,0,240,0.22)" }} />
+          <div className="absolute top-[30%] left-[-5%] w-[400px] h-[400px] rounded-full blur-[150px]" style={{ background: "rgba(70,0,120,0.18)" }} />
+          <div className="absolute top-[50%] right-[30%] w-[300px] h-[300px] rounded-full blur-[120px]" style={{ background: "rgba(180,0,255,0.12)" }} />
+          <HeroStarfield />
           <FloatingParticles />
         </div>
 
@@ -674,7 +708,7 @@ const VSL = () => {
                   className="absolute pointer-events-none"
                   style={{
                     inset: "-60px -80px -60px -20px",
-                    background: "radial-gradient(ellipse 70% 60% at 65% 55%, rgba(150,0,255,0.55), transparent)",
+                    background: "radial-gradient(ellipse 70% 60% at 65% 55%, rgba(150,0,255,0.65), transparent)",
                     filter: "blur(40px)",
                   }}
                 />
@@ -682,20 +716,49 @@ const VSL = () => {
                   className="absolute pointer-events-none"
                   style={{
                     inset: "-20px -30px -20px 20px",
-                    background: "radial-gradient(ellipse 50% 50% at 70% 60%, rgba(217,70,239,0.3), transparent)",
+                    background: "radial-gradient(ellipse 50% 50% at 70% 60%, rgba(217,70,239,0.38), transparent)",
                     filter: "blur(20px)",
                   }}
                 />
 
+                {/* Mystic halo ring — grande anel circular translúcido atrás da imagem */}
+                <motion.div
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    width: "85%",
+                    paddingBottom: "85%",
+                    top: "5%",
+                    left: "7%",
+                    border: "1px solid rgba(217,70,239,0.22)",
+                    boxShadow: "0 0 60px rgba(180,0,255,0.18), inset 0 0 60px rgba(180,0,255,0.08)",
+                    zIndex: 0,
+                  }}
+                  animate={{ scale: [1, 1.03, 1], opacity: [0.55, 0.9, 0.55] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <motion.div
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    width: "72%",
+                    paddingBottom: "72%",
+                    top: "11%",
+                    left: "14%",
+                    border: "1px solid rgba(168,85,247,0.14)",
+                    zIndex: 0,
+                  }}
+                  animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.65, 0.3] }}
+                  transition={{ duration: 8, delay: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                />
+
                 {/* Imagem — sem borda, sem rounded no container */}
-                <div className="relative">
+                <div className="relative" style={{ zIndex: 1 }}>
                   <img
                     src="/mystic-hand.jpg"
                     alt="Palm reading"
                     className="w-full h-auto object-cover"
                     loading="eager"
                     style={{
-                      filter: "contrast(1.1) saturate(1.2) brightness(0.92)",
+                      filter: "contrast(1.12) saturate(1.3) brightness(0.9)",
                       borderRadius: "20px 4px 4px 20px",
                     }}
                   />
@@ -734,6 +797,66 @@ const VSL = () => {
                       transition={{ duration: 1.8, delay: 1.4, ease: "easeOut" }}
                     />
                   </svg>
+
+                  {/* Floating decorative — coração top-left */}
+                  <motion.div
+                    className="absolute flex items-center justify-center rounded-full"
+                    style={{
+                      top: "8%",
+                      left: "6%",
+                      width: 36,
+                      height: 36,
+                      background: "rgba(217,70,239,0.18)",
+                      border: "1px solid rgba(217,70,239,0.45)",
+                      backdropFilter: "blur(8px)",
+                      boxShadow: "0 0 18px rgba(217,70,239,0.35)",
+                      zIndex: 10,
+                    }}
+                    animate={{ y: [0, -8, 0], opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Heart className="w-4 h-4 text-fuchsia-300 fill-fuchsia-400" style={{ filter: "drop-shadow(0 0 6px rgba(217,70,239,0.8))" }} />
+                  </motion.div>
+
+                  {/* Floating decorative — estrela top-right */}
+                  <motion.div
+                    className="absolute flex items-center justify-center rounded-full"
+                    style={{
+                      top: "10%",
+                      right: "10%",
+                      width: 32,
+                      height: 32,
+                      background: "rgba(168,85,247,0.18)",
+                      border: "1px solid rgba(168,85,247,0.45)",
+                      backdropFilter: "blur(8px)",
+                      boxShadow: "0 0 16px rgba(168,85,247,0.4)",
+                      zIndex: 10,
+                    }}
+                    animate={{ y: [0, -6, 0], rotate: [0, 15, 0], opacity: [0.6, 1, 0.6] }}
+                    transition={{ duration: 4.2, delay: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-violet-300" style={{ filter: "drop-shadow(0 0 5px rgba(168,85,247,0.8))" }} />
+                  </motion.div>
+
+                  {/* Floating decorative — estrela medium esquerda-baixo */}
+                  <motion.div
+                    className="absolute"
+                    style={{
+                      bottom: "28%",
+                      left: "4%",
+                      zIndex: 10,
+                    }}
+                    animate={{ y: [0, -10, 0], opacity: [0.4, 0.9, 0.4] }}
+                    transition={{ duration: 5, delay: 0.8, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <Star className="w-4 h-4 text-fuchsia-400 fill-fuchsia-400" style={{ filter: "drop-shadow(0 0 8px rgba(217,70,239,0.9))" }} />
+                  </motion.div>
                 </div>
 
                 {/* Badge 60s — flutua fora da imagem */}
@@ -1408,7 +1531,8 @@ const VSL = () => {
 
       {/* ── FINAL CTA ──────────────────────────────────────────────────────── */}
       <section className="py-24 md:py-32 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(100,0,180,0.22), transparent)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(120,0,210,0.32), transparent)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 50% 40% at 30% 50%, rgba(180,0,120,0.12), transparent)" }} />
 
         <div className="relative max-w-5xl mx-auto">
           <div className="grid md:grid-cols-[1.1fr_auto] gap-10 md:gap-14 items-center">
