@@ -14,7 +14,7 @@ import { HandImageUpload } from '@/components/shared/HandImageUpload';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { cn, compressImageForVision } from '@/lib/utils';
 import { supabase } from "@/integrations/supabase/client";
-import { getOrCreateEventId, track } from '@/lib/tracking';
+import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 
 const formSchema = z.object({
@@ -95,13 +95,28 @@ const Formulario = () => {
     }
 
     try {
+      const leadEventId = getOrCreateEventId("lead_form_submit");
       track("Lead", {
-        event_id: getOrCreateEventId("lead_form_submit"),
+        event_id: leadEventId,
         page_path: "/formulario",
         angle: getStoredAngle(),
         focus: getStoredFocus(),
         ...getAttributionParams(),
       });
+
+      // Server-side Lead event (bypasses ad blockers, improves match quality)
+      const { fbp, fbc, ttclid } = getAdIds();
+      supabase.functions.invoke('track-event', {
+        body: {
+          event_name: "Lead",
+          event_id: leadEventId,
+          page_url: window.location.href,
+          user: { email: data.email },
+          utm: getAttributionParams(),
+          meta: { fbp, fbc },
+          tiktok: { ttclid },
+        },
+      }).catch(() => {});
 
       // Send welcome email (non-blocking)
       supabase.functions.invoke('send-welcome-email', {

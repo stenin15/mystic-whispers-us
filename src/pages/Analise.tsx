@@ -7,6 +7,9 @@ import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { processAnalysis, generateVoiceMessage } from '@/lib/api';
 import { useMysticSounds } from '@/hooks/useMysticSounds';
 import AudioPromptModal from '@/components/shared/AudioPromptModal';
+import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
+import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
+import { supabase } from '@/integrations/supabase/client';
 
 const getAnalysisPhases = (name: string) => [
   { text: "Connecting with your energy...",      subtext: "Setting a calm baseline",              icon: Sparkles,    duration: 6500, sound: 'sparkle'    as const, voiceText: `Hi, ${name}… I'm Madam Aurora. I'm going to combine what you shared with patterns that often show up in decision seasons.` },
@@ -31,7 +34,7 @@ const PALM_LINES = [
 
 const Analise = () => {
   const navigate = useNavigate();
-  const { name, age, emotionalState, mainConcern, handPhotoData, quizAnswers, setAnalysisResult, setIsAnalyzing, setAudioUrl, canAccessAnalysis } = useHandReadingStore();
+  const { name, email, age, emotionalState, mainConcern, handPhotoData, quizAnswers, setAnalysisResult, setIsAnalyzing, setAudioUrl, canAccessAnalysis } = useHandReadingStore();
 
   const safeName = name?.trim() ? name.trim() : "there";
   const analysisPhases = getAnalysisPhases(safeName);
@@ -49,6 +52,34 @@ const Analise = () => {
   const hasPromptedForAudioRef = useRef(false);
 
   const { playTransitionChime, playWhoosh, playMysticTone, playSparkle, playHeartPulse, playCompletion, cleanup } = useMysticSounds();
+
+  // Track AnaliseView — fires once when user reaches this step
+  const hasTrackedAnaliseRef = useRef(false);
+  useEffect(() => {
+    if (hasTrackedAnaliseRef.current) return;
+    hasTrackedAnaliseRef.current = true;
+    const eventId = getOrCreateEventId("analise_view");
+    track("AnaliseView", {
+      event_id: eventId,
+      page_path: "/analise",
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+    const { fbp, fbc, ttclid } = getAdIds();
+    supabase.functions.invoke('track-event', {
+      body: {
+        event_name: "AnaliseView",
+        event_id: eventId,
+        page_url: window.location.href,
+        user: { email: email || undefined },
+        utm: getAttributionParams(),
+        meta: { fbp, fbc },
+        tiktok: { ttclid },
+      },
+    }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const playSoundForPhase = (i: number) => {
     const s = analysisPhases[i]?.sound;

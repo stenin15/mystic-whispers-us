@@ -24,8 +24,9 @@ import CountdownTimer from '@/components/delivery/CountdownTimer';
 import { toast } from 'sonner';
 import { PRICE_MAP } from '@/lib/pricing';
 import { createCheckoutSessionUrl } from '@/lib/checkout';
-import { getOrCreateEventId, track } from '@/lib/tracking';
+import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
+import { supabase } from '@/integrations/supabase/client';
 
 // Order bump: price users see for the Guide add-on at checkout
 const GUIDE_BUMP_PRICE = 17;
@@ -48,8 +49,9 @@ const Checkout = () => {
       setPendingPurchase(key);
       setSelectedPlan(key);
       const totalValue = PRICE_MAP[key].amountUsd + (addGuide ? GUIDE_BUMP_PRICE : 0);
+      const icEventId = getOrCreateEventId(`initiate_checkout:${key}`);
       track("InitiateCheckout", {
-        event_id: getOrCreateEventId(`initiate_checkout:${key}`),
+        event_id: icEventId,
         product_code: key,
         add_guide: addGuide,
         value: totalValue,
@@ -59,6 +61,22 @@ const Checkout = () => {
         focus: getStoredFocus(),
         ...getAttributionParams(),
       });
+
+      // Server-side InitiateCheckout
+      const { fbp, fbc, ttclid } = getAdIds();
+      supabase.functions.invoke('track-event', {
+        body: {
+          event_name: "InitiateCheckout",
+          event_id: icEventId,
+          value: totalValue,
+          currency: "USD",
+          page_url: window.location.href,
+          user: { email: email || undefined },
+          utm: getAttributionParams(),
+          meta: { fbp, fbc },
+          tiktok: { ttclid },
+        },
+      }).catch(() => {});
 
       // If guide was added, create a bundle checkout (complete + guide) or guide separately
       // For now: go through normal checkout -- guide upsell is also shown post-purchase
