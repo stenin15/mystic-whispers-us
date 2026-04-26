@@ -6,8 +6,20 @@ import {
   Volume2, VolumeX, ArrowRight, Lock, Heart, Clock,
   Eye, Zap, Key, Search, Shield, Star, ChevronLeft,
   ChevronRight, Plus, Minus, Upload, FileText, CheckCircle2,
-  Instagram, Facebook, Youtube, Sparkles,
+  Instagram, Youtube, Sparkles,
 } from "lucide-react";
+
+const TikTokIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.2 8.2 0 004.79 1.53V6.77a4.85 4.85 0 01-1.02-.08z" />
+  </svg>
+);
+
+const PinterestIcon = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" />
+  </svg>
+);
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { track, getOrCreateEventId } from "@/lib/tracking";
 import {
@@ -215,7 +227,7 @@ const CTAButton = ({
     className={`
       inline-flex items-center justify-center gap-2.5 font-black uppercase tracking-wide
       rounded-full cursor-pointer
-      bg-gradient-to-r from-fuchsia-600 via-pink-500 to-fuchsia-600 text-white
+      bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-gray-900
       ${size === "xl" ? "px-16 py-7 text-xl md:text-2xl"
         : size === "lg" ? "px-12 py-5 text-lg md:text-xl"
         : "px-8 py-4 text-sm md:text-base"}
@@ -223,15 +235,15 @@ const CTAButton = ({
     `}
     animate={{
       boxShadow: [
-        "0 0 45px rgba(217,70,239,0.75), 0 0 0px rgba(217,70,239,0), 0 8px 32px rgba(0,0,0,0.8)",
-        "0 0 90px rgba(217,70,239,1.0), 0 0 160px rgba(217,70,239,0.5), 0 8px 32px rgba(0,0,0,0.8)",
-        "0 0 45px rgba(217,70,239,0.75), 0 0 0px rgba(217,70,239,0), 0 8px 32px rgba(0,0,0,0.8)",
+        "0 0 40px rgba(251,191,36,0.7), 0 0 0px rgba(251,191,36,0), 0 8px 32px rgba(0,0,0,0.8)",
+        "0 0 80px rgba(251,191,36,1.0), 0 0 140px rgba(251,191,36,0.45), 0 8px 32px rgba(0,0,0,0.8)",
+        "0 0 40px rgba(251,191,36,0.7), 0 0 0px rgba(251,191,36,0), 0 8px 32px rgba(0,0,0,0.8)",
       ],
     }}
     transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
     whileHover={{
       scale: 1.06,
-      boxShadow: "0 0 100px rgba(217,70,239,1.0), 0 0 180px rgba(217,70,239,0.6), 0 0 280px rgba(217,70,239,0.25), 0 10px 40px rgba(0,0,0,0.8)",
+      boxShadow: "0 0 90px rgba(251,191,36,1.0), 0 0 160px rgba(251,191,36,0.55), 0 0 240px rgba(251,191,36,0.2), 0 10px 40px rgba(0,0,0,0.8)",
     }}
     whileTap={{ scale: 0.96 }}
   >
@@ -573,24 +585,6 @@ const VSL = () => {
               transition={{ duration: 0.65 }}
               className="order-2 md:order-1"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-                className="flex items-center gap-2.5 mb-6"
-              >
-                <div className="flex -space-x-2">
-                  {[avatarCarla, avatarFernanda, avatarMariana].map((src, i) => (
-                    <img key={i} src={src} alt=""
-                      className="w-7 h-7 rounded-full object-cover"
-                      style={{ border: "2px solid #020003", zIndex: 3 - i }}
-                    />
-                  ))}
-                </div>
-                <Stars count={5} />
-                <span className="text-xs text-white/45 font-medium">27,241+ readings</span>
-              </motion.div>
-
               <h1 className="text-[2.85rem] sm:text-[3.4rem] md:text-[3.6rem] lg:text-[4.4rem] font-black uppercase leading-[0.9] mb-6 tracking-tight">
                 THERE'S A REASON
                 <br />
@@ -638,13 +632,24 @@ const VSL = () => {
                     REVEAL MY TIMING <ArrowRight className="w-5 h-5" />
                   </CTAButton>
                 </div>
-                {/* Social proof inline */}
-                <div className="flex items-center gap-2 pl-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" style={{ boxShadow: "0 0 6px rgba(52,211,153,0.8)" }} />
-                    <span className="text-xs text-white/45">27,000+ readings done this month</span>
+                {/* Social proof — avatars + stars + count */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="flex items-center gap-3 pl-1"
+                >
+                  <div className="flex -space-x-2">
+                    {[avatarCarla, avatarFernanda, avatarMariana].map((src, i) => (
+                      <img key={i} src={src} alt=""
+                        className="w-7 h-7 rounded-full object-cover"
+                        style={{ border: "2px solid rgba(2,0,3,0.9)", zIndex: 3 - i }}
+                      />
+                    ))}
                   </div>
-                </div>
+                  <Stars count={5} />
+                  <span className="text-xs text-white/45 font-medium">27,241+ readings completed</span>
+                </motion.div>
               </div>
 
               <div className="mb-4">
@@ -814,122 +819,6 @@ const VSL = () => {
             <span className="text-fuchsia-300 font-bold">connects the dots</span>{" "}
             you've been missing all along.
           </p>
-        </div>
-      </section>
-
-      {/* ── PATTERN BREAK ──────────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/20 to-transparent" />
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 60%, rgba(88,0,140,0.18), transparent)" }} />
-
-        <div className="relative max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <SectionBadge>The Real Reason</SectionBadge>
-            <h2 className="text-4xl sm:text-5xl md:text-[3.6rem] font-black uppercase leading-[0.88] mb-5 tracking-tight">
-              THIS IS WHAT
-              <br />
-              <span
-                className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-300 to-fuchsia-400"
-                style={{ filter: "drop-shadow(0 0 22px rgba(217,70,239,0.55))" }}
-              >
-                MOST PEOPLE MISS.
-              </span>
-            </h2>
-            <p className="text-white/48 text-base md:text-lg max-w-lg mx-auto mb-14 leading-relaxed">
-              There's a line on your palm most people walk past every day.
-              When it curves a specific way — it explains the pattern in your love life that keeps coming back.
-            </p>
-          </motion.div>
-
-          {/* Palm line visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.15 }}
-            className="relative inline-block mx-auto mb-12"
-          >
-            <div className="relative w-[300px] md:w-[380px] mx-auto">
-              <div className="absolute inset-0 rounded-full blur-[70px]" style={{ background: "rgba(140,0,220,0.25)" }} />
-              <svg viewBox="0 0 300 220" className="relative w-full">
-                <defs>
-                  <linearGradient id="palmLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#a855f7" />
-                    <stop offset="50%" stopColor="#e879f9" />
-                    <stop offset="100%" stopColor="#f472b6" />
-                  </linearGradient>
-                  <filter id="lineGlow">
-                    <feGaussianBlur stdDeviation="4" result="b" />
-                    <feComposite in="SourceGraphic" in2="b" operator="over" />
-                  </filter>
-                </defs>
-                {/* Finger silhouettes */}
-                {[
-                  "M70 200 Q78 150 82 80 Q84 55 86 30",
-                  "M110 200 Q115 148 118 80 Q120 55 121 30",
-                  "M148 200 Q151 148 153 80 Q154 55 155 30",
-                  "M183 198 Q184 148 185 82 Q185 58 185 34",
-                  "M212 192 Q211 150 210 100 Q210 78 210 58",
-                ].map((d, i) => (
-                  <path key={i} d={d} stroke="rgba(255,255,255,0.07)" strokeWidth={i === 4 ? 14 : 18} fill="none" strokeLinecap="round" />
-                ))}
-                {/* Palm base */}
-                <path d="M60 205 Q120 215 160 215 Q200 215 235 205 Q242 185 238 165" stroke="rgba(255,255,255,0.06)" strokeWidth="22" fill="none" strokeLinecap="round" />
-
-                {/* Glow halo */}
-                <motion.path
-                  d="M40 130 Q80 118 125 120 Q168 122 200 116 Q222 112 248 105"
-                  stroke="rgba(217,70,239,0.25)" strokeWidth="14" fill="none" strokeLinecap="round"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  whileInView={{ pathLength: 1, opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 2.2, delay: 0.4, ease: "easeOut" }}
-                />
-                {/* Main glowing line */}
-                <motion.path
-                  d="M40 130 Q80 118 125 120 Q168 122 200 116 Q222 112 248 105"
-                  stroke="url(#palmLineGrad)" strokeWidth="3.5" fill="none" strokeLinecap="round"
-                  filter="url(#lineGlow)"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  whileInView={{ pathLength: 1, opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 2.2, delay: 0.4, ease: "easeOut" }}
-                />
-              </svg>
-
-              {/* Label */}
-              <motion.div
-                initial={{ opacity: 0, x: 10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 2.2 }}
-                className="absolute right-[-20px] md:right-[-40px] top-[44%] flex items-center gap-2"
-              >
-                <div className="h-px w-8 md:w-12" style={{ background: "rgba(217,70,239,0.55)" }} />
-                <div
-                  className="px-3 py-1.5 rounded-full text-xs font-bold text-fuchsia-200 whitespace-nowrap"
-                  style={{ background: "rgba(217,70,239,0.12)", border: "1px solid rgba(217,70,239,0.3)" }}
-                >
-                  Marriage Line
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="text-xs text-white/30 max-w-sm mx-auto"
-          >
-            Most palm readers don't even look for it.{" "}
-            <span className="text-fuchsia-300 font-semibold">Aurora does — in 60 seconds.</span>
-          </motion.p>
         </div>
       </section>
 
@@ -1279,57 +1168,133 @@ const VSL = () => {
       {/* ── PREMIUM BLOCK ──────────────────────────────────────────────────── */}
       <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-800/22 to-transparent" />
-        {/* Único orb sutil nesta seção — no topo */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-900/10 rounded-full blur-[100px]" />
 
         <div className="relative max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 22 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10"
-          >
-            <SectionBadge>Always With You</SectionBadge>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase leading-tight">
-              YOUR READING DOESN'T END
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">ON THE PAGE.</span>
-            </h2>
-          </motion.div>
+          <div className="grid md:grid-cols-[1fr_1.25fr] gap-10 md:gap-16 items-center">
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-14">
-            {PREMIUM_FEATURES.map((feat, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-              >
-                <GBCard border={feat.border} glow={feat.glow} className="h-full">
-                  <div className="p-5">
+            {/* Left — visual orb */}
+            <motion.div
+              initial={{ opacity: 0, x: -28 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="flex items-center justify-center order-2 md:order-1"
+            >
+              <div className="relative flex items-center justify-center" style={{ width: 280, height: 280 }}>
+                {/* Outer pulse ring */}
+                <motion.div
+                  className="absolute rounded-full"
+                  style={{ inset: 0, border: "1px solid rgba(217,70,239,0.12)" }}
+                  animate={{ scale: [1, 1.08, 1], opacity: [0.4, 0.8, 0.4] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <motion.div
+                  className="absolute rounded-full"
+                  style={{ inset: 28, border: "1px solid rgba(168,85,247,0.18)" }}
+                  animate={{ scale: [1, 1.06, 1], opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 4, delay: 0.8, repeat: Infinity, ease: "easeInOut" }}
+                />
+                {/* Glow base */}
+                <div className="absolute rounded-full" style={{
+                  inset: 56,
+                  background: "radial-gradient(ellipse, rgba(180,0,255,0.22) 0%, rgba(100,0,180,0.14) 50%, transparent 80%)",
+                  filter: "blur(20px)",
+                }} />
+                {/* Central orb */}
+                <motion.div
+                  className="absolute rounded-full flex items-center justify-center"
+                  style={{
+                    inset: 64,
+                    background: "linear-gradient(135deg, rgba(192,38,211,0.75) 0%, rgba(88,28,135,0.9) 60%, rgba(46,16,101,0.95) 100%)",
+                    boxShadow: "0 0 60px rgba(217,70,239,0.5), 0 0 120px rgba(168,85,247,0.25), inset 0 1px 0 rgba(255,255,255,0.18)",
+                  }}
+                  animate={{ boxShadow: [
+                    "0 0 40px rgba(217,70,239,0.4), 0 0 80px rgba(168,85,247,0.15), inset 0 1px 0 rgba(255,255,255,0.18)",
+                    "0 0 70px rgba(217,70,239,0.7), 0 0 140px rgba(168,85,247,0.35), inset 0 1px 0 rgba(255,255,255,0.22)",
+                    "0 0 40px rgba(217,70,239,0.4), 0 0 80px rgba(168,85,247,0.15), inset 0 1px 0 rgba(255,255,255,0.18)",
+                  ]}}
+                  transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <Sparkles className="w-10 h-10 text-fuchsia-100" style={{ filter: "drop-shadow(0 0 12px rgba(255,255,255,0.6))" }} />
+                </motion.div>
+                {/* Floating feature icons around orb */}
+                {PREMIUM_FEATURES.map((feat, i) => {
+                  const angles = [315, 45, 225, 135];
+                  const rad = (angles[i] * Math.PI) / 180;
+                  const r = 118;
+                  const x = Math.cos(rad) * r + 140 - 20;
+                  const y = Math.sin(rad) * r + 140 - 20;
+                  return (
+                    <motion.div
+                      key={i}
+                      className="absolute flex items-center justify-center rounded-xl"
+                      style={{
+                        left: x, top: y, width: 40, height: 40,
+                        background: "linear-gradient(135deg, rgba(192,38,211,0.35), rgba(88,28,135,0.5))",
+                        border: "1px solid rgba(217,70,239,0.28)",
+                        boxShadow: "0 0 16px rgba(217,70,239,0.2)",
+                        backdropFilter: "blur(8px)",
+                      }}
+                      animate={{ y: [0, -5, 0], opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 3 + i * 0.7, delay: i * 0.5, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <feat.icon className="w-4.5 h-4.5 text-fuchsia-200" style={{ width: 18, height: 18 }} />
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+
+            {/* Right — feature list */}
+            <motion.div
+              initial={{ opacity: 0, x: 28 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="order-1 md:order-2"
+            >
+              <SectionBadge>Always With You</SectionBadge>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase leading-tight mb-8">
+                YOUR READING DOESN'T END
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">ON THE PAGE.</span>
+              </h2>
+
+              <ul className="space-y-5 mb-10">
+                {PREMIUM_FEATURES.map((feat, i) => (
+                  <motion.li
+                    key={i}
+                    initial={{ opacity: 0, x: 16 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-start gap-4"
+                  >
                     <div
-                      className="w-10 h-10 rounded-xl bg-fuchsia-600/15 flex items-center justify-center mb-3"
-                      style={{ border: "1px solid rgba(217,70,239,0.2)", boxShadow: "0 0 12px rgba(217,70,239,0.15)" }}
+                      className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(192,38,211,0.3), rgba(88,28,135,0.4))",
+                        border: "1px solid rgba(217,70,239,0.22)",
+                        boxShadow: "0 0 14px rgba(217,70,239,0.15)",
+                      }}
                     >
                       <feat.icon className="w-5 h-5 text-fuchsia-300" />
                     </div>
-                    <h3 className="text-xs font-black uppercase tracking-wide text-white mb-2">{feat.title}</h3>
-                    <p className="text-xs text-white/42 leading-relaxed">{feat.desc}</p>
-                  </div>
-                </GBCard>
-              </motion.div>
-            ))}
-          </div>
+                    <div>
+                      <p className="text-sm font-black uppercase tracking-wide text-white mb-0.5">{feat.title}</p>
+                      <p className="text-xs text-white/45 leading-relaxed">{feat.desc}</p>
+                    </div>
+                  </motion.li>
+                ))}
+              </ul>
 
-          <div className="text-center">
-            <div className="relative inline-block">
-              <div className="absolute -inset-5 rounded-full bg-black/45 blur-xl -z-10" />
-              <CTAButton onClick={handleCTA} size="lg" className="w-full sm:w-auto">
-                START MY PRIVATE SESSION <ArrowRight className="w-5 h-5" />
-              </CTAButton>
-            </div>
-            <p className="text-xs text-white/24 mt-3">Private · Secure · No credit card to start</p>
+              <div className="relative inline-block">
+                <div className="absolute -inset-5 rounded-full bg-black/45 blur-xl -z-10" />
+                <CTAButton onClick={handleCTA} size="lg" className="w-full sm:w-auto">
+                  START MY PRIVATE SESSION <ArrowRight className="w-5 h-5" />
+                </CTAButton>
+              </div>
+              <p className="text-xs text-white/24 mt-3">Private · Secure · No credit card to start</p>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -1442,47 +1407,56 @@ const VSL = () => {
       </section>
 
       {/* ── FINAL CTA ──────────────────────────────────────────────────────── */}
-      <section className="py-24 md:py-36 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
+      <section className="py-24 md:py-32 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(100,0,180,0.22), transparent)" }} />
 
-        <div className="relative max-w-4xl mx-auto flex flex-col items-center text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="w-full"
-          >
-            <p className="text-xs font-bold uppercase tracking-widest text-fuchsia-300 mb-6">
-              Don't Wait Any Longer
-            </p>
+        <div className="relative max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-[1.1fr_auto] gap-10 md:gap-14 items-center">
 
-            <h2 className="text-[3.2rem] sm:text-[4rem] md:text-[5.5rem] lg:text-[6.5rem] font-black uppercase leading-[0.86] mb-6 tracking-tight">
-              YOU ALREADY
-              <br />
-              FELT IT.
-              <br />
-              <span
-                className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-300 to-fuchsia-400"
-                style={{ filter: "drop-shadow(0 0 32px rgba(217,70,239,0.65))" }}
-              >
-                THIS EXPLAINS WHY.
-              </span>
-            </h2>
+            {/* Left — headline */}
+            <motion.div
+              initial={{ opacity: 0, x: -24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <p className="text-xs font-bold uppercase tracking-widest text-fuchsia-300 mb-5">
+                Don't Wait Any Longer
+              </p>
+              <h2 className="text-[2.8rem] sm:text-[3.6rem] md:text-[4.5rem] lg:text-[5.5rem] font-black uppercase leading-[0.88] mb-5 tracking-tight">
+                YOU ALREADY
+                <br />
+                FELT IT.
+                <br />
+                <span
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-300 to-fuchsia-400"
+                  style={{ filter: "drop-shadow(0 0 32px rgba(217,70,239,0.65))" }}
+                >
+                  THIS EXPLAINS WHY.
+                </span>
+              </h2>
+              <p className="text-sm text-white/32">
+                Private · Secure · Takes less than 60 seconds
+              </p>
+            </motion.div>
 
-            <p className="text-sm md:text-base text-white/32 mb-12">
-              Private · Secure · Takes less than 60 seconds
-            </p>
-
-            <div className="flex flex-col items-center gap-5">
+            {/* Right — CTA */}
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="flex flex-col items-center md:items-start gap-5"
+            >
               <div className="relative">
                 <div className="absolute -inset-8 rounded-full bg-black/60 blur-3xl -z-10" />
-                <CTAButton onClick={handleCTA} size="xl" className="w-full sm:w-auto">
+                <CTAButton onClick={handleCTA} size="xl" className="w-full sm:w-auto whitespace-nowrap">
                   REVEAL MY TIMING NOW <ArrowRight className="w-6 h-6" />
                 </CTAButton>
               </div>
               <CountdownBadge h={h} m={m} s={s} pad={pad} />
-            </div>
-          </motion.div>
+              <p className="text-[11px] text-white/20 text-center md:text-left">No credit card required to start</p>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
@@ -1514,8 +1488,8 @@ const VSL = () => {
             ))}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-            <div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
+            <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-700 flex items-center justify-center"
                   style={{ boxShadow: "0 0 8px rgba(217,70,239,0.32)" }}>
@@ -1527,12 +1501,22 @@ const VSL = () => {
                 AI-powered palm readings that reveal your love patterns, timing, and what comes next.
               </p>
               <div className="flex gap-3">
-                {[Instagram, Facebook, Youtube].map((Icon, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-                    style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <Icon className="w-3.5 h-3.5 text-white/26" />
-                  </div>
-                ))}
+                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <Instagram className="w-3.5 h-3.5 text-white/26" />
+                </div>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <span className="text-white/26"><TikTokIcon /></span>
+                </div>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <Youtube className="w-3.5 h-3.5 text-white/26" />
+                </div>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <span className="text-white/26"><PinterestIcon /></span>
+                </div>
               </div>
             </div>
 
@@ -1549,6 +1533,20 @@ const VSL = () => {
               <h4 className="text-[10px] font-black uppercase tracking-widest text-white/38 mb-3">Legal</h4>
               <ul className="space-y-2">
                 {[{ label: "Privacy Policy", href: "/privacy" }, { label: "Terms of Use", href: "/terms" }, { label: "Refund Policy", href: "/refund" }].map((link) => (
+                  <li key={link.label}><a href={link.href} className="text-xs text-white/24 hover:text-white/52 transition-colors">{link.label}</a></li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/38 mb-3">Support</h4>
+              <ul className="space-y-2">
+                {[
+                  { label: "Help Center", href: "/contact" },
+                  { label: "Track Your Order", href: "/contact" },
+                  { label: "Shipping & Delivery", href: "/contact" },
+                  { label: "Returns & Refunds", href: "/refund" },
+                ].map((link) => (
                   <li key={link.label}><a href={link.href} className="text-xs text-white/24 hover:text-white/52 transition-colors">{link.label}</a></li>
                 ))}
               </ul>
