@@ -266,6 +266,48 @@ const CountdownBadge = ({ h, m, s, pad }: { h: number; m: number; s: number; pad
   </div>
 );
 
+// ── Astrological Circle — orbiting ring behind woman ─────────────────────────
+
+const AstrologicalCircle = () => (
+  <div className="absolute pointer-events-none select-none" style={{ width: 680, height: 680, top: "50%", right: "-8%", transform: "translateY(-50%)", zIndex: 0 }}>
+    <motion.svg viewBox="0 0 680 680" width="100%" height="100%"
+      animate={{ rotate: [0, 360] }}
+      transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
+    >
+      {/* Outer ring */}
+      <circle cx="340" cy="340" r="336" fill="none" stroke="rgba(217,70,239,0.22)" strokeWidth="1" />
+      {/* Tick marks every 10° */}
+      {Array.from({ length: 36 }).map((_, i) => {
+        const a = ((i * 10 - 90) * Math.PI) / 180;
+        const isMajor = i % 3 === 0;
+        const r1 = 336, r2 = isMajor ? 318 : 326;
+        return <line key={i} x1={340 + r1 * Math.cos(a)} y1={340 + r1 * Math.sin(a)} x2={340 + r2 * Math.cos(a)} y2={340 + r2 * Math.sin(a)} stroke={`rgba(217,70,239,${isMajor ? 0.45 : 0.22})`} strokeWidth={isMajor ? 1.5 : 0.8} />;
+      })}
+      {/* Middle rings */}
+      <circle cx="340" cy="340" r="290" fill="none" stroke="rgba(168,85,247,0.16)" strokeWidth="1" strokeDasharray="5 10" />
+      <circle cx="340" cy="340" r="230" fill="none" stroke="rgba(217,70,239,0.14)" strokeWidth="0.8" />
+      <circle cx="340" cy="340" r="170" fill="none" stroke="rgba(168,85,247,0.1)" strokeWidth="0.8" strokeDasharray="3 8" />
+      {/* Cross lines */}
+      <line x1="4" y1="340" x2="676" y2="340" stroke="rgba(217,70,239,0.07)" strokeWidth="0.8" />
+      <line x1="340" y1="4" x2="340" y2="676" stroke="rgba(217,70,239,0.07)" strokeWidth="0.8" />
+      {/* Diagonal lines */}
+      <line x1="100" y1="100" x2="580" y2="580" stroke="rgba(168,85,247,0.05)" strokeWidth="0.6" />
+      <line x1="580" y1="100" x2="100" y2="580" stroke="rgba(168,85,247,0.05)" strokeWidth="0.6" />
+      {/* Cardinal dots */}
+      {[0, 90, 180, 270].map((deg, i) => {
+        const a = ((deg - 90) * Math.PI) / 180;
+        return <circle key={i} cx={340 + 336 * Math.cos(a)} cy={340 + 336 * Math.sin(a)} r="4" fill="rgba(217,70,239,0.7)" style={{ filter: "drop-shadow(0 0 4px rgba(217,70,239,0.9))" }} />;
+      })}
+      {/* Orbital symbols */}
+      <text x="210" y="148" fill="rgba(217,70,239,0.4)" fontSize="18" textAnchor="middle">♥</text>
+      <text x="490" y="195" fill="rgba(168,85,247,0.32)" fontSize="13" textAnchor="middle">✦</text>
+      <text x="162" y="445" fill="rgba(244,114,182,0.3)" fontSize="15" textAnchor="middle">☽</text>
+      <text x="508" y="480" fill="rgba(217,70,239,0.28)" fontSize="12" textAnchor="middle">★</text>
+      <text x="340" y="42" fill="rgba(168,85,247,0.35)" fontSize="11" textAnchor="middle">✧</text>
+    </motion.svg>
+  </div>
+);
+
 // ── Starfield — fine white dots for cosmic depth ──────────────────────────────
 
 const STARS = Array.from({ length: 80 }, (_, i) => ({
@@ -465,6 +507,7 @@ const VSL = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [showStickyCTA, setShowStickyCTA] = useState(false);
+  const [mouseParallax, setMouseParallax] = useState({ x: 0, y: 0 });
 
   const { h, m, s, pad } = useVslCountdown();
   const videoSrc = import.meta.env.VITE_VSL_VIDEO_URL || "https://vsl-madame-aurora.b-cdn.net/0129.mp4";
@@ -499,6 +542,17 @@ const VSL = () => {
     const fn = () => setShowStickyCTA(window.scrollY > 500);
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  useEffect(() => {
+    const fn = (e: MouseEvent) => {
+      setMouseParallax({
+        x: (window.innerWidth / 2 - e.clientX) / 55,
+        y: (window.innerHeight / 2 - e.clientY) / 55,
+      });
+    };
+    window.addEventListener("mousemove", fn, { passive: true });
+    return () => window.removeEventListener("mousemove", fn);
   }, []);
 
   const activateSound = () => {
@@ -596,21 +650,19 @@ const VSL = () => {
       </header>
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
-      <section className="relative px-4 pt-16 pb-28 md:pt-24 md:pb-36">
-        {/* Bg layer — isolated overflow-hidden so image can bleed outside */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <section className="relative overflow-hidden pt-0 pb-0 md:min-h-[90vh] flex flex-col justify-center">
+        {/* Bg layer */}
+        <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0" style={{ background: "linear-gradient(145deg, #0e001a 0%, #020003 45%, #08000f 100%)" }} />
-          {/* Asymmetric orbs — stronger right, faint left */}
           <div className="absolute top-[-15%] right-[-12%] w-[900px] h-[900px] rounded-full blur-[200px]" style={{ background: "rgba(120,0,200,0.38)" }} />
           <div className="absolute bottom-[-20%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[160px]" style={{ background: "rgba(200,0,240,0.22)" }} />
           <div className="absolute top-[30%] left-[-5%] w-[400px] h-[400px] rounded-full blur-[150px]" style={{ background: "rgba(70,0,120,0.18)" }} />
           <div className="absolute top-[50%] right-[30%] w-[300px] h-[300px] rounded-full blur-[120px]" style={{ background: "rgba(180,0,255,0.12)" }} />
           <HeroStarfield />
-          <FloatingParticles />
         </div>
 
-        <div className="relative w-full max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-[1fr_1.35fr] gap-8 md:gap-6 items-center">
+        <div className="relative w-full max-w-[1400px] mx-auto px-6 md:px-10 py-16 md:py-20">
+          <div className="grid md:grid-cols-[1fr_1.55fr] gap-0 items-center">
 
             {/* Left: Copy */}
             <motion.div
@@ -695,110 +747,52 @@ const VSL = () => {
               </p>
             </motion.div>
 
-            {/* Right: Palm — invade o layout, sem borda, glow assimétrico */}
+            {/* Right: Woman — 16:9 full bleed, integrada ao fundo */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.88, x: 30 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.9, delay: 0.18 }}
-              className="order-1 md:order-2 relative flex justify-center md:justify-end md:translate-x-10 lg:translate-x-20"
+              className="order-1 md:order-2 relative"
             >
-              <div className="relative w-full max-w-[400px] sm:max-w-[500px] md:max-w-none md:w-[115%] lg:w-[125%]">
-                {/* Glow assimétrico — concentrado na borda direita e baixo */}
-                <div
-                  className="absolute pointer-events-none"
-                  style={{
-                    inset: "-60px -80px -60px -20px",
-                    background: "radial-gradient(ellipse 70% 60% at 65% 55%, rgba(150,0,255,0.65), transparent)",
-                    filter: "blur(40px)",
-                  }}
-                />
-                <div
-                  className="absolute pointer-events-none"
-                  style={{
-                    inset: "-20px -30px -20px 20px",
-                    background: "radial-gradient(ellipse 50% 50% at 70% 60%, rgba(217,70,239,0.38), transparent)",
-                    filter: "blur(20px)",
-                  }}
-                />
+              {/* Astrological circle — behind everything */}
+              <AstrologicalCircle />
 
-                {/* Mystic halo ring — anel brilhante atrás do retrato, alinhado ao halo da foto */}
-                <motion.div
-                  className="absolute rounded-full pointer-events-none"
-                  style={{
-                    width: "90%",
-                    paddingBottom: "90%",
-                    top: "-2%",
-                    left: "5%",
-                    border: "1.5px solid rgba(217,70,239,0.28)",
-                    boxShadow: "0 0 80px rgba(180,0,255,0.22), inset 0 0 80px rgba(180,0,255,0.1)",
-                    zIndex: 0,
-                  }}
-                  animate={{ scale: [1, 1.04, 1], opacity: [0.5, 0.88, 0.5] }}
-                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-                />
-                <motion.div
-                  className="absolute rounded-full pointer-events-none"
-                  style={{
-                    width: "76%",
-                    paddingBottom: "76%",
-                    top: "7%",
-                    left: "12%",
-                    border: "1px solid rgba(168,85,247,0.18)",
-                    zIndex: 0,
-                  }}
-                  animate={{ scale: [1, 1.06, 1], opacity: [0.28, 0.6, 0.28] }}
-                  transition={{ duration: 9, delay: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                />
-                {/* Anel fino externo extra — como na foto */}
-                <motion.div
-                  className="absolute rounded-full pointer-events-none"
-                  style={{
-                    width: "104%",
-                    paddingBottom: "104%",
-                    top: "-9%",
-                    left: "-2%",
-                    border: "1px solid rgba(217,70,239,0.1)",
-                    zIndex: 0,
-                  }}
-                  animate={{ scale: [1, 1.02, 1], opacity: [0.2, 0.45, 0.2] }}
-                  transition={{ duration: 11, delay: 3, repeat: Infinity, ease: "easeInOut" }}
-                />
+              {/* Glow base cósmico */}
+              <div className="absolute pointer-events-none" style={{ inset: "-80px -100px -60px -40px", background: "radial-gradient(ellipse 65% 55% at 60% 50%, rgba(140,0,240,0.55), transparent)", filter: "blur(50px)" }} />
+              <div className="absolute pointer-events-none" style={{ inset: "-20px -40px -20px 20px", background: "radial-gradient(ellipse 45% 45% at 65% 55%, rgba(217,70,239,0.3), transparent)", filter: "blur(22px)" }} />
 
-                {/* Imagem — sem borda, sem rounded no container */}
-                <div className="relative" style={{ zIndex: 1 }}>
+              {/* Float + Parallax wrapper */}
+              <motion.div
+                animate={{ y: [0, -10, 0], scale: [1, 1.018, 1] }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+                style={{
+                  x: mouseParallax.x,
+                  y: mouseParallax.y,
+                  zIndex: 1,
+                  position: "relative",
+                }}
+              >
+                {/* Imagem 16:9 — sem border-radius, sem caixa */}
+                <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
                   <img
                     src="/hero-woman.jpg"
                     alt="Mystic palm reading by Madam Aurora"
-                    className="w-full h-auto object-cover object-top"
+                    className="w-full h-full object-cover object-center"
                     loading="eager"
-                    style={{
-                      filter: "contrast(1.05) saturate(1.1) brightness(0.95)",
-                      borderRadius: "20px 4px 4px 20px",
-                    }}
+                    style={{ filter: "contrast(1.08) saturate(1.1) brightness(0.93)" }}
                   />
-                  {/* Fade bottom para fundir com bg */}
-                  <div
-                    className="absolute bottom-0 left-0 right-0 h-[30%]"
-                    style={{ background: "linear-gradient(to top, #030004 0%, transparent 100%)" }}
-                  />
-                  {/* Fade right — invade off-screen sem corte brusco */}
-                  <div
-                    className="absolute top-0 right-0 bottom-0 w-[25%] hidden md:block"
-                    style={{ background: "linear-gradient(to right, transparent 0%, rgba(8,0,16,0.8) 100%)" }}
-                  />
-                  {/* Fade topo — suave */}
-                  <div
-                    className="absolute top-0 left-0 right-0 h-[12%]"
-                    style={{ background: "linear-gradient(to bottom, rgba(8,0,16,0.35) 0%, transparent 100%)" }}
-                  />
+                  {/* Fades de fusão com o fundo */}
+                  <div className="absolute bottom-0 left-0 right-0 h-[25%]" style={{ background: "linear-gradient(to top, #030004 0%, transparent 100%)" }} />
+                  <div className="absolute top-0 right-0 bottom-0 w-[18%]" style={{ background: "linear-gradient(to right, transparent 0%, rgba(8,0,16,0.65) 100%)" }} />
+                  <div className="absolute top-0 left-0 right-0 h-[12%]" style={{ background: "linear-gradient(to bottom, rgba(8,0,16,0.35) 0%, transparent 100%)" }} />
+                  <div className="absolute top-0 left-0 bottom-0 w-[14%]" style={{ background: "linear-gradient(to left, transparent 0%, rgba(8,0,16,0.5) 100%)" }} />
 
-                  {/* Overlay glow nas linhas da mão — reforça as linhas da foto */}
-                  <div
+                  {/* Glow pulsante nas linhas da palma */}
+                  <motion.div
                     className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: "radial-gradient(ellipse 55% 45% at 62% 62%, rgba(230,60,240,0.12) 0%, transparent 70%)",
-                      borderRadius: "20px 4px 4px 20px",
-                    }}
+                    animate={{ opacity: [0.6, 1, 0.6] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    style={{ background: "radial-gradient(ellipse 45% 38% at 62% 58%, rgba(255,0,200,0.18) 0%, transparent 70%)" }}
                   />
 
                   {/* Floating decorative — coração top-left */}
@@ -879,8 +873,8 @@ const VSL = () => {
                     style={{ textShadow: "0 0 28px rgba(217,70,239,0.85)" }}>60</p>
                   <p className="text-[10px] font-black text-white/48 uppercase tracking-wider">Seconds</p>
                 </motion.div>
-              </div>
-            </motion.div>
+              </motion.div>{/* /float-parallax */}
+            </motion.div>{/* /right column */}
           </div>
         </div>
       </section>
@@ -890,7 +884,7 @@ const VSL = () => {
       <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/18 to-transparent" />
 
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-[1400px] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -952,7 +946,7 @@ const VSL = () => {
       <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-800/25 to-transparent" />
 
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-[1400px] mx-auto">
           <div className="grid md:grid-cols-2 gap-8 md:gap-14 items-center">
             <motion.div
               initial={{ opacity: 0, x: -24 }}
@@ -1046,7 +1040,7 @@ const VSL = () => {
       <section id="reviews" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/15 to-transparent" />
 
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-[1400px] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -1146,7 +1140,7 @@ const VSL = () => {
       <section id="discover" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-800/22 to-transparent" />
 
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-[1400px] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -1197,7 +1191,7 @@ const VSL = () => {
       <section id="how-it-works" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/15 to-transparent" />
 
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-[1400px] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -1296,7 +1290,7 @@ const VSL = () => {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-800/22 to-transparent" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-900/10 rounded-full blur-[100px]" />
 
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-[1400px] mx-auto">
           <div className="grid md:grid-cols-[1fr_1.25fr] gap-10 md:gap-16 items-center">
 
             {/* Left — visual orb */}
@@ -1429,7 +1423,7 @@ const VSL = () => {
       <section id="faq" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/12 to-transparent" />
 
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1400px] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -1537,7 +1531,7 @@ const VSL = () => {
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(120,0,210,0.32), transparent)" }} />
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 50% 40% at 30% 50%, rgba(180,0,120,0.12), transparent)" }} />
 
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-[1400px] mx-auto">
           <div className="grid md:grid-cols-[1.1fr_auto] gap-10 md:gap-14 items-center">
 
             {/* Left — headline */}
@@ -1589,7 +1583,7 @@ const VSL = () => {
 
       {/* ── TRUST FOOTER ───────────────────────────────────────────────────── */}
       <footer className="pt-12 pb-8 px-4" style={{ background: "#020003", borderTop: "1px solid rgba(168,85,247,0.08)" }}>
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 pb-10" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
             {[
               { icon: Lock, label: "SSL Secured", sub: "256-bit encryption" },
