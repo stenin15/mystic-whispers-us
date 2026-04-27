@@ -650,8 +650,8 @@ const VSL = () => {
       </header>
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden pt-0 pb-0 md:min-h-[90vh] flex flex-col justify-center">
-        {/* Bg layer */}
+      <section className="relative overflow-hidden w-full" style={{ minHeight: "calc(100vh - 72px)" }}>
+        {/* Background */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0" style={{ background: "linear-gradient(145deg, #0e001a 0%, #020003 45%, #08000f 100%)" }} />
           <div className="absolute top-[-15%] right-[-12%] w-[900px] h-[900px] rounded-full blur-[200px]" style={{ background: "rgba(120,0,200,0.38)" }} />
@@ -661,17 +661,32 @@ const VSL = () => {
           <HeroStarfield />
         </div>
 
-        <div className="relative w-full max-w-[1400px] mx-auto px-6 md:px-10 py-16 md:py-20">
-          <div className="grid md:grid-cols-[1fr_1.55fr] gap-0 items-center">
+        {/* Inner grid — specs exatas */}
+        <div
+          className="relative"
+          style={{
+            maxWidth: "1520px",
+            margin: "0 auto",
+            padding: "clamp(80px, 8vw, 96px) clamp(20px, 5vw, 72px) clamp(48px, 6vw, 72px)",
+            minHeight: "calc(100vh - 72px)",
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 0.9fr) minmax(0, 1.1fr)",
+            alignItems: "center",
+            gap: "clamp(24px, 4vw, 64px)",
+          }}
+        >
+          <div style={{ display: "contents" }}>
 
             {/* Left: Copy */}
             <motion.div
               initial={{ opacity: 0, y: 36 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65 }}
-              className="order-2 md:order-1"
+              style={{ maxWidth: "620px" }}
             >
-              <h1 className="text-[2.85rem] sm:text-[3.4rem] md:text-[3.6rem] lg:text-[4.4rem] font-black uppercase leading-[0.9] mb-6 tracking-tight">
+              <h1 className="font-black uppercase tracking-tight mb-6"
+                style={{ fontSize: "clamp(42px, 5vw, 92px)", lineHeight: "0.9", letterSpacing: "-0.03em" }}
+              >
                 THERE'S A REASON
                 <br />
                 THIS KEEPS HAPPENING
@@ -714,8 +729,8 @@ const VSL = () => {
               <div className="flex flex-col items-start gap-3 mb-5">
                 <div className="relative">
                   <div className="absolute -inset-6 rounded-full bg-black/55 blur-2xl -z-10" />
-                  <CTAButton onClick={handleCTA} size="lg" className="w-full sm:w-auto">
-                    REVEAL MY TIMING <ArrowRight className="w-5 h-5" />
+                  <CTAButton onClick={handleCTA} size="xl" className="w-full sm:w-auto">
+                    REVEAL MY TIMING <ArrowRight className="w-6 h-6" />
                   </CTAButton>
                 </div>
                 {/* Social proof — avatars + stars + count */}
@@ -747,12 +762,12 @@ const VSL = () => {
               </p>
             </motion.div>
 
-            {/* Right: Woman — 16:9 full bleed, integrada ao fundo */}
+            {/* Right: Woman — ocupa coluna inteira */}
             <motion.div
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.9, delay: 0.18 }}
-              className="order-1 md:order-2 relative"
+              style={{ position: "relative", width: "100%", maxWidth: "820px", justifySelf: "end" }}
             >
               {/* Astrological circle — behind everything */}
               <AstrologicalCircle />
@@ -772,14 +787,14 @@ const VSL = () => {
                   position: "relative",
                 }}
               >
-                {/* Imagem 16:9 — sem border-radius, sem caixa */}
-                <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+                {/* Imagem — width 100%, height auto, sem restrição */}
+                <div className="relative w-full">
                   <img
                     src="/hero-woman.jpg"
                     alt="Mystic palm reading by Madam Aurora"
-                    className="w-full h-full object-cover object-center"
+                    className="w-full"
                     loading="eager"
-                    style={{ filter: "contrast(1.08) saturate(1.1) brightness(0.93)" }}
+                    style={{ height: "auto", display: "block", filter: "contrast(1.08) saturate(1.1) brightness(0.93)" }}
                   />
                   {/* Fades de fusão com o fundo */}
                   <div className="absolute bottom-0 left-0 right-0 h-[25%]" style={{ background: "linear-gradient(to top, #030004 0%, transparent 100%)" }} />
