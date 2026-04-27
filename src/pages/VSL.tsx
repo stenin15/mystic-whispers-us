@@ -721,82 +721,85 @@ const VSL = () => {
                   }}
                 />
 
-                {/* Mystic halo ring — grande anel circular translúcido atrás da imagem */}
+                {/* Mystic halo ring — anel brilhante atrás do retrato, alinhado ao halo da foto */}
                 <motion.div
                   className="absolute rounded-full pointer-events-none"
                   style={{
-                    width: "85%",
-                    paddingBottom: "85%",
-                    top: "5%",
-                    left: "7%",
-                    border: "1px solid rgba(217,70,239,0.22)",
-                    boxShadow: "0 0 60px rgba(180,0,255,0.18), inset 0 0 60px rgba(180,0,255,0.08)",
+                    width: "90%",
+                    paddingBottom: "90%",
+                    top: "-2%",
+                    left: "5%",
+                    border: "1.5px solid rgba(217,70,239,0.28)",
+                    boxShadow: "0 0 80px rgba(180,0,255,0.22), inset 0 0 80px rgba(180,0,255,0.1)",
                     zIndex: 0,
                   }}
-                  animate={{ scale: [1, 1.03, 1], opacity: [0.55, 0.9, 0.55] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  animate={{ scale: [1, 1.04, 1], opacity: [0.5, 0.88, 0.5] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
                 />
                 <motion.div
                   className="absolute rounded-full pointer-events-none"
                   style={{
-                    width: "72%",
-                    paddingBottom: "72%",
-                    top: "11%",
-                    left: "14%",
-                    border: "1px solid rgba(168,85,247,0.14)",
+                    width: "76%",
+                    paddingBottom: "76%",
+                    top: "7%",
+                    left: "12%",
+                    border: "1px solid rgba(168,85,247,0.18)",
                     zIndex: 0,
                   }}
-                  animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.65, 0.3] }}
-                  transition={{ duration: 8, delay: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  animate={{ scale: [1, 1.06, 1], opacity: [0.28, 0.6, 0.28] }}
+                  transition={{ duration: 9, delay: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                />
+                {/* Anel fino externo extra — como na foto */}
+                <motion.div
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    width: "104%",
+                    paddingBottom: "104%",
+                    top: "-9%",
+                    left: "-2%",
+                    border: "1px solid rgba(217,70,239,0.1)",
+                    zIndex: 0,
+                  }}
+                  animate={{ scale: [1, 1.02, 1], opacity: [0.2, 0.45, 0.2] }}
+                  transition={{ duration: 11, delay: 3, repeat: Infinity, ease: "easeInOut" }}
                 />
 
                 {/* Imagem — sem borda, sem rounded no container */}
                 <div className="relative" style={{ zIndex: 1 }}>
                   <img
-                    src="/mystic-hand.jpg"
-                    alt="Palm reading"
-                    className="w-full h-auto object-cover"
+                    src="/hero-woman.jpg"
+                    alt="Mystic palm reading by Madam Aurora"
+                    className="w-full h-auto object-cover object-top"
                     loading="eager"
                     style={{
-                      filter: "contrast(1.12) saturate(1.3) brightness(0.9)",
+                      filter: "contrast(1.05) saturate(1.1) brightness(0.95)",
                       borderRadius: "20px 4px 4px 20px",
                     }}
                   />
                   {/* Fade bottom para fundir com bg */}
                   <div
-                    className="absolute bottom-0 left-0 right-0 h-[35%]"
-                    style={{ background: "linear-gradient(to top, #020003 0%, transparent 100%)" }}
+                    className="absolute bottom-0 left-0 right-0 h-[30%]"
+                    style={{ background: "linear-gradient(to top, #030004 0%, transparent 100%)" }}
                   />
                   {/* Fade right — invade off-screen sem corte brusco */}
                   <div
-                    className="absolute top-0 right-0 bottom-0 w-[30%] hidden md:block"
-                    style={{ background: "linear-gradient(to right, transparent 0%, rgba(7,0,15,0.85) 100%)" }}
+                    className="absolute top-0 right-0 bottom-0 w-[25%] hidden md:block"
+                    style={{ background: "linear-gradient(to right, transparent 0%, rgba(8,0,16,0.8) 100%)" }}
+                  />
+                  {/* Fade topo — suave */}
+                  <div
+                    className="absolute top-0 left-0 right-0 h-[12%]"
+                    style={{ background: "linear-gradient(to bottom, rgba(8,0,16,0.35) 0%, transparent 100%)" }}
                   />
 
-                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice">
-                    <defs>
-                      <filter id="gl1"><feGaussianBlur stdDeviation="6" result="b" /><feComposite in="SourceGraphic" in2="b" operator="over" /></filter>
-                      <filter id="gl2"><feGaussianBlur stdDeviation="3.5" result="b" /><feComposite in="SourceGraphic" in2="b" operator="over" /></filter>
-                    </defs>
-                    <motion.path d="M120 360 Q140 260 155 180 Q165 120 175 60"
-                      stroke="#e879f9" strokeWidth="4" fill="none" strokeLinecap="round" filter="url(#gl1)"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 1.0 }}
-                      transition={{ duration: 1.8, delay: 0.9, ease: "easeOut" }}
-                    />
-                    <motion.path d="M100 350 Q130 280 145 200 Q155 150 160 90"
-                      stroke="#a855f7" strokeWidth="2.5" fill="none" strokeLinecap="round" filter="url(#gl2)"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 0.8 }}
-                      transition={{ duration: 1.8, delay: 1.2, ease: "easeOut" }}
-                    />
-                    <motion.path d="M78 330 Q110 290 152 270 Q194 252 234 244"
-                      stroke="#f472b6" strokeWidth="2.5" fill="none" strokeLinecap="round" filter="url(#gl2)"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 0.82 }}
-                      transition={{ duration: 1.8, delay: 1.4, ease: "easeOut" }}
-                    />
-                  </svg>
+                  {/* Overlay glow nas linhas da mão — reforça as linhas da foto */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: "radial-gradient(ellipse 55% 45% at 62% 62%, rgba(230,60,240,0.12) 0%, transparent 70%)",
+                      borderRadius: "20px 4px 4px 20px",
+                    }}
+                  />
 
                   {/* Floating decorative — coração top-left */}
                   <motion.div
