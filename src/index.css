@@ -604,3 +604,20 @@
   from { transform: scale(1)    translateX(0%)    translateY(0%); }
   to   { transform: scale(1.08) translateX(-2.5%) translateY(-1.5%); }
 }
+
+/* ── Hero layout — mobile overrides ────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero-inner {
+    padding: 112px 20px 48px !important;
+    grid-template-columns: 1fr !important;
+    gap: 36px !important;
+  }
+  .hero-title {
+    font-size: clamp(42px, 12vw, 58px) !important;
+    line-height: 0.92 !important;
+  }
+  .hero-visual {
+    max-width: 100% !important;
+    justify-self: center !important;
+  }
+}

@@ -651,39 +651,47 @@ const VSL = () => {
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden w-full"
         style={{
-          minHeight: "100vh",
+          width: "100%",
+          minHeight: "calc(100vh - 72px)",
           display: "flex",
           alignItems: "center",
           background: "linear-gradient(145deg, #0e001a 0%, #020003 45%, #08000f 100%)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
         <HeroStarfield />
 
-        {/* Grid container */}
+        {/* hero-inner */}
         <div
-          className="relative w-full"
+          className="hero-inner"
           style={{
-            maxWidth: "1440px",
+            width: "100%",
+            maxWidth: "1520px",
             margin: "0 auto",
-            padding: "clamp(48px, 6vw, 80px) clamp(20px, 5vw, 80px)",
+            padding: "96px 72px 72px",
             display: "grid",
-            gridTemplateColumns: "1fr 1.2fr",
-            gap: "clamp(24px, 3vw, 40px)",
+            gridTemplateColumns: "minmax(520px, 0.9fr) minmax(640px, 1.1fr)",
             alignItems: "center",
+            gap: "72px",
+            position: "relative",
           }}
         >
-          {/* Left: Copy */}
+          {/* hero-copy */}
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65 }}
-            style={{ maxWidth: "520px" }}
+            style={{ maxWidth: "640px" }}
           >
             <h1
-              className="font-black uppercase tracking-tight mb-6"
-              style={{ fontSize: "clamp(36px, 4.2vw, 80px)", lineHeight: "0.92", letterSpacing: "-0.03em" }}
+              className="hero-title font-black uppercase mb-6"
+              style={{
+                fontSize: "clamp(64px, 5.5vw, 104px)",
+                lineHeight: "0.88",
+                letterSpacing: "-0.045em",
+              }}
             >
               THERE'S A REASON
               <br />
@@ -698,7 +706,7 @@ const VSL = () => {
               </span>
             </h1>
 
-            <p className="text-base text-white/55 mb-7 leading-relaxed" style={{ maxWidth: "420px" }}>
+            <p className="text-base text-white/55 mb-7 leading-relaxed" style={{ maxWidth: "440px" }}>
               You've felt it before — the pattern you can't explain.
               <br />
               This shows you{" "}
@@ -756,37 +764,50 @@ const VSL = () => {
             </p>
           </motion.div>
 
-          {/* Right: Hero image 16:9 */}
+          {/* hero-visual */}
           <motion.div
+            className="hero-visual"
             initial={{ opacity: 0, x: 32 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.9, delay: 0.15 }}
-            className="relative w-full"
+            style={{
+              width: "100%",
+              maxWidth: "860px",
+              justifySelf: "end",
+              position: "relative",
+            }}
           >
-            <div className="relative w-full">
+            <div style={{ position: "relative", width: "100%" }}>
               <img
                 src="/hero-16x9.jpg"
                 alt="Mystic palm reading by Madam Aurora"
-                className="w-full"
                 loading="eager"
-                style={{ height: "auto", display: "block" }}
+                style={{ width: "100%", height: "auto", display: "block", objectFit: "cover" }}
               />
-              {/* Fade esquerda — fusão suave com o texto */}
+              {/* Fade esquerda — fusão com o texto */}
               <div
-                className="absolute top-0 left-0 bottom-0 w-[30%] pointer-events-none"
-                style={{ background: "linear-gradient(to right, #050007 0%, transparent 100%)" }}
+                style={{
+                  position: "absolute", top: 0, left: 0, bottom: 0, width: "28%",
+                  background: "linear-gradient(to right, #050007 0%, transparent 100%)",
+                  pointerEvents: "none",
+                }}
               />
               {/* Fade bottom */}
               <div
-                className="absolute bottom-0 left-0 right-0 h-[20%] pointer-events-none"
-                style={{ background: "linear-gradient(to top, #030004 0%, transparent 100%)" }}
+                style={{
+                  position: "absolute", bottom: 0, left: 0, right: 0, height: "18%",
+                  background: "linear-gradient(to top, #030004 0%, transparent 100%)",
+                  pointerEvents: "none",
+                }}
               />
               {/* Glow pulsante na palma */}
               <motion.div
-                className="absolute inset-0 pointer-events-none"
                 animate={{ opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                style={{ background: "radial-gradient(ellipse 30% 25% at 72% 58%, rgba(255,80,220,0.22) 0%, transparent 70%)" }}
+                style={{
+                  position: "absolute", inset: 0, pointerEvents: "none",
+                  background: "radial-gradient(ellipse 30% 25% at 72% 58%, rgba(255,80,220,0.22) 0%, transparent 70%)",
+                }}
               />
             </div>
           </motion.div>
