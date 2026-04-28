@@ -494,6 +494,35 @@ const FloatingParticles = () => (
   </div>
 );
 
+// ── FullSection — imagem 16:9 full-width, Ken Burns, fade-in ─────────────────
+// Proporção nativa preservada em todos os viewports: width:100% + height:auto.
+// overflow:hidden no wrapper corta o scale do Ken Burns sem distorcer a imagem.
+
+const FullSection = ({ src, dur = 20 }: { src: string; dur?: number }) => (
+  <motion.section
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
+    viewport={{ once: true, margin: "-80px" }}
+    transition={{ duration: 0.9 }}
+    style={{ position: "relative", width: "100%", overflow: "hidden", lineHeight: 0 }}
+  >
+    <motion.img
+      src={src}
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      animate={{ scale: [1, 1.06, 1] }}
+      transition={{ duration: dur, repeat: Infinity, ease: "easeInOut" }}
+      style={{ width: "100%", height: "auto", display: "block" }}
+    />
+    {/* Fusão suave com seções adjacentes */}
+    <div style={{
+      position: "absolute", inset: 0, pointerEvents: "none",
+      background: "linear-gradient(to bottom, rgba(3,0,6,0.45) 0%, transparent 12%, transparent 88%, rgba(3,0,6,0.45) 100%)",
+    }} />
+  </motion.section>
+);
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 
 const VSL = () => {
@@ -798,94 +827,10 @@ const VSL = () => {
       </section>
 
       {/* ── PAIN SECTION ───────────────────────────────────────────────────── */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.9 }}
-        style={{
-          position: "relative",
-          width: "100%",
-          minHeight: "100vh",
-          overflow: "hidden",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/* Imagem full-bleed com Ken Burns */}
-        <motion.img
-          src="/pain-16x9.jpg"
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          animate={{ scale: [1, 1.06, 1] }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center center",
-            zIndex: 0,
-          }}
-        />
-        {/* Overlay sutil top/bottom */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 1,
-            background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.55) 100%)",
-            pointerEvents: "none",
-          }}
-        />
-      </motion.section>
+      <FullSection src="/pain-16x9.jpg" dur={20} />
 
       {/* ── SECTION 3 ──────────────────────────────────────────────────────── */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.9 }}
-        style={{
-          position: "relative",
-          width: "100%",
-          minHeight: "100vh",
-          overflow: "hidden",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <motion.img
-          src="/section3-16x9.jpg"
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          animate={{ scale: [1, 1.06, 1] }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center center",
-            zIndex: 0,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 1,
-            background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.55) 100%)",
-            pointerEvents: "none",
-          }}
-        />
-      </motion.section>
+      <FullSection src="/section3-16x9.jpg" dur={22} />
 
       {/* ── REVIEWS ────────────────────────────────────────────────────────── */}
       <section id="reviews" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
