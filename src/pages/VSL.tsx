@@ -848,8 +848,8 @@ const VSL = () => {
       {/* ── SECTION 8 — FAQ + Final CTA ────────────────────────────────────── */}
       <FullSection src="/section8-16x9.jpg" dur={26} />
 
-      {/* ── TRUST FOOTER ───────────────────────────────────────────────────── */}
-      <footer className="pt-12 pb-8 px-4" style={{ background: "#020003", borderTop: "1px solid rgba(168,85,247,0.08)" }}>
+      {/* footer removed — content baked into section8 image */}
+      <footer style={{ display: "none" }}>
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 pb-10" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
             {[
