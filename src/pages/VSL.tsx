@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowRight, Lock, Clock, Star, CheckCircle2,
+  ArrowRight, Lock, Clock, Star, CheckCircle2, Play,
 } from "lucide-react";
 
 import { useHandReadingStore } from "@/store/useHandReadingStore";
@@ -267,6 +267,10 @@ const LuminescentOverlay = () => (
 );
 
 
+// ── VSL Video URL ─────────────────────────────────────────────────────────────
+
+const VSL_VIDEO_URL = import.meta.env.VITE_VSL_VIDEO_URL || "https://vsl-madame-aurora.b-cdn.net/0129.mp4";
+
 // ── FullSection — imagem 16:9 full-width, Ken Burns, fade-in ─────────────────
 // Proporção nativa preservada em todos os viewports: width:100% + height:auto.
 // overflow:hidden no wrapper corta o scale do Ken Burns sem distorcer a imagem.
@@ -304,6 +308,7 @@ const VSL = () => {
   const setHasSeenVsl = useHandReadingStore((s) => s.setHasSeenVsl);
 
   const [showStickyCTA, setShowStickyCTA] = useState(false);
+  const [vslPlayed, setVslPlayed] = useState(false);
 
   const { h, m, s, pad } = useVslCountdown();
 
@@ -332,15 +337,37 @@ const VSL = () => {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const handleCTA = () => {
+  const handleCTA = (location = "hero") => {
+    // CTAClick — granular por posição (hero | vsl_block | sticky)
+    track("CTAClick", {
+      event_id: `cta_${location}_${Date.now()}`,
+      cta_location: location,
+      page_path: "/",
+      angle, focus,
+      ...getAttributionParams(),
+    });
+    // StartFlow — evento de conversão principal, deduplicado por sessão
     track("StartFlow", {
       event_id: getOrCreateEventId("start_flow"),
+      cta_location: location,
       page_path: "/",
       angle, focus,
       ...getAttributionParams(),
     });
     setHasSeenVsl(true);
     navigate(appendUtmToPath("/formulario", { angle, focus }));
+  };
+
+  const handleVideoPlay = () => {
+    track("VideoPlay", {
+      event_id: getOrCreateEventId("vsl_play"),
+      content_name: "VSL",
+      page_path: "/",
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+    setVslPlayed(true);
   };
 
   const faqSchema = {
@@ -527,7 +554,7 @@ const VSL = () => {
 
             {/* CTA */}
             <div className="flex flex-col items-start gap-3 mb-5">
-              <CTAButton onClick={handleCTA} size="xl" className="w-full sm:w-auto">
+              <CTAButton onClick={() => handleCTA("hero")} size="xl" className="w-full sm:w-auto">
                 REVEAL MY TIMING <ArrowRight className="w-6 h-6" />
               </CTAButton>
               <motion.div
@@ -559,6 +586,94 @@ const VSL = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* ── VSL BLOCK ──────────────────────────────────────────────────────── */}
+      <motion.section
+        initial={{ opacity: 0, y: 32 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.7 }}
+        className="py-14 px-4"
+        style={{ background: "rgba(3,0,6,0.7)" }}
+      >
+        <div className="max-w-3xl mx-auto">
+          <p className="text-center text-[11px] font-bold uppercase tracking-widest text-fuchsia-400 mb-2">
+            See How It Works
+          </p>
+          <h2 className="text-center text-xl md:text-2xl font-black text-white mb-8 leading-tight">
+            Watch: How Your Palm Reveals<br className="hidden sm:block" /> Hidden Love Patterns
+          </h2>
+
+          {/* Video player */}
+          <div
+            className="relative w-full rounded-2xl overflow-hidden"
+            style={{
+              aspectRatio: "16/9",
+              background: "#030004",
+              boxShadow: "0 0 60px rgba(217,70,239,0.18), 0 20px 60px rgba(0,0,0,0.85)",
+              border: "1px solid rgba(217,70,239,0.16)",
+            }}
+          >
+            {!vslPlayed ? (
+              /* ── Thumbnail + play overlay ── */
+              <button
+                onClick={handleVideoPlay}
+                aria-label="Play video"
+                className="absolute inset-0 w-full h-full group cursor-pointer"
+                style={{ background: "none", border: "none", padding: 0 }}
+              >
+                <img
+                  src="/hero-16x9.jpg"
+                  alt="Madam Aurora palm reading preview"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
+                {/* Dark scrim */}
+                <div className="absolute inset-0" style={{ background: "rgba(3,0,6,0.52)" }} />
+                {/* Play button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-20 h-20 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                    style={{
+                      background: "rgba(251,191,36,0.12)",
+                      border: "2px solid rgba(251,191,36,0.65)",
+                      boxShadow: "0 0 40px rgba(251,191,36,0.45), 0 0 80px rgba(251,191,36,0.18)",
+                    }}
+                  >
+                    <Play className="w-8 h-8 text-[#fbbf24] fill-[#fbbf24] ml-1" />
+                  </motion.div>
+                </div>
+                {/* Duration badge */}
+                <div
+                  className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold text-white/65"
+                  style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)" }}
+                >
+                  ~45 sec
+                </div>
+              </button>
+            ) : (
+              /* ── Actual video — only loaded after click ── */
+              <video
+                src={VSL_VIDEO_URL}
+                autoPlay
+                controls
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
+          </div>
+
+          {/* CTA below video */}
+          <div className="flex flex-col items-center gap-3 mt-8">
+            <CTAButton onClick={() => handleCTA("vsl_block")} size="lg">
+              START MY READING NOW <ArrowRight className="w-5 h-5" />
+            </CTAButton>
+            <p className="text-xs text-white/30">Takes 2 minutes · Private · No credit card to start</p>
+          </div>
+        </div>
+      </motion.section>
 
       {/* ── PAIN SECTION ───────────────────────────────────────────────────── */}
       <FullSection src="/pain-16x9.jpg" dur={20} />
@@ -623,7 +738,7 @@ const VSL = () => {
               paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
             }}
           >
-            <CTAButton onClick={handleCTA} size="lg" className="w-full">
+            <CTAButton onClick={() => handleCTA("sticky")} size="lg" className="w-full">
               REVEAL MY TIMING NOW →
             </CTAButton>
             <p className="text-center text-[10px] text-white/24 mt-1.5">
