@@ -798,35 +798,50 @@ const VSL = () => {
       </section>
 
       {/* ── PAIN SECTION ───────────────────────────────────────────────────── */}
-      <section
-        style={{ position: "relative", width: "100%", overflow: "hidden" }}
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9 }}
+        style={{
+          position: "relative",
+          width: "100%",
+          minHeight: "100vh",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
       >
-        {/* Container 16:9 — mantém proporção em qualquer viewport */}
-        <motion.div
-          whileInView={{ opacity: 1 }}
-          initial={{ opacity: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          style={{ position: "relative", width: "100%", paddingBottom: "56.25%" }}
-        >
-          <motion.img
-            src="/pain-16x9.jpg"
-            alt="You've tried everything and it's still happening"
-            loading="lazy"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              objectPosition: "center center",
-              display: "block",
-            }}
-          />
-        </motion.div>
-      </section>
+        {/* Imagem full-bleed com Ken Burns */}
+        <motion.img
+          src="/pain-16x9.jpg"
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          animate={{ scale: [1, 1.06, 1] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center center",
+            zIndex: 0,
+          }}
+        />
+        {/* Overlay sutil top/bottom */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.55) 100%)",
+            pointerEvents: "none",
+          }}
+        />
+      </motion.section>
 
       {/* ── VIDEO SECTION ──────────────────────────────────────────────────── */}
       <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
