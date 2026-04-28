@@ -836,56 +836,8 @@ const VSL = () => {
       {/* ── SECTION 4 — Reviews ────────────────────────────────────────────── */}
       <FullSection src="/section4-16x9.jpg" dur={24} />
 
-      {/* ── DISCOVERY ──────────────────────────────────────────────────────── */}
-      <section id="discover" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-800/22 to-transparent" />
-
-        <div className="relative max-w-[1400px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 22 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10"
-          >
-            <SectionBadge>Inside Your Reading</SectionBadge>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase">WHAT YOU'LL DISCOVER</h2>
-          </motion.div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            {DISCOVERY_CARDS.map((card, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-              >
-                <GBCard border={card.border} glow={card.glow} className="h-full">
-                  <div className="p-5 text-center">
-                    <div
-                      className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-                      style={{ background: card.iconBg, boxShadow: "0 0 24px rgba(217,70,239,0.35)" }}
-                    >
-                      <card.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-sm font-black uppercase tracking-wide text-white mb-2">{card.title}</h3>
-                    <p className="text-xs text-white/45 leading-relaxed">{card.desc}</p>
-                  </div>
-                </GBCard>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <div className="relative inline-block">
-              <div className="absolute -inset-5 rounded-full bg-black/45 blur-xl -z-10" />
-              <CTAButton onClick={handleCTA} size="sm">
-                UNLOCK MY READING <ArrowRight className="w-4 h-4" />
-              </CTAButton>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ── SECTION 5 — Discovery ──────────────────────────────────────────── */}
+      <FullSection src="/section5-16x9.jpg" dur={21} />
 
       {/* ── HOW IT WORKS ───────────────────────────────────────────────────── */}
       <section id="how-it-works" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
