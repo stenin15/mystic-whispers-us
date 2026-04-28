@@ -654,45 +654,76 @@ const VSL = () => {
         style={{
           width: "100%",
           minHeight: "calc(100vh - 72px)",
-          display: "flex",
-          alignItems: "center",
-          background: "linear-gradient(145deg, #0e001a 0%, #020003 45%, #08000f 100%)",
           position: "relative",
           overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
         }}
       >
-        <HeroStarfield />
-
-        {/* hero-inner */}
-        <div
-          className="hero-inner"
+        {/* Imagem de fundo full-bleed com Ken Burns */}
+        <motion.img
+          src="/hero-16x9.jpg"
+          alt=""
+          aria-hidden="true"
+          loading="eager"
+          className="hero-bg-img"
+          animate={{ scale: [1, 1.06, 1], x: [0, -12, 0] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
           style={{
+            position: "absolute",
+            inset: 0,
             width: "100%",
-            maxWidth: "1520px",
-            margin: "0 auto",
-            padding: "96px 72px 72px",
-            display: "grid",
-            gridTemplateColumns: "minmax(520px, 0.9fr) minmax(640px, 1.1fr)",
-            alignItems: "center",
-            gap: "72px",
-            position: "relative",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
           }}
+        />
+
+        {/* Gradiente esquerda — leitura do texto */}
+        <div
+          className="hero-overlay-left"
+          style={{ position: "absolute", inset: 0, zIndex: 1 }}
+        />
+        {/* Gradiente top/bottom */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            background: "linear-gradient(to bottom, rgba(3,0,6,0.45) 0%, transparent 18%, transparent 78%, rgba(3,0,6,0.65) 100%)",
+          }}
+        />
+
+        {/* Glow pulsante na palma da mulher */}
+        <motion.div
+          animate={{ opacity: [0.4, 0.9, 0.4] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 2,
+            pointerEvents: "none",
+            background: "radial-gradient(ellipse 18% 16% at 75% 57%, rgba(255,60,220,0.45) 0%, transparent 70%)",
+          }}
+        />
+
+        {/* Starfield por cima */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none" }}>
+          <HeroStarfield />
+        </div>
+
+        {/* Texto — coluna esquerda */}
+        <div
+          className="hero-pad"
+          style={{ position: "relative", zIndex: 10 }}
         >
-          {/* hero-copy */}
           <motion.div
-            initial={{ opacity: 0, y: 28 }}
+            className="hero-copy-max"
+            initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65 }}
-            style={{ maxWidth: "640px" }}
+            transition={{ duration: 0.7 }}
           >
-            <h1
-              className="hero-title font-black uppercase mb-6"
-              style={{
-                fontSize: "clamp(64px, 5.5vw, 104px)",
-                lineHeight: "0.88",
-                letterSpacing: "-0.045em",
-              }}
-            >
+            <h1 className="hero-title font-black uppercase mb-6">
               THERE'S A REASON
               <br />
               THIS KEEPS HAPPENING
@@ -706,11 +737,11 @@ const VSL = () => {
               </span>
             </h1>
 
-            <p className="text-base text-white/55 mb-7 leading-relaxed" style={{ maxWidth: "440px" }}>
+            <p className="text-base text-white/60 mb-7 leading-relaxed" style={{ maxWidth: "430px" }}>
               You've felt it before — the pattern you can't explain.
               <br />
               This shows you{" "}
-              <span className="text-white/88 font-semibold">exactly why it keeps happening.</span>
+              <span className="text-white/90 font-semibold">exactly why it keeps happening.</span>
             </p>
 
             <ul className="space-y-3 mb-8">
@@ -726,7 +757,7 @@ const VSL = () => {
                   >
                     <CheckCircle2 className="w-3 h-3 text-white" />
                   </div>
-                  <span className="text-sm md:text-base text-white/72">{item}</span>
+                  <span className="text-sm md:text-base text-white/75">{item}</span>
                 </li>
               ))}
             </ul>
@@ -759,57 +790,9 @@ const VSL = () => {
               <CountdownBadge h={h} m={m} s={s} pad={pad} />
             </div>
 
-            <p className="text-[11px] text-white/22 tracking-wide">
+            <p className="text-[11px] text-white/25 tracking-wide">
               Private · AI-Powered · Takes 60 Seconds · No credit card to start
             </p>
-          </motion.div>
-
-          {/* hero-visual */}
-          <motion.div
-            className="hero-visual"
-            initial={{ opacity: 0, x: 32 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.9, delay: 0.15 }}
-            style={{
-              width: "100%",
-              maxWidth: "860px",
-              justifySelf: "end",
-              position: "relative",
-            }}
-          >
-            <div style={{ position: "relative", width: "100%" }}>
-              <img
-                src="/hero-16x9.jpg"
-                alt="Mystic palm reading by Madam Aurora"
-                loading="eager"
-                style={{ width: "100%", height: "auto", display: "block", objectFit: "cover" }}
-              />
-              {/* Fade esquerda — fusão com o texto */}
-              <div
-                style={{
-                  position: "absolute", top: 0, left: 0, bottom: 0, width: "28%",
-                  background: "linear-gradient(to right, #050007 0%, transparent 100%)",
-                  pointerEvents: "none",
-                }}
-              />
-              {/* Fade bottom */}
-              <div
-                style={{
-                  position: "absolute", bottom: 0, left: 0, right: 0, height: "18%",
-                  background: "linear-gradient(to top, #030004 0%, transparent 100%)",
-                  pointerEvents: "none",
-                }}
-              />
-              {/* Glow pulsante na palma */}
-              <motion.div
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                style={{
-                  position: "absolute", inset: 0, pointerEvents: "none",
-                  background: "radial-gradient(ellipse 30% 25% at 72% 58%, rgba(255,80,220,0.22) 0%, transparent 70%)",
-                }}
-              />
-            </div>
           </motion.div>
         </div>
       </section>

@@ -605,19 +605,87 @@
   to   { transform: scale(1.08) translateX(-2.5%) translateY(-1.5%); }
 }
 
-/* ── Hero layout — mobile overrides ────────────────────────────────────── */
-@media (max-width: 900px) {
-  .hero-inner {
-    padding: 112px 20px 48px !important;
-    grid-template-columns: 1fr !important;
-    gap: 36px !important;
-  }
+/* ── Hero full-background — responsivo ──────────────────────────────────── */
+
+/* Base (mobile-first: < 480px) */
+.hero-title {
+  font-size: clamp(38px, 10vw, 58px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+.hero-pad {
+  padding: 88px 20px 52px;
+  max-width: 1520px;
+  margin: 0 auto;
+  width: 100%;
+}
+.hero-copy-max {
+  max-width: 100%;
+}
+.hero-bg-img {
+  object-position: 68% center;
+}
+.hero-overlay-left {
+  background: linear-gradient(
+    to right,
+    rgba(3,0,6,0.97) 0%,
+    rgba(3,0,6,0.92) 45%,
+    rgba(3,0,6,0.6) 70%,
+    rgba(3,0,6,0.15) 88%,
+    transparent 100%
+  );
+}
+
+/* Tablet (480px – 767px) */
+@media (min-width: 480px) {
   .hero-title {
-    font-size: clamp(42px, 12vw, 58px) !important;
-    line-height: 0.92 !important;
+    font-size: clamp(44px, 8.5vw, 72px);
   }
-  .hero-visual {
-    max-width: 100% !important;
-    justify-self: center !important;
+  .hero-pad {
+    padding: 96px 32px 56px;
+  }
+  .hero-copy-max {
+    max-width: 480px;
+  }
+}
+
+/* Tablet largo / small desktop (768px – 1023px) */
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: clamp(52px, 7vw, 88px);
+  }
+  .hero-pad {
+    padding: 96px 48px 64px;
+  }
+  .hero-copy-max {
+    max-width: 540px;
+  }
+  .hero-bg-img {
+    object-position: center right;
+  }
+  .hero-overlay-left {
+    background: linear-gradient(
+      to right,
+      rgba(3,0,6,0.96) 0%,
+      rgba(3,0,6,0.84) 32%,
+      rgba(3,0,6,0.48) 56%,
+      rgba(3,0,6,0.05) 78%,
+      transparent 100%
+    );
+  }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+  .hero-title {
+    font-size: clamp(64px, 5.5vw, 104px);
+    line-height: 0.88;
+    letter-spacing: -0.045em;
+  }
+  .hero-pad {
+    padding: 96px 72px 72px;
+  }
+  .hero-copy-max {
+    max-width: 620px;
   }
 }
