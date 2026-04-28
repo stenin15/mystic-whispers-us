@@ -798,66 +798,34 @@ const VSL = () => {
       </section>
 
       {/* ── PAIN SECTION ───────────────────────────────────────────────────── */}
-      {/* Seção escura sem orbs — o título domina */}
-      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/18 to-transparent" />
-
-        <div className="relative max-w-[1400px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 22 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10"
-          >
-            <SectionBadge>Sound Familiar?</SectionBadge>
-            <h2 className="text-4xl sm:text-5xl md:text-[3.5rem] font-black uppercase leading-[0.93] tracking-tight">
-              YOU'VE TRIED{" "}
-              <span
-                className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-fuchsia-300"
-                style={{ filter: "drop-shadow(0 0 18px rgba(217,70,239,0.4))" }}
-              >
-                EVERYTHING.
-              </span>
-              <br />
-              <span className="text-white/70">AND IT'S STILL HAPPENING.</span>
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-            {PAIN_CARDS.map((card, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-              >
-                <GBCard border={card.border} glow={card.glow}>
-                  <div className="p-5 text-center">
-                    <div
-                      className="w-13 h-13 rounded-full flex items-center justify-center mx-auto mb-4"
-                      style={{
-                        width: 52, height: 52,
-                        background: card.iconBg,
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        boxShadow: card.iconGlow,
-                      }}
-                    >
-                      <card.icon className={`w-5.5 h-5.5 ${card.iconColor}`} style={{ width: 22, height: 22 }} />
-                    </div>
-                    <p className="text-xs sm:text-sm text-white/60 leading-relaxed">{card.text}</p>
-                  </div>
-                </GBCard>
-              </motion.div>
-            ))}
-          </div>
-
-          <p className="text-center text-white/45 text-sm md:text-base">
-            Your reading{" "}
-            <span className="text-fuchsia-300 font-bold">connects the dots</span>{" "}
-            you've been missing all along.
-          </p>
-        </div>
+      <section
+        style={{ position: "relative", width: "100%", overflow: "hidden" }}
+      >
+        {/* Container 16:9 — mantém proporção em qualquer viewport */}
+        <motion.div
+          whileInView={{ opacity: 1 }}
+          initial={{ opacity: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          style={{ position: "relative", width: "100%", paddingBottom: "56.25%" }}
+        >
+          <motion.img
+            src="/pain-16x9.jpg"
+            alt="You've tried everything and it's still happening"
+            loading="lazy"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center center",
+              display: "block",
+            }}
+          />
+        </motion.div>
       </section>
 
       {/* ── VIDEO SECTION ──────────────────────────────────────────────────── */}
