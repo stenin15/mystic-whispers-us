@@ -843,99 +843,49 @@ const VSL = () => {
         />
       </motion.section>
 
-      {/* ── VIDEO SECTION ──────────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(2,0,3,0.45)" }}>
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-800/25 to-transparent" />
-
-        <div className="relative max-w-[1400px] mx-auto">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-14 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -24 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="relative rounded-2xl overflow-hidden"
-              style={{
-                boxShadow: "0 0 0 1px rgba(217,70,239,0.18), 0 24px 80px rgba(0,0,0,0.8), 0 8px 32px rgba(139,0,255,0.2)",
-              }}
-            >
-              <div className="relative aspect-video bg-[#08000f]">
-                <video
-                  ref={videoRef}
-                  src={videoSrc}
-                  className="w-full h-full object-contain"
-                  playsInline muted loop autoPlay
-                  aria-label="Madam Aurora reading preview"
-                />
-                {!soundActivated && (
-                  <button
-                    onClick={activateSound}
-                    className="absolute inset-0 flex items-center justify-center focus:outline-none"
-                    aria-label="Activate sound"
-                  >
-                    <div className="flex flex-col items-center gap-3">
-                      <motion.div
-                        animate={{ scale: [1, 1.08, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="rounded-full bg-fuchsia-600/90 flex items-center justify-center"
-                        style={{ width: 68, height: 68, boxShadow: "0 0 50px rgba(217,70,239,0.8)" }}
-                      >
-                        <Volume2 className="w-7 h-7 text-white" />
-                      </motion.div>
-                      <span className="text-sm text-white/90 font-semibold bg-black/80 px-4 py-2 rounded-full backdrop-blur-sm">
-                        Tap to hear Aurora
-                      </span>
-                    </div>
-                  </button>
-                )}
-                {soundActivated && (
-                  <div className="absolute bottom-3 right-3">
-                    <button
-                      onClick={toggleMute}
-                      className="w-10 h-10 rounded-full bg-black/75 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-                      aria-label={isMuted ? "Unmute" : "Mute"}
-                    >
-                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                    </button>
-                  </div>
-                )}
-                <div className="absolute bottom-3 left-3 text-xs text-white/30 italic">See how it works</div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 24 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <SectionBadge>See It In Action</SectionBadge>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase leading-tight mb-4">
-                SEE THE{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">MAGIC</span>
-                <br />FOR YOURSELF
-              </h2>
-              <p className="text-white/48 mb-7 leading-relaxed text-sm md:text-base">
-                Watch how Madam Aurora turns your palm lines into powerful clarity — and what comes next.
-              </p>
-              <ul className="space-y-3 mb-8">
-                {["Real reading, real results", "AI-powered line analysis", "Personalized just for you"].map((item) => (
-                  <li key={item} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-fuchsia-600/20 border border-fuchsia-500/35 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle2 className="w-3 h-3 text-fuchsia-400" />
-                    </div>
-                    <span className="text-sm text-white/65">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="relative inline-block">
-                <div className="absolute -inset-4 rounded-full bg-black/40 blur-xl -z-10" />
-                <CTAButton onClick={handleCTA} size="sm">
-                  GET MY READING <ArrowRight className="w-4 h-4" />
-                </CTAButton>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      {/* ── SECTION 3 ──────────────────────────────────────────────────────── */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9 }}
+        style={{
+          position: "relative",
+          width: "100%",
+          minHeight: "100vh",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <motion.img
+          src="/section3-16x9.jpg"
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          animate={{ scale: [1, 1.06, 1] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center center",
+            zIndex: 0,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.55) 100%)",
+            pointerEvents: "none",
+          }}
+        />
+      </motion.section>
 
       {/* ── REVIEWS ────────────────────────────────────────────────────────── */}
       <section id="reviews" className="py-20 md:py-28 px-4 relative overflow-hidden" style={{ background: "rgba(5,0,7,0.82)" }}>
