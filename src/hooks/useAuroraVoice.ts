@@ -84,9 +84,6 @@ export function useAuroraVoice(): UseAuroraVoiceReturn {
   const abortRef = useRef<AbortController | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const isPreview = () =>
-    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-
   const stop = useCallback(() => {
     abortRef.current?.abort();
     if (audioRef.current) {
@@ -105,22 +102,9 @@ export function useAuroraVoice(): UseAuroraVoiceReturn {
       abortRef.current = ac;
       setStatus("loading");
 
-      if (isPreview()) {
-        // Ensure voices are loaded (Chrome lazy-loads them)
-        if (window.speechSynthesis && window.speechSynthesis.getVoices().length === 0) {
-          await new Promise<void>((r) => {
-            window.speechSynthesis.onvoiceschanged = () => r();
-            setTimeout(r, 800); // fallback timeout
-          });
-        }
-        setStatus("playing");
-        await speakWithBrowser(text);
-        setStatus("idle");
-      } else {
-        setStatus("loading");
-        await fetchAndPlay(text, ac.signal);
-        if (!ac.signal.aborted) setStatus("idle");
-      }
+      setStatus("loading");
+      await fetchAndPlay(text, ac.signal);
+      if (!ac.signal.aborted) setStatus("idle");
     },
     [stop],
   );
@@ -128,14 +112,12 @@ export function useAuroraVoice(): UseAuroraVoiceReturn {
   const play = useCallback((text: string) => { playAndWait(text); }, [playAndWait]);
 
   const pause = useCallback(() => {
-    if (isPreview()) { window.speechSynthesis?.pause(); }
-    else { audioRef.current?.pause(); }
+    audioRef.current?.pause();
     setStatus("paused");
   }, []);
 
   const resume = useCallback(() => {
-    if (isPreview()) { window.speechSynthesis?.resume(); }
-    else { audioRef.current?.play().catch(() => setStatus("error")); }
+    audioRef.current?.play().catch(() => setStatus("error"));
     setStatus("playing");
   }, []);
 

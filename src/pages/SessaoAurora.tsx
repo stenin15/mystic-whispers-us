@@ -18,7 +18,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
-import { MysticOrb3D } from "@/components/shared/MysticOrb3D";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { useAuroraVoice } from "@/hooks/useAuroraVoice";
 import { supabase } from "@/integrations/supabase/client";
@@ -152,6 +151,71 @@ const AuroraAvatar = ({ size = "md", pulse = true }: { size?: "sm" | "md" | "lg"
   );
 };
 
+// ── Mystic Palm Icon — mão com linhas da palma iluminadas ────────────────────
+
+const MysticPalmIcon = () => (
+  <div className="relative w-40 h-40 flex items-center justify-center">
+    {/* Glow de fundo */}
+    <motion.div
+      className="absolute inset-0 rounded-full"
+      style={{ background: "radial-gradient(circle, hsl(280 60% 55% / 0.4) 0%, transparent 70%)", filter: "blur(22px)" }}
+      animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.9, 0.5] }}
+      transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.svg
+      viewBox="0 0 100 115"
+      width="115"
+      height="115"
+      style={{ position: "relative", zIndex: 1 }}
+      animate={{ filter: ["drop-shadow(0 0 6px hsl(280 60% 65% / 0.5))", "drop-shadow(0 0 18px hsl(45 95% 60% / 0.65))", "drop-shadow(0 0 6px hsl(280 60% 65% / 0.5))"] }}
+      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+    >
+      {/* Silhueta da mão */}
+      <path
+        d="M28,102 L28,52 Q28,41 34,39 Q40,37 42,44 L42,32
+           Q42,23 47,22 Q53,21 54,28 L54,30
+           Q54,19 59,18 Q65,17 66,24 L66,30
+           Q66,21 71,21 Q77,20 77,29 L77,58
+           Q82,48 85,46 Q91,44 92,51
+           Q93,60 87,69 L76,83
+           Q70,96 61,102 Z"
+        fill="hsl(280 40% 18% / 0.6)"
+        stroke="hsl(280 55% 65%)"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      {/* Linha do coração — rosa */}
+      <motion.path
+        d="M35,56 Q50,49 70,54"
+        fill="none" stroke="hsl(340 80% 70%)" strokeWidth="1.4" strokeLinecap="round"
+        animate={{ opacity: [0.6, 1, 0.6] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0 }}
+      />
+      {/* Linha da cabeça — âmbar */}
+      <motion.path
+        d="M35,65 Q53,70 73,65"
+        fill="none" stroke="hsl(45 95% 65%)" strokeWidth="1.2" strokeLinecap="round"
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+      />
+      {/* Linha da vida — violeta */}
+      <motion.path
+        d="M43,44 Q38,68 41,88"
+        fill="none" stroke="hsl(280 65% 75%)" strokeWidth="1.1" strokeLinecap="round"
+        animate={{ opacity: [0.4, 0.9, 0.4] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+      />
+      {/* Linha do destino — branco suave */}
+      <motion.path
+        d="M58,88 L60,60"
+        fill="none" stroke="hsl(0 0% 90% / 0.45)" strokeWidth="0.9" strokeLinecap="round"
+        animate={{ opacity: [0.2, 0.7, 0.2] }}
+        transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+      />
+    </motion.svg>
+  </div>
+);
+
 // Gate screen — user must click to start (unlocks browser audio)
 const SessionGate = ({ name, onStart }: { name?: string; onStart: () => void }) => (
   <motion.div
@@ -172,13 +236,13 @@ const SessionGate = ({ name, onStart }: { name?: string; onStart: () => void }) 
       transition={{ delay: 0.25, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       className="relative z-10 flex flex-col items-center text-center gap-5 max-w-sm"
     >
-      {/* 3D Orb — centerpiece */}
+      {/* Palm icon — centerpiece */}
       <motion.div
         initial={{ opacity: 0, scale: 0.7 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
       >
-        <MysticOrb3D size={150} color="violet" interactive={true} rings={3} />
+        <MysticPalmIcon />
       </motion.div>
 
       <div>
@@ -287,6 +351,7 @@ const SessaoAurora = () => {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [accessError, setAccessError] = useState<string | null>(null);
   const [activeAudioMsgId, setActiveAudioMsgId] = useState<string | null>(null);
+  const [revealedMsgs, setRevealedMsgs] = useState<Set<string>>(new Set());
   const [guidedIdx, setGuidedIdx] = useState(0);
   const turnCountRef = useRef(0);
 
@@ -294,10 +359,26 @@ const SessaoAurora = () => {
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Quando o áudio termina, marca mensagem como revelada (texto fica visível)
+  useEffect(() => {
+    if (voiceStatus === "idle" && activeAudioMsgId) {
+      setRevealedMsgs((prev) => new Set(prev).add(activeAudioMsgId));
+    }
+  }, [voiceStatus, activeAudioMsgId]);
   const didRevealRef = useRef(false);
 
   // Access guard — verify real Stripe entitlement
   useEffect(() => {
+    // Dev-only preview bypass: /sessao-aurora?preview=1
+    if (import.meta.env.DEV) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("preview") === "1") {
+        setSessionId("preview-session-dev");
+        return;
+      }
+    }
+
     let cancelled = false;
     const check = async () => {
       try {
@@ -339,6 +420,8 @@ const SessaoAurora = () => {
       const msg: ChatMessage = { id, role: "assistant", content };
       setMessages((prev) => [...prev, msg]);
       setIsAutoTyping(false);
+      // Let blur + play button render briefly before auto-playing
+      await delay(650);
       setActiveAudioMsgId(id);
       await playAndWait(content); // waits for audio to finish before next message
     };
@@ -418,8 +501,11 @@ const SessaoAurora = () => {
       }
 
       const assistantMsg = addAuroraMessage(reply);
-      setActiveAudioMsgId(assistantMsg.id);
-      playVoice(reply);
+      // Brief render window so play button renders before auto-playing
+      setTimeout(() => {
+        setActiveAudioMsgId(assistantMsg.id);
+        playVoice(reply);
+      }, 350);
 
       if (phase === "guided") {
         const nextIdx = guidedIdx + 1;
@@ -520,31 +606,78 @@ const SessaoAurora = () => {
                   transition={{ duration: 0.28 }}
                   className={`flex mb-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {msg.role === "assistant" && (
-                    <div className="flex items-end gap-2.5 max-w-[86%]">
-                      <AuroraAvatar size="sm" pulse={false} />
-                      <div className="flex flex-col">
-                        <div
-                          className="rounded-2xl rounded-bl-[4px] px-4 py-3 text-sm leading-[1.8] whitespace-pre-wrap text-white/88"
-                          style={{ background: "linear-gradient(135deg, hsl(280 60% 55% / 0.13) 0%, hsl(320 55% 55% / 0.08) 100%)", border: "1px solid hsl(280 60% 55% / 0.22)" }}
-                        >
-                          {msg.content}
+                  {msg.role === "assistant" && (() => {
+                    const isRevealed = revealedMsgs.has(msg.id);
+                    const isActive   = activeAudioMsgId === msg.id;
+                    // Text only reveals after audio finishes (isRevealed)
+                    const showText   = isRevealed;
+                    // Play button shows only when neither playing nor revealed
+                    const showPlayOverlay = !isActive && !isRevealed;
+
+                    return (
+                      <div className="flex items-end gap-2.5 max-w-[86%]">
+                        <AuroraAvatar size="sm" pulse={false} />
+                        <div className="flex flex-col w-full">
+                          <div
+                            className="relative rounded-2xl rounded-bl-[4px] px-4 py-3 text-sm leading-[1.8] whitespace-pre-wrap overflow-hidden"
+                            style={{ background: "linear-gradient(135deg, hsl(280 60% 55% / 0.13) 0%, hsl(320 55% 55% / 0.08) 100%)", border: "1px solid hsl(280 60% 55% / 0.22)" }}
+                          >
+                            {/* Texto — borrado até o play */}
+                            <span
+                              className="transition-all duration-700 select-none"
+                              style={{
+                                filter: showText ? "none" : "blur(6px)",
+                                color: showText ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.35)",
+                                display: "block",
+                              }}
+                            >
+                              {msg.content}
+                            </span>
+
+                            {/* Botão de play — visível enquanto não está tocando e não foi revelado */}
+                            {showPlayOverlay && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.85 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.85 }}
+                                className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl rounded-bl-[4px]"
+                                style={{ background: "rgba(13,13,13,0.45)", backdropFilter: "blur(2px)" }}
+                              >
+                                <motion.button
+                                  onClick={() => { setActiveAudioMsgId(msg.id); playVoice(msg.content); }}
+                                  animate={{ scale: [1, 1.1, 1], boxShadow: ["0 0 20px hsl(45 95% 55% / 0.35)", "0 0 45px hsl(45 95% 55% / 0.7)", "0 0 20px hsl(45 95% 55% / 0.35)"] }}
+                                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                                  whileTap={{ scale: 0.93 }}
+                                  className="w-14 h-14 rounded-full flex items-center justify-center cursor-pointer"
+                                  style={{
+                                    background: "linear-gradient(135deg, hsl(280 60% 45% / 0.5), hsl(45 95% 55% / 0.25))",
+                                    border: "2px solid hsl(45 95% 60% / 0.7)",
+                                  }}
+                                >
+                                  <Play className="w-6 h-6 text-amber-300 fill-amber-300 ml-0.5" />
+                                </motion.button>
+                                <span className="text-[10px] text-amber-300/60 font-medium tracking-widest uppercase">Hear Aurora</span>
+                              </motion.div>
+                            )}
+                          </div>
+
+                          {/* AudioBar — só quando ativo ou já revelado */}
+                          <AnimatePresence>
+                            {(isActive || isRevealed) && (
+                              <AudioBar
+                                voiceStatus={isActive ? voiceStatus : "idle"}
+                                onPlay={(t) => { setActiveAudioMsgId(msg.id); playVoice(t); }}
+                                onPause={pauseVoice}
+                                onResume={resumeVoice}
+                                onStop={() => { stopVoice(); setActiveAudioMsgId(null); }}
+                                content={msg.content}
+                              />
+                            )}
+                          </AnimatePresence>
                         </div>
-                        <AnimatePresence>
-                          {activeAudioMsgId === msg.id && (
-                            <AudioBar
-                              voiceStatus={voiceStatus}
-                              onPlay={(t) => { setActiveAudioMsgId(msg.id); playVoice(t); }}
-                              onPause={pauseVoice}
-                              onResume={resumeVoice}
-                              onStop={() => { stopVoice(); setActiveAudioMsgId(null); }}
-                              content={msg.content}
-                            />
-                          )}
-                        </AnimatePresence>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {msg.role === "user" && (
                     <div
