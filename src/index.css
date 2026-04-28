@@ -607,20 +607,21 @@
 
 /* ── Hero full-background — responsivo ──────────────────────────────────── */
 
-/* Base (mobile-first: < 480px) */
+/* Base mobile-first (< 480px) */
 .hero-title {
-  font-size: clamp(38px, 10vw, 58px);
+  font-size: clamp(38px, 10vw, 56px);
   line-height: 0.9;
   letter-spacing: -0.04em;
 }
 .hero-pad {
-  padding: 88px 20px 52px;
-  max-width: 1520px;
-  margin: 0 auto;
+  /* sem max-width nem margin:auto — padding escala com viewport */
   width: 100%;
+  padding: 88px 20px 52px;
+  box-sizing: border-box;
 }
 .hero-copy-max {
-  max-width: 100%;
+  width: 100%;
+  max-width: 92vw;
 }
 .hero-bg-img {
   object-position: 68% center;
@@ -630,7 +631,7 @@
     to right,
     rgba(3,0,6,0.97) 0%,
     rgba(3,0,6,0.92) 45%,
-    rgba(3,0,6,0.6) 70%,
+    rgba(3,0,6,0.6)  70%,
     rgba(3,0,6,0.15) 88%,
     transparent 100%
   );
@@ -639,26 +640,26 @@
 /* Tablet (480px – 767px) */
 @media (min-width: 480px) {
   .hero-title {
-    font-size: clamp(44px, 8.5vw, 72px);
+    font-size: clamp(44px, 8.5vw, 68px);
   }
   .hero-pad {
     padding: 96px 32px 56px;
   }
   .hero-copy-max {
-    max-width: 480px;
+    max-width: 80vw;
   }
 }
 
 /* Tablet largo / small desktop (768px – 1023px) */
 @media (min-width: 768px) {
   .hero-title {
-    font-size: clamp(52px, 7vw, 88px);
+    font-size: clamp(52px, 7vw, 84px);
   }
   .hero-pad {
-    padding: 96px 48px 64px;
+    padding: 96px clamp(32px, 5vw, 72px) 64px;
   }
   .hero-copy-max {
-    max-width: 540px;
+    max-width: 52vw;
   }
   .hero-bg-img {
     object-position: center right;
@@ -678,14 +679,16 @@
 /* Desktop (1024px+) */
 @media (min-width: 1024px) {
   .hero-title {
-    font-size: clamp(64px, 5.5vw, 104px);
+    font-size: clamp(56px, 5.5vw, 104px);
     line-height: 0.88;
     letter-spacing: -0.045em;
   }
   .hero-pad {
-    padding: 96px 72px 72px;
+    /* padding-left escala com viewport → texto sempre fica proporcional */
+    padding: 96px clamp(40px, 5.5vw, 120px) 72px;
   }
   .hero-copy-max {
-    max-width: 620px;
+    /* largura proporcional ao viewport — nunca parece miniatura */
+    max-width: min(660px, 44vw);
   }
 }

@@ -715,7 +715,7 @@ const VSL = () => {
         {/* Texto — coluna esquerda */}
         <div
           className="hero-pad"
-          style={{ position: "relative", zIndex: 10 }}
+          style={{ position: "relative", zIndex: 10, boxSizing: "border-box" }}
         >
           <motion.div
             className="hero-copy-max"
