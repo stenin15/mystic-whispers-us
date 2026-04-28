@@ -1,25 +1,11 @@
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Volume2, VolumeX, ArrowRight, Lock, Heart, Clock,
-  Eye, Zap, Key, Search, Shield, Star, ChevronLeft,
-  ChevronRight, Plus, Minus, Upload, FileText, CheckCircle2,
-  Instagram, Youtube, Sparkles,
+  ArrowRight, Lock, Clock, Star, CheckCircle2,
 } from "lucide-react";
 
-const TikTokIcon = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.2 8.2 0 004.79 1.53V6.77a4.85 4.85 0 01-1.02-.08z" />
-  </svg>
-);
-
-const PinterestIcon = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-    <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" />
-  </svg>
-);
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { track, getOrCreateEventId } from "@/lib/tracking";
 import {
@@ -30,95 +16,6 @@ import {
 import avatarCarla from "@/assets/avatar-carla.jpg";
 import avatarFernanda from "@/assets/avatar-fernanda.jpg";
 import avatarMariana from "@/assets/avatar-mariana.jpg";
-
-// ── Data ──────────────────────────────────────────────────────────────────────
-// Card glows reduzidos para não poluir — destaque vai para o CTA
-
-const PAIN_CARDS = [
-  {
-    icon: Heart, text: "You keep attracting the wrong person.",
-    border: "rgba(217,70,239,0.22)", glow: "rgba(217,70,239,0.07)",
-    iconGlow: "0 0 14px rgba(217,70,239,0.25)",
-    iconBg: "linear-gradient(135deg, rgba(192,38,211,0.45), rgba(126,34,206,0.28))",
-    iconColor: "text-fuchsia-200",
-  },
-  {
-    icon: Clock, text: "You miss the right timing — again.",
-    border: "rgba(236,72,153,0.2)", glow: "rgba(236,72,153,0.06)",
-    iconGlow: "0 0 12px rgba(236,72,153,0.22)",
-    iconBg: "linear-gradient(135deg, rgba(219,39,119,0.45), rgba(157,23,77,0.25))",
-    iconColor: "text-pink-200",
-  },
-  {
-    icon: Lock, text: "You feel blocked, but don't know why.",
-    border: "rgba(168,85,247,0.2)", glow: "rgba(168,85,247,0.06)",
-    iconGlow: "0 0 12px rgba(168,85,247,0.22)",
-    iconBg: "linear-gradient(135deg, rgba(124,58,237,0.45), rgba(91,33,182,0.28))",
-    iconColor: "text-violet-200",
-  },
-  {
-    icon: Search, text: "You've searched for answers… nothing clicks.",
-    border: "rgba(217,70,239,0.2)", glow: "rgba(217,70,239,0.06)",
-    iconGlow: "0 0 12px rgba(217,70,239,0.22)",
-    iconBg: "linear-gradient(135deg, rgba(217,70,239,0.45), rgba(236,72,153,0.25))",
-    iconColor: "text-pink-100",
-  },
-];
-
-const REVIEWS = [
-  {
-    quote: "It described something I never said out loud.",
-    name: "Sarah K.", location: "New York, NY", avatar: avatarCarla,
-    border: "rgba(217,70,239,0.2)", glow: "rgba(217,70,239,0.06)",
-  },
-  {
-    quote: "Finally, I understand my patterns.",
-    name: "Jessica M.", location: "Austin, TX", avatar: avatarFernanda,
-    border: "rgba(168,85,247,0.2)", glow: "rgba(168,85,247,0.06)",
-  },
-  {
-    quote: "This reading was shockingly accurate.",
-    name: "Daniela R.", location: "Toronto, CA", avatar: avatarMariana,
-    border: "rgba(236,72,153,0.2)", glow: "rgba(236,72,153,0.06)",
-  },
-];
-
-const DISCOVERY_CARDS = [
-  {
-    icon: Heart, title: "Love Patterns", desc: "Understand the cycles you keep repeating.",
-    border: "rgba(217,70,239,0.28)", glow: "rgba(217,70,239,0.1)",
-    iconBg: "linear-gradient(135deg, #c026d3, #7e22ce)",
-  },
-  {
-    icon: Clock, title: "Timing Errors", desc: "See why the timing never seems right.",
-    border: "rgba(236,72,153,0.25)", glow: "rgba(236,72,153,0.08)",
-    iconBg: "linear-gradient(135deg, #db2777, #9d174d)",
-  },
-  {
-    icon: Key, title: "Hidden Decisions", desc: "Uncover what's blocking your next chapter.",
-    border: "rgba(168,85,247,0.28)", glow: "rgba(168,85,247,0.1)",
-    iconBg: "linear-gradient(135deg, #7c3aed, #4c1d95)",
-  },
-  {
-    icon: Eye, title: "What's Next", desc: "Get clarity on the love and timing ahead.",
-    border: "rgba(244,114,182,0.25)", glow: "rgba(244,114,182,0.08)",
-    iconBg: "linear-gradient(135deg, #ec4899, #be185d)",
-  },
-];
-
-const HOW_IT_WORKS = [
-  { step: "01", icon: Upload, title: "Upload Your Palm", desc: "Take a clear photo of your palm. Private and secure." },
-  { step: "02", icon: Zap, title: "AI Reads Your Lines", desc: "Analyzes your heart line, marriage line, and patterns." },
-  { step: "03", icon: FileText, title: "Get Your Reading", desc: "Personalized reading delivered in under 60 seconds." },
-  { step: "04", icon: Eye, title: "Gain Clarity", desc: "Understand your love, timing, and what comes next." },
-];
-
-const PREMIUM_FEATURES = [
-  { icon: Clock, title: "Access Anytime", desc: "Your reading saved so you can return anytime.", border: "rgba(217,70,239,0.2)", glow: "rgba(217,70,239,0.06)" },
-  { icon: Zap, title: "New Insights", desc: "New tools and insights added regularly.", border: "rgba(168,85,247,0.2)", glow: "rgba(168,85,247,0.06)" },
-  { icon: CheckCircle2, title: "Actionable Guidance", desc: "Practical steps based on your reading.", border: "rgba(236,72,153,0.2)", glow: "rgba(236,72,153,0.06)" },
-  { icon: Shield, title: "100% Private", desc: "Your data is never shared. Ever.", border: "rgba(217,70,239,0.2)", glow: "rgba(217,70,239,0.06)" },
-];
 
 const FAQ_ITEMS = [
   { q: "Which hand should I upload?", a: "Either hand works. Most people use their dominant hand, but both can show meaningful patterns." },
@@ -161,58 +58,6 @@ const Stars = ({ count = 5, className = "" }: { count?: number; className?: stri
       <Star key={i} className="w-4 h-4 fill-[#f59e0b] text-[#f59e0b]" />
     ))}
   </div>
-);
-
-// ── Section Badge ─────────────────────────────────────────────────────────────
-
-const SectionBadge = ({ children }: { children: React.ReactNode }) => (
-  <div
-    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-fuchsia-300 mb-5"
-    style={{ background: "rgba(217,70,239,0.06)", border: "1px solid rgba(217,70,239,0.18)" }}
-  >
-    <Sparkles className="w-3 h-3 text-fuchsia-300" />
-    {children}
-  </div>
-);
-
-// ── Gradient Border Card ──────────────────────────────────────────────────────
-// Glassmorphism mantido, mas glow reduzido para dar respiro
-
-const GBCard = ({
-  children, border = "rgba(217,70,239,0.2)", glow = "rgba(217,70,239,0.06)", className = "",
-  innerGlow = "rgba(217,70,239,0.05)",
-}: {
-  children: React.ReactNode; border?: string; glow?: string; className?: string; innerGlow?: string;
-}) => (
-  <motion.div
-    className={`p-[1px] rounded-2xl ${className}`}
-    style={{
-      background: `linear-gradient(135deg, ${border} 0%, rgba(60,10,90,0.18) 50%, rgba(0,0,0,0.05) 100%)`,
-      boxShadow: `0 8px 32px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.04)`,
-    }}
-    whileHover={{
-      y: -5,
-      scale: 1.02,
-      boxShadow: `0 20px 50px ${glow}, 0 8px 32px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.06)`,
-    }}
-    transition={{ duration: 0.2 }}
-  >
-    <div
-      className="rounded-[15px] h-full relative overflow-hidden"
-      style={{
-        background: `linear-gradient(145deg, rgba(255,255,255,0.055) 0%, rgba(20,3,35,0.88) 35%, rgba(6,0,12,0.96) 100%)`,
-        backdropFilter: "blur(20px)",
-        boxShadow: `inset 0 1px 0 rgba(255,255,255,0.09), inset 0 0 40px ${innerGlow}`,
-      }}
-    >
-      {/* Reflexo superior — canto diagonal */}
-      <div
-        className="absolute top-0 left-0 w-[60%] h-[1px] pointer-events-none"
-        style={{ background: "linear-gradient(90deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 60%, transparent 100%)" }}
-      />
-      {children}
-    </div>
-  </motion.div>
 );
 
 // ── CTA Button — o elemento mais brilhante da página ─────────────────────────
@@ -266,51 +111,9 @@ const CountdownBadge = ({ h, m, s, pad }: { h: number; m: number; s: number; pad
   </div>
 );
 
-// ── Astrological Circle — orbiting ring behind woman ─────────────────────────
-
-const AstrologicalCircle = () => (
-  <div className="absolute pointer-events-none select-none" style={{ width: 680, height: 680, top: "50%", right: "-8%", transform: "translateY(-50%)", zIndex: 0 }}>
-    <motion.svg viewBox="0 0 680 680" width="100%" height="100%"
-      animate={{ rotate: [0, 360] }}
-      transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
-    >
-      {/* Outer ring */}
-      <circle cx="340" cy="340" r="336" fill="none" stroke="rgba(217,70,239,0.22)" strokeWidth="1" />
-      {/* Tick marks every 10° */}
-      {Array.from({ length: 36 }).map((_, i) => {
-        const a = ((i * 10 - 90) * Math.PI) / 180;
-        const isMajor = i % 3 === 0;
-        const r1 = 336, r2 = isMajor ? 318 : 326;
-        return <line key={i} x1={340 + r1 * Math.cos(a)} y1={340 + r1 * Math.sin(a)} x2={340 + r2 * Math.cos(a)} y2={340 + r2 * Math.sin(a)} stroke={`rgba(217,70,239,${isMajor ? 0.45 : 0.22})`} strokeWidth={isMajor ? 1.5 : 0.8} />;
-      })}
-      {/* Middle rings */}
-      <circle cx="340" cy="340" r="290" fill="none" stroke="rgba(168,85,247,0.16)" strokeWidth="1" strokeDasharray="5 10" />
-      <circle cx="340" cy="340" r="230" fill="none" stroke="rgba(217,70,239,0.14)" strokeWidth="0.8" />
-      <circle cx="340" cy="340" r="170" fill="none" stroke="rgba(168,85,247,0.1)" strokeWidth="0.8" strokeDasharray="3 8" />
-      {/* Cross lines */}
-      <line x1="4" y1="340" x2="676" y2="340" stroke="rgba(217,70,239,0.07)" strokeWidth="0.8" />
-      <line x1="340" y1="4" x2="340" y2="676" stroke="rgba(217,70,239,0.07)" strokeWidth="0.8" />
-      {/* Diagonal lines */}
-      <line x1="100" y1="100" x2="580" y2="580" stroke="rgba(168,85,247,0.05)" strokeWidth="0.6" />
-      <line x1="580" y1="100" x2="100" y2="580" stroke="rgba(168,85,247,0.05)" strokeWidth="0.6" />
-      {/* Cardinal dots */}
-      {[0, 90, 180, 270].map((deg, i) => {
-        const a = ((deg - 90) * Math.PI) / 180;
-        return <circle key={i} cx={340 + 336 * Math.cos(a)} cy={340 + 336 * Math.sin(a)} r="4" fill="rgba(217,70,239,0.7)" style={{ filter: "drop-shadow(0 0 4px rgba(217,70,239,0.9))" }} />;
-      })}
-      {/* Orbital symbols */}
-      <text x="210" y="148" fill="rgba(217,70,239,0.4)" fontSize="18" textAnchor="middle">♥</text>
-      <text x="490" y="195" fill="rgba(168,85,247,0.32)" fontSize="13" textAnchor="middle">✦</text>
-      <text x="162" y="445" fill="rgba(244,114,182,0.3)" fontSize="15" textAnchor="middle">☽</text>
-      <text x="508" y="480" fill="rgba(217,70,239,0.28)" fontSize="12" textAnchor="middle">★</text>
-      <text x="340" y="42" fill="rgba(168,85,247,0.35)" fontSize="11" textAnchor="middle">✧</text>
-    </motion.svg>
-  </div>
-);
-
 // ── Starfield — fine white dots for cosmic depth ──────────────────────────────
 
-const STARS = Array.from({ length: 80 }, (_, i) => ({
+const STARS = Array.from({ length: 40 }, (_, i) => ({
   id: i,
   x: `${(i * 137.508 % 100).toFixed(2)}%`,
   y: `${(i * 97.41 % 100).toFixed(2)}%`,
@@ -463,36 +266,6 @@ const LuminescentOverlay = () => (
   </div>
 );
 
-// ── Layer 2b: Section particles — richer, wider spread ───────────────────────
-
-const PTS = [
-  { w: 3, c: "rgba(217,70,239,0.7)",  t: "12%", l: "6%",  dur: 3.8, delay: 0,   dy: -22 },
-  { w: 2, c: "rgba(168,85,247,0.6)",  t: "28%", l: "93%", dur: 4.5, delay: 0.7, dy: -16 },
-  { w: 3, c: "rgba(244,114,182,0.65)",t: "63%", l: "3%",  dur: 4.0, delay: 1.1, dy: -20 },
-  { w: 2, c: "rgba(217,70,239,0.55)", t: "80%", l: "88%", dur: 5.0, delay: 0.4, dy: -18 },
-  { w: 4, c: "rgba(168,85,247,0.6)",  t: "45%", l: "96%", dur: 4.2, delay: 1.5, dy: -24 },
-  { w: 2, c: "rgba(244,114,182,0.55)",t: "7%",  l: "52%", dur: 4.8, delay: 0.9, dy: -15 },
-  { w: 3, c: "rgba(200,70,239,0.5)",  t: "55%", l: "48%", dur: 6.0, delay: 2.0, dy: -20 },
-  { w: 2, c: "rgba(217,70,239,0.45)", t: "90%", l: "30%", dur: 5.5, delay: 3.2, dy: -18 },
-];
-
-const FloatingParticles = () => (
-  <div className="absolute inset-0 pointer-events-none overflow-hidden">
-    {PTS.map((p, i) => (
-      <motion.div
-        key={i}
-        className="absolute rounded-full"
-        style={{
-          width: p.w, height: p.w,
-          background: p.c, top: p.t, left: p.l,
-          boxShadow: `0 0 ${p.w * 5}px ${p.c}`,
-        }}
-        animate={{ y: [0, p.dy, 0], opacity: [0.25, 0.75, 0.25] }}
-        transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
-      />
-    ))}
-  </div>
-);
 
 // ── FullSection — imagem 16:9 full-width, Ken Burns, fade-in ─────────────────
 // Proporção nativa preservada em todos os viewports: width:100% + height:auto.
@@ -530,16 +303,9 @@ const VSL = () => {
   const { search } = useLocation();
   const setHasSeenVsl = useHandReadingStore((s) => s.setHasSeenVsl);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMuted, setIsMuted] = useState(true);
-  const [soundActivated, setSoundActivated] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [reviewIndex, setReviewIndex] = useState(0);
   const [showStickyCTA, setShowStickyCTA] = useState(false);
-  const [mouseParallax, setMouseParallax] = useState({ x: 0, y: 0 });
 
   const { h, m, s, pad } = useVslCountdown();
-  const videoSrc = import.meta.env.VITE_VSL_VIDEO_URL || "https://vsl-madame-aurora.b-cdn.net/0129.mp4";
 
   useEffect(() => { persistAttribution(new URLSearchParams(search)); }, [search]);
 
@@ -548,13 +314,6 @@ const VSL = () => {
     const parsedUtm = parseUtm(params);
     return { angle: getAngle(params, parsedUtm), focus: getFocus(params) };
   }, [search]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = true;
-    video.play().catch(() => {});
-  }, []);
 
   useEffect(() => {
     track("ViewContent", {
@@ -572,31 +331,6 @@ const VSL = () => {
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, []);
-
-  useEffect(() => {
-    const fn = (e: MouseEvent) => {
-      setMouseParallax({
-        x: (window.innerWidth / 2 - e.clientX) / 55,
-        y: (window.innerHeight / 2 - e.clientY) / 55,
-      });
-    };
-    window.addEventListener("mousemove", fn, { passive: true });
-    return () => window.removeEventListener("mousemove", fn);
-  }, []);
-
-  const activateSound = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = false;
-    setIsMuted(false);
-    setSoundActivated(true);
-  };
-
-  const toggleMute = () => {
-    if (!videoRef.current) return;
-    const next = !isMuted;
-    videoRef.current.muted = next;
-    setIsMuted(next);
-  };
 
   const handleCTA = () => {
     track("StartFlow", {
@@ -655,10 +389,10 @@ const VSL = () => {
 
           <nav className="hidden md:flex items-center gap-6">
             {[
-              { label: "How It Works", href: "#how-it-works" },
-              { label: "What You'll Discover", href: "#discover" },
-              { label: "Reviews", href: "#reviews" },
-              { label: "FAQ", href: "#faq" },
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms", href: "/terms" },
+              { label: "Refund", href: "/refund" },
+              { label: "Contact", href: "/contact" },
             ].map((link) => (
               <a key={link.href} href={link.href}
                 className="text-xs font-semibold text-white/45 hover:text-white transition-colors tracking-wide uppercase"
@@ -848,122 +582,28 @@ const VSL = () => {
       {/* ── SECTION 8 — FAQ + Final CTA ────────────────────────────────────── */}
       <FullSection src="/section8-16x9.jpg" dur={26} />
 
-      {/* footer removed — content baked into section8 image */}
-      <footer style={{ display: "none" }}>
-        <div className="max-w-[1400px] mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 pb-10" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-            {[
-              { icon: Lock, label: "SSL Secured", sub: "256-bit encryption" },
-              { icon: Shield, label: "Safe Checkout", sub: "Powered by Stripe" },
-              { icon: CheckCircle2, label: "7-Day Refund", sub: "Not satisfied? We refund." },
-              { icon: Star, label: "4.9/5 Rating", sub: "27,000+ happy customers", gold: true },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={item.gold
-                    ? { background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.2)" }
-                    : { background: "rgba(100,0,160,0.08)", border: "1px solid rgba(168,85,247,0.16)" }
-                  }
-                >
-                  <item.icon className={`w-5 h-5 ${item.gold ? "text-[#f59e0b] fill-[#f59e0b]" : "text-purple-400"}`} />
-                </div>
-                <div>
-                  <p className={`text-xs font-bold ${item.gold ? "text-[#f59e0b]" : "text-white/55"}`}>{item.label}</p>
-                  <p className="text-[10px] text-white/24">{item.sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-700 flex items-center justify-center"
-                  style={{ boxShadow: "0 0 8px rgba(217,70,239,0.32)" }}>
-                  <Star className="w-3 h-3 text-white fill-white" />
-                </div>
-                <span className="text-xs font-black uppercase tracking-widest text-white">Madam Aurora</span>
-              </div>
-              <p className="text-xs text-white/24 leading-relaxed mb-4">
-                AI-powered palm readings that reveal your love patterns, timing, and what comes next.
-              </p>
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <Instagram className="w-3.5 h-3.5 text-white/26" />
-                </div>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <span className="text-white/26"><TikTokIcon /></span>
-                </div>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <Youtube className="w-3.5 h-3.5 text-white/26" />
-                </div>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <span className="text-white/26"><PinterestIcon /></span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/38 mb-3">Quick Links</h4>
-              <ul className="space-y-2">
-                {["Home", "How It Works", "What You'll Discover", "Reviews", "FAQ"].map((link) => (
-                  <li key={link}><a href="#" className="text-xs text-white/24 hover:text-white/52 transition-colors">{link}</a></li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/38 mb-3">Legal</h4>
-              <ul className="space-y-2">
-                {[{ label: "Privacy Policy", href: "/privacy" }, { label: "Terms of Use", href: "/terms" }, { label: "Refund Policy", href: "/refund" }].map((link) => (
-                  <li key={link.label}><a href={link.href} className="text-xs text-white/24 hover:text-white/52 transition-colors">{link.label}</a></li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/38 mb-3">Support</h4>
-              <ul className="space-y-2">
-                {[
-                  { label: "Help Center", href: "/contact" },
-                  { label: "Track Your Order", href: "/contact" },
-                  { label: "Shipping & Delivery", href: "/contact" },
-                  { label: "Returns & Refunds", href: "/refund" },
-                ].map((link) => (
-                  <li key={link.label}><a href={link.href} className="text-xs text-white/24 hover:text-white/52 transition-colors">{link.label}</a></li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/38 mb-3">We Accept</h4>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {["VISA", "MC", "AMEX", "APPLE"].map((card) => (
-                  <div key={card} className="px-2.5 py-1 rounded text-[9px] font-bold text-white/32"
-                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    {card}
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Lock className="w-3 h-3 text-[#f59e0b]" />
-                <span className="text-[9px] text-white/18">Secure Checkout by Stripe</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-6 text-center" style={{ borderTop: "1px solid rgba(255,255,255,0.03)" }}>
-            <p className="text-[10px] text-white/14 leading-relaxed max-w-2xl mx-auto">
-              Readings are not a substitute for professional medical, psychological, legal, or financial advice.
-              Results are for entertainment and self-reflection purposes only.
-            </p>
-          </div>
+      {/* ── LEGAL FOOTER ───────────────────────────────────────────────────── */}
+      <footer className="py-6 px-4 text-center" style={{ background: "#020003", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+        <p className="text-[11px] text-white/32 leading-relaxed max-w-2xl mx-auto mb-4">
+          Readings are for entertainment and self-reflection purposes only.
+          Not a substitute for professional medical, psychological, legal, or financial advice.
+          Results are not guaranteed.
+        </p>
+        <div className="flex flex-wrap justify-center gap-4">
+          {[
+            { label: "Privacy Policy", href: "/privacy" },
+            { label: "Terms of Use", href: "/terms" },
+            { label: "Refund Policy", href: "/refund" },
+            { label: "Contact", href: "/contact" },
+          ].map((link) => (
+            <a key={link.href} href={link.href}
+              className="text-[11px] text-white/32 hover:text-white/60 transition-colors underline underline-offset-2"
+            >
+              {link.label}
+            </a>
+          ))}
         </div>
+        <p className="text-[10px] text-white/18 mt-3">© {new Date().getFullYear()} Madam Aurora. All rights reserved.</p>
       </footer>
 
       {/* ── STICKY CTA ─────────────────────────────────────────────────────── */}
