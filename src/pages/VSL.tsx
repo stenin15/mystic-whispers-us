@@ -650,247 +650,146 @@ const VSL = () => {
       </header>
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden w-full" style={{ minHeight: "calc(100vh - 72px)" }}>
-        {/* Background */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0" style={{ background: "linear-gradient(145deg, #0e001a 0%, #020003 45%, #08000f 100%)" }} />
-          <div className="absolute top-[-15%] right-[-12%] w-[900px] h-[900px] rounded-full blur-[200px]" style={{ background: "rgba(120,0,200,0.38)" }} />
-          <div className="absolute bottom-[-20%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[160px]" style={{ background: "rgba(200,0,240,0.22)" }} />
-          <div className="absolute top-[30%] left-[-5%] w-[400px] h-[400px] rounded-full blur-[150px]" style={{ background: "rgba(70,0,120,0.18)" }} />
-          <div className="absolute top-[50%] right-[30%] w-[300px] h-[300px] rounded-full blur-[120px]" style={{ background: "rgba(180,0,255,0.12)" }} />
-          <HeroStarfield />
-        </div>
+      <section
+        className="relative overflow-hidden w-full"
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          background: "linear-gradient(145deg, #0e001a 0%, #020003 45%, #08000f 100%)",
+        }}
+      >
+        <HeroStarfield />
 
-        {/* Inner grid — specs exatas */}
+        {/* Grid container */}
         <div
-          className="relative"
+          className="relative w-full"
           style={{
-            maxWidth: "1520px",
+            maxWidth: "1440px",
             margin: "0 auto",
-            padding: "clamp(80px, 8vw, 96px) clamp(20px, 5vw, 72px) clamp(48px, 6vw, 72px)",
-            minHeight: "calc(100vh - 72px)",
+            padding: "clamp(48px, 6vw, 80px) clamp(20px, 5vw, 80px)",
             display: "grid",
-            gridTemplateColumns: "minmax(0, 0.9fr) minmax(0, 1.1fr)",
+            gridTemplateColumns: "1fr 1.2fr",
+            gap: "clamp(24px, 3vw, 40px)",
             alignItems: "center",
-            gap: "clamp(24px, 4vw, 64px)",
           }}
         >
-          <div style={{ display: "contents" }}>
-
-            {/* Left: Copy */}
-            <motion.div
-              initial={{ opacity: 0, y: 36 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65 }}
-              style={{ maxWidth: "620px" }}
+          {/* Left: Copy */}
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65 }}
+            style={{ maxWidth: "520px" }}
+          >
+            <h1
+              className="font-black uppercase tracking-tight mb-6"
+              style={{ fontSize: "clamp(36px, 4.2vw, 80px)", lineHeight: "0.92", letterSpacing: "-0.03em" }}
             >
-              <h1 className="font-black uppercase tracking-tight mb-6"
-                style={{ fontSize: "clamp(42px, 5vw, 92px)", lineHeight: "0.9", letterSpacing: "-0.03em" }}
+              THERE'S A REASON
+              <br />
+              THIS KEEPS HAPPENING
+              <br />
+              IN YOUR{" "}
+              <span
+                className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-300 to-fuchsia-400"
+                style={{ filter: "drop-shadow(0 0 24px rgba(217,70,239,0.5))" }}
               >
-                THERE'S A REASON
-                <br />
-                THIS KEEPS HAPPENING
-                <br />
-                IN YOUR{" "}
-                <span
-                  className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-300 to-fuchsia-400"
-                  style={{ filter: "drop-shadow(0 0 24px rgba(217,70,239,0.5))" }}
-                >
-                  LOVE LIFE.
-                </span>
-              </h1>
+                LOVE LIFE.
+              </span>
+            </h1>
 
-              <p className="text-base md:text-[1.05rem] text-white/55 mb-7 leading-relaxed max-w-[420px]">
-                You've felt it before — the pattern you can't explain.
-                <br />
-                This shows you{" "}
-                <span className="text-white/88 font-semibold">exactly why it keeps happening.</span>
-              </p>
+            <p className="text-base text-white/55 mb-7 leading-relaxed" style={{ maxWidth: "420px" }}>
+              You've felt it before — the pattern you can't explain.
+              <br />
+              This shows you{" "}
+              <span className="text-white/88 font-semibold">exactly why it keeps happening.</span>
+            </p>
 
-              <ul className="space-y-3 mb-8">
-                {[
-                  "AI reads your palm lines in seconds",
-                  "Reveals your hidden timing patterns",
-                  "Personalized reading, just for you",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-3">
-                    <div
-                      className="w-5 h-5 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center flex-shrink-0"
-                      style={{ boxShadow: "0 0 10px rgba(217,70,239,0.4)" }}
-                    >
-                      <CheckCircle2 className="w-3 h-3 text-white" />
-                    </div>
-                    <span className="text-sm md:text-base text-white/72">{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* CTA */}
-              <div className="flex flex-col items-start gap-3 mb-5">
-                <div className="relative">
-                  <div className="absolute -inset-6 rounded-full bg-black/55 blur-2xl -z-10" />
-                  <CTAButton onClick={handleCTA} size="xl" className="w-full sm:w-auto">
-                    REVEAL MY TIMING <ArrowRight className="w-6 h-6" />
-                  </CTAButton>
-                </div>
-                {/* Social proof — avatars + stars + count */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="flex items-center gap-3 pl-1"
-                >
-                  <div className="flex -space-x-2">
-                    {[avatarCarla, avatarFernanda, avatarMariana].map((src, i) => (
-                      <img key={i} src={src} alt=""
-                        className="w-7 h-7 rounded-full object-cover"
-                        style={{ border: "2px solid rgba(2,0,3,0.9)", zIndex: 3 - i }}
-                      />
-                    ))}
+            <ul className="space-y-3 mb-8">
+              {[
+                "AI reads your palm lines in seconds",
+                "Reveals your hidden timing patterns",
+                "Personalized reading, just for you",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3">
+                  <div
+                    className="w-5 h-5 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center flex-shrink-0"
+                    style={{ boxShadow: "0 0 10px rgba(217,70,239,0.4)" }}
+                  >
+                    <CheckCircle2 className="w-3 h-3 text-white" />
                   </div>
-                  <Stars count={5} />
-                  <span className="text-xs text-white/45 font-medium">27,241+ readings completed</span>
-                </motion.div>
-              </div>
+                  <span className="text-sm md:text-base text-white/72">{item}</span>
+                </li>
+              ))}
+            </ul>
 
-              <div className="mb-4">
-                <CountdownBadge h={h} m={m} s={s} pad={pad} />
-              </div>
-
-              <p className="text-[11px] text-white/22 tracking-wide">
-                Private · AI-Powered · Takes 60 Seconds · No credit card to start
-              </p>
-            </motion.div>
-
-            {/* Right: Woman — ocupa coluna inteira */}
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.9, delay: 0.18 }}
-              style={{ position: "relative", width: "100%", maxWidth: "820px", justifySelf: "end" }}
-            >
-              {/* Astrological circle — behind everything */}
-              <AstrologicalCircle />
-
-              {/* Glow base cósmico */}
-              <div className="absolute pointer-events-none" style={{ inset: "-80px -100px -60px -40px", background: "radial-gradient(ellipse 65% 55% at 60% 50%, rgba(140,0,240,0.55), transparent)", filter: "blur(50px)" }} />
-              <div className="absolute pointer-events-none" style={{ inset: "-20px -40px -20px 20px", background: "radial-gradient(ellipse 45% 45% at 65% 55%, rgba(217,70,239,0.3), transparent)", filter: "blur(22px)" }} />
-
-              {/* Float + Parallax wrapper */}
+            {/* CTA */}
+            <div className="flex flex-col items-start gap-3 mb-5">
+              <CTAButton onClick={handleCTA} size="xl" className="w-full sm:w-auto">
+                REVEAL MY TIMING <ArrowRight className="w-6 h-6" />
+              </CTAButton>
               <motion.div
-                animate={{ y: [0, -10, 0], scale: [1, 1.018, 1] }}
-                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-                style={{
-                  x: mouseParallax.x,
-                  y: mouseParallax.y,
-                  zIndex: 1,
-                  position: "relative",
-                }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="flex items-center gap-3 pl-1"
               >
-                {/* Imagem — width 100%, height auto, sem restrição */}
-                <div className="relative w-full">
-                  <img
-                    src="/hero-woman.jpg"
-                    alt="Mystic palm reading by Madam Aurora"
-                    className="w-full"
-                    loading="eager"
-                    style={{ height: "auto", display: "block", filter: "contrast(1.08) saturate(1.1) brightness(0.93)" }}
-                  />
-                  {/* Fades de fusão com o fundo */}
-                  <div className="absolute bottom-0 left-0 right-0 h-[25%]" style={{ background: "linear-gradient(to top, #030004 0%, transparent 100%)" }} />
-                  <div className="absolute top-0 right-0 bottom-0 w-[18%]" style={{ background: "linear-gradient(to right, transparent 0%, rgba(8,0,16,0.65) 100%)" }} />
-                  <div className="absolute top-0 left-0 right-0 h-[12%]" style={{ background: "linear-gradient(to bottom, rgba(8,0,16,0.35) 0%, transparent 100%)" }} />
-                  <div className="absolute top-0 left-0 bottom-0 w-[14%]" style={{ background: "linear-gradient(to left, transparent 0%, rgba(8,0,16,0.5) 100%)" }} />
-
-                  {/* Glow pulsante nas linhas da palma */}
-                  <motion.div
-                    className="absolute inset-0 pointer-events-none"
-                    animate={{ opacity: [0.6, 1, 0.6] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    style={{ background: "radial-gradient(ellipse 45% 38% at 62% 58%, rgba(255,0,200,0.18) 0%, transparent 70%)" }}
-                  />
-
-                  {/* Floating decorative — coração top-left */}
-                  <motion.div
-                    className="absolute flex items-center justify-center rounded-full"
-                    style={{
-                      top: "8%",
-                      left: "6%",
-                      width: 36,
-                      height: 36,
-                      background: "rgba(217,70,239,0.18)",
-                      border: "1px solid rgba(217,70,239,0.45)",
-                      backdropFilter: "blur(8px)",
-                      boxShadow: "0 0 18px rgba(217,70,239,0.35)",
-                      zIndex: 10,
-                    }}
-                    animate={{ y: [0, -8, 0], opacity: [0.7, 1, 0.7] }}
-                    transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                  >
-                    <Heart className="w-4 h-4 text-fuchsia-300 fill-fuchsia-400" style={{ filter: "drop-shadow(0 0 6px rgba(217,70,239,0.8))" }} />
-                  </motion.div>
-
-                  {/* Floating decorative — estrela top-right */}
-                  <motion.div
-                    className="absolute flex items-center justify-center rounded-full"
-                    style={{
-                      top: "10%",
-                      right: "10%",
-                      width: 32,
-                      height: 32,
-                      background: "rgba(168,85,247,0.18)",
-                      border: "1px solid rgba(168,85,247,0.45)",
-                      backdropFilter: "blur(8px)",
-                      boxShadow: "0 0 16px rgba(168,85,247,0.4)",
-                      zIndex: 10,
-                    }}
-                    animate={{ y: [0, -6, 0], rotate: [0, 15, 0], opacity: [0.6, 1, 0.6] }}
-                    transition={{ duration: 4.2, delay: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-violet-300" style={{ filter: "drop-shadow(0 0 5px rgba(168,85,247,0.8))" }} />
-                  </motion.div>
-
-                  {/* Floating decorative — estrela medium esquerda-baixo */}
-                  <motion.div
-                    className="absolute"
-                    style={{
-                      bottom: "28%",
-                      left: "4%",
-                      zIndex: 10,
-                    }}
-                    animate={{ y: [0, -10, 0], opacity: [0.4, 0.9, 0.4] }}
-                    transition={{ duration: 5, delay: 0.8, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    <Star className="w-4 h-4 text-fuchsia-400 fill-fuchsia-400" style={{ filter: "drop-shadow(0 0 8px rgba(217,70,239,0.9))" }} />
-                  </motion.div>
+                <div className="flex -space-x-2">
+                  {[avatarCarla, avatarFernanda, avatarMariana].map((src, i) => (
+                    <img key={i} src={src} alt=""
+                      className="w-7 h-7 rounded-full object-cover"
+                      style={{ border: "2px solid rgba(2,0,3,0.9)", zIndex: 3 - i }}
+                    />
+                  ))}
                 </div>
+                <Stars count={5} />
+                <span className="text-xs text-white/45 font-medium">27,241+ readings completed</span>
+              </motion.div>
+            </div>
 
-                {/* Badge 60s — flutua fora da imagem */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.72, y: 12 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ delay: 1.1, type: "spring", stiffness: 180 }}
-                  className="absolute -bottom-6 left-6 md:left-8 text-center px-5 py-4 rounded-2xl z-10"
-                  style={{
-                    background: "rgba(8,0,15,0.97)",
-                    boxShadow: "inset 0 1px 0 rgba(217,70,239,0.22), 0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(168,85,247,0.2)",
-                    backdropFilter: "blur(24px)",
-                  }}
-                >
-                  <p className="text-[9px] uppercase tracking-widest text-white/28 mb-0.5">Takes less than</p>
-                  <p className="text-[2.5rem] font-black text-fuchsia-400 leading-none"
-                    style={{ textShadow: "0 0 28px rgba(217,70,239,0.85)" }}>60</p>
-                  <p className="text-[10px] font-black text-white/48 uppercase tracking-wider">Seconds</p>
-                </motion.div>
-              </motion.div>{/* /float-parallax */}
-            </motion.div>{/* /right column */}
-          </div>
+            <div className="mb-4">
+              <CountdownBadge h={h} m={m} s={s} pad={pad} />
+            </div>
+
+            <p className="text-[11px] text-white/22 tracking-wide">
+              Private · AI-Powered · Takes 60 Seconds · No credit card to start
+            </p>
+          </motion.div>
+
+          {/* Right: Hero image 16:9 */}
+          <motion.div
+            initial={{ opacity: 0, x: 32 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.9, delay: 0.15 }}
+            className="relative w-full"
+          >
+            <div className="relative w-full">
+              <img
+                src="/hero-16x9.jpg"
+                alt="Mystic palm reading by Madam Aurora"
+                className="w-full"
+                loading="eager"
+                style={{ height: "auto", display: "block" }}
+              />
+              {/* Fade esquerda — fusão suave com o texto */}
+              <div
+                className="absolute top-0 left-0 bottom-0 w-[30%] pointer-events-none"
+                style={{ background: "linear-gradient(to right, #050007 0%, transparent 100%)" }}
+              />
+              {/* Fade bottom */}
+              <div
+                className="absolute bottom-0 left-0 right-0 h-[20%] pointer-events-none"
+                style={{ background: "linear-gradient(to top, #030004 0%, transparent 100%)" }}
+              />
+              {/* Glow pulsante na palma */}
+              <motion.div
+                className="absolute inset-0 pointer-events-none"
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                style={{ background: "radial-gradient(ellipse 30% 25% at 72% 58%, rgba(255,80,220,0.22) 0%, transparent 70%)" }}
+              />
+            </div>
+          </motion.div>
         </div>
       </section>
 
