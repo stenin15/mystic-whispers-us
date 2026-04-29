@@ -82,16 +82,34 @@ const TimeSeparator = () => (
   <span className="text-rose-400/60 font-bold text-lg mb-4 self-end pb-3">:</span>
 );
 
+const PREVIEW_RESULT = {
+  energyType: { name: 'Intuitive Flame', icon: 'flame', description: 'Your palm carries a rare convergence of the heart and fate lines — a pattern that appears in fewer than 12% of readings. It points to a deeply empathic nature that often feels pulled in two directions: what the heart wants, and what the mind says is safe.' },
+  palmObservations: 'Aurora noticed a pronounced fork in your heart line near the index finger — a classical sign of an unresolved emotional decision. Your fate line runs clean and unbroken, which is unusual and speaks to latent clarity waiting to surface.',
+  strengths: [
+    { icon: 'star', title: 'Deep Emotional Attunement', desc: 'You sense what others feel before they say it. This is a rare gift, though it can blur where you end and others begin.' },
+    { icon: 'heart', title: 'Magnetic Presence', desc: 'People are drawn to your energy without knowing why. The lines near your mount of Venus confirm this.' },
+    { icon: 'moon', title: 'Cyclical Wisdom', desc: 'You make your best decisions in alignment with your emotional rhythms — not against them.' },
+  ],
+  blocks: [
+    { icon: 'lock', title: 'Fear of Repetition', desc: 'A pattern in your heart line suggests you may be holding back in relationships to avoid repeating a past experience.' },
+    { icon: 'cloud', title: 'Deferred Decision', desc: 'Aurora detected a fork that typically appears when someone already knows the answer but hasn\'t allowed themselves to act on it yet.' },
+  ],
+  spiritualMessage: 'You are not waiting for permission. You are waiting for certainty that will never fully come — and that is the pattern your palm is asking you to release. The window is open now. It will not stay open indefinitely.',
+};
+
 const Resultado = () => {
   const navigate = useNavigate();
   const { name, email, analysisResult, canAccessResult } = useHandReadingStore();
+  const isPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === '1';
 
   const hasTrackedRef = useRef(false);
   const { h, m, s } = useCountdown24h();
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'complete'>('complete');
 
+  const result = isPreview ? PREVIEW_RESULT : analysisResult;
+
   useEffect(() => {
-    if (!canAccessResult()) {
+    if (!isPreview && !canAccessResult()) {
       navigate('/formulario');
       return;
     }
@@ -146,10 +164,10 @@ const Resultado = () => {
     navigate(appendUtmToPath(`/checkout?plan=${selectedPlan}`));
   };
 
-  if (!analysisResult) return null;
+  if (!result) return null;
 
-  const EnergyIcon = getIcon(analysisResult.energyType.icon);
-  const [firstStrength, ...lockedStrengths] = analysisResult.strengths;
+  const EnergyIcon = getIcon(result.energyType.icon);
+  const [firstStrength, ...lockedStrengths] = result.strengths;
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#0D0D0D]">
@@ -240,13 +258,13 @@ const Resultado = () => {
             <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400/60 mb-2">Energy Type</p>
             <h2 className="text-3xl md:text-4xl font-serif font-bold mb-3"
               style={{ background: 'linear-gradient(135deg, hsl(280 70% 80%), hsl(45 95% 65%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              {analysisResult.energyType.name}
+              {result.energyType.name}
             </h2>
             <p className="text-white/55 leading-relaxed max-w-xl mx-auto text-sm md:text-base">
-              {analysisResult.energyType.description}
+              {result.energyType.description}
             </p>
 
-            {analysisResult.palmObservations && (
+            {result.palmObservations && (
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -262,7 +280,7 @@ const Resultado = () => {
                   <Eye className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
                   <span className="text-xs font-semibold tracking-wide text-amber-400">What Aurora noticed in your palm:</span>
                 </div>
-                <p className="text-sm text-white/70 italic leading-relaxed">{analysisResult.palmObservations}</p>
+                <p className="text-sm text-white/70 italic leading-relaxed">{result.palmObservations}</p>
               </motion.div>
             )}
           </motion.div>
@@ -498,7 +516,7 @@ const Resultado = () => {
             </p>
             <div className="relative rounded-2xl overflow-hidden">
               <div className="space-y-3 select-none pointer-events-none">
-                {analysisResult.blocks.map((b, i) => {
+                {result.blocks.map((b, i) => {
                   const Icon = getIcon(b.icon);
                   return (
                     <div key={i} className="p-5 rounded-2xl"
@@ -544,7 +562,7 @@ const Resultado = () => {
               className="p-8 select-none pointer-events-none whitespace-pre-line font-serif italic text-white/40 text-base leading-relaxed"
               style={{ filter: 'blur(8px)', background: 'hsl(280 60% 55% / 0.05)' }}
             >
-              {analysisResult.spiritualMessage}
+              {result.spiritualMessage}
             </div>
             <div
               className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"

@@ -6,6 +6,8 @@ const ALLOWED_ORIGINS = [
   "https://www.madam-aurora.co",
   "http://localhost:5173",
   "http://localhost:5174",
+  "http://localhost:5175",
+  "http://localhost:5174",
   "http://localhost:8080",
   "http://localhost:8910",
 ];
@@ -74,7 +76,7 @@ serve(async (req) => {
 
     // Try ElevenLabs first, fall back to OpenAI TTS
     const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
-    const ELEVENLABS_VOICE_ID = Deno.env.get("ELEVENLABS_VOICE_ID") ?? "uIZsnBL0YK1S5j69bAih";
+    const ELEVENLABS_VOICE_ID = Deno.env.get("ELEVENLABS_VOICE_ID") ?? "7NsaqHdLuKNFvEfjpUno";
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
     let audioBuffer: ArrayBuffer | null = null;

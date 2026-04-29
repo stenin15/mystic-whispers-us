@@ -2,6 +2,54 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@15.12.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1?target=deno";
 
+const sha256Hex = async (input: string): Promise<string> => {
+  const enc = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+};
+
+const sendMetaCapi = async (params: {
+  pixelId: string;
+  token: string;
+  email?: string | null;
+  value: number;
+  currency: string;
+  productCode: string;
+  sessionId: string;
+}) => {
+  const user_data: Record<string, unknown> = {};
+  if (params.email) {
+    user_data.em = [await sha256Hex(params.email.trim().toLowerCase())];
+  }
+  const payload = {
+    data: [{
+      event_name: "Purchase",
+      event_time: Math.floor(Date.now() / 1000),
+      event_id: `purchase_wh_${params.sessionId}`,
+      action_source: "website",
+      event_source_url: "https://madam-aurora.co/sucesso",
+      user_data,
+      custom_data: {
+        value: params.value,
+        currency: params.currency.toUpperCase(),
+        content_name: params.productCode,
+        content_type: "product",
+      },
+    }],
+  };
+  const res = await fetch(
+    `https://graph.facebook.com/v20.0/${params.pixelId}/events?access_token=${params.token}`,
+    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) },
+  );
+  if (!res.ok) {
+    console.warn("stripe-webhook capi_failed", { status: res.status, body: await res.text() });
+  } else {
+    console.log("stripe-webhook capi_ok", { session_id: params.sessionId });
+  }
+};
+
 type ProductCode = "basic" | "complete" | "guide" | "upsell";
 type PurchaseStatus = "paid" | "unpaid" | "refunded";
 
@@ -148,11 +196,13 @@ serve(async (req) => {
           currency: session.currency ?? null,
         });
 
+        const email = session.customer_details?.email ?? session.customer_email ?? null;
+
         await upsertPurchase({
           stripe_session_id: sessionId,
           status: "paid",
           product_code,
-          email: session.customer_details?.email ?? session.customer_email ?? null,
+          email,
           stripe_customer_id:
             typeof session.customer === "string" ? session.customer : session.customer?.id ?? null,
           stripe_payment_intent_id:
@@ -165,6 +215,21 @@ serve(async (req) => {
         });
 
         console.log("purchase_upsert_ok", { session_id: sessionId, status: "paid", product_code });
+
+        // Fire Meta CAPI Purchase directly from webhook — independent of browser
+        const META_PIXEL_ID = Deno.env.get("META_PIXEL_ID");
+        const META_ACCESS_TOKEN = Deno.env.get("META_ACCESS_TOKEN");
+        if (META_PIXEL_ID && META_ACCESS_TOKEN) {
+          await sendMetaCapi({
+            pixelId: META_PIXEL_ID,
+            token: META_ACCESS_TOKEN,
+            email,
+            value: (session.amount_total ?? 0) / 100,
+            currency: session.currency ?? "usd",
+            productCode: product_code,
+            sessionId,
+          });
+        }
 
         break;
       }
