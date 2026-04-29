@@ -27,25 +27,40 @@ import { supabase } from '@/integrations/supabase/client';
 // 24-hour countdown from first visit
 function useCountdown24h() {
   const KEY = 'aurora_resultado_expiry';
+  const freshExpiry = () => {
+    const e = Date.now() + 24 * 60 * 60 * 1000;
+    localStorage.setItem(KEY, String(e));
+    return e;
+  };
   const getExpiry = () => {
     const stored = localStorage.getItem(KEY);
-    if (stored) return Number(stored);
-    const expiry = Date.now() + 24 * 60 * 60 * 1000;
-    localStorage.setItem(KEY, String(expiry));
-    return expiry;
+    if (stored) {
+      const n = Number(stored);
+      if (n > Date.now()) return n;
+    }
+    return freshExpiry();
   };
-  const [expiry] = useState(getExpiry);
+  const [expiry, setExpiry] = useState(getExpiry);
   const [timeLeft, setTimeLeft] = useState(expiry - Date.now());
 
   useEffect(() => {
-    const id = setInterval(() => setTimeLeft(expiry - Date.now()), 1000);
+    const id = setInterval(() => {
+      const remaining = expiry - Date.now();
+      if (remaining <= 0) {
+        const next = freshExpiry();
+        setExpiry(next);
+        setTimeLeft(next - Date.now());
+      } else {
+        setTimeLeft(remaining);
+      }
+    }, 1000);
     return () => clearInterval(id);
   }, [expiry]);
 
   const h = Math.max(0, Math.floor(timeLeft / 3600000));
   const m = Math.max(0, Math.floor((timeLeft % 3600000) / 60000));
   const s = Math.max(0, Math.floor((timeLeft % 60000) / 1000));
-  return { h, m, s, expired: timeLeft <= 0 };
+  return { h, m, s, expired: false };
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');

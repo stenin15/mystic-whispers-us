@@ -30,17 +30,32 @@ const FAQ_ITEMS = [
 
 function useVslCountdown() {
   const KEY = "aurora_vsl_expiry";
-  const getExpiry = () => {
-    const stored = localStorage.getItem(KEY);
-    if (stored) return Number(stored);
+  const freshExpiry = () => {
     const e = Date.now() + 24 * 60 * 60 * 1000;
     localStorage.setItem(KEY, String(e));
     return e;
   };
-  const [expiry] = useState(getExpiry);
+  const getExpiry = () => {
+    const stored = localStorage.getItem(KEY);
+    if (stored) {
+      const n = Number(stored);
+      if (n > Date.now()) return n;
+    }
+    return freshExpiry();
+  };
+  const [expiry, setExpiry] = useState(getExpiry);
   const [left, setLeft] = useState(expiry - Date.now());
   useEffect(() => {
-    const id = setInterval(() => setLeft(expiry - Date.now()), 1000);
+    const id = setInterval(() => {
+      const remaining = expiry - Date.now();
+      if (remaining <= 0) {
+        const next = freshExpiry();
+        setExpiry(next);
+        setLeft(next - Date.now());
+      } else {
+        setLeft(remaining);
+      }
+    }, 1000);
     return () => clearInterval(id);
   }, [expiry]);
   const h = Math.max(0, Math.floor(left / 3_600_000));
