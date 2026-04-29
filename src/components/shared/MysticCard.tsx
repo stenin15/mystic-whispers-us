@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { Card3D } from './Card3D';
 
 interface MysticCardProps {
   children: ReactNode;
@@ -8,6 +9,7 @@ interface MysticCardProps {
   glow?: boolean;
   hover?: boolean;
   gradient?: boolean;
+  tilt?: boolean;
 }
 
 export const MysticCard = ({
@@ -16,8 +18,9 @@ export const MysticCard = ({
   glow = false,
   hover = true,
   gradient = false,
+  tilt = false,
 }: MysticCardProps) => {
-  return (
+  const inner = (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -27,32 +30,41 @@ export const MysticCard = ({
         hover && 'transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10',
         glow && 'glow-mystic',
         gradient && 'bg-gradient-to-br from-primary/10 to-accent/10',
-        className
+        className,
       )}
     >
-      {/* Subtle gradient overlay */}
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
       <div className="relative z-10">{children}</div>
     </motion.div>
   );
+
+  if (tilt) {
+    return (
+      <Card3D className="w-full">
+        {inner}
+      </Card3D>
+    );
+  }
+
+  return inner;
 };
 
-// Feature card variant
 interface FeatureCardProps {
   icon: ReactNode;
   title: string;
   description: string;
   delay?: number;
+  tilt?: boolean;
 }
 
-export const FeatureCard = ({ icon, title, description, delay = 0 }: FeatureCardProps) => {
-  return (
+export const FeatureCard = ({ icon, title, description, delay = 0, tilt = true }: FeatureCardProps) => {
+  const inner = (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      className="group relative rounded-2xl p-6 bg-card/40 backdrop-blur-xl border border-border/30 hover:border-primary/40 transition-all duration-500"
+      className="group relative rounded-2xl p-6 bg-card/40 backdrop-blur-xl border border-border/30 hover:border-primary/40 transition-colors duration-500 w-full"
     >
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="relative z-10">
@@ -66,4 +78,10 @@ export const FeatureCard = ({ icon, title, description, delay = 0 }: FeatureCard
       </div>
     </motion.div>
   );
+
+  if (tilt) {
+    return <Card3D className="w-full">{inner}</Card3D>;
+  }
+
+  return inner;
 };

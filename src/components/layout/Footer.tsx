@@ -1,40 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Sparkles, Shield, Lock, RefreshCcw, Award } from 'lucide-react';
-
-const TRUST_SEALS = [
-  {
-    icon: Shield,
-    title: 'SSL Secured',
-    sub: '256-bit encryption',
-    color: 'text-green-400',
-    border: 'border-green-500/20',
-    bg: 'bg-green-500/5',
-  },
-  {
-    icon: Lock,
-    title: 'Safe Checkout',
-    sub: 'Stripe & PCI compliant',
-    color: 'text-blue-400',
-    border: 'border-blue-500/20',
-    bg: 'bg-blue-500/5',
-  },
-  {
-    icon: RefreshCcw,
-    title: '7-Day Refund',
-    sub: 'No questions asked',
-    color: 'text-purple-400',
-    border: 'border-purple-500/20',
-    bg: 'bg-purple-500/5',
-  },
-  {
-    icon: Award,
-    title: '4.9 / 5 Rating',
-    sub: '27,000+ readings done',
-    color: 'text-yellow-400',
-    border: 'border-yellow-500/20',
-    bg: 'bg-yellow-500/5',
-  },
-];
+import { Sparkles } from 'lucide-react';
 
 // Inline SVG card logos
 const VisaLogo = () => (
@@ -70,22 +35,15 @@ export const Footer = () => {
     <footer className="relative pt-14 pb-10 border-t border-border/30">
       <div className="container mx-auto px-4 max-w-5xl">
 
-        {/* ── Trust Seals ── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-          {TRUST_SEALS.map((seal) => (
-            <div
-              key={seal.title}
-              className={`flex flex-col items-center text-center gap-2 rounded-2xl border ${seal.border} ${seal.bg} px-4 py-4`}
-            >
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-white/5`}>
-                <seal.icon className={`w-5 h-5 ${seal.color}`} />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-foreground/90 leading-tight">{seal.title}</p>
-                <p className="text-[10px] text-muted-foreground/60 mt-0.5">{seal.sub}</p>
-              </div>
-            </div>
-          ))}
+        {/* ── Trust Seals PNG ── */}
+        <div className="flex items-center justify-center gap-5 px-6 py-5 rounded-2xl border border-white/[0.12] bg-black/50 backdrop-blur-md flex-wrap mb-10">
+          <img src="/SSLENCRYPTION.png" alt="SSL Secured" className="h-12 w-auto object-contain" loading="lazy" />
+          <div className="w-px h-10 bg-white/15 hidden sm:block" />
+          <img src="/Stripe-Trust-Image.png" alt="Safe Checkout — Stripe" className="h-12 w-auto object-contain" loading="lazy" />
+          <div className="w-px h-10 bg-white/15 hidden sm:block" />
+          <img src="/7day-768x768.png" alt="7-Day Money Back" className="h-12 w-auto object-contain" loading="lazy" />
+          <div className="w-px h-10 bg-white/15 hidden sm:block" />
+          <img src="/FFGSDRR.png" alt="4.9/5 Rating" className="h-12 w-auto object-contain" loading="lazy" />
         </div>
 
         {/* ── Payment logos ── */}

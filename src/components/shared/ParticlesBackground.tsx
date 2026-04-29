@@ -1,159 +1,263 @@
-import { useEffect, useRef, forwardRef, memo } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import { motion } from 'framer-motion';
+import * as THREE from 'three';
 
-interface Particle {
-  x: number;
-  y: number;
-  size: number;
-  speedY: number;
-  speedX: number;
-  opacity: number;
+// ─── CONFIG ───────────────────────────────────────────────
+const isMobile = () => /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+function getConfig() {
+  const mobile = isMobile();
+  return {
+    count:    mobile ? 60_000 : 130_000,
+    radius:   mobile ? 6.5    : 10,
+    branches: 4,
+    spin:     1.1,
+    rand:     0.6,
+    randPow:  3,
+    dpr:      mobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2),
+  };
 }
 
-// Memoized and optimized ParticlesBackground
-export const ParticlesBackground = memo(forwardRef<HTMLCanvasElement>((_, ref) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
-  const particlesRef = useRef<Particle[]>([]);
-  const isReducedMotion = useRef(false);
+const INNER = new THREE.Color('#f0abfc');   // pink-violet brilhante (centro)
+const OUTER = new THREE.Color('#9333ea');   // violet (bordas)
+const FUCH  = new THREE.Color('#f472b6');   // hot pink accent
+const GOLD  = new THREE.Color('#fbbf24');   // dourado faísca (raro)
+
+// ── Textura realista de estrela: núcleo nítido + halo suave ──
+function makeStarTexture(): THREE.Texture {
+  const S = 128;
+  const c = document.createElement('canvas');
+  c.width = c.height = S;
+  const ctx = c.getContext('2d')!;
+  const half = S / 2;
+
+  // 1. Halo externo amplo e suave
+  const halo = ctx.createRadialGradient(half, half, 0, half, half, half);
+  halo.addColorStop(0,    'rgba(255,255,255,0.18)');
+  halo.addColorStop(0.35, 'rgba(255,255,255,0.06)');
+  halo.addColorStop(1,    'rgba(255,255,255,0)');
+  ctx.fillStyle = halo;
+  ctx.fillRect(0, 0, S, S);
+
+  // 2. Núcleo brilhante e nítido
+  const core = ctx.createRadialGradient(half, half, 0, half, half, half * 0.28);
+  core.addColorStop(0,    'rgba(255,255,255,1)');
+  core.addColorStop(0.4,  'rgba(255,255,255,0.85)');
+  core.addColorStop(0.75, 'rgba(255,255,255,0.25)');
+  core.addColorStop(1,    'rgba(255,255,255,0)');
+  ctx.fillStyle = core;
+  ctx.fillRect(0, 0, S, S);
+
+  return new THREE.CanvasTexture(c);
+}
+
+// ── Vertex shader: cada estrela tem tamanho próprio (aSize attribute) ──
+const VERT = /* glsl */`
+  attribute float aSize;
+  varying   vec3  vColor;
+  void main() {
+    vColor = color;
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    // tamanho perspectiva: aSize pixels * fator de distância
+    gl_PointSize = aSize * (180.0 / -mv.z);
+    gl_Position  = projectionMatrix * mv;
+  }
+`;
+
+// ── Fragment shader: aplica textura circular ──
+const FRAG = /* glsl */`
+  uniform sampler2D uTex;
+  varying vec3      vColor;
+  void main() {
+    vec4 t = texture2D(uTex, gl_PointCoord);
+    if (t.a < 0.01) discard;
+    gl_FragColor = vec4(vColor * t.rgb, t.a);
+  }
+`;
+
+export const ParticlesBackground = memo(() => {
+  const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check for reduced motion preference
-    isReducedMotion.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const ctx = canvas.getContext('2d', { alpha: true });
-    if (!ctx) return;
+    const mount = mountRef.current!;
+    const cfg = getConfig();
+    let W = window.innerWidth;
+    let H = window.innerHeight;
 
-    let lastTime = 0;
-    const fps = 30; // Limit to 30fps for better performance
-    const frameInterval = 1000 / fps;
+    // ── Renderer ──────────────────────────────────────────
+    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(cfg.dpr);
+    renderer.setSize(W, H);
+    renderer.setClearColor(0x000000, 0);
+    // canvas sempre cobre toda a viewport
+    renderer.domElement.style.cssText =
+      'position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;';
+    mount.appendChild(renderer.domElement);
 
-    const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      ctx.scale(dpr, dpr);
-    };
+    // ── Scene ─────────────────────────────────────────────
+    const scene = new THREE.Scene();
+    scene.fog   = new THREE.FogExp2(0x02010a, 0.05);
 
-    resizeCanvas();
-    
-    // Use passive event listener for better scroll performance
-    window.addEventListener('resize', resizeCanvas, { passive: true });
+    // ── Camera ────────────────────────────────────────────
+    const camera = new THREE.PerspectiveCamera(75, W / H, 0.1, 100);
+    camera.position.set(0, 3, 5.5);
+    camera.lookAt(0, 0, 0);
 
-    // Reduced particle count for better performance
-    const particleCount = isReducedMotion.current ? 0 : 25;
-    
-    // Initialize particles only once
-    if (particlesRef.current.length === 0) {
-      for (let i = 0; i < particleCount; i++) {
-        particlesRef.current.push({
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * window.innerHeight,
-          size: Math.random() * 2 + 1,
-          speedY: Math.random() * 0.3 + 0.1,
-          speedX: (Math.random() - 0.5) * 0.2,
-          opacity: Math.random() * 0.4 + 0.1,
-        });
-      }
+    // ── Geometria da galáxia ──────────────────────────────
+    const N = cfg.count;
+    const positions = new Float32Array(N * 3);
+    const colors    = new Float32Array(N * 3);
+    const sizes     = new Float32Array(N);          // tamanho único por estrela
+    const mix       = new THREE.Color();
+
+    for (let i = 0; i < N; i++) {
+      const i3     = i * 3;
+      const r      = Math.random() * cfg.radius;
+      const branch = (i % cfg.branches) / cfg.branches * Math.PI * 2;
+      const spin   = r * cfg.spin;
+
+      const pow  = cfg.randPow;
+      const rand = cfg.rand;
+      const rX = Math.pow(Math.random(), pow) * (Math.random() < 0.5 ? 1 : -1) * rand * r;
+      const rY = Math.pow(Math.random(), pow) * (Math.random() < 0.5 ? 1 : -1) * rand * r;
+      const rZ = Math.pow(Math.random(), pow) * (Math.random() < 0.5 ? 1 : -1) * rand * r;
+
+      positions[i3]     = Math.cos(branch + spin) * r + rX;
+      positions[i3 + 1] = rY * 0.55;
+      positions[i3 + 2] = Math.sin(branch + spin) * r + rZ;
+
+      // Cor: pink-violet no centro → violet nas bordas + hot pink accent + faíscas douradas raras
+      mix.lerpColors(INNER, OUTER, r / cfg.radius);
+      if (r > cfg.radius * 0.5 && Math.random() > 0.5) mix.lerp(FUCH, 0.55);
+      if (Math.random() > 0.97) mix.lerp(GOLD, 0.8);  // ~3% dourado
+
+      colors[i3]     = mix.r;
+      colors[i3 + 1] = mix.g;
+      colors[i3 + 2] = mix.b;
+
+      // Tamanho variável tiny: centro levemente maior, bordas menores
+      // ~1% são estrelas brilhantes visíveis (2× maior)
+      const baseSize = 0.06 + (1 - r / cfg.radius) * 0.06;   // 0.06 → 0.12
+      const spike    = Math.random() > 0.99 ? 2.2 + Math.random() * 1.2 : 1;
+      sizes[i]       = baseSize * spike;
     }
 
-    const animate = (currentTime: number) => {
-      const deltaTime = currentTime - lastTime;
-      
-      if (deltaTime >= frameInterval) {
-        lastTime = currentTime - (deltaTime % frameInterval);
-        
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
+    geo.setAttribute('aSize',    new THREE.BufferAttribute(sizes, 1));
 
-        // Disable shadow for better performance
-        ctx.shadowBlur = 0;
+    // ── ShaderMaterial ────────────────────────────────────
+    const tex = makeStarTexture();
+    const mat = new THREE.ShaderMaterial({
+      vertexShader:   VERT,
+      fragmentShader: FRAG,
+      uniforms:       { uTex: { value: tex } },
+      vertexColors:   true,
+      transparent:    true,
+      blending:       THREE.AdditiveBlending,
+      depthWrite:     false,
+      opacity:        0.82,
+    });
 
-        particlesRef.current.forEach((particle) => {
-          particle.y -= particle.speedY;
-          particle.x += particle.speedX;
+    const galaxy = new THREE.Points(geo, mat);
+    scene.add(galaxy);
 
-          if (particle.y < -10) {
-            particle.y = window.innerHeight + 10;
-            particle.x = Math.random() * window.innerWidth;
-          }
-          if (particle.x < -10) particle.x = window.innerWidth + 10;
-          if (particle.x > window.innerWidth + 10) particle.x = -10;
-
-          ctx.beginPath();
-          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(168, 85, 247, ${particle.opacity})`;
-          ctx.fill();
-        });
-      }
-
-      animationRef.current = requestAnimationFrame(animate);
+    // ── Mouse ─────────────────────────────────────────────
+    const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+    const onMouse = (e: MouseEvent) => {
+      mouse.tx = (e.clientX / W - 0.5) * 0.6;
+      mouse.ty = (e.clientY / H - 0.5) * 0.3;
     };
+    window.addEventListener('mousemove', onMouse, { passive: true });
 
-    if (!isReducedMotion.current) {
-      animationRef.current = requestAnimationFrame(animate);
-    }
+    // ── Scroll → mergulho no centro da galáxia ────────────
+    let scrollProgress = 0;
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scrollProgress = max > 0 ? Math.min(window.scrollY / max, 1) : 0;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
 
+    // ── Resize — recria tamanho corretamente ───────────────
+    const onResize = () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      camera.aspect = W / H;
+      camera.updateProjectionMatrix();
+      renderer.setSize(W, H);
+      renderer.setPixelRatio(getConfig().dpr);
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+
+    // ── Loop ──────────────────────────────────────────────
+    let frameId: number;
+    const clock = new THREE.Clock();
+
+    const tick = () => {
+      frameId = requestAnimationFrame(tick);
+      const t = clock.getElapsedTime();
+
+      galaxy.rotation.y = t * 0.07;
+
+      mouse.x += (mouse.tx - mouse.x) * 0.04;
+      mouse.y += (mouse.ty - mouse.y) * 0.04;
+      galaxy.rotation.x = mouse.y * 0.4;
+      galaxy.rotation.z = mouse.x * 0.15;
+
+      // Mergulho progressivo: longe (z=5.5) → dentro do núcleo (z=0.8)
+      const s  = scrollProgress;
+      const tz = 5.5  - s * 4.7;
+      const ty = 3.0  - s * 2.5;
+      camera.position.x = Math.sin(t * 0.07) * (0.8 - s * 0.6);
+      camera.position.y = ty + Math.sin(t * 0.05) * 0.4;
+      camera.position.z = tz + Math.cos(t * 0.07) * 0.4;
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+    };
+    tick();
+
+    // ── Cleanup ───────────────────────────────────────────
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
+      cancelAnimationFrame(frameId);
+      window.removeEventListener('mousemove', onMouse);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      geo.dispose();
+      mat.dispose();
+      tex.dispose();
+      renderer.dispose();
+      if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ 
-        opacity: 0.5,
-        willChange: 'transform',
-        contain: 'strict'
-      }}
-      aria-hidden="true"
-    />
-  );
-}));
+  // div vazia — o canvas WebGL é appendado aqui via JS
+  return <div ref={mountRef} style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }} aria-hidden="true" />;
+});
 
 ParticlesBackground.displayName = 'ParticlesBackground';
 
-// Optimized FloatingOrbs with CSS animations instead of JS
-export const FloatingOrbs = memo(forwardRef<HTMLDivElement>((_, ref) => {
-  const isReducedMotion = typeof window !== 'undefined' 
-    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
-    : false;
-
-  if (isReducedMotion) {
-    return null;
-  }
-
+// ── FloatingOrbs — glow 2D complementar ───────────────────
+export const FloatingOrbs = memo(() => {
+  if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
   return (
-    <div 
-      ref={ref}
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
-      aria-hidden="true"
-      style={{ contain: 'strict' }}
-    >
-      {/* Use CSS animations for better performance */}
-      <div 
-        className="absolute w-64 h-64 md:w-96 md:h-96 rounded-full bg-primary/10 blur-3xl animate-float-slow"
-        style={{ top: '10%', left: '10%' }}
-      />
-      <div 
-        className="absolute w-48 h-48 md:w-80 md:h-80 rounded-full bg-accent/10 blur-3xl animate-float"
-        style={{ top: '50%', right: '10%', animationDelay: '2s' }}
-      />
-      <div 
-        className="absolute w-40 h-40 md:w-64 md:h-64 rounded-full bg-mystic-gold/5 blur-3xl animate-float-slow"
-        style={{ bottom: '20%', left: '30%', animationDelay: '4s' }}
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+      <motion.div
+        className="absolute rounded-full"
+        style={{
+          width: 900, height: 450,
+          top: '48%', left: '50%', translateX: '-50%', translateY: '-50%',
+          background: 'radial-gradient(ellipse, hsl(280 60% 40% / 0.12) 0%, transparent 70%)',
+          filter: 'blur(80px)',
+        }}
+        animate={{ scaleX: [1, 1.3, 1], scaleY: [1, 0.7, 1], opacity: [0.45, 0.8, 0.45] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
       />
     </div>
   );
-}));
+});
 
 FloatingOrbs.displayName = 'FloatingOrbs';

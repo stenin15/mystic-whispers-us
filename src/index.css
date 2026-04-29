@@ -79,6 +79,22 @@
   }
 }
 
+/* Film grain noise overlay — adds texture/realism to dark backgrounds */
+.vsl-root::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
 @layer utilities {
   /* Mystic Gradients */
   .gradient-mystic {
@@ -152,24 +168,24 @@
     border: 1px solid hsl(var(--mystic-purple) / 0.2);
   }
 
-  /* Premium glass card with subtle inner highlight */
+  /* Premium glass card — dark opaque so text is readable over galaxy */
   .glass-card {
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    background: rgba(6, 2, 16, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.07);
   }
 
   .glass-card-elevated {
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08),
-                0 0 0 1px rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(36px);
+    -webkit-backdrop-filter: blur(36px);
+    background: rgba(8, 3, 20, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7),
+                inset 0 1px 0 rgba(255, 255, 255, 0.09),
+                0 0 0 1px rgba(255, 255, 255, 0.03);
   }
 
   /* Shimmer text */
@@ -199,6 +215,15 @@
       hsl(var(--mystic-gold) / 0.4) 80%,
       transparent 100%
     );
+  }
+
+  /* Section panel — dark backdrop so content is readable over galaxy */
+  .section-panel {
+    background: rgba(4, 1, 14, 0.78);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   /* Neon border on hover */
@@ -567,4 +592,103 @@
 
 .animate-scroll-horizontal {
   animation: scroll-horizontal 30s linear infinite;
+}
+
+@keyframes galaxySpin {
+  from { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.05); }
+  to   { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes kenBurns {
+  from { transform: scale(1)    translateX(0%)    translateY(0%); }
+  to   { transform: scale(1.08) translateX(-2.5%) translateY(-1.5%); }
+}
+
+/* ── Hero full-background — responsivo ──────────────────────────────────── */
+
+/* Base mobile-first (< 480px) */
+.hero-title {
+  font-size: clamp(38px, 10vw, 56px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+.hero-pad {
+  /* sem max-width nem margin:auto — padding escala com viewport */
+  width: 100%;
+  padding: 88px 20px 52px;
+  box-sizing: border-box;
+}
+.hero-copy-max {
+  width: 100%;
+  max-width: 92vw;
+}
+.hero-bg-img {
+  object-position: 68% center;
+}
+.hero-overlay-left {
+  background: linear-gradient(
+    to right,
+    rgba(3,0,6,0.97) 0%,
+    rgba(3,0,6,0.92) 45%,
+    rgba(3,0,6,0.6)  70%,
+    rgba(3,0,6,0.15) 88%,
+    transparent 100%
+  );
+}
+
+/* Tablet (480px – 767px) */
+@media (min-width: 480px) {
+  .hero-title {
+    font-size: clamp(44px, 8.5vw, 68px);
+  }
+  .hero-pad {
+    padding: 96px 32px 56px;
+  }
+  .hero-copy-max {
+    max-width: 80vw;
+  }
+}
+
+/* Tablet largo / small desktop (768px – 1023px) */
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: clamp(52px, 7vw, 84px);
+  }
+  .hero-pad {
+    padding: 96px clamp(32px, 5vw, 72px) 64px;
+  }
+  .hero-copy-max {
+    max-width: 52vw;
+  }
+  .hero-bg-img {
+    object-position: center right;
+  }
+  .hero-overlay-left {
+    background: linear-gradient(
+      to right,
+      rgba(3,0,6,0.96) 0%,
+      rgba(3,0,6,0.84) 32%,
+      rgba(3,0,6,0.48) 56%,
+      rgba(3,0,6,0.05) 78%,
+      transparent 100%
+    );
+  }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+  .hero-title {
+    font-size: clamp(56px, 5.5vw, 104px);
+    line-height: 0.88;
+    letter-spacing: -0.045em;
+  }
+  .hero-pad {
+    /* padding-left escala com viewport → texto sempre fica proporcional */
+    padding: 96px clamp(40px, 5.5vw, 120px) 72px;
+  }
+  .hero-copy-max {
+    /* largura proporcional ao viewport — nunca parece miniatura */
+    max-width: min(660px, 44vw);
+  }
 }

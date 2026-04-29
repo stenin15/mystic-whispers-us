@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Sparkles,
@@ -33,8 +33,10 @@ const GUIDE_BUMP_PRICE = 17;
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { name, email, analysisResult, canAccessResult, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
   const [addGuide, setAddGuide] = useState(false);
+  const preselectedPlan = searchParams.get('plan') as "basic" | "complete" | null;
 
   useEffect(() => {
     if (!canAccessResult()) {
@@ -375,19 +377,29 @@ const Checkout = () => {
             </div>
           </motion.div>
 
-          {/* Basic — link secundário discreto */}
+          {/* Basic — destacado se pré-selecionado, discreto caso contrário */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: preselectedPlan === 'basic' ? 12 : 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 }}
-            className="text-center"
+            className={preselectedPlan === 'basic' ? 'mt-2' : 'text-center mt-2'}
           >
-            <button
-              onClick={() => handleCheckoutClick("basic")}
-              className="text-sm text-muted-foreground/50 hover:text-muted-foreground/80 underline underline-offset-4 transition-colors duration-200"
-            >
-              Prefer the basic reading? {PRICE_MAP.basic.display} →
-            </button>
+            {preselectedPlan === 'basic' ? (
+              <button
+                onClick={() => handleCheckoutClick("basic")}
+                className="w-full py-4 px-6 rounded-2xl border border-primary/30 bg-primary/6 text-sm font-semibold text-foreground hover:bg-primary/12 hover:border-primary/50 transition-all duration-200 flex items-center justify-between"
+              >
+                <span>Basic Reading — text only</span>
+                <span className="text-primary font-bold">{PRICE_MAP.basic.display} →</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => handleCheckoutClick("basic")}
+                className="text-sm text-muted-foreground/50 hover:text-muted-foreground/80 underline underline-offset-4 transition-colors duration-200"
+              >
+                Prefer the basic reading? {PRICE_MAP.basic.display} →
+              </button>
+            )}
           </motion.div>
         </div>
       </section>

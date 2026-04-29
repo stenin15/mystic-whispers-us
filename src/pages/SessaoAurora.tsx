@@ -1,31 +1,23 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Send,
-  Volume2,
-  VolumeX,
   Loader2,
   ArrowLeft,
   Play,
   Pause,
   Square,
+  Mic,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
-import { Footer } from "@/components/layout/Footer";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { useAuroraVoice } from "@/hooks/useAuroraVoice";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +26,8 @@ import { verifyEntitlement } from "@/lib/entitlement";
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+type SessionPhase = "gate" | "revelation" | "guided" | "open";
+
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -41,48 +35,87 @@ interface ChatMessage {
 }
 
 // ---------------------------------------------------------------------------
-// Opening message from Aurora
+// Guided questions
 // ---------------------------------------------------------------------------
-const OPENING_MESSAGE =
-  "Welcome. I've been expecting you.\n\nI've already sensed some of what you're carrying — and there's more for us to explore together. What's been weighing on you most? You can share anything here — this is a private, sacred space.";
+const GUIDED_QUESTIONS = [
+  "When did you last feel like things were truly flowing — not forced, just right?",
+  "If I could show you one thing clearly right now — one open door you've been standing in front of — what would you most want to see?",
+];
+
+// ---------------------------------------------------------------------------
+// Opening sequence — 3 messages, each personalized from funnel data
+// ---------------------------------------------------------------------------
+const buildOpeningMessages = (
+  name?: string,
+  energyType?: string,
+  mainConcern?: string,
+  palmObservations?: string,
+  emotionalState?: string,
+) => {
+  // Msg 1 — Very short. Just the name. Like a first text.
+  const msg1 = name ? `${name}.` : `You're here.`;
+
+  // Msg 2 — Context, no question yet. Uses emotional state + palm obs.
+  const emotionLine = emotionalState
+    ? `I noticed you were feeling ${emotionalState.toLowerCase()} when you came to me. That stayed with me.`
+    : `Something in your energy stood out the moment your reading came through.`;
+  const palmLine = palmObservations
+    ? `Your lines showed me something I couldn't set aside — ${palmObservations.slice(0, 110).toLowerCase()}.`
+    : `There's something in your lines I need to speak to you directly — it doesn't come through clearly in writing alone.`;
+  const msg2 = `${emotionLine}\n\n${palmLine}`;
+
+  // Msg 3 — Revelation + opening question
+  const energyLine = energyType
+    ? `Your ${energyType} energy is unusually active right now. I see it as both a gift and a source of friction in your lines — and the two are more connected than you realize.`
+    : `The energy in your palm is unusually active. There's both a gift and a tension running through your lines, and they're connected.`;
+  const questionLine = mainConcern
+    ? `You mentioned "${mainConcern}". I want to start there.\n\nWhat does that feel like in your body right now — heavy, urgent, or something you've been avoiding looking at directly?`
+    : GUIDED_QUESTIONS[0];
+  const msg3 = `${energyLine}\n\n${questionLine}`;
+
+  return [msg1, msg2, msg3];
+};
+
+// ---------------------------------------------------------------------------
+// Preview mock replies (rotates)
+// ---------------------------------------------------------------------------
+const PREVIEW_REPLIES = [
+  "I sense that more clearly than you might expect. The tension you're describing is written into your lines — it's not chaos, it's a threshold. What you're feeling is the pressure of something that's finally ready to move.\n\nWhat does 'moving forward' feel like to you right now — exciting, or terrifying?",
+  "Yes. There's a pattern in your lines around exactly this — a place where your intuition and your fear are pulling in opposite directions.\n\nWhich one have you been listening to more lately?",
+  "That's significant. What you just described isn't coincidence — it's the same energy I saw in your palm. There's an opening here, but it requires something from you first.\n\nWhat would you need to feel in order to trust that direction?",
+  "I hear that. And what you're carrying is heavier than it needs to be — some of it isn't even yours to hold.\n\nIf you set down the part that belongs to someone else, what would be left?",
+  "The lines don't lie. There's something unresolved here that's been asking for your attention for longer than you've acknowledged.\n\nWhat's kept you from looking at it directly?",
+];
+let previewIdx = 0;
+const getPreviewReply = (name?: string) => {
+  const base = PREVIEW_REPLIES[previewIdx % PREVIEW_REPLIES.length];
+  previewIdx++;
+  return name ? base : base;
+};
 
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
 
-/** Animated sound-wave SVG shown in the header when voice is playing */
 const SoundWaves = () => (
-  <svg
-    width="24"
-    height="16"
-    viewBox="0 0 24 16"
-    fill="none"
-    className="text-amber-400"
-    aria-hidden="true"
-  >
-    {[0, 1, 2, 3, 4].map((i) => (
+  <svg width="20" height="14" viewBox="0 0 20 14" fill="none" aria-hidden="true">
+    {[0, 1, 2, 3].map((i) => (
       <motion.rect
         key={i}
         x={i * 5}
         y={0}
         width={3}
-        height={16}
+        height={14}
         rx={1.5}
         fill="currentColor"
-        animate={{ scaleY: [0.3, 1, 0.3], opacity: [0.4, 1, 0.4] }}
-        transition={{
-          duration: 0.9,
-          repeat: Infinity,
-          delay: i * 0.12,
-          ease: "easeInOut",
-        }}
+        animate={{ scaleY: [0.3, 1, 0.3], opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 0.85, repeat: Infinity, delay: i * 0.13, ease: "easeInOut" }}
         style={{ transformOrigin: "center" }}
       />
     ))}
   </svg>
 );
 
-/** Three-dot stagger typing indicator */
 const TypingDots = () => (
   <div className="flex gap-1.5 items-center h-4">
     {[0, 1, 2].map((i) => (
@@ -90,128 +123,211 @@ const TypingDots = () => (
         key={i}
         className="w-2 h-2 rounded-full bg-violet-400/70"
         animate={{ y: [0, -5, 0], opacity: [0.4, 1, 0.4] }}
-        transition={{
-          duration: 0.75,
-          repeat: Infinity,
-          delay: i * 0.15,
-          ease: "easeInOut",
-        }}
+        transition={{ duration: 0.75, repeat: Infinity, delay: i * 0.15 }}
       />
     ))}
   </div>
 );
 
-/** Aurora avatar with pulsing glow ring */
-const AuroraAvatar = ({ size = "md" }: { size?: "sm" | "md" }) => {
-  const dim = size === "sm" ? "w-8 h-8" : "w-11 h-11";
-  const sparkSize = size === "sm" ? "w-3.5 h-3.5" : "w-5 h-5";
-
+const AuroraAvatar = ({ size = "md", pulse = true }: { size?: "sm" | "md" | "lg"; pulse?: boolean }) => {
+  const dims: Record<string, string> = { sm: "w-8 h-8", md: "w-12 h-12", lg: "w-20 h-20" };
+  const iconDims: Record<string, string> = { sm: "w-3.5 h-3.5", md: "w-5 h-5", lg: "w-8 h-8" };
   return (
     <div className="relative flex-shrink-0">
-      {/* Glow pulse ring */}
-      <motion.div
-        className={`absolute inset-0 rounded-full ${dim}`}
-        style={{
-          background:
-            "radial-gradient(circle, hsl(280 60% 55% / 0.4) 0%, transparent 70%)",
-          filter: "blur(4px)",
-        }}
-        animate={{ scale: [1, 1.25, 1], opacity: [0.5, 0.9, 0.5] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <Avatar className={`${dim} border border-violet-500/40 relative z-10`}>
-        <AvatarFallback
-          className="bg-gradient-to-br from-violet-600/50 to-amber-500/30 text-amber-200"
-          aria-label="Madam Aurora"
-        >
-          <Sparkles className={sparkSize} />
+      {pulse && (
+        <motion.div
+          className={`absolute inset-0 rounded-full ${dims[size]}`}
+          style={{ background: "radial-gradient(circle, hsl(280 60% 55% / 0.45) 0%, transparent 70%)", filter: "blur(6px)" }}
+          animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.9, 0.5] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
+      <Avatar className={`${dims[size]} border border-violet-500/40 relative z-10`}>
+        <AvatarFallback className="bg-gradient-to-br from-violet-700/60 to-amber-500/30 text-amber-200">
+          <Sparkles className={iconDims[size]} />
         </AvatarFallback>
       </Avatar>
     </div>
   );
 };
 
-/** Audio player bar shown beneath an Aurora message when voice is active */
-const AudioPlayerBar = ({
-  voiceStatus,
-  onPlay,
-  onPause,
-  onResume,
-  onStop,
-  content,
+// ── Mystic Palm Icon — mão com linhas da palma iluminadas ────────────────────
+
+const MysticPalmIcon = () => (
+  <div className="relative w-40 h-40 flex items-center justify-center">
+    {/* Glow de fundo */}
+    <motion.div
+      className="absolute inset-0 rounded-full"
+      style={{ background: "radial-gradient(circle, hsl(280 60% 55% / 0.4) 0%, transparent 70%)", filter: "blur(22px)" }}
+      animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.9, 0.5] }}
+      transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.svg
+      viewBox="0 0 100 115"
+      width="115"
+      height="115"
+      style={{ position: "relative", zIndex: 1 }}
+      animate={{ filter: ["drop-shadow(0 0 6px hsl(280 60% 65% / 0.5))", "drop-shadow(0 0 18px hsl(45 95% 60% / 0.65))", "drop-shadow(0 0 6px hsl(280 60% 65% / 0.5))"] }}
+      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+    >
+      {/* Silhueta da mão */}
+      <path
+        d="M28,102 L28,52 Q28,41 34,39 Q40,37 42,44 L42,32
+           Q42,23 47,22 Q53,21 54,28 L54,30
+           Q54,19 59,18 Q65,17 66,24 L66,30
+           Q66,21 71,21 Q77,20 77,29 L77,58
+           Q82,48 85,46 Q91,44 92,51
+           Q93,60 87,69 L76,83
+           Q70,96 61,102 Z"
+        fill="hsl(280 40% 18% / 0.6)"
+        stroke="hsl(280 55% 65%)"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      {/* Linha do coração — rosa */}
+      <motion.path
+        d="M35,56 Q50,49 70,54"
+        fill="none" stroke="hsl(340 80% 70%)" strokeWidth="1.4" strokeLinecap="round"
+        animate={{ opacity: [0.6, 1, 0.6] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0 }}
+      />
+      {/* Linha da cabeça — âmbar */}
+      <motion.path
+        d="M35,65 Q53,70 73,65"
+        fill="none" stroke="hsl(45 95% 65%)" strokeWidth="1.2" strokeLinecap="round"
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+      />
+      {/* Linha da vida — violeta */}
+      <motion.path
+        d="M43,44 Q38,68 41,88"
+        fill="none" stroke="hsl(280 65% 75%)" strokeWidth="1.1" strokeLinecap="round"
+        animate={{ opacity: [0.4, 0.9, 0.4] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+      />
+      {/* Linha do destino — branco suave */}
+      <motion.path
+        d="M58,88 L60,60"
+        fill="none" stroke="hsl(0 0% 90% / 0.45)" strokeWidth="0.9" strokeLinecap="round"
+        animate={{ opacity: [0.2, 0.7, 0.2] }}
+        transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+      />
+    </motion.svg>
+  </div>
+);
+
+// Gate screen — user must click to start (unlocks browser audio)
+const SessionGate = ({ name, onStart }: { name?: string; onStart: () => void }) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 bg-[#0D0D0D]"
+  >
+    <ParticlesBackground />
+    <FloatingOrbs />
+
+    {/* Full-page radial glow behind orb */}
+    <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,hsl(280_60%_20%_/_0.45)_0%,transparent_65%)]" />
+
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.25, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      className="relative z-10 flex flex-col items-center text-center gap-5 max-w-sm"
+    >
+      {/* Palm icon — centerpiece */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.7 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <MysticPalmIcon />
+      </motion.div>
+
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-amber-400/60 mb-2">
+          Private Voice Session
+        </p>
+        <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-2">
+          Madam Aurora is ready{name ? `, ${name}` : ""}.
+        </h1>
+        <p className="text-sm text-white/40 leading-relaxed max-w-xs mx-auto">
+          She has already studied your palm. This session is private, and her voice is live.
+        </p>
+      </div>
+
+      <motion.div
+        animate={{ scale: [1, 1.035, 1] }}
+        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Button
+          onClick={onStart}
+          size="lg"
+          className="gradient-gold text-background font-semibold px-10 py-6 text-base rounded-2xl gap-3 shadow-xl"
+          style={{ boxShadow: "0 0 40px hsl(280 60% 55% / 0.3), 0 8px 32px rgba(0,0,0,0.4)" }}
+        >
+          <Mic className="w-5 h-5" />
+          Begin My Session
+        </Button>
+      </motion.div>
+
+      <p className="text-[11px] text-white/18">
+        Voice will play automatically · For entertainment purposes only
+      </p>
+    </motion.div>
+  </motion.div>
+);
+
+// Audio status bar on each Aurora message
+const AudioBar = ({
+  voiceStatus, onPlay, onPause, onResume, onStop, content,
 }: {
   voiceStatus: string;
-  onPlay: (text: string) => void;
+  onPlay: (t: string) => void;
   onPause: () => void;
   onResume: () => void;
   onStop: () => void;
   content: string;
 }) => {
-  const isPlaying = voiceStatus === "playing";
-  const isLoading = voiceStatus === "loading";
-  const isPaused = voiceStatus === "paused";
-  const isActive = isPlaying || isLoading || isPaused;
+  const playing = voiceStatus === "playing";
+  const loading = voiceStatus === "loading";
+  const paused = voiceStatus === "paused";
+  const active = playing || loading || paused;
 
   return (
     <motion.div
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
-      className="mt-2.5 flex items-center gap-2.5 px-1"
+      className="mt-2 flex items-center gap-2 px-1"
     >
-      <TooltipProvider delayDuration={200}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              onClick={() => {
-                if (isPlaying) onPause();
-                else if (isPaused) onResume();
-                else onPlay(content);
-              }}
-              disabled={isLoading}
-              className="flex-shrink-0 w-7 h-7 rounded-full bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400/30 flex items-center justify-center text-amber-300 transition-colors disabled:opacity-50"
-              aria-label={isPlaying ? "Pause voice" : isPaused ? "Resume voice" : "Play voice"}
-            >
-              {isLoading ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : isPlaying ? (
-                <Pause className="w-3 h-3" />
-              ) : (
-                <Play className="w-3 h-3 ml-0.5" />
-              )}
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="text-xs">
-            {isPlaying ? "Pause voice" : isPaused ? "Resume" : "Play Aurora's voice"}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <button
+        onClick={() => { if (playing) onPause(); else if (paused) onResume(); else onPlay(content); }}
+        disabled={loading}
+        className="w-6 h-6 rounded-full bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400/25 flex items-center justify-center text-amber-300 transition-colors disabled:opacity-40 flex-shrink-0"
+      >
+        {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : playing ? <Pause className="w-2.5 h-2.5" /> : <Play className="w-2.5 h-2.5 ml-0.5" />}
+      </button>
 
-      {/* Progress track */}
-      <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
-        {isActive && (
+      <div className="flex-1 h-0.5 bg-white/8 rounded-full overflow-hidden">
+        {active && (
           <motion.div
             className="h-full bg-gradient-to-r from-violet-400 to-amber-400 rounded-full"
             initial={{ width: "0%" }}
-            animate={isPlaying ? { width: "100%" } : {}}
-            transition={isPlaying ? { duration: 30, ease: "linear" } : {}}
+            animate={playing ? { width: "100%" } : {}}
+            transition={playing ? { duration: 25, ease: "linear" } : {}}
           />
         )}
       </div>
 
-      {isActive && (
-        <button
-          onClick={onStop}
-          className="flex-shrink-0 w-5 h-5 flex items-center justify-center text-white/30 hover:text-red-400/70 transition-colors"
-          aria-label="Stop voice"
-        >
-          <Square className="w-3 h-3 fill-current" />
+      {active && (
+        <button onClick={onStop} className="w-4 h-4 flex items-center justify-center text-white/25 hover:text-red-400/60 transition-colors flex-shrink-0">
+          <Square className="w-2.5 h-2.5 fill-current" />
         </button>
       )}
 
-      <span className="text-[10px] text-white/30 flex-shrink-0">
-        {isPlaying ? "Playing..." : isPaused ? "Paused" : "Voice"}
-      </span>
+      {playing && <SoundWaves />}
     </motion.div>
   );
 };
@@ -221,70 +337,126 @@ const AudioPlayerBar = ({
 // ---------------------------------------------------------------------------
 const SessaoAurora = () => {
   const navigate = useNavigate();
-  const { name, email, analysisResult, canAccessDelivery } = useHandReadingStore();
+  const { name, analysisResult, mainConcern, emotionalState } = useHandReadingStore();
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "opening",
-      role: "assistant",
-      content: OPENING_MESSAGE,
-    },
-  ]);
+  const energyType = analysisResult?.energyType?.name;
+  const palmObservations = analysisResult?.palmObservations;
+  const openingMessages = buildOpeningMessages(name || undefined, energyType, mainConcern || undefined, palmObservations, emotionalState || undefined);
+
+  const [phase, setPhase] = useState<SessionPhase>("gate");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isAutoTyping, setIsAutoTyping] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [accessError, setAccessError] = useState<string | null>(null);
-  /** Which message id the audio player is attached to */
   const [activeAudioMsgId, setActiveAudioMsgId] = useState<string | null>(null);
+  const [revealedMsgs, setRevealedMsgs] = useState<Set<string>>(new Set());
+  const [guidedIdx, setGuidedIdx] = useState(0);
+  const turnCountRef = useRef(0);
 
-  const { status: voiceStatus, play: playVoice, pause: pauseVoice, resume: resumeVoice, stop: stopVoice } = useAuroraVoice();
+  const { status: voiceStatus, play: playVoice, playAndWait, pause: pauseVoice, resume: resumeVoice, stop: stopVoice } = useAuroraVoice();
 
   const bottomRef = useRef<HTMLDivElement>(null);
-  const scrollViewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Access guard
+  // Quando o áudio termina, marca mensagem como revelada (texto fica visível)
   useEffect(() => {
-    const checkAccess = async () => {
-      const ent = await verifyEntitlement("basic").catch(() => ({ ok: false, sessionId: "" }));
-      if (!ent.ok) {
-        navigate("/");
+    if (voiceStatus === "idle" && activeAudioMsgId) {
+      setRevealedMsgs((prev) => new Set(prev).add(activeAudioMsgId));
+    }
+  }, [voiceStatus, activeAudioMsgId]);
+  const didRevealRef = useRef(false);
+
+  // Access guard — verify real Stripe entitlement
+  useEffect(() => {
+    // Dev-only preview bypass: /sessao-aurora?preview=1
+    if (import.meta.env.DEV) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("preview") === "1") {
+        setSessionId("preview-session-dev");
         return;
       }
-      setSessionId(ent.sessionId ?? null);
-    };
-    checkAccess();
-  }, [navigate]);
+    }
 
-  // Scroll to bottom on new messages
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const { ok, sessionId: sid } = await verifyEntitlement("complete");
+        if (cancelled) return;
+        if (ok && sid) {
+          setSessionId(sid);
+        } else {
+          setAccessError("Access requires a Complete Reading purchase. Please complete checkout first.");
+        }
+      } catch {
+        if (!cancelled) setAccessError("Could not verify your access. Please try again.");
+      }
+    };
+    check();
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading]);
+  }, [messages, isLoading, isAutoTyping]);
 
-  // Voice: auto-play opening when voice is toggled on
-  useEffect(() => {
-    if (voiceEnabled && messages.length === 1) {
-      setActiveAudioMsgId("opening");
-      playVoice(OPENING_MESSAGE);
-    }
-    if (!voiceEnabled) {
-      stopVoice();
-      setActiveAudioMsgId(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [voiceEnabled]);
+  // Typing delay proportional to message length (feels realistic)
+  const typingDelay = (text: string) =>
+    Math.max(1200, Math.min(4500, text.length * 28));
+
+  // Start session — button click unlocks browser audio for the entire session
+  const handleStart = useCallback(async () => {
+    if (didRevealRef.current) return;
+    didRevealRef.current = true;
+    setPhase("revelation");
+
+    const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    // Helper: show typing → reveal message → play audio → wait until audio ends
+    const sendAndSpeak = async (id: string, content: string) => {
+      setIsAutoTyping(true);
+      await delay(typingDelay(content));
+      const msg: ChatMessage = { id, role: "assistant", content };
+      setMessages((prev) => [...prev, msg]);
+      setIsAutoTyping(false);
+      // Let blur + play button render briefly before auto-playing
+      await delay(650);
+      setActiveAudioMsgId(id);
+      await playAndWait(content); // waits for audio to finish before next message
+    };
+
+    // Msg 1 — very short ("Stenio." / "You're here.") — tiny pause first
+    await delay(800);
+    await sendAndSpeak("open-1", openingMessages[0]);
+
+    // Natural reading pause after msg 1
+    await delay(1800);
+
+    // Msg 2 — context + emotional / palm observation
+    await sendAndSpeak("open-2", openingMessages[1]);
+
+    // Reading pause
+    await delay(2000);
+
+    // Msg 3 — revelation + question
+    await sendAndSpeak("open-3", openingMessages[2]);
+
+    setPhase("guided");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openingMessages, playAndWait]);
+
+  const addAuroraMessage = useCallback((content: string): ChatMessage => {
+    const msg: ChatMessage = { id: `a-${Date.now()}`, role: "assistant", content };
+    setMessages((prev) => [...prev, msg]);
+    return msg;
+  }, []);
 
   const sendMessage = async () => {
     const trimmed = input.trim();
-    if (!trimmed || isLoading || !sessionId) return;
+    if (!trimmed || isLoading || isAutoTyping || phase === "revelation" || phase === "gate" || !sessionId) return;
 
-    const userMsg: ChatMessage = {
-      id: `u-${Date.now()}`,
-      role: "user",
-      content: trimmed,
-    };
-
+    const userMsg: ChatMessage = { id: `u-${Date.now()}`, role: "user", content: trimmed };
     const historyForApi = messages.map(({ role, content }) => ({ role, content }));
 
     setMessages((prev) => [...prev, userMsg]);
@@ -293,42 +465,59 @@ const SessaoAurora = () => {
     setAccessError(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke("aurora-chat", {
-        body: {
-          session_id: sessionId,
-          message: trimmed,
-          history: historyForApi,
-          name: name || undefined,
-          energyType: analysisResult?.energyType?.name || undefined,
-          mainConcern: undefined,
-        },
-      });
+      let reply: string;
 
-      if (error) throw new Error(error.message || "Chat function failed");
+      turnCountRef.current += 1;
 
-      const reply = (data as { reply?: string })?.reply;
-      if (!reply) throw new Error("Empty response");
+      if (sessionId === "preview-session-dev") {
+        const thinkMs = 2800 + Math.random() * 2000;
+        await new Promise((r) => setTimeout(r, thinkMs));
+        reply = getPreviewReply(name || undefined);
+      } else {
+        const { data, error } = await supabase.functions.invoke("aurora-chat", {
+          body: {
+            session_id: sessionId,
+            message: trimmed,
+            history: historyForApi,
+            name: name || undefined,
+            age: useHandReadingStore.getState().age || undefined,
+            energyType: energyType || undefined,
+            mainConcern: mainConcern || undefined,
+            emotionalState: emotionalState || undefined,
+            palmObservations: palmObservations || undefined,
+            spiritualMessage: analysisResult?.spiritualMessage || undefined,
+            turn_count: turnCountRef.current,
+          },
+        });
+        if (error) throw new Error(error.message || "Chat failed");
+        const resp = data as { reply?: string; detected_state?: string; phase?: string; suggested_delay_ms?: number };
+        reply = resp?.reply ?? "";
+        if (!reply) throw new Error("Empty response");
 
-      const assistantMsg: ChatMessage = {
-        id: `a-${Date.now()}`,
-        role: "assistant",
-        content: reply,
-      };
+        // Advance local phase
+        const serverPhase = resp?.phase;
+        if (serverPhase === "insight" || serverPhase === "integration") setPhase("open");
+        else if (serverPhase === "deepening") setPhase("guided");
+      }
 
-      setMessages((prev) => [...prev, assistantMsg]);
-
-      if (voiceEnabled) {
+      const assistantMsg = addAuroraMessage(reply);
+      // Brief render window so play button renders before auto-playing
+      setTimeout(() => {
         setActiveAudioMsgId(assistantMsg.id);
         playVoice(reply);
+      }, 350);
+
+      if (phase === "guided") {
+        const nextIdx = guidedIdx + 1;
+        if (nextIdx >= GUIDED_QUESTIONS.length) setPhase("open");
+        else setGuidedIdx(nextIdx);
       }
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "Something went wrong. Please try again.";
-
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
       if (msg.includes("forbidden") || msg.includes("403")) {
-        setAccessError("Your session has expired. Please refresh the page.");
+        setAccessError("Your session has expired. Please refresh.");
       } else if (msg.includes("rate_limited") || msg.includes("429")) {
-        setAccessError("You've sent too many messages. Please wait a moment.");
+        setAccessError("Too many messages. Please wait a moment.");
       } else {
         setAccessError("Aurora couldn't respond right now. Please try again.");
       }
@@ -339,297 +528,233 @@ const SessaoAurora = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
-  const isVoiceActive = voiceStatus === "playing" || voiceStatus === "loading";
+  const isVoicePlaying = voiceStatus === "playing" || voiceStatus === "loading";
+  const inputDisabled = isLoading || isAutoTyping || phase === "revelation" || phase === "gate" || !sessionId;
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <div className="min-h-screen relative overflow-hidden flex flex-col bg-[#0D0D0D]">
-        <ParticlesBackground />
-        <FloatingOrbs />
+    <div className="min-h-screen relative overflow-hidden flex flex-col bg-[#0D0D0D]">
+      <ParticlesBackground />
+      <FloatingOrbs />
 
-        {/* ------------------------------------------------------------------ */}
-        {/* Header                                                              */}
-        {/* ------------------------------------------------------------------ */}
-        <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-[#0D0D0D]/85 backdrop-blur-xl">
-          <div className="container max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-            {/* Back */}
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-1.5 text-sm text-white/40 hover:text-white/80 transition-colors mr-1"
-              aria-label="Go back"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Back</span>
-            </button>
+      {/* Gate screen */}
+      <AnimatePresence>
+        {phase === "gate" && (
+          <SessionGate name={name || undefined} onStart={handleStart} />
+        )}
+      </AnimatePresence>
 
-            <Separator orientation="vertical" className="h-5 bg-white/10" />
+      {/* Header */}
+      <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-[#0D0D0D]/85 backdrop-blur-xl">
+        <div className="container max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm text-white/40 hover:text-white/80 transition-colors mr-1">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Back</span>
+          </button>
 
-            {/* Aurora identity */}
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <AuroraAvatar size="sm" />
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-semibold text-amber-200 leading-none">
-                    Madam Aurora
-                  </span>
-                  <Badge
-                    variant="outline"
-                    className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-[10px] px-1.5 py-0 h-4 flex items-center gap-1"
-                  >
-                    <motion.span
-                      className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"
-                      animate={{ opacity: [1, 0.3, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    />
-                    Active Session
-                  </Badge>
-                </div>
-                <p className="text-[11px] text-white/35 mt-0.5">
-                  Spiritual Guide · Private Reading
-                </p>
+          <Separator orientation="vertical" className="h-5 bg-white/10" />
+
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <AuroraAvatar size="sm" />
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-amber-200 leading-none">Madam Aurora</span>
+                <Badge variant="outline" className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
+                  <motion.span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                  Active Session
+                </Badge>
               </div>
+              <p className="text-[11px] text-white/35 mt-0.5">Spiritual Guide · Private Reading</p>
             </div>
-
-            {/* Voice toggle */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setVoiceEnabled((v) => !v)}
-                  aria-label={voiceEnabled ? "Disable voice" : "Enable voice"}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                    voiceEnabled
-                      ? "bg-amber-400/10 border-amber-400/30 text-amber-300 hover:bg-amber-400/20"
-                      : "bg-white/[0.04] border-white/10 text-white/40 hover:text-white/70 hover:border-white/20"
-                  }`}
-                >
-                  {isVoiceActive ? (
-                    <SoundWaves />
-                  ) : voiceEnabled ? (
-                    <Volume2 className="w-4 h-4" />
-                  ) : (
-                    <VolumeX className="w-4 h-4" />
-                  )}
-                  <span className="hidden sm:inline">
-                    {voiceEnabled ? "Voice on" : "Voice"}
-                  </span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                {voiceEnabled ? "Click to disable Aurora's voice" : "Enable Aurora's voice narration"}
-              </TooltipContent>
-            </Tooltip>
           </div>
-        </header>
 
-        {/* ------------------------------------------------------------------ */}
-        {/* Chat area                                                           */}
-        {/* ------------------------------------------------------------------ */}
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <ScrollArea className="flex-1 h-0">
-            <div className="container max-w-3xl mx-auto px-4 py-6 flex flex-col gap-1.5">
+          {/* Voice indicator (always on, no toggle) */}
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs border ${
+            isVoicePlaying
+              ? "bg-amber-400/10 border-amber-400/30 text-amber-300"
+              : "bg-white/[0.03] border-white/8 text-white/25"
+          }`}>
+            {isVoicePlaying ? <SoundWaves /> : <Sparkles className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">{isVoicePlaying ? "Speaking…" : "Voice"}</span>
+          </div>
+        </div>
+      </header>
 
-              {/* Aurora identity card at top */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="flex flex-col items-center text-center gap-3 mb-6 pt-2"
-              >
-                <AuroraAvatar size="md" />
-                <div>
-                  <p className="text-base font-semibold text-amber-200">Madam Aurora</p>
-                  <p className="text-xs text-white/35 mt-0.5">
-                    Your private session is open and protected
-                  </p>
-                </div>
-                <Separator className="bg-white/[0.06] w-32" />
-              </motion.div>
+      {/* Chat */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <ScrollArea className="flex-1 h-0">
+          <div className="container max-w-3xl mx-auto px-4 py-6 flex flex-col gap-1.5">
 
-              {/* Messages */}
-              <AnimatePresence initial={false}>
-                {messages.map((msg, idx) => (
-                  <motion.div
-                    key={msg.id}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.97 }}
-                    transition={{ duration: 0.28, ease: "easeOut" }}
-                    className={`flex mb-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                  >
-                    {/* Aurora message */}
-                    {msg.role === "assistant" && (
-                      <div className="flex items-end gap-2.5 max-w-[84%]">
-                        <AuroraAvatar size="sm" />
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col items-center text-center gap-3 mb-6 pt-2">
+              <AuroraAvatar size="md" />
+              <div>
+                <p className="text-base font-semibold text-amber-200">Madam Aurora</p>
+                <p className="text-xs text-white/35 mt-0.5">Your private session is open and protected</p>
+              </div>
+              <Separator className="bg-white/[0.06] w-32" />
+            </motion.div>
 
-                        <div className="flex flex-col">
-                          {/* Bubble */}
+            <AnimatePresence initial={false}>
+              {messages.map((msg) => (
+                <motion.div
+                  key={msg.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.97 }}
+                  transition={{ duration: 0.28 }}
+                  className={`flex mb-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  {msg.role === "assistant" && (() => {
+                    const isRevealed = revealedMsgs.has(msg.id);
+                    const isActive   = activeAudioMsgId === msg.id;
+                    // Text only reveals after audio finishes (isRevealed)
+                    const showText   = isRevealed;
+                    // Play button shows only when neither playing nor revealed
+                    const showPlayOverlay = !isActive && !isRevealed;
+
+                    return (
+                      <div className="flex items-end gap-2.5 max-w-[86%]">
+                        <AuroraAvatar size="sm" pulse={false} />
+                        <div className="flex flex-col w-full">
                           <div
-                            className="rounded-2xl rounded-bl-[4px] px-4 py-3 text-sm leading-[1.7] whitespace-pre-wrap text-white/85"
-                            style={{
-                              background:
-                                "linear-gradient(135deg, hsl(280 60% 55% / 0.13) 0%, hsl(320 55% 55% / 0.08) 100%)",
-                              border: "1px solid hsl(280 60% 55% / 0.25)",
-                            }}
+                            className="relative rounded-2xl rounded-bl-[4px] px-4 py-3 text-sm leading-[1.8] whitespace-pre-wrap overflow-hidden"
+                            style={{ background: "linear-gradient(135deg, hsl(280 60% 55% / 0.13) 0%, hsl(320 55% 55% / 0.08) 100%)", border: "1px solid hsl(280 60% 55% / 0.22)" }}
                           >
-                            {msg.content}
+                            {/* Texto — borrado até o play */}
+                            <span
+                              className="transition-all duration-700 select-none"
+                              style={{
+                                filter: showText ? "none" : "blur(6px)",
+                                color: showText ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.35)",
+                                display: "block",
+                              }}
+                            >
+                              {msg.content}
+                            </span>
+
+                            {/* Botão de play — visível enquanto não está tocando e não foi revelado */}
+                            {showPlayOverlay && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.85 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.85 }}
+                                className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl rounded-bl-[4px]"
+                                style={{ background: "rgba(13,13,13,0.45)", backdropFilter: "blur(2px)" }}
+                              >
+                                <motion.button
+                                  onClick={() => { setActiveAudioMsgId(msg.id); playVoice(msg.content); }}
+                                  animate={{ scale: [1, 1.1, 1], boxShadow: ["0 0 20px hsl(45 95% 55% / 0.35)", "0 0 45px hsl(45 95% 55% / 0.7)", "0 0 20px hsl(45 95% 55% / 0.35)"] }}
+                                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                                  whileTap={{ scale: 0.93 }}
+                                  className="w-14 h-14 rounded-full flex items-center justify-center cursor-pointer"
+                                  style={{
+                                    background: "linear-gradient(135deg, hsl(280 60% 45% / 0.5), hsl(45 95% 55% / 0.25))",
+                                    border: "2px solid hsl(45 95% 60% / 0.7)",
+                                  }}
+                                >
+                                  <Play className="w-6 h-6 text-amber-300 fill-amber-300 ml-0.5" />
+                                </motion.button>
+                                <span className="text-[10px] text-amber-300/60 font-medium tracking-widest uppercase">Hear Aurora</span>
+                              </motion.div>
+                            )}
                           </div>
 
-                          {/* Audio player — only shown for this message when voice active */}
+                          {/* AudioBar — só quando ativo ou já revelado */}
                           <AnimatePresence>
-                            {voiceEnabled && activeAudioMsgId === msg.id && (
-                              <AudioPlayerBar
-                                voiceStatus={voiceStatus}
-                                onPlay={(text) => {
-                                  setActiveAudioMsgId(msg.id);
-                                  playVoice(text);
-                                }}
+                            {(isActive || isRevealed) && (
+                              <AudioBar
+                                voiceStatus={isActive ? voiceStatus : "idle"}
+                                onPlay={(t) => { setActiveAudioMsgId(msg.id); playVoice(t); }}
                                 onPause={pauseVoice}
                                 onResume={resumeVoice}
-                                onStop={() => {
-                                  stopVoice();
-                                  setActiveAudioMsgId(null);
-                                }}
+                                onStop={() => { stopVoice(); setActiveAudioMsgId(null); }}
                                 content={msg.content}
                               />
                             )}
                           </AnimatePresence>
                         </div>
                       </div>
-                    )}
+                    );
+                  })()}
 
-                    {/* User message */}
-                    {msg.role === "user" && (
-                      <div
-                        className="max-w-[76%] rounded-2xl rounded-br-[4px] px-4 py-3 text-sm leading-[1.7] whitespace-pre-wrap text-white/80"
-                        style={{
-                          background: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(255,255,255,0.09)",
-                        }}
-                      >
-                        {msg.content}
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {/* Typing indicator */}
-              <AnimatePresence>
-                {isLoading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 4 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-end gap-2.5 mb-3"
-                  >
-                    <AuroraAvatar size="sm" />
+                  {msg.role === "user" && (
                     <div
-                      className="rounded-2xl rounded-bl-[4px] px-4 py-3.5"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, hsl(280 60% 55% / 0.1) 0%, hsl(320 55% 55% / 0.07) 100%)",
-                        border: "1px solid hsl(280 60% 55% / 0.2)",
-                      }}
+                      className="max-w-[76%] rounded-2xl rounded-br-[4px] px-4 py-3 text-sm leading-[1.8] whitespace-pre-wrap text-white/75"
+                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
                     >
-                      <TypingDots />
+                      {msg.content}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
 
-              {/* Error message */}
-              <AnimatePresence>
-                {accessError && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="flex justify-center"
-                  >
-                    <p className="text-xs text-red-400/70 bg-red-500/8 border border-red-500/20 rounded-lg px-3 py-2 text-center">
-                      {accessError}
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <AnimatePresence>
+              {(isLoading || isAutoTyping) && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-end gap-2.5 mb-3">
+                  <AuroraAvatar size="sm" pulse={false} />
+                  <div className="rounded-2xl rounded-bl-[4px] px-4 py-3.5" style={{ background: "linear-gradient(135deg, hsl(280 60% 55% / 0.1) 0%, hsl(320 55% 55% / 0.07) 100%)", border: "1px solid hsl(280 60% 55% / 0.18)" }}>
+                    <TypingDots />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-              <div ref={bottomRef} className="h-1" />
-            </div>
-          </ScrollArea>
-        </main>
+            <AnimatePresence>
+              {accessError && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-center">
+                  <p className="text-xs text-red-400/70 bg-red-500/8 border border-red-500/18 rounded-lg px-3 py-2">{accessError}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-        {/* ------------------------------------------------------------------ */}
-        {/* Input area                                                          */}
-        {/* ------------------------------------------------------------------ */}
-        <div className="sticky bottom-0 z-20 border-t border-white/[0.07] bg-[#0D0D0D]/90 backdrop-blur-xl">
-          <div className="container max-w-3xl mx-auto px-4 pt-3 pb-4">
-            <div
-              className="flex gap-2.5 items-end rounded-2xl p-2 pl-3 transition-all"
+
+            <div ref={bottomRef} className="h-1" />
+          </div>
+        </ScrollArea>
+      </main>
+
+      {/* Input */}
+      <div className="sticky bottom-0 z-20 border-t border-white/[0.07] bg-[#0D0D0D]/90 backdrop-blur-xl">
+        <div className="container max-w-3xl mx-auto px-4 pt-3 pb-4">
+          <div
+            className="flex gap-2.5 items-end rounded-2xl p-2 pl-3 transition-all"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow: input ? "0 0 0 1px hsl(280 60% 55% / 0.22), 0 4px 20px hsl(280 60% 55% / 0.07)" : "none",
+            }}
+          >
+            <Textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={phase === "gate" || phase === "revelation" ? "Aurora is speaking…" : "Share with Aurora…"}
+              rows={1}
+              className="resize-none min-h-[36px] max-h-32 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-white/22 text-white/85 py-1.5 px-0 shadow-none"
+              disabled={inputDisabled}
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={!input.trim() || inputDisabled}
+              size="icon"
+              className="h-9 w-9 rounded-xl flex-shrink-0 transition-all duration-200 disabled:opacity-25"
               style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.09)",
-                boxShadow: input
-                  ? "0 0 0 1px hsl(280 60% 55% / 0.25), 0 4px 24px hsl(280 60% 55% / 0.08)"
-                  : "none",
+                background: input.trim() && !inputDisabled ? "linear-gradient(135deg, hsl(280 60% 55%), hsl(45 95% 55% / 0.8))" : "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                color: input.trim() && !inputDisabled ? "#fff" : "rgba(255,255,255,0.25)",
               }}
             >
-              <Textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask Aurora anything about your reading..."
-                rows={1}
-                className="resize-none min-h-[36px] max-h-32 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-white/25 text-white/85 py-1.5 px-0 shadow-none"
-                disabled={isLoading || !sessionId}
-              />
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={sendMessage}
-                    disabled={!input.trim() || isLoading || !sessionId}
-                    size="icon"
-                    className="h-9 w-9 rounded-xl flex-shrink-0 transition-all duration-200 disabled:opacity-30"
-                    style={{
-                      background: input.trim()
-                        ? "linear-gradient(135deg, hsl(280 60% 55%), hsl(45 95% 55% / 0.8))"
-                        : "rgba(255,255,255,0.06)",
-                      border: input.trim()
-                        ? "1px solid hsl(280 60% 55% / 0.4)"
-                        : "1px solid rgba(255,255,255,0.08)",
-                      color: input.trim() ? "#fff" : "rgba(255,255,255,0.3)",
-                    }}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Send className="w-4 h-4" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  {isLoading ? "Aurora is responding..." : "Send message (Enter)"}
-                </TooltipContent>
-              </Tooltip>
-            </div>
-
-            <p className="text-[10px] text-center text-white/20 mt-2">
-              For entertainment and self-reflection purposes only
-            </p>
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            </Button>
           </div>
+          <p className="text-[10px] text-center text-white/18 mt-2">For entertainment and self-reflection purposes only</p>
         </div>
-
-        <Footer />
       </div>
-    </TooltipProvider>
+    </div>
   );
 };
 
