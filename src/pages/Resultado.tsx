@@ -206,11 +206,11 @@ const Resultado = () => {
             </p>
 
             {/* Countdown */}
-            <div className="inline-flex flex-col items-center gap-3 px-6 py-4 rounded-2xl mb-2"
+            <div className="inline-flex flex-col items-center gap-3 px-4 py-4 rounded-2xl mb-2 max-w-full"
               style={{ background: 'hsl(350 80% 50% / 0.07)', border: '1px solid hsl(350 80% 55% / 0.2)' }}>
-              <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-rose-400/70">
-                <Clock className="w-3 h-3" />
-                Reading + voice session reserved for you
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-rose-400/70">
+                <Clock className="w-3 h-3 flex-shrink-0" />
+                <span>Reading reserved for you</span>
               </div>
               <div className="flex items-end gap-2">
                 <CountdownSegment value={h} label="hrs" />
@@ -421,7 +421,7 @@ const Resultado = () => {
               </div>
 
               {/* Plan selector */}
-              <div className="grid grid-cols-2 gap-3 mb-5 max-w-lg mx-auto">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-3 mb-5 max-w-lg mx-auto">
                 {/* Basic */}
                 <button
                   onClick={() => setSelectedPlan('basic')}

@@ -605,16 +605,23 @@
   to   { transform: scale(1.08) translateX(-2.5%) translateY(-1.5%); }
 }
 
+/* ── Global overflow guard — previne scroll horizontal em todos os devices */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 /* ── Hero full-background — responsivo ──────────────────────────────────── */
 
 /* Base mobile-first (< 480px) */
 .hero-title {
-  font-size: clamp(38px, 10vw, 56px);
-  line-height: 0.9;
-  letter-spacing: -0.04em;
+  font-size: clamp(24px, 7.5vw, 56px);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .hero-pad {
-  /* sem max-width nem margin:auto — padding escala com viewport */
   width: 100%;
   padding: 88px 20px 52px;
   box-sizing: border-box;
@@ -622,6 +629,12 @@
 .hero-copy-max {
   width: 100%;
   max-width: 92vw;
+}
+
+/* Desativa blobs pesados (blur 90px) no mobile — apenas efeito visual */
+@media (max-width: 767px) {
+  .cinematic-blob { display: none !important; }
+  .luminescent-overlay { display: none !important; }
 }
 .hero-bg-img {
   object-position: 68% center;

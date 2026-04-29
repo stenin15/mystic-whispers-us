@@ -194,6 +194,7 @@ const CinematicBackground = () => (
     {AMBIENT.map((a, i) => (
       <motion.div
         key={i}
+        className="cinematic-blob"
         className="absolute"
         style={{
           width: a.w, height: a.h,
@@ -225,7 +226,7 @@ const GLOW_ORBS = [
 ];
 
 const LuminescentOverlay = () => (
-  <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
+  <div className="luminescent-overlay fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
     {/* Diagonal luminous lines */}
     <svg className="absolute inset-0 w-full h-full">
       <defs>
@@ -598,9 +599,9 @@ const VSL = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className="flex items-center gap-3 pl-1"
+                className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-1"
               >
-                <div className="flex -space-x-2">
+                <div className="flex -space-x-2 flex-shrink-0">
                   {[avatarCarla, avatarFernanda, avatarMariana].map((src, i) => (
                     <img key={i} src={src} alt=""
                       className="w-7 h-7 rounded-full object-cover"
@@ -609,7 +610,7 @@ const VSL = () => {
                   ))}
                 </div>
                 <Stars count={5} />
-                <span className="text-xs text-white/45 font-medium">27,241+ readings completed</span>
+                <span className="text-xs text-white/45 font-medium whitespace-nowrap">27,241+ readings</span>
               </motion.div>
             </div>
 
