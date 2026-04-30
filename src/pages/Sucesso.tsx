@@ -30,12 +30,13 @@ const Sucesso = () => {
   }, []);
 
   useEffect(() => {
-    // If the user lands here without completing the flow, send them home.
-    if (!canAccessResult()) {
+    // Guard: session_id in URL is the proof of a real Stripe redirect.
+    // Do NOT guard on canAccessResult() — sessionStorage may be lost if Stripe
+    // opened in a new tab (common on mobile), which would silently kill the Purchase event.
+    if (!sessionId) {
       navigate("/");
-      return;
     }
-  }, [canAccessResult, navigate]);
+  }, [sessionId, navigate]);
 
   useEffect(() => {
     // Stripe payments are confirmed via webhook -> DB. The frontend must never trust query params alone.
