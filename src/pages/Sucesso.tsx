@@ -59,8 +59,12 @@ const Sucesso = () => {
           setVerified(true);
           setMessage("Payment confirmed.");
 
-          if (!hasTrackedPurchaseRef.current) {
+          const purchaseTrackedKey = `mwus_purchase_tracked:${sessionId}`;
+          const alreadyTracked = sessionStorage.getItem(purchaseTrackedKey) === "1";
+
+          if (!hasTrackedPurchaseRef.current && !alreadyTracked) {
             hasTrackedPurchaseRef.current = true;
+            sessionStorage.setItem(purchaseTrackedKey, "1");
 
             const primary =
               paidProducts.includes("complete") ? "complete" : paidProducts.includes("guide") ? "guide" : "basic";
