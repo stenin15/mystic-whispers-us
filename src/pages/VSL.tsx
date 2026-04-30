@@ -18,12 +18,14 @@ import avatarFernanda from "@/assets/avatar-fernanda.jpg";
 import avatarMariana from "@/assets/avatar-mariana.jpg";
 
 const FAQ_ITEMS = [
-  { q: "Which hand should I upload?", a: "Either hand works. Most people use their dominant hand, but both can show meaningful patterns." },
-  { q: "Is my reading really private?", a: "Yes. Your photo and information are used only to generate your reading and never shared." },
-  { q: "Is this real? How does it work?", a: "Our AI analyzes the actual lines in your palm — heart line, marriage lines, fate line — and identifies patterns connected to love timing and emotional cycles." },
-  { q: "What will I learn?", a: "You'll receive insights about your love timing patterns, what may be blocking connection, and what your lines suggest about what comes next." },
-  { q: "How long does it take?", a: "The process takes 2–3 minutes to complete. Your reading is delivered within seconds after." },
-  { q: "Is this for love or other areas too?", a: "The reading focuses on love, timing, and relationship patterns. It also touches on life direction and emotional clarity." },
+  { q: "Is my reading really private?", a: "Yes. Your data is encrypted and never shared. Your privacy is 100% protected." },
+  { q: "What will I learn?", a: "You'll uncover your love timing, hidden patterns, and what's blocking you." },
+  { q: "How accurate is the reading?", a: "Our AI analyzes thousands of patterns to deliver insights tailored just for you." },
+  { q: "Is this for love or other areas too?", a: "It's designed for love, but the clarity you gain helps in all areas of life." },
+  { q: "How long does it take?", a: "Your personalized reading is ready in under 60 seconds." },
+  { q: "What if I'm not satisfied?", a: "We offer a 7-day satisfaction guarantee. Not satisfied? We'll refund you." },
+  { q: "Can I ask follow-up questions?", a: "Yes! You'll get follow-up clarity tools after your reading." },
+  { q: "Do you offer refunds?", a: "Yes. You have 7 days to request a full refund if it's not right for you." },
 ];
 
 // ── Countdown ─────────────────────────────────────────────────────────────────
@@ -194,8 +196,7 @@ const CinematicBackground = () => (
     {AMBIENT.map((a, i) => (
       <motion.div
         key={i}
-        className="cinematic-blob"
-        className="absolute"
+        className="cinematic-blob absolute"
         style={{
           width: a.w, height: a.h,
           borderRadius: "50%",
@@ -327,6 +328,7 @@ const VSL = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
+  const [openFaq, setOpenFaq] = useState(-1);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const { h, m, s, pad } = useVslCountdown();
@@ -749,16 +751,177 @@ const VSL = () => {
       {/* ── SECTION 7 — Premium Block ──────────────────────────────────────── */}
       <FullSection src="/section7-16x9.jpg" dur={25} />
 
-      {/* ── SECTION 8 — FAQ + Final CTA ────────────────────────────────────── */}
-      <FullSection src="/section8-16x9.jpg" dur={26} />
+      {/* ── SATISFACTION GUARANTEE BANNER ──────────────────────────────────── */}
+      <section
+        className="px-4 py-6"
+        style={{ background: "rgba(3,0,6,0.85)", borderTop: "1px solid rgba(217,70,239,0.10)", borderBottom: "1px solid rgba(217,70,239,0.10)" }}
+      >
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center gap-5 sm:gap-8">
+          <div className="flex items-start gap-3 flex-shrink-0">
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgba(217,70,239,0.12)", border: "1px solid rgba(217,70,239,0.3)" }}
+            >
+              <Lock className="w-5 h-5 text-fuchsia-400" />
+            </div>
+            <div>
+              <p className="text-sm font-black text-white">Satisfaction Guaranteed</p>
+              <p className="text-xs text-white/45 mt-0.5">Not satisfied? You have 7 days to request a full refund.</p>
+            </div>
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <p className="text-base font-bold text-white">Go deeper. Get the clarity you deserve.</p>
+            <p className="text-sm text-white/45">Your personalized journey is waiting.</p>
+          </div>
+          <CTAButton onClick={() => handleCTA("guarantee_banner")} size="sm" className="flex-shrink-0 w-full sm:w-auto">
+            REVEAL MY TIMING NOW <ArrowRight className="w-4 h-4" />
+          </CTAButton>
+        </div>
+      </section>
+
+      {/* ── FAQ SECTION ────────────────────────────────────────────────────── */}
+      <motion.section
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.7 }}
+        className="px-4 py-16"
+        style={{ background: "rgba(3,0,6,0.92)" }}
+      >
+        <div className="max-w-5xl mx-auto">
+          <p className="text-center text-[11px] font-bold uppercase tracking-widest text-fuchsia-400 mb-2">FAQ</p>
+          <h2 className="text-center text-2xl md:text-3xl font-black text-white mb-2">
+            FREQUENTLY ASKED <span className="text-fuchsia-400">QUESTIONS</span>
+          </h2>
+          <p className="text-center text-sm text-white/40 mb-10">Everything you need to know before you begin.</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {FAQ_ITEMS.map((item, i) => (
+              <motion.div
+                key={i}
+                onClick={() => setOpenFaq(openFaq === i ? -1 : i)}
+                className="cursor-pointer rounded-xl px-5 py-4 select-none"
+                style={{
+                  background: "rgba(217,70,239,0.04)",
+                  border: `1px solid ${openFaq === i ? "rgba(217,70,239,0.35)" : "rgba(217,70,239,0.12)"}`,
+                  transition: "border-color 0.2s",
+                }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-bold text-white leading-snug">{item.q}</p>
+                  <motion.span
+                    animate={{ rotate: openFaq === i ? 45 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-fuchsia-400 text-xl font-light flex-shrink-0 leading-none"
+                  >+</motion.span>
+                </div>
+                <AnimatePresence initial={false}>
+                  {openFaq === i && (
+                    <motion.p
+                      key="answer"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="text-xs text-white/55 mt-3 leading-relaxed overflow-hidden"
+                    >
+                      {item.a}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Contact Support bar */}
+          <div
+            className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl px-6 py-5"
+            style={{ background: "rgba(217,70,239,0.06)", border: "1px solid rgba(217,70,239,0.15)" }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: "rgba(217,70,239,0.12)", border: "1px solid rgba(217,70,239,0.25)" }}
+              >
+                <Star className="w-5 h-5 text-fuchsia-400" />
+              </div>
+              <div>
+                <p className="text-sm font-black text-white">STILL HAVE QUESTIONS?</p>
+                <p className="text-xs text-white/40">Our support team is here to help you.</p>
+              </div>
+            </div>
+            <a
+              href="/contact"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white uppercase tracking-wide flex-shrink-0 transition-colors hover:bg-fuchsia-500/30"
+              style={{ background: "rgba(217,70,239,0.18)", border: "1px solid rgba(217,70,239,0.35)" }}
+            >
+              CONTACT SUPPORT
+            </a>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ── FINAL CTA SECTION ──────────────────────────────────────────────── */}
+      <motion.section
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.7 }}
+        className="relative px-4 py-20 overflow-hidden"
+        style={{ background: "rgba(2,0,4,0.97)" }}
+      >
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(130,0,220,0.18) 0%, transparent 70%)" }}
+        />
+        <div className="relative z-10 max-w-xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-black uppercase leading-none mb-3">
+            CLARITY IS
+            <br />
+            <span className="text-fuchsia-400">WAITING FOR YOU.</span>
+          </h2>
+          <p className="text-base text-white/50 mb-10">Your next chapter begins with one photo.</p>
+          <div className="flex flex-col items-center gap-4">
+            <CTAButton onClick={() => handleCTA("final_cta")} size="xl" className="w-full sm:w-auto">
+              REVEAL MY TIMING NOW <ArrowRight className="w-6 h-6" />
+            </CTAButton>
+            <p className="text-xs text-white/30">
+              <Lock className="w-3 h-3 inline mr-1" />
+              Private · Secure · Takes less than <span className="font-bold text-white/50">60 seconds</span>
+            </p>
+          </div>
+        </div>
+      </motion.section>
 
       {/* ── LEGAL FOOTER ───────────────────────────────────────────────────── */}
-      <footer className="py-6 px-4 text-center" style={{ background: "#020003", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-        <p className="text-[11px] text-white/32 leading-relaxed max-w-2xl mx-auto mb-4">
-          Readings are for entertainment and self-reflection purposes only.
-          Not a substitute for professional medical, psychological, legal, or financial advice.
-          Results are not guaranteed.
-        </p>
+      <footer className="py-8 px-4 text-center" style={{ background: "#020003", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+        {/* Social icons */}
+        <div className="flex justify-center gap-5 mb-5">
+          <a href="https://www.instagram.com/madamauroraofficial/" target="_blank" rel="noopener noreferrer"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white/35 hover:text-white/80 transition-colors"
+            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+            aria-label="Instagram"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a href="https://www.tiktok.com/@madamaurora" target="_blank" rel="noopener noreferrer"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white/35 hover:text-white/80 transition-colors"
+            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+            aria-label="TikTok"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z"/></svg>
+          </a>
+          <a href="https://www.youtube.com/@madamaurora" target="_blank" rel="noopener noreferrer"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white/35 hover:text-white/80 transition-colors"
+            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+            aria-label="YouTube"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </a>
+        </div>
+
         <div className="flex flex-wrap justify-center gap-4">
           {[
             { label: "Privacy Policy", href: "/privacy" },
