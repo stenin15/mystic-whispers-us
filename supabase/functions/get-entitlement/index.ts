@@ -94,6 +94,11 @@ serve(async (req) => {
       });
     }
 
+    console.log("get_entitlement_called", {
+      session_id,
+      timestamp: new Date().toISOString(),
+    });
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false },
     });
@@ -107,7 +112,7 @@ serve(async (req) => {
 
     const { data, error } = await query;
     if (error) {
-      console.error("get-entitlement query failed:", error);
+      console.error("get_entitlement_query_error", { session_id, error: error.message });
       return new Response(JSON.stringify({ error: "Lookup failed" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -122,12 +127,12 @@ serve(async (req) => {
 
     const paidProducts = normalizeProducts(codes);
 
-    // Minimal production validation logs (no secrets).
-    console.log("entitlement_lookup", {
+    console.log("get_entitlement_result", {
       session_id,
-      rows: (data ?? []).length,
-      paidProducts,
-      isPaid: paidProducts.length > 0,
+      rows_found: (data ?? []).length,
+      paid_products_count: paidProducts.length,
+      paid_products: paidProducts,
+      is_paid: paidProducts.length > 0,
     });
 
     return new Response(JSON.stringify({ paidProducts, isPaid: paidProducts.length > 0 }), {

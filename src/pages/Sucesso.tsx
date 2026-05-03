@@ -19,6 +19,7 @@ const Sucesso = () => {
   const [message, setMessage] = useState<string>("Processing payment…");
   const pollingRef = useRef<number | null>(null);
   const hasTrackedPurchaseRef = useRef(false);
+  const pollAttemptRef = useRef(0);
 
   const sessionId = useMemo(() => {
     try {
@@ -30,10 +31,17 @@ const Sucesso = () => {
   }, []);
 
   useEffect(() => {
+    console.log("[SUCCESS_PAGE] loaded", {
+      url: window.location.href,
+      sessionId: sessionId || "(missing)",
+      timestamp: new Date().toISOString(),
+    });
+
     // Guard: session_id in URL is the proof of a real Stripe redirect.
     // Do NOT guard on canAccessResult() — sessionStorage may be lost if Stripe
     // opened in a new tab (common on mobile), which would silently kill the Purchase event.
     if (!sessionId) {
+      console.warn("[SUCCESS_PAGE] no session_id in URL — redirecting to home");
       navigate("/");
     }
   }, [sessionId, navigate]);
@@ -50,9 +58,23 @@ const Sucesso = () => {
     const startedAt = Date.now();
 
     const check = async () => {
+      const attempt = ++pollAttemptRef.current;
+      console.log("[SUCCESS_PAGE] polling entitlement", {
+        sessionId,
+        attempt,
+        elapsed_ms: Date.now() - startedAt,
+      });
+
       try {
         const { paidProducts } = await getEntitlement({ sessionId });
         if (cancelled) return;
+
+        console.log("[SUCCESS_PAGE] entitlement result", {
+          sessionId,
+          attempt,
+          paidProducts,
+          is_paid: paidProducts.length > 0,
+        });
 
         if (paidProducts.length > 0) {
           setEntitlements(paidProducts, sessionId);
@@ -70,6 +92,15 @@ const Sucesso = () => {
               paidProducts.includes("complete") ? "complete" : paidProducts.includes("guide") ? "guide" : "basic";
 
             const event_id = getOrCreateEventId(`purchase:${sessionId}`);
+
+            console.log("[SUCCESS_PAGE] firing Purchase", {
+              sessionId,
+              product_code: primary,
+              value: PRICE_MAP[primary].amountUsd,
+              currency: "USD",
+              event_id,
+            });
+
             track("Purchase", {
               event_id,
               transaction_id: sessionId,
@@ -80,6 +111,10 @@ const Sucesso = () => {
               angle: getStoredAngle(),
               focus: getStoredFocus(),
               ...getAttributionParams(),
+            });
+
+            console.log("[SUCCESS_PAGE] purchase tracked flag saved", {
+              key: purchaseTrackedKey,
             });
 
             // Google Ads conversion (only after paid is confirmed).
@@ -116,12 +151,23 @@ const Sucesso = () => {
             } catch {
               // ignore (do not block UX)
             }
+          } else {
+            console.log("[SUCCESS_PAGE] purchase already tracked — skipping", {
+              sessionId,
+              hasTrackedRef: hasTrackedPurchaseRef.current,
+              alreadyTracked,
+            });
           }
           return;
         }
 
         const elapsed = Date.now() - startedAt;
         if (elapsed >= 30_000) {
+          console.warn("[SUCCESS_PAGE] entitlement timeout", {
+            sessionId,
+            attempts: attempt,
+            elapsed_ms: elapsed,
+          });
           setVerified(false);
           setMessage("Payment is still processing. Please refresh this page in a moment.");
           return;
@@ -131,7 +177,11 @@ const Sucesso = () => {
         setMessage("Processing payment…");
         pollingRef.current = window.setTimeout(check, 2000);
       } catch (err) {
-        console.error("Entitlement check failed:", err);
+        console.error("[SUCCESS_PAGE] entitlement check failed", {
+          sessionId,
+          attempt,
+          error: err instanceof Error ? err.message : String(err),
+        });
         setVerified(false);
         setMessage("We couldn't confirm your payment yet. Please refresh this page in a moment.");
       }

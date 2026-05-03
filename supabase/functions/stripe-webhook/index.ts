@@ -56,15 +56,17 @@ type PurchaseStatus = "paid" | "unpaid" | "refunded";
 const isProductCode = (v: unknown): v is ProductCode =>
   v === "basic" || v === "complete" || v === "guide" || v === "upsell";
 
-const json = (status: number, payload: unknown) =>
-  new Response(JSON.stringify(payload), {
-    status,
-    headers: { "Content-Type": "application/json" },
+serve(async (req) => {
+  // LOG: request received — first thing, always
+  console.log("stripe_webhook_received", {
+    method: req.method,
+    url: req.url,
+    has_signature: !!req.headers.get("stripe-signature"),
+    timestamp: new Date().toISOString(),
   });
 
-serve(async (req) => {
   if (req.method !== "POST") {
-    return json(405, { error: "Method not allowed" });
+    return new Response("Method not allowed", { status: 405 });
   }
 
   try {
@@ -73,36 +75,59 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
+    // LOG: env check on every request (safe — booleans only, no secrets)
+    console.log("stripe_webhook_env_check", {
+      has_STRIPE_SECRET_KEY: !!STRIPE_SECRET_KEY,
+      has_STRIPE_WEBHOOK_SECRET: !!STRIPE_WEBHOOK_SECRET,
+      has_SUPABASE_URL: !!SUPABASE_URL,
+      has_SUPABASE_SERVICE_ROLE_KEY: !!SUPABASE_SERVICE_ROLE_KEY,
+      has_META_PIXEL_ID: !!Deno.env.get("META_PIXEL_ID"),
+      has_META_ACCESS_TOKEN: !!Deno.env.get("META_ACCESS_TOKEN"),
+    });
+
     if (!STRIPE_SECRET_KEY || !STRIPE_WEBHOOK_SECRET || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      return json(500, { error: "Service unavailable" });
+      console.error("stripe_webhook_missing_env", {
+        has_STRIPE_SECRET_KEY: !!STRIPE_SECRET_KEY,
+        has_STRIPE_WEBHOOK_SECRET: !!STRIPE_WEBHOOK_SECRET,
+        has_SUPABASE_URL: !!SUPABASE_URL,
+        has_SUPABASE_SERVICE_ROLE_KEY: !!SUPABASE_SERVICE_ROLE_KEY,
+      });
+      return new Response(JSON.stringify({ error: "Service unavailable" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const sig = req.headers.get("stripe-signature");
-    if (!sig) return json(400, { error: "Missing signature" });
+    if (!sig) {
+      console.error("stripe_webhook_missing_signature");
+      return new Response("Missing stripe-signature", { status: 400 });
+    }
 
     // IMPORTANT: verify using the exact raw bytes received (avoid any string normalization).
     const rawBody = new Uint8Array(await req.arrayBuffer());
 
+    console.log("stripe_webhook_body_received", {
+      body_length: rawBody.length,
+    });
+
     const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2025-12-15.clover" });
     let event: Stripe.Event;
     try {
-      // Allow multiple secrets during troubleshooting (comma-separated).
-      // This prevents false negatives when multiple Stripe webhook endpoints
-      // are configured to hit the same URL.
       const secrets = STRIPE_WEBHOOK_SECRET
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean)
-        .map((s) => s.replace(/^['"]|['"]$/g, "")); // tolerate accidental quotes
+        .map((s) => s.replace(/^['"]|['"]$/g, ""));
 
-      // IMPORTANT: call as a method to preserve `this` binding inside Stripe SDK.
       const hasConstructAsync =
         typeof (stripe.webhooks as unknown as { constructEventAsync?: unknown }).constructEventAsync === "function";
 
       if (!hasConstructAsync) {
-        return json(500, {
-          error: "Service unavailable",
-          message: "Stripe SDK missing constructEventAsync() in this runtime",
+        console.error("stripe_webhook_sdk_missing_constructEventAsync");
+        return new Response(JSON.stringify({ error: "Service unavailable" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
         });
       }
 
@@ -120,18 +145,22 @@ serve(async (req) => {
       }
       if (lastErr) throw lastErr;
     } catch (err) {
-      console.error("stripe-webhook signature verification failed:", err);
-      return json(400, {
-        error: "Invalid signature",
-        // Safe diagnostics (no secrets) to make Stripe dashboard debugging objective.
+      console.error("stripe_webhook_signature_error", {
         message: err instanceof Error ? err.message : String(err),
-        meta: {
-          raw_len: rawBody.length,
-          sig_len: sig.length,
-          secret_count: STRIPE_WEBHOOK_SECRET.split(",").map((s) => s.trim()).filter(Boolean).length,
-        },
+        has_webhook_secret: !!STRIPE_WEBHOOK_SECRET,
+        signature_header_present: !!sig,
+        body_length: rawBody.length,
+        sig_prefix: sig ? sig.slice(0, 20) + "..." : null,
       });
+      return new Response("Invalid signature", { status: 400 });
     }
+
+    // LOG: signature verified
+    console.log("stripe_webhook_signature_valid", {
+      event_id: event.id,
+      event_type: event.type,
+      livemode: event.livemode,
+    });
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false },
@@ -186,17 +215,24 @@ serve(async (req) => {
         const sessionId = session.id;
         const metaProduct = (session.metadata?.product_code ?? "") as unknown;
         const product_code: ProductCode = isProductCode(metaProduct) ? metaProduct : "basic";
+        const email = session.customer_details?.email ?? session.customer_email ?? null;
 
-        // Minimal production validation logs (no secrets).
         console.log("webhook_checkout_completed", {
           session_id: sessionId,
-          email: session.customer_details?.email ?? session.customer_email ?? null,
+          payment_status: session.payment_status,
+          amount_total: session.amount_total,
+          currency: session.currency,
+          customer_email: email,
+          metadata: session.metadata,
           product_code,
-          amount_total: session.amount_total ?? null,
-          currency: session.currency ?? null,
+          livemode: event.livemode,
         });
 
-        const email = session.customer_details?.email ?? session.customer_email ?? null;
+        console.log("purchase_upsert_attempt", {
+          stripe_session_id: sessionId,
+          status: "paid",
+          product_code,
+        });
 
         await upsertPurchase({
           stripe_session_id: sessionId,
@@ -214,7 +250,11 @@ serve(async (req) => {
           raw: event,
         });
 
-        console.log("purchase_upsert_ok", { session_id: sessionId, status: "paid", product_code });
+        console.log("purchase_upsert_ok", {
+          stripe_session_id: sessionId,
+          status: "paid",
+          product_code,
+        });
 
         // Fire Meta CAPI Purchase directly from webhook — independent of browser
         const META_PIXEL_ID = Deno.env.get("META_PIXEL_ID");
@@ -239,6 +279,8 @@ serve(async (req) => {
         const sessionId = session.id;
         const metaProduct = (session.metadata?.product_code ?? "") as unknown;
         const product_code: ProductCode = isProductCode(metaProduct) ? metaProduct : "basic";
+
+        console.log("webhook_async_payment_failed", { session_id: sessionId, product_code });
 
         await upsertPurchase({
           stripe_session_id: sessionId,
@@ -266,6 +308,8 @@ serve(async (req) => {
             ? charge.payment_intent
             : charge.payment_intent?.id;
 
+        console.log("webhook_charge_refunded", { payment_intent: paymentIntent });
+
         if (paymentIntent) {
           await updateByPaymentIntent(paymentIntent, "refunded", event);
         }
@@ -273,15 +317,22 @@ serve(async (req) => {
       }
 
       default:
-        // Ignore other event types.
+        console.log("stripe_webhook_event_ignored", { event_type: event.type });
         break;
     }
 
-    // Reply quickly to Stripe.
-    return json(200, { received: true });
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (err) {
-    console.error("stripe-webhook failed:", err);
-    return json(500, { error: "Webhook handler failed" });
+    console.error("stripe_webhook_unhandled_error", {
+      message: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+    });
+    return new Response(JSON.stringify({ error: "Webhook handler failed" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 });
-
