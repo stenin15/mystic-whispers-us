@@ -15,6 +15,20 @@ import { supabase } from '@/integrations/supabase/client';
 import AudioWaveVisualizer from '@/components/shared/AudioWaveVisualizer';
 import AudioPromptModal from '@/components/shared/AudioPromptModal';
 
+// QUIZ AUDIO (pre-recorded, no TTS): /public/audio/q1.mp3 ... q7.mp3
+// Questions with IDs 8 and 9 were added later — no audio file exists for them.
+const QUESTION_AUDIO: Record<number, string | null> = {
+  1: '/audio/q1.mp3',
+  2: '/audio/q2.mp3',
+  3: '/audio/q3.mp3',
+  4: '/audio/q4.mp3',
+  5: '/audio/q5.mp3',
+  6: '/audio/q6.mp3',
+  7: '/audio/q7.mp3',
+  8: null,
+  9: null,
+};
+
 const Quiz = () => {
   const navigate = useNavigate();
   const {
@@ -49,8 +63,6 @@ const Quiz = () => {
     (a) => a.questionId === currentQuestion?.id
   );
 
-  const currentQuestionHasAudio = !!getQuizAudioSrc(currentQuestion?.id ?? 0);
-
   // Get short name (first + second name only)
   const getShortName = useCallback((fullName: string) => {
     const parts = fullName.trim().split(/\s+/);
@@ -60,24 +72,11 @@ const Quiz = () => {
 
   const shortName = getShortName(name || 'there');
 
-  // QUIZ AUDIO (pre-recorded, no TTS): /public/audio/q1.mp3 ... q7.mp3
-  // Questions with IDs 8 and 9 were added later — no audio file exists for them.
-  const QUESTION_AUDIO: Record<number, string | null> = {
-    1: '/audio/q1.mp3',
-    2: '/audio/q2.mp3',
-    3: '/audio/q3.mp3',
-    4: '/audio/q4.mp3',
-    5: '/audio/q5.mp3',
-    6: '/audio/q6.mp3',
-    7: '/audio/q7.mp3',
-    8: null,
-    9: null,
-  };
-
   const getQuizAudioSrc = useCallback((questionId: number): string | null => {
     return QUESTION_AUDIO[questionId] ?? null;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const currentQuestionHasAudio = !!getQuizAudioSrc(currentQuestion?.id ?? 0);
 
   const preloadAudio = useCallback((questionId: number) => {
     const src = getQuizAudioSrc(questionId);
