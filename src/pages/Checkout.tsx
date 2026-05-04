@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles,
   CheckCircle2,
@@ -14,6 +14,8 @@ import {
   BookOpen,
   Zap,
   Mic2,
+  Lock,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
@@ -36,6 +38,11 @@ const Checkout = () => {
   const [searchParams] = useSearchParams();
   const { name, email, analysisResult, canAccessResult, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
   const [addGuide, setAddGuide] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    plan: "basic" | "complete" | null;
+    loading: boolean;
+  }>({ open: false, plan: null, loading: false });
   const preselectedPlan = searchParams.get('plan') as "basic" | "complete" | null;
 
   useEffect(() => {
@@ -44,46 +51,53 @@ const Checkout = () => {
     }
   }, [canAccessResult, navigate]);
 
-  const handleCheckoutClick = async (key: "basic" | "complete") => {
-    try {
-      setPendingPurchase(key);
-      setSelectedPlan(key);
-      const totalValue = PRICE_MAP[key].amountUsd + (addGuide ? GUIDE_BUMP_PRICE : 0);
-      const icEventId = getOrCreateEventId(`initiate_checkout:${key}`);
-      track("InitiateCheckout", {
+  const handleCheckoutClick = (key: "basic" | "complete") => {
+    setPendingPurchase(key);
+    setSelectedPlan(key);
+
+    // Fire InitiateCheckout on first click (intent signal — before modal)
+    const totalValue = PRICE_MAP[key].amountUsd + (addGuide ? GUIDE_BUMP_PRICE : 0);
+    const icEventId = getOrCreateEventId(`initiate_checkout:${key}`);
+    track("InitiateCheckout", {
+      event_id: icEventId,
+      product_code: key,
+      add_guide: addGuide,
+      value: totalValue,
+      currency: "USD",
+      page_path: "/checkout",
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+
+    const { fbp, fbc, ttclid } = getAdIds();
+    supabase.functions.invoke('track-event', {
+      body: {
+        event_name: "InitiateCheckout",
         event_id: icEventId,
-        product_code: key,
-        add_guide: addGuide,
         value: totalValue,
         currency: "USD",
-        page_path: "/checkout",
-        angle: getStoredAngle(),
-        focus: getStoredFocus(),
-        ...getAttributionParams(),
-      });
+        page_url: window.location.href,
+        user: { email: email || undefined },
+        utm: getAttributionParams(),
+        meta: { fbp, fbc },
+        tiktok: { ttclid },
+      },
+    }).catch(() => {});
 
-      // Server-side InitiateCheckout
-      const { fbp, fbc, ttclid } = getAdIds();
-      supabase.functions.invoke('track-event', {
-        body: {
-          event_name: "InitiateCheckout",
-          event_id: icEventId,
-          value: totalValue,
-          currency: "USD",
-          page_url: window.location.href,
-          user: { email: email || undefined },
-          utm: getAttributionParams(),
-          meta: { fbp, fbc },
-          tiktok: { ttclid },
-        },
-      }).catch(() => {});
+    // Show pre-Stripe trust modal instead of redirecting immediately
+    setConfirmModal({ open: true, plan: key, loading: false });
+  };
 
-      // If guide was added, create a bundle checkout (complete + guide) or guide separately
-      // For now: go through normal checkout -- guide upsell is also shown post-purchase
-      const url = await createCheckoutSessionUrl(key, { email });
+  const handleConfirmCheckout = async () => {
+    if (!confirmModal.plan) return;
+    setConfirmModal((prev) => ({ ...prev, loading: true }));
+    try {
+      const url = await createCheckoutSessionUrl(confirmModal.plan, { email });
       window.location.href = url;
     } catch (err) {
-      console.error("Checkout session creation failed:", key, err);
+      console.error("Checkout session creation failed:", confirmModal.plan, err);
+      setConfirmModal({ open: false, plan: null, loading: false });
       toast("Checkout isn't available right now. Please try again in a moment.");
     }
   };
@@ -469,6 +483,110 @@ const Checkout = () => {
       {/* US market: no chat CTA */}
 
       <Footer />
+
+      {/* Pre-Stripe Trust Modal */}
+      <AnimatePresence>
+        {confirmModal.open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+            style={{ background: "rgba(0,0,0,0.80)", backdropFilter: "blur(12px)" }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget && !confirmModal.loading) {
+                setConfirmModal({ open: false, plan: null, loading: false });
+              }
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 32, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              className="w-full max-w-sm rounded-3xl overflow-hidden"
+              style={{
+                background: "linear-gradient(160deg, hsl(280 60% 8% / 0.98) 0%, hsl(320 55% 6% / 0.99) 100%)",
+                border: "1px solid hsl(280 60% 55% / 0.3)",
+                boxShadow: "0 0 60px hsl(280 60% 55% / 0.15), 0 24px 48px rgba(0,0,0,0.6)",
+              }}
+            >
+              {/* Header */}
+              <div className="px-7 pt-7 pb-5 text-center">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
+                  <Lock className="w-5 h-5 text-green-400" />
+                </div>
+                <h3 className="text-xl font-serif font-bold text-foreground mb-1">
+                  Your reading is ready{name ? `, ${name}` : ""}
+                </h3>
+                <p className="text-sm text-muted-foreground/80">
+                  You're one step away from your complete palm reading
+                </p>
+              </div>
+
+              {/* Trust signals */}
+              <div className="px-7 pb-5 space-y-3">
+                {[
+                  { icon: Clock,        text: "Takes less than 60 seconds to complete" },
+                  { icon: Shield,       text: "7-day money-back guarantee, no questions asked" },
+                  { icon: Lock,         text: "SSL encrypted via Stripe — your card is safe" },
+                  { icon: CheckCircle2, text: "Instant access right after payment" },
+                  { icon: Sparkles,     text: "Private reading — your data is never shared" },
+                ].map(({ icon: Icon, text }) => (
+                  <div key={text} className="flex items-center gap-3 text-sm text-muted-foreground/85">
+                    <Icon className="w-4 h-4 text-green-400 flex-shrink-0" />
+                    <span>{text}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Price summary */}
+              <div className="mx-7 mb-5 px-4 py-3 rounded-2xl bg-white/4 border border-white/8 flex items-center justify-between">
+                <span className="text-sm text-muted-foreground/70">
+                  {confirmModal.plan === "complete" ? "Complete Reading + Aurora Session" : "Personal Palm Reading"}
+                </span>
+                <span className="text-base font-bold gradient-text">
+                  {confirmModal.plan ? PRICE_MAP[confirmModal.plan].display : ""}
+                </span>
+              </div>
+
+              {/* CTA */}
+              <div className="px-7 pb-7 space-y-3">
+                <Button
+                  onClick={handleConfirmCheckout}
+                  disabled={confirmModal.loading}
+                  size="lg"
+                  className="w-full gradient-gold text-gray-900 hover:opacity-90 py-6 text-base font-semibold rounded-2xl"
+                >
+                  {confirmModal.loading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      </svg>
+                      Redirecting to checkout…
+                    </span>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4 mr-2" />
+                      Continue to Secure Checkout
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+                {!confirmModal.loading && (
+                  <button
+                    onClick={() => setConfirmModal({ open: false, plan: null, loading: false })}
+                    className="w-full text-xs text-muted-foreground/40 hover:text-muted-foreground/60 transition-colors py-1"
+                  >
+                    ← Go back
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
