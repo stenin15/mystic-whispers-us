@@ -122,7 +122,7 @@ serve(async (req) => {
     const cancelUrl = `${SITE_URL}/cancelado`;
 
     const stripe = new Stripe(STRIPE_SECRET_KEY, {
-      apiVersion: "2023-10-16",
+      apiVersion: "2025-12-15.clover",
     });
 
     const session = await stripe.checkout.sessions.create({

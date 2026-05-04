@@ -42,6 +42,8 @@ const Analise = () => {
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isApiDone, setIsApiDone] = useState(false);
+  const isApiDoneRef = useRef(false);
+  const navigatedRef = useRef(false);
   const [showAudioPrompt, setShowAudioPrompt] = useState(false);
   const [scanLine, setScanLine] = useState(0); // 0-100 for scan beam position
   const analysisStarted = useRef(false);
@@ -153,8 +155,12 @@ const Analise = () => {
         const result = await processAnalysis({ name, age, emotionalState, mainConcern, handPhotoData }, quizAnswers);
         setAnalysisResult(result);
         generateVoiceMessage(result.spiritualMessage).then(u => { if (u) setAudioUrl(u); }).catch(() => {});
+        isApiDoneRef.current = true;
         setIsApiDone(true);
-      } catch { setIsApiDone(true); }
+      } catch {
+        isApiDoneRef.current = true;
+        setIsApiDone(true);
+      }
     };
     setTimeout(runAnalysis, 200);
 
@@ -183,11 +189,14 @@ const Analise = () => {
 
     const checkCompletion = setInterval(() => {
       setProgress(prev => {
-        if (isApiDone && prev >= 90) {
+        if (isApiDoneRef.current && prev >= 90) {
           clearInterval(progressInterval);
           clearInterval(checkCompletion);
-          playCompletion();
-          setTimeout(() => { setIsAnalyzing(false); navigate('/resultado'); }, 1000);
+          if (!navigatedRef.current) {
+            navigatedRef.current = true;
+            playCompletion();
+            setTimeout(() => { setIsAnalyzing(false); navigate('/resultado'); }, 1000);
+          }
           return 100;
         }
         return prev;
@@ -197,9 +206,12 @@ const Analise = () => {
     const maxTimeout = setTimeout(() => {
       clearInterval(progressInterval);
       clearInterval(checkCompletion);
-      playCompletion();
-      setIsAnalyzing(false);
-      navigate('/resultado');
+      if (!navigatedRef.current) {
+        navigatedRef.current = true;
+        playCompletion();
+        setIsAnalyzing(false);
+        navigate('/resultado');
+      }
     }, 45000);
 
     return () => {
@@ -212,7 +224,8 @@ const Analise = () => {
   }, []);
 
   useEffect(() => {
-    if (isApiDone && progress >= 90) {
+    if (isApiDone && progress >= 90 && !navigatedRef.current) {
+      navigatedRef.current = true;
       setProgress(100);
       playCompletion();
       setTimeout(() => { setIsAnalyzing(false); navigate('/resultado'); }, 1000);

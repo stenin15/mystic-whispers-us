@@ -228,6 +228,30 @@ serve(async (req) => {
           livemode: event.livemode,
         });
 
+        if (session.payment_status !== "paid") {
+          console.warn("webhook_checkout_not_paid", {
+            session_id: sessionId,
+            payment_status: session.payment_status,
+            product_code,
+          });
+          await upsertPurchase({
+            stripe_session_id: sessionId,
+            status: "unpaid",
+            product_code,
+            email,
+            stripe_customer_id:
+              typeof session.customer === "string" ? session.customer : session.customer?.id ?? null,
+            stripe_payment_intent_id:
+              typeof session.payment_intent === "string"
+                ? session.payment_intent
+                : session.payment_intent?.id ?? null,
+            amount_total: session.amount_total ?? null,
+            currency: session.currency ?? null,
+            raw: event,
+          });
+          break;
+        }
+
         console.log("purchase_upsert_attempt", {
           stripe_session_id: sessionId,
           status: "paid",

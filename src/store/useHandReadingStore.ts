@@ -228,7 +228,7 @@ export const useHandReadingStore = create<HandReadingState>()(
     }),
     {
       name: "mwus_funnel_v1",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         hasSeenVsl: state.hasSeenVsl,
         name: state.name,
@@ -237,7 +237,7 @@ export const useHandReadingStore = create<HandReadingState>()(
         emotionalState: state.emotionalState,
         mainConcern: state.mainConcern,
         hasHandPhoto: state.hasHandPhoto,
-        handPhotoData: state.handPhotoData,
+        // handPhotoData excluded: large base64 image, only needed in-session during Analise
         quizAnswers: state.quizAnswers,
         currentQuestionIndex: state.currentQuestionIndex,
         analysisResult: state.analysisResult,

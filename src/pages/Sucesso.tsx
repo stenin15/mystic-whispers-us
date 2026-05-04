@@ -8,7 +8,7 @@ import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Footer } from "@/components/layout/Footer";
 import { getEntitlement } from "@/lib/entitlement";
 import { PRICE_MAP } from "@/lib/pricing";
-import { getAdIds, getOrCreateEventId, track } from "@/lib/tracking";
+import { getAdIds, track } from "@/lib/tracking";
 import { getAttributionParams, getStoredAngle, getStoredFocus } from "@/lib/marketing";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -17,6 +17,8 @@ const Sucesso = () => {
   const { canAccessResult, name, email, purchases, setEntitlements } = useHandReadingStore();
   const [verified, setVerified] = useState(false);
   const [message, setMessage] = useState<string>("Processing payment…");
+  const [timedOut, setTimedOut] = useState(false);
+  const [manualRetry, setManualRetry] = useState(0);
   const pollingRef = useRef<number | null>(null);
   const hasTrackedPurchaseRef = useRef(false);
   const pollAttemptRef = useRef(0);
@@ -91,7 +93,7 @@ const Sucesso = () => {
             const primary =
               paidProducts.includes("complete") ? "complete" : paidProducts.includes("guide") ? "guide" : "basic";
 
-            const event_id = getOrCreateEventId(`purchase:${sessionId}`);
+            const event_id = `purchase_wh_${sessionId}`;
 
             console.log("[SUCCESS_PAGE] firing Purchase", {
               sessionId,
@@ -169,7 +171,8 @@ const Sucesso = () => {
             elapsed_ms: elapsed,
           });
           setVerified(false);
-          setMessage("Payment is still processing. Please refresh this page in a moment.");
+          setTimedOut(true);
+          setMessage("Payment is taking longer than expected.");
           return;
         }
 
@@ -182,8 +185,11 @@ const Sucesso = () => {
           attempt,
           error: err instanceof Error ? err.message : String(err),
         });
-        setVerified(false);
-        setMessage("We couldn't confirm your payment yet. Please refresh this page in a moment.");
+        if (!cancelled) {
+          setVerified(false);
+          setMessage("We're still confirming your payment — this can take a few seconds…");
+          pollingRef.current = window.setTimeout(check, 3000);
+        }
       }
     };
 
@@ -193,7 +199,7 @@ const Sucesso = () => {
       cancelled = true;
       if (pollingRef.current) window.clearTimeout(pollingRef.current);
     };
-  }, [sessionId, setEntitlements]);
+  }, [sessionId, setEntitlements, manualRetry]);
 
   const destination =
     purchases.complete ? "/entrega/completa" : purchases.guide ? "/entrega/guia" : "/entrega/leitura";
@@ -232,6 +238,24 @@ const Sucesso = () => {
               {buttonLabel}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
+
+            {timedOut && !verified && (
+              <div className="mt-4 text-center">
+                <p className="text-sm text-muted-foreground mb-2">
+                  Payment is taking longer than expected.{" "}
+                  If you were charged, click below.
+                </p>
+                <button
+                  onClick={() => {
+                    setTimedOut(false);
+                    setManualRetry((n) => n + 1);
+                  }}
+                  className="text-sm text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
+                >
+                  Try again →
+                </button>
+              </div>
+            )}
 
             {/* Aurora Session CTA — urgency block */}
             {verified && (

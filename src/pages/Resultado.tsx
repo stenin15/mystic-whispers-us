@@ -140,27 +140,6 @@ const Resultado = () => {
   }, [canAccessResult, email, navigate]);
 
   const handleCTA = () => {
-    const icEventId = getOrCreateEventId('resultado_cta');
-    track('InitiateCheckout', {
-      event_id: icEventId,
-      page_path: '/resultado',
-      product_code: selectedPlan,
-      angle: getStoredAngle(),
-      focus: getStoredFocus(),
-      ...getAttributionParams(),
-    });
-    const { fbp, fbc, ttclid } = getAdIds();
-    supabase.functions.invoke('track-event', {
-      body: {
-        event_name: 'InitiateCheckout',
-        event_id: icEventId,
-        page_url: window.location.href,
-        user: { email: email || undefined },
-        utm: getAttributionParams(),
-        meta: { fbp, fbc },
-        tiktok: { ttclid },
-      },
-    }).catch(() => {});
     navigate(appendUtmToPath(`/checkout?plan=${selectedPlan}`));
   };
 
