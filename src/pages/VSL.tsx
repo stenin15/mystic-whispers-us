@@ -286,7 +286,7 @@ const LuminescentOverlay = () => (
 
 // ── VSL Video URL — set VITE_VSL_VIDEO_URL in .env when ready ────────────────
 
-const VSL_VIDEO_URL = import.meta.env.VITE_VSL_VIDEO_URL || "/downloads/0428.mp4";
+const VSL_VIDEO_URL = import.meta.env.VITE_VSL_VIDEO_URL || "/downloads/vsl.mp4";
 
 // ── FullSection — imagem 16:9 full-width, Ken Burns, fade-in ─────────────────
 // Proporção nativa preservada em todos os viewports: width:100% + height:auto.
