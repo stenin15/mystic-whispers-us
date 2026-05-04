@@ -49,6 +49,8 @@ const Quiz = () => {
     (a) => a.questionId === currentQuestion?.id
   );
 
+  const currentQuestionHasAudio = !!getQuizAudioSrc(currentQuestion?.id ?? 0);
+
   // Get short name (first + second name only)
   const getShortName = useCallback((fullName: string) => {
     const parts = fullName.trim().split(/\s+/);
@@ -334,55 +336,57 @@ const Quiz = () => {
             transition={{ duration: 0.3 }}
             className="p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30"
           >
-            {/* Audio indicator and toggle */}
-            <div className="flex items-center justify-center mb-4">
-              <div className="flex items-center justify-center">
-                {isLoadingAudio && (
-                  <div className="flex items-center gap-2 text-primary text-sm">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Loading audio...</span>
-                  </div>
-                )}
-                {isPlayingAudio && !isLoadingAudio && (
-                  <div className="relative flex items-center justify-center gap-3 text-primary text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/15 via-primary/10 to-primary/15 border border-primary/40 backdrop-blur-sm shadow-lg shadow-primary/20">
-                    <motion.div
-                      animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      <Volume2 className="w-4 h-4 text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]" />
-                    </motion.div>
-                    <span className="font-medium tracking-wide text-xs sm:text-sm">MADAME AURORA SPEAKING TO YOU</span>
-                    <AudioWaveVisualizer isPlaying={isPlayingAudio} barCount={16} variant="futuristic" />
-                    <motion.div
-                      animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
-                      transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
-                    >
-                      <Volume2 className="w-4 h-4 text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]" />
-                    </motion.div>
-                  </div>
-                )}
-                {!isPlayingAudio && !isLoadingAudio && audioEnabled && (
-                  <div className="relative flex items-center justify-center gap-3 text-primary/70 text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 backdrop-blur-sm">
-                    <Volume2 className="w-4 h-4 text-primary/60" />
-                    <span className="font-medium opacity-80 text-xs sm:text-sm">MADAME AURORA SPEAKING TO YOU</span>
-                    <AudioWaveVisualizer isPlaying={true} barCount={16} variant="futuristic" className="opacity-60" />
-                    <Volume2 className="w-4 h-4 text-primary/60" />
-                  </div>
-                )}
+            {/* Audio indicator and toggle — only shown for questions with audio */}
+            {currentQuestionHasAudio && (
+              <div className="flex items-center justify-center mb-4">
+                <div className="flex items-center justify-center">
+                  {isLoadingAudio && (
+                    <div className="flex items-center gap-2 text-primary text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Loading audio...</span>
+                    </div>
+                  )}
+                  {isPlayingAudio && !isLoadingAudio && (
+                    <div className="relative flex items-center justify-center gap-3 text-primary text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/15 via-primary/10 to-primary/15 border border-primary/40 backdrop-blur-sm shadow-lg shadow-primary/20">
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        <Volume2 className="w-4 h-4 text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]" />
+                      </motion.div>
+                      <span className="font-medium tracking-wide text-xs sm:text-sm">MADAME AURORA SPEAKING TO YOU</span>
+                      <AudioWaveVisualizer isPlaying={isPlayingAudio} barCount={16} variant="futuristic" />
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
+                      >
+                        <Volume2 className="w-4 h-4 text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]" />
+                      </motion.div>
+                    </div>
+                  )}
+                  {!isPlayingAudio && !isLoadingAudio && audioEnabled && (
+                    <div className="relative flex items-center justify-center gap-3 text-primary/70 text-sm px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 backdrop-blur-sm">
+                      <Volume2 className="w-4 h-4 text-primary/60" />
+                      <span className="font-medium opacity-80 text-xs sm:text-sm">MADAME AURORA SPEAKING TO YOU</span>
+                      <AudioWaveVisualizer isPlaying={true} barCount={16} variant="futuristic" className="opacity-60" />
+                      <Volume2 className="w-4 h-4 text-primary/60" />
+                    </div>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleAudio}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  {audioEnabled ? (
+                    <Volume2 className="w-4 h-4" />
+                  ) : (
+                    <VolumeX className="w-4 h-4" />
+                  )}
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleAudio}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                {audioEnabled ? (
-                  <Volume2 className="w-4 h-4" />
-                ) : (
-                  <VolumeX className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
+            )}
 
             {/* Question with personalized intro */}
             <h2 className="text-xl md:text-2xl font-serif font-semibold text-foreground mb-6 leading-relaxed">
