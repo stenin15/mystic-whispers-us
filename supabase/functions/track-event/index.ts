@@ -68,6 +68,15 @@ type TrackEventInput = {
   user?: { email?: string; phone?: string };
   meta?: { fbp?: string; fbc?: string };
   tiktok?: { ttclid?: string };
+  utm?: {
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_content?: string;
+    utm_term?: string;
+    src?: string;
+    sck?: string;
+  };
 };
 
 serve(async (req) => {
@@ -262,7 +271,68 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ ok: true, request_id, meta: metaResult, tiktok: tiktokResult }), {
+    // --- UTMify Orders API (best-effort, Purchase only) ---
+    const UTMIFY_API_TOKEN = Deno.env.get("UTMIFY_API_TOKEN");
+    const utmifyResult: { ok: boolean; status?: number; skipped?: boolean } = { ok: false, skipped: true };
+
+    if (UTMIFY_API_TOKEN && event_name.toLowerCase() === "purchase" && session_id && value != null) {
+      try {
+        const now = new Date();
+        const dateStr = now.toISOString().replace("T", " ").slice(0, 19); // "YYYY-MM-DD HH:MM:SS"
+        const utm = body.utm ?? {};
+
+        const utmifyPayload = {
+          orderId: session_id,
+          platform: "other",
+          paymentMethod: "credit_card",
+          status: "paid",
+          createdAt: dateStr,
+          approvedDate: dateStr,
+          customer: {
+            name: null,
+            email: email || null,
+            phone: null,
+            document: null,
+          },
+          trackingParameters: {
+            src: utm.src ?? utm.utm_source ?? null,
+            sck: utm.sck ?? null,
+            utm_source: utm.utm_source ?? null,
+            utm_medium: utm.utm_medium ?? null,
+            utm_campaign: utm.utm_campaign ?? null,
+            utm_term: utm.utm_term ?? null,
+            utm_content: utm.utm_content ?? null,
+          },
+          commission: {
+            totalPriceInCents: Math.round(value * 100),
+            gatewayFeeInCents: 0,
+            userCommissionInCents: Math.round(value * 100),
+          },
+          isTest: false,
+        };
+
+        const utmifyRes = await fetch("https://api.utmify.com.br/api-credentials/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-token": UTMIFY_API_TOKEN,
+          },
+          body: JSON.stringify(utmifyPayload),
+        });
+        utmifyResult.ok = utmifyRes.ok;
+        utmifyResult.status = utmifyRes.status;
+        utmifyResult.skipped = false;
+        if (!utmifyRes.ok) {
+          console.warn("utmify_order_failed", { request_id, status: utmifyRes.status, body: await utmifyRes.text() });
+        } else {
+          console.log("utmify_order_ok", { request_id, session_id, value, utm: utmifyPayload.trackingParameters });
+        }
+      } catch (utmifyErr) {
+        console.warn("utmify_order_error", { request_id, error: utmifyErr instanceof Error ? utmifyErr.message : String(utmifyErr) });
+      }
+    }
+
+    return new Response(JSON.stringify({ ok: true, request_id, meta: metaResult, tiktok: tiktokResult, utmify: utmifyResult }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
