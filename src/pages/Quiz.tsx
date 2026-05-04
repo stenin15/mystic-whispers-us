@@ -59,13 +59,29 @@ const Quiz = () => {
   const shortName = getShortName(name || 'there');
 
   // QUIZ AUDIO (pre-recorded, no TTS): /public/audio/q1.mp3 ... q7.mp3
-  const getQuizAudioSrc = useCallback((questionId: number) => {
-    return `/audio/q${questionId}.mp3`;
+  // Questions with IDs 8 and 9 were added later — no audio file exists for them.
+  const QUESTION_AUDIO: Record<number, string | null> = {
+    1: '/audio/q1.mp3',
+    2: '/audio/q2.mp3',
+    3: '/audio/q3.mp3',
+    4: '/audio/q4.mp3',
+    5: '/audio/q5.mp3',
+    6: '/audio/q6.mp3',
+    7: '/audio/q7.mp3',
+    8: null,
+    9: null,
+  };
+
+  const getQuizAudioSrc = useCallback((questionId: number): string | null => {
+    return QUESTION_AUDIO[questionId] ?? null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const preloadAudio = useCallback((questionId: number) => {
+    const src = getQuizAudioSrc(questionId);
+    if (!src) return;
     try {
-      const a = new Audio(getQuizAudioSrc(questionId));
+      const a = new Audio(src);
       a.preload = "auto";
       a.load();
     } catch {
@@ -83,25 +99,34 @@ const Quiz = () => {
       setIsPlayingAudio(false);
     }
 
-    setIsLoadingAudio(true);
     const src = getQuizAudioSrc(questionId);
+    if (!src) {
+      // No audio for this question — reset state cleanly
+      setIsLoadingAudio(false);
+      setIsPlayingAudio(false);
+      return;
+    }
+
+    setIsLoadingAudio(true);
     const audio = new Audio(src);
-      audioRef.current = audio;
-      audio.volume = 0.85;
+    audioRef.current = audio;
+    audio.volume = 0.85;
 
-      audio.onplay = () => setIsPlayingAudio(true);
-      audio.onended = () => setIsPlayingAudio(false);
-      (audio as unknown as Record<string, unknown>)[["on", "er", "ror"].join("")] = () =>
-        setIsPlayingAudio(false);
+    audio.onplay = () => setIsPlayingAudio(true);
+    audio.onended = () => setIsPlayingAudio(false);
+    (audio as unknown as Record<string, unknown>)[["on", "er", "ror"].join("")] = () => {
+      setIsPlayingAudio(false);
+      setIsLoadingAudio(false);
+    };
 
-      try {
-        await audio.play();
-      } catch (err) {
-        console.warn('Audio play failed:', err);
-        setIsPlayingAudio(false);
-      } finally {
-        setIsLoadingAudio(false);
-      }
+    try {
+      await audio.play();
+    } catch (err) {
+      console.warn('Audio play failed:', err);
+      setIsPlayingAudio(false);
+    } finally {
+      setIsLoadingAudio(false);
+    }
   }, [audioEnabled, getQuizAudioSrc]);
 
   // Preload next questions when current question changes
