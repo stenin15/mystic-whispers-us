@@ -14,7 +14,6 @@ import {
   Zap,
   Mic2,
   Lock,
-  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
@@ -284,8 +283,7 @@ const Checkout = () => {
               className="w-full gradient-gold text-gray-900 hover:opacity-90 py-7 text-base font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-yellow-400/10 rounded-2xl"
             >
               <Mic2 className="w-4 h-4 mr-2" />
-              Unlock My Reading + Hear Aurora
-              <ArrowRight className="w-4 h-4 ml-2" />
+              Hear Aurora Read My Palm →
             </Button>
 
             {/* Trust + payment row */}
@@ -327,8 +325,8 @@ const Checkout = () => {
                 onClick={() => handleCheckoutClick("basic")}
                 className="w-full py-4 px-6 rounded-2xl border border-primary/30 bg-primary/6 text-sm font-semibold text-foreground hover:bg-primary/12 hover:border-primary/50 transition-all duration-200 flex items-center justify-between"
               >
-                <span>Basic Reading — text only</span>
-                <span className="text-primary font-bold">{PRICE_MAP.basic.display} →</span>
+                <span>Unlock My Reading →</span>
+                <span className="text-primary font-bold">{PRICE_MAP.basic.display}</span>
               </button>
             ) : (
               <button
@@ -441,21 +439,20 @@ const Checkout = () => {
                   <Lock className="w-5 h-5 text-green-400" />
                 </div>
                 <h3 className="text-xl font-serif font-bold text-foreground mb-1">
-                  Your reading is ready{name ? `, ${name}` : ""}
+                  You're one step away.
                 </h3>
                 <p className="text-sm text-muted-foreground/80">
-                  You're one step away from your complete palm reading
+                  {name ? `${name}, your` : "Your"} reading is ready to be revealed
                 </p>
               </div>
 
               {/* Trust signals */}
               <div className="px-7 pb-5 space-y-3">
                 {[
-                  { icon: Clock,        text: "Takes less than 60 seconds to complete" },
-                  { icon: Shield,       text: "7-day money-back guarantee, no questions asked" },
-                  { icon: Lock,         text: "SSL encrypted via Stripe — your card is safe" },
-                  { icon: CheckCircle2, text: "Instant access right after payment" },
-                  { icon: Sparkles,     text: "Private reading — your data is never shared" },
+                  { icon: Lock,         text: "Private — only you see your reading" },
+                  { icon: Shield,       text: "Secure checkout via Stripe" },
+                  { icon: Zap,          text: "Instant delivery — no waiting" },
+                  { icon: CheckCircle2, text: "Satisfaction guaranteed" },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-3 text-sm text-muted-foreground/85">
                     <Icon className="w-4 h-4 text-green-400 flex-shrink-0" />
@@ -493,18 +490,22 @@ const Checkout = () => {
                   ) : (
                     <>
                       <Lock className="w-4 h-4 mr-2" />
-                      Continue to Secure Checkout
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                      Continue to Secure Checkout →
                     </>
                   )}
                 </Button>
                 {!confirmModal.loading && (
-                  <button
-                    onClick={() => setConfirmModal({ open: false, plan: null, loading: false })}
-                    className="w-full text-xs text-muted-foreground/40 hover:text-muted-foreground/60 transition-colors py-1"
-                  >
-                    ← Go back
-                  </button>
+                  <>
+                    <p className="text-center text-[11px] text-muted-foreground/40 leading-relaxed px-2">
+                      You'll be redirected to Stripe — trusted by millions of businesses worldwide.
+                    </p>
+                    <button
+                      onClick={() => setConfirmModal({ open: false, plan: null, loading: false })}
+                      className="w-full text-xs text-muted-foreground/40 hover:text-muted-foreground/60 transition-colors py-1"
+                    >
+                      ← Go back
+                    </button>
+                  </>
                 )}
               </div>
             </motion.div>

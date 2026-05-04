@@ -19,6 +19,9 @@ const Sucesso = () => {
   const [message, setMessage] = useState<string>("Processing payment…");
   const [timedOut, setTimedOut] = useState(false);
   const [manualRetry, setManualRetry] = useState(0);
+  const [guideDeclined, setGuideDeclined] = useState(false);
+  const [guideLoading, setGuideLoading] = useState(false);
+  const [guideError, setGuideError] = useState<string | null>(null);
   const pollingRef = useRef<number | null>(null);
   const hasTrackedPurchaseRef = useRef(false);
   const pollAttemptRef = useRef(0);
@@ -207,6 +210,25 @@ const Sucesso = () => {
   const buttonLabel =
     purchases.complete ? "Open my complete delivery" : purchases.guide ? "Open my guide" : "Open my reading";
 
+  const handleGuideCheckout = async () => {
+    setGuideLoading(true);
+    setGuideError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { product_code: "guide", email: email || undefined },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned.");
+      }
+    } catch {
+      setGuideError("Something went wrong. Please try again.");
+      setGuideLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <ParticlesBackground />
@@ -255,6 +277,55 @@ const Sucesso = () => {
                   Try again →
                 </button>
               </div>
+            )}
+
+            {/* Guide Upsell — one-time offer */}
+            {verified && !purchases.guide && !guideDeclined && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-8 rounded-3xl overflow-hidden text-center"
+                style={{
+                  background: "linear-gradient(135deg, hsl(40 60% 8% / 0.95) 0%, hsl(35 55% 6% / 0.98) 100%)",
+                  border: "1px solid hsl(40 60% 55% / 0.4)",
+                  boxShadow: "0 0 40px hsl(40 60% 55% / 0.10)",
+                }}
+              >
+                <div className="p-6 md:p-8">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-amber-400/70 mb-3">
+                    One-Time Offer — available only right now
+                  </p>
+                  <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-3">
+                    Add the Ritual Guide before you open your reading.
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto leading-relaxed">
+                    Aurora identified active patterns in your palm. This 14-day guide gives you one practice per insight — so the reading moves from understanding to actual change. Most women who buy it say it's what made the reading useful, not just interesting.
+                  </p>
+                  <div className="flex items-center justify-center gap-3 mb-5">
+                    <span className="text-sm text-muted-foreground/50 line-through">$47</span>
+                    <span className="text-2xl font-bold text-amber-400">$27</span>
+                    <span className="text-xs text-amber-400/60">— Never offered at this price again</span>
+                  </div>
+                  {guideError && (
+                    <p className="text-sm text-red-400 mb-3">{guideError}</p>
+                  )}
+                  <Button
+                    onClick={handleGuideCheckout}
+                    disabled={guideLoading}
+                    size="lg"
+                    className="bg-amber-500 hover:bg-amber-400 text-background px-8 py-5 text-base font-semibold rounded-2xl w-full transition-colors"
+                  >
+                    {guideLoading ? "Redirecting…" : "Yes, Add the Ritual Guide — $27 →"}
+                  </Button>
+                  <button
+                    onClick={() => setGuideDeclined(true)}
+                    className="mt-4 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors underline underline-offset-2"
+                  >
+                    No thanks, I'll open my reading without it →
+                  </button>
+                </div>
+              </motion.div>
             )}
 
             {/* Aurora Session CTA — urgency block */}

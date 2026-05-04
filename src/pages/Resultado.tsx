@@ -399,6 +399,81 @@ const Resultado = () => {
                 ))}
               </div>
 
+              {/* Social proof — 3 testimonials before plan selector */}
+              <div className="space-y-3 mb-7 max-w-lg mx-auto text-left">
+                {/* Rachel M. */}
+                <div className="relative rounded-2xl p-5 overflow-hidden"
+                  style={{ background: 'hsl(280 60% 55% / 0.07)', border: '1px solid hsl(280 60% 55% / 0.15)' }}>
+                  <div className="absolute top-2 left-4 text-4xl font-serif text-violet-400/8 leading-none select-none">"</div>
+                  <div className="flex gap-0.5 mb-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-white/65 leading-relaxed italic mb-4">
+                    "I'd been going back and forth with the same guy for 8 months. The reading described a fork in my heart line and said I was holding a decision I already knew the answer to. I did. I stopped waiting."
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'linear-gradient(135deg, hsl(280 60% 55%), hsl(320 55% 55%))' }}>
+                      <span className="text-[9px] font-bold text-white">R</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-white">Rachel M.</p>
+                      <p className="text-[10px] text-white/35">Denver, CO</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Jessica T. */}
+                <div className="relative rounded-2xl p-5 overflow-hidden"
+                  style={{ background: 'hsl(280 60% 55% / 0.07)', border: '1px solid hsl(280 60% 55% / 0.15)' }}>
+                  <div className="absolute top-2 left-4 text-4xl font-serif text-violet-400/8 leading-none select-none">"</div>
+                  <div className="flex gap-0.5 mb-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-white/65 leading-relaxed italic mb-4">
+                    "I was skeptical. My friend sent it to me as a joke. I paid the $9 mostly to shut her up. The reading was so specific to me that I sent it back to her and said 'this is not a joke.' I've since bought the complete version."
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'linear-gradient(135deg, hsl(260 60% 55%), hsl(300 55% 55%))' }}>
+                      <span className="text-[9px] font-bold text-white">J</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-white">Jessica T., 41</p>
+                      <p className="text-[10px] text-white/35">Austin, TX</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Maya R. */}
+                <div className="relative rounded-2xl p-5 overflow-hidden"
+                  style={{ background: 'hsl(280 60% 55% / 0.07)', border: '1px solid hsl(280 60% 55% / 0.15)' }}>
+                  <div className="absolute top-2 left-4 text-4xl font-serif text-violet-400/8 leading-none select-none">"</div>
+                  <div className="flex gap-0.5 mb-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-white/65 leading-relaxed italic mb-4">
+                    "The timing section was what got me. It didn't say 'love is coming soon' — it said there's a window where my energy shifts toward real commitment, and here's what that looks like. I screenshot it and look at it once a week."
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'linear-gradient(135deg, hsl(300 60% 55%), hsl(340 55% 55%))' }}>
+                      <span className="text-[9px] font-bold text-white">M</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-white">Maya R., 29</p>
+                      <p className="text-[10px] text-white/35">New York, NY</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Plan selector */}
               <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-3 mb-5 max-w-lg mx-auto">
                 {/* Basic */}
@@ -415,8 +490,22 @@ const Resultado = () => {
                     <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Basic</span>
                     {selectedPlan === 'basic' && <CheckCircle2 className="w-3.5 h-3.5 text-violet-400" />}
                   </div>
-                  <div className="text-xl font-bold text-white mb-0.5">{PRICE_MAP.basic.display}</div>
-                  <p className="text-[11px] text-white/35 leading-snug">Text reading only</p>
+                  <div className="text-xl font-bold text-white mb-1">{PRICE_MAP.basic.display}</div>
+                  <p className="text-[11px] text-white/35 leading-snug mb-2">Text reading only</p>
+                  <div className="space-y-1 mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-white/20 mb-1.5">Not included</p>
+                    {[
+                      'Voice reading',
+                      'Love timing window',
+                      'Marriage line depth',
+                      '7 integration practices',
+                    ].map((item) => (
+                      <div key={item} className="flex items-start gap-1.5">
+                        <span className="text-[10px] text-rose-400/40 mt-0.5 flex-shrink-0">✗</span>
+                        <span className="text-[10px] text-white/20 leading-snug">{item}</span>
+                      </div>
+                    ))}
+                  </div>
                 </button>
 
                 {/* Complete — default/highlighted */}
@@ -439,7 +528,16 @@ const Resultado = () => {
                     <span className="text-[10px] font-bold uppercase tracking-widest text-violet-300">Complete</span>
                     {selectedPlan === 'complete' && <CheckCircle2 className="w-3.5 h-3.5 text-violet-400" />}
                   </div>
-                  <div className="text-xl font-bold text-white mb-0.5">{PRICE_MAP.complete.display}</div>
+                  <div className="flex items-baseline gap-2 mb-0.5">
+                    <span className="text-sm text-white/30 line-through">$59</span>
+                    <span className="text-xl font-bold text-white">{PRICE_MAP.complete.display}</span>
+                  </div>
+                  <div className="mb-1">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded font-semibold"
+                      style={{ background: 'hsl(45 95% 55% / 0.15)', color: 'hsl(45 95% 70%)', border: '1px solid hsl(45 95% 55% / 0.25)' }}>
+                      Launch pricing
+                    </span>
+                  </div>
                   <p className="text-[11px] text-white/45 leading-snug">Reading + voice session 🎙️</p>
                 </button>
               </div>
@@ -462,8 +560,11 @@ const Resultado = () => {
                     border: 'none',
                   }}
                 >
-                  {selectedPlan === 'complete' ? 'Unlock My Complete Reading' : 'Unlock My Reading'}
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  {selectedPlan === 'basic'
+                    ? `Unlock My Reading — ${PRICE_MAP.basic.display} →`
+                    : selectedPlan === 'complete'
+                    ? `Hear Aurora Read My Palm — ${PRICE_MAP.complete.display} →`
+                    : 'Choose Your Reading →'}
                 </Button>
               </motion.div>
 
@@ -609,10 +710,10 @@ const Resultado = () => {
         </div>
       </section>
 
-      {/* ── SOCIAL PROOF ── */}
+      {/* ── SOCIAL PROOF SUMMARY ── */}
       <section className="py-6 px-4">
         <div className="container max-w-3xl mx-auto">
-          <div className="flex flex-wrap items-center justify-center gap-5 text-sm text-white/35 mb-8">
+          <div className="flex flex-wrap items-center justify-center gap-5 text-sm text-white/35">
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
@@ -624,34 +725,6 @@ const Resultado = () => {
             <span className="text-white/12">·</span>
             <span>Private & confidential</span>
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.42 }}
-            className="relative rounded-2xl p-7 overflow-hidden"
-            style={{ background: 'hsl(280 60% 55% / 0.07)', border: '1px solid hsl(280 60% 55% / 0.15)' }}
-          >
-            <div className="absolute top-3 left-5 text-5xl font-serif text-violet-400/8 leading-none select-none">"</div>
-            <div className="flex gap-0.5 mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              ))}
-            </div>
-            <p className="text-sm text-white/65 leading-relaxed italic mb-5">
-              "I'd been going back and forth with the same guy for 8 months. The reading described a fork in my heart line and said I was holding a decision I already knew the answer to. I did. I stopped waiting."
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, hsl(280 60% 55%), hsl(320 55% 55%))' }}>
-                <span className="text-[9px] font-bold text-white">R</span>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-white">Rachel M.</p>
-                <p className="text-xs text-white/35">Denver, CO</p>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </section>
 

@@ -285,11 +285,16 @@ const Formulario = () => {
           <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-5">
             <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-mystic-gold" />
-              Your palm photo
+              Now, let Aurora see your hand.
             </h2>
-            <p className="text-sm text-muted-foreground/80 -mt-2">
-              Our AI will analyze your actual palm lines -- heart line, fate line, marriage lines -- to personalize your reading.
-            </p>
+            <div className="space-y-2 -mt-2">
+              <p className="text-sm text-muted-foreground/80">
+                Aurora uses the specific lines in your palm to personalize what comes next. Without it, the reading is the same for everyone — and that's not what this is.
+              </p>
+              <p className="text-xs text-muted-foreground/55">
+                Your photo is processed privately and is never stored or shared.
+              </p>
+            </div>
 
             <HandImageUpload
               value={handPhotoPreview}
@@ -297,9 +302,17 @@ const Formulario = () => {
               issue={photoIssue}
             />
 
-            {handPhotoPreview && (
+            <p className="text-xs text-muted-foreground/50 text-center">
+              Open hand · Natural light · No filter needed
+            </p>
+
+            {handPhotoPreview ? (
               <p className="text-sm text-primary/80 text-center">
-                ✓ Palm photo received -- analysis will begin after the quiz.
+                ✓ Palm photo received — analysis will begin after the quiz.
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground/40 text-center">
+                Takes 10 seconds. Your photo stays private.
               </p>
             )}
           </div>
