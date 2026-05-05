@@ -4,10 +4,9 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Sparkles, ArrowRight, User, Heart, MessageCircle, Mail } from 'lucide-react';
+import { Sparkles, ArrowRight, User, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
@@ -26,8 +25,6 @@ const formSchema = z.object({
       const n = parseInt(v, 10);
       return !isNaN(n) && n >= 16 && n <= 99;
     }, 'Please enter a valid age (16–99)'),
-  emotionalState: z.string().min(3, "Tell us how you're feeling"),
-  mainConcern: z.string().min(5, 'Share a bit more (min. 5 characters)'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -47,8 +44,6 @@ const Formulario = () => {
       name: '',
       email: '',
       age: '',
-      emotionalState: '',
-      mainConcern: '',
     },
   });
 
@@ -103,8 +98,8 @@ const Formulario = () => {
         name: data.name,
         email: data.email,
         age: data.age,
-        emotionalState: data.emotionalState,
-        mainConcern: data.mainConcern,
+        emotionalState: '',
+        mainConcern: '',
       });
 
       resetQuiz();
@@ -115,8 +110,8 @@ const Formulario = () => {
         name: data.name,
         email: data.email,
         age: data.age,
-        emotionalState: data.emotionalState,
-        mainConcern: data.mainConcern,
+        emotionalState: '',
+        mainConcern: '',
       });
       resetQuiz();
       navigate('/quiz');
@@ -216,43 +211,6 @@ const Formulario = () => {
               />
               {formIssues?.age && (
                 <p className="text-sm text-destructive">{formIssues.age.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Emotional State */}
-          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-5">
-            <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
-              <Heart className="w-5 h-5 text-accent" />
-              Your current season
-            </h2>
-
-            <div className="space-y-2">
-              <Label htmlFor="emotionalState">How are you feeling right now?</Label>
-              <Input
-                id="emotionalState"
-                placeholder="e.g. anxious, hopeful, stuck, calm…"
-                {...register('emotionalState')}
-                className="bg-input/50 border-border/50 focus:border-primary"
-              />
-              {formIssues?.emotionalState && (
-                <p className="text-sm text-destructive">{formIssues.emotionalState.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="mainConcern" className="flex items-center gap-2">
-                <MessageCircle className="w-4 h-4 text-muted-foreground" />
-                What's on your mind most?
-              </Label>
-              <Textarea
-                id="mainConcern"
-                placeholder="What are you trying to understand right now?"
-                {...register('mainConcern')}
-                className="bg-input/50 border-border/50 focus:border-primary min-h-[90px] resize-none"
-              />
-              {formIssues?.mainConcern && (
-                <p className="text-sm text-destructive">{formIssues.mainConcern.message}</p>
               )}
             </div>
           </div>
