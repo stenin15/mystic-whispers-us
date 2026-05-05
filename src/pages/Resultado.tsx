@@ -406,17 +406,17 @@ const Resultado = () => {
                   onClick={() => setSelectedPlan('basic')}
                   className="p-4 rounded-2xl text-left transition-all duration-200 relative"
                   style={{
-                    background: selectedPlan === 'basic' ? 'hsl(280 60% 55% / 0.15)' : 'rgba(255,255,255,0.03)',
-                    border: selectedPlan === 'basic' ? '2px solid hsl(280 60% 60%)' : '2px solid rgba(255,255,255,0.08)',
+                    background: selectedPlan === 'basic' ? 'hsl(280 60% 55% / 0.15)' : 'rgba(255,255,255,0.07)',
+                    border: selectedPlan === 'basic' ? '2px solid hsl(280 60% 60%)' : '2px solid rgba(255,255,255,0.22)',
                     boxShadow: selectedPlan === 'basic' ? '0 0 20px hsl(280 60% 55% / 0.15)' : 'none',
                   }}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Basic</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">Basic</span>
                     {selectedPlan === 'basic' && <CheckCircle2 className="w-3.5 h-3.5 text-violet-400" />}
                   </div>
                   <div className="text-xl font-bold text-white mb-0.5">{PRICE_MAP.basic.display}</div>
-                  <p className="text-[11px] text-white/35 leading-snug">Text reading only</p>
+                  <p className="text-[11px] text-white/55 leading-snug">Full text reading · No voice</p>
                 </button>
 
                 {/* Complete — default/highlighted */}
