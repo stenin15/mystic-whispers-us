@@ -439,7 +439,10 @@ const Resultado = () => {
                     <span className="text-[10px] font-bold uppercase tracking-widest text-violet-300">Complete</span>
                     {selectedPlan === 'complete' && <CheckCircle2 className="w-3.5 h-3.5 text-violet-400" />}
                   </div>
-                  <div className="text-xl font-bold text-white mb-0.5">{PRICE_MAP.complete.display}</div>
+                  <div className="flex items-baseline gap-2 mb-0.5">
+                    <span className="text-xl font-bold text-white">{PRICE_MAP.complete.display}</span>
+                    <span className="text-[11px] text-white/30 line-through">$49</span>
+                  </div>
                   <p className="text-[11px] text-white/45 leading-snug">Reading + voice session 🎙️</p>
                 </button>
               </div>
@@ -462,8 +465,7 @@ const Resultado = () => {
                     border: 'none',
                   }}
                 >
-                  {selectedPlan === 'complete' ? 'Unlock My Complete Reading' : 'Unlock My Reading'}
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  {selectedPlan === 'complete' ? 'Unlock My Full Reading → Instant Access' : 'Unlock My Reading → Instant Access'}
                 </Button>
               </motion.div>
 
@@ -473,9 +475,12 @@ const Resultado = () => {
                 <span>Reading expires in <span className="font-mono font-bold text-rose-400">{pad(h)}:{pad(m)}:{pad(s)}</span></span>
               </div>
 
-              <div className="flex items-center justify-center gap-2 text-xs text-white/30">
-                <Shield className="w-3.5 h-3.5 text-emerald-400/60" />
-                <span>7-day refund policy · Secure checkout · Photo never shared</span>
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2 text-xs text-emerald-400/80 font-medium">
+                  <Shield className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>7-day money-back guarantee — no questions asked</span>
+                </div>
+                <p className="text-[10px] text-white/25">Secure checkout · Photo never shared · Cancel anytime</p>
               </div>
             </div>
           </motion.div>

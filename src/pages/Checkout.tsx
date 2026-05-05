@@ -441,21 +441,20 @@ const Checkout = () => {
                   <Lock className="w-5 h-5 text-green-400" />
                 </div>
                 <h3 className="text-xl font-serif font-bold text-foreground mb-1">
-                  Your reading is ready{name ? `, ${name}` : ""}
+                  You're one step away{name ? `, ${name}` : ""}.
                 </h3>
                 <p className="text-sm text-muted-foreground/80">
-                  You're one step away from your complete palm reading
+                  Your reading is ready — unlock it in seconds.
                 </p>
               </div>
 
               {/* Trust signals */}
               <div className="px-7 pb-5 space-y-3">
                 {[
-                  { icon: Clock,        text: "Takes less than 60 seconds to complete" },
-                  { icon: Shield,       text: "7-day money-back guarantee, no questions asked" },
-                  { icon: Lock,         text: "SSL encrypted via Stripe — your card is safe" },
-                  { icon: CheckCircle2, text: "Instant access right after payment" },
-                  { icon: Sparkles,     text: "Private reading — your data is never shared" },
+                  { icon: Zap,          text: "Instant access in under 60 seconds" },
+                  { icon: Lock,         text: "Private — only you see your reading" },
+                  { icon: Shield,       text: "No subscription. One-time payment." },
+                  { icon: CheckCircle2, text: "7-day money-back guarantee — no questions asked" },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-3 text-sm text-muted-foreground/85">
                     <Icon className="w-4 h-4 text-green-400 flex-shrink-0" />
