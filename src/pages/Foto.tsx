@@ -70,15 +70,17 @@ const Foto = () => {
           className="text-center mb-10"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-4">
-            <span className="text-sm text-primary">Almost there</span>
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+            </span>
+            <span className="text-sm text-primary">Aurora is analyzing 47 readings right now</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3">
-            <span className="gradient-text">Now let Aurora see your hand</span>
+            <span className="gradient-text">One photo away from your answer</span>
           </h1>
           <p className="text-muted-foreground/80 max-w-md mx-auto">
-            {firstName}, Aurora uses the specific lines in your palm to personalize
-            what comes next. Without it, the reading is the same for everyone —
-            and that's not what this is.
+            {firstName}, the quiz revealed your pattern — now Aurora needs to see your specific lines to complete the reading. This is what makes it personal, not generic.
           </p>
         </motion.div>
 

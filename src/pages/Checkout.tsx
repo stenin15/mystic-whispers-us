@@ -246,6 +246,27 @@ const Checkout = () => {
               ))}
             </div>
 
+            {/* What you'll receive */}
+            <div className="mb-6 rounded-2xl p-5 border border-white/8 bg-white/3">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/50 mb-3">What you receive today</p>
+              <ul className="space-y-2">
+                {[
+                  "Your dominant love pattern — named and explained",
+                  "Your heart line interpretation (specific to your hand)",
+                  "Your timing block — what's slowing connection right now",
+                  "Your emotional attachment signal — why you attract who you attract",
+                  "Your next aligned action",
+                  "Audio: Aurora reads your name and speaks your reading",
+                  "Delivered privately in under 60 seconds",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-foreground/85">
+                    <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <div className="text-center mb-6">
               <span className="text-4xl font-bold gradient-text">{PRICE_MAP.complete.display}</span>
               <div className="text-sm text-muted-foreground mt-1">One-time · Instant access · 7-day refund</div>

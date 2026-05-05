@@ -145,7 +145,7 @@ const Index = () => {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-[clamp(2.8rem,8vw,6rem)] font-serif font-bold leading-[1.04] tracking-tight mb-6 text-white"
           >
-            Your palm holds the{' '}
+            This line on your palm may explain{' '}
             <span
               className="inline-block"
               style={{
@@ -155,7 +155,7 @@ const Index = () => {
                 backgroundClip: 'text',
               }}
             >
-              answers you've been searching for
+              why love keeps arriving at the wrong time
             </span>
           </motion.h1>
 
@@ -166,7 +166,7 @@ const Index = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-lg md:text-xl text-white/45 mb-10 max-w-lg leading-relaxed"
           >
-            Upload a photo of your palm and receive a precise AI reading of what's active in your life — in under 60 seconds.
+            Upload a photo of your palm. Aurora reads your specific lines and reveals the pattern behind your love life — delivered in under 60 seconds.
           </motion.p>
 
           {/* Hand visual */}
@@ -197,7 +197,7 @@ const Index = () => {
             >
               <Link to={QUIZ_ROUTE} className="flex items-center gap-3">
                 <Hand className="w-5 h-5" />
-                Read My Palm Now
+                Reveal My Pattern
                 <motion.span
                   animate={{ x: [0, 4, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
@@ -208,7 +208,7 @@ const Index = () => {
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent skew-x-12" />
               </Link>
             </Button>
-            <p className="text-xs text-white/25 tracking-wide">Takes less than a minute · No account required</p>
+            <p className="text-xs text-white/25 tracking-wide">Free to start · No account required · Reading ready in 60s</p>
           </motion.div>
 
           {/* Stats */}
