@@ -6,9 +6,9 @@ import httpx, base64, time, json, sys
 from pathlib import Path
 
 TOKEN   = 'EAASYamalEPMBRPqvcHKNbR78iWEYAOtBIfW9a8VIjjf4g48S9LpTSueUJtAyxcSwRuTbEE3OnTdo6KFHRTgaMV5JClIt6C8G1uUVbAXXExrsi0LclR7pght2QYUY0LLSrwF6eRQBCZCCPX0h7iDZCyZB4po0XP3PfZCkh7EfslfuPa6IPE5kvXUiOC2vtK2tDregmg7BPUa6S6UE1ZCZAgTCv2L7mARQsVOVayz6ZBdxpCZCvELeBicEZA3sbNMCynKcaqOYbxQznpwbM25nbQivjssB73R0GdZCMXTSCGOzp5XT4a5vDCbgR7Nx8zNvdL9axk4TQaigZAkdsYii6tpTz4udAZDZD'
-ACCOUNT = 'act_1597807197993217'
+ACCOUNT = 'act_669757726130901'
 PAGE_ID = '1003865519465291'
-PIXEL   = '2758366157828192'
+PIXEL   = '2164555847647961'
 API     = 'https://graph.facebook.com/v20.0'
 BASE    = Path('C:/Users/Stenio/Documents/mystic-whispers-us/vsl-production')
 IMGS    = BASE / 'scenes/ad_images_v2/final'
