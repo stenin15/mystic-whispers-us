@@ -35,6 +35,7 @@ type ProductCode = "basic" | "complete" | "guide" | "upsell";
 interface CreateCheckoutSessionInput {
   productCode: ProductCode;
   email?: string;
+  name?: string;
 }
 
 const isProductCode = (v: unknown): v is ProductCode =>
@@ -102,6 +103,7 @@ serve(async (req) => {
     }
     const productCode = body.productCode;
     const email = body.email;
+    const name = typeof body.name === "string" ? body.name.replace(/[<>{}]/g, "").trim().substring(0, 100) : undefined;
 
     if (!isProductCode(productCode)) {
       return new Response(JSON.stringify({ error: "Invalid product code" }), {
@@ -133,6 +135,7 @@ serve(async (req) => {
       metadata: {
         product_code: productCode,
         app: "mystic-whispers-us",
+        ...(name ? { customer_name: name } : {}),
       },
       ...(isValidEmail(email) ? { customer_email: email } : {}),
     });

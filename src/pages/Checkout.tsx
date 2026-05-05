@@ -87,7 +87,7 @@ const Checkout = () => {
     if (!confirmModal.plan) return;
     setConfirmModal((prev) => ({ ...prev, loading: true }));
     try {
-      const url = await createCheckoutSessionUrl(confirmModal.plan, { email });
+      const url = await createCheckoutSessionUrl(confirmModal.plan, { email, name });
       window.location.href = url;
     } catch (err) {
       console.error("Checkout session creation failed:", confirmModal.plan, err);

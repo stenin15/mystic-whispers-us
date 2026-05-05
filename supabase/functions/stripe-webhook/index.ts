@@ -295,6 +295,30 @@ serve(async (req) => {
           });
         }
 
+        // Fire post-purchase email sequence (non-blocking)
+        const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+        const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+        if (email && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+          const customerName = typeof session.metadata?.customer_name === "string"
+            ? session.metadata.customer_name
+            : undefined;
+          fetch(`${SUPABASE_URL}/functions/v1/send-purchase-email`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            },
+            body: JSON.stringify({
+              email,
+              name: customerName,
+              product_code,
+              session_id: sessionId,
+            }),
+          }).catch((err) => {
+            console.warn("send_purchase_email_failed", { error: String(err) });
+          });
+        }
+
         break;
       }
 
