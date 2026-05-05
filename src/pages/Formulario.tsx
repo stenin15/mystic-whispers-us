@@ -94,6 +94,21 @@ const Formulario = () => {
         body: { name: data.name, email: data.email },
       }).catch(() => { /* ignore */ });
 
+      // Persist lead to DB (non-blocking)
+      const utms = getAttributionParams();
+      supabase.from('leads').insert({
+        name: data.name,
+        email: data.email,
+        age: parseInt(data.age, 10),
+        utm_source: utms.utm_source ?? null,
+        utm_medium: utms.utm_medium ?? null,
+        utm_campaign: utms.utm_campaign ?? null,
+        utm_content: utms.utm_content ?? null,
+        utm_term: utms.utm_term ?? null,
+        angle: getStoredAngle() ?? null,
+        focus: getStoredFocus() ?? null,
+      }).catch(() => {});
+
       setFormData({
         name: data.name,
         email: data.email,

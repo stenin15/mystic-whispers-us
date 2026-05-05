@@ -13,6 +13,7 @@ import {
   Zap,
   Mic2,
   Lock,
+  CheckCircle2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
