@@ -235,7 +235,7 @@ const Quiz = () => {
         },
       }).catch(() => {});
 
-      navigate('/analise');
+      navigate('/foto');
     }
   };
 

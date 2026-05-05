@@ -203,12 +203,12 @@ export const useHandReadingStore = create<HandReadingState>()(
 
       canAccessQuiz: () => {
         const state = get();
-        return !!(state.name && state.age && state.hasHandPhoto);
+        return !!(state.name && state.age);
       },
 
       canAccessAnalysis: () => {
         const state = get();
-        return state.canAccessQuiz() && state.quizAnswers.length >= 5;
+        return state.canAccessQuiz() && state.quizAnswers.length >= 5 && state.hasHandPhoto;
       },
 
       canAccessResult: () => {

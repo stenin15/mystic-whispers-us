@@ -145,7 +145,7 @@ const Analise = () => {
   }, []);
 
   useEffect(() => {
-    if (!canAccessAnalysis()) { navigate('/formulario'); return; }
+    if (!canAccessAnalysis()) { navigate('/foto'); return; }
     if (analysisStarted.current) return;
     analysisStarted.current = true;
     setIsAnalyzing(true);

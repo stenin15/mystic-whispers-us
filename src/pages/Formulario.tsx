@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -10,9 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
-import { HandImageUpload } from '@/components/shared/HandImageUpload';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
-import { cn, compressImageForVision } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { supabase } from "@/integrations/supabase/client";
 import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
@@ -36,8 +35,6 @@ type FormData = z.infer<typeof formSchema>;
 const Formulario = () => {
   const navigate = useNavigate();
   const { setFormData, resetQuiz } = useHandReadingStore();
-  const [photoIssue, setPhotoIssue] = useState('');
-  const [handPhotoPreview, setHandPhotoPreview] = useState<string>('');
   const hasTrackedFormStart = useRef(false);
 
   const {
@@ -60,22 +57,6 @@ const Formulario = () => {
     (formState as unknown as Record<string, unknown>)[["er", "rors"].join("")]
   ) as Record<string, { message?: string }>;
 
-  const handlePhotoChange = async (url: string) => {
-    setHandPhotoPreview(url);
-    setFormData({ hasHandPhoto: !!url });
-    if (url) {
-      setPhotoIssue('');
-      try {
-        const compressed = await compressImageForVision(url);
-        setFormData({ handPhotoData: compressed });
-      } catch {
-        setFormData({ handPhotoData: url });
-      }
-    } else {
-      setFormData({ handPhotoData: null });
-    }
-  };
-
   const handleFormStart = () => {
     if (hasTrackedFormStart.current) return;
     hasTrackedFormStart.current = true;
@@ -89,11 +70,6 @@ const Formulario = () => {
   };
 
   const onSubmit = async (data: FormData) => {
-    if (!handPhotoPreview) {
-      setPhotoIssue('Please upload a clear photo of your palm');
-      return;
-    }
-
     try {
       const leadEventId = getOrCreateEventId("lead_form_submit");
       track("Lead", {
@@ -279,36 +255,6 @@ const Formulario = () => {
                 <p className="text-sm text-destructive">{formIssues.mainConcern.message}</p>
               )}
             </div>
-          </div>
-
-          {/* Palm Photo */}
-          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-5">
-            <h2 className="text-lg font-serif font-medium text-foreground flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-mystic-gold" />
-              Now, let Aurora see your hand.
-            </h2>
-            <p className="text-sm text-muted-foreground/80 -mt-2">
-              Aurora uses the specific lines in your palm to personalize what comes next. Without it, the reading is the same for everyone — and that's not what this is.
-            </p>
-            <p className="text-xs text-muted-foreground/50">
-              Your photo is processed privately and is never stored or shared.
-            </p>
-
-            <HandImageUpload
-              value={handPhotoPreview}
-              onChange={handlePhotoChange}
-              issue={photoIssue}
-            />
-
-            <p className="text-[11px] text-muted-foreground/40 text-center">
-              Open hand · Natural light · No filter needed
-            </p>
-
-            {handPhotoPreview && (
-              <p className="text-sm text-primary/80 text-center">
-                ✓ Palm photo received — analysis will begin after the quiz.
-              </p>
-            )}
           </div>
 
           {/* Submit */}

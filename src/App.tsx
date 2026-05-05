@@ -28,6 +28,7 @@ import EntregaCombo from "./pages/EntregaCombo";
 import EntregaGuia from "./pages/EntregaGuia";
 import OfertaGuiaExclusivo from "./pages/OfertaGuiaExclusivo";
 import EntradaFoto from "./pages/EntradaFoto";
+import Foto from "./pages/Foto";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Refund from "./pages/Refund";
@@ -134,6 +135,7 @@ const App = () => (
           <Route path="/resultado" element={<Resultado />} />
           <Route path="/upsell" element={<Upsell />} />
           <Route path="/enviar-foto" element={<EntradaFoto />} />
+          <Route path="/foto" element={<VslGate><Foto /></VslGate>} />
           <Route path={pathDeliveryReading} element={<EntregaLeitura />} />
           <Route path="/entrega/combo" element={<EntregaCombo />} />
           <Route path="/entrega/completa" element={<EntregaCombo />} />
