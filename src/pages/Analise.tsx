@@ -50,7 +50,6 @@ const PHASE_DURATIONS = [2800, 3000, 3200, 3000, 2600];
 // ─── Upload helper ───────────────────────────────────────────────────────────
 
 async function uploadPalmPhotoToStorage(base64DataUrl: string, sessionKey: string): Promise<string> {
-  const { supabase: sb } = await import("@/integrations/supabase/client");
   const commaIdx = base64DataUrl.indexOf(",");
   const header = commaIdx >= 0 ? base64DataUrl.slice(0, commaIdx) : "";
   const b64 = commaIdx >= 0 ? base64DataUrl.slice(commaIdx + 1) : base64DataUrl;
@@ -60,7 +59,7 @@ async function uploadPalmPhotoToStorage(base64DataUrl: string, sessionKey: strin
   const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
   const blob = new Blob([bytes], { type: mimeType });
   const path = `${sessionKey}/palm.${ext}`;
-  const { error } = await sb.storage.from("palm-photos").upload(path, blob, { contentType: mimeType, upsert: false });
+  const { error } = await supabase.storage.from("palm-photos").upload(path, blob, { contentType: mimeType, upsert: false });
   if (error) throw error;
   return path;
 }
