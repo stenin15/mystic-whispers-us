@@ -10,6 +10,9 @@ import {
   Pause,
   Square,
   Mic,
+  Clock,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,16 +20,52 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { useAuroraVoice } from "@/hooks/useAuroraVoice";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyEntitlement } from "@/lib/entitlement";
+import { track } from "@/lib/tracking";
+
+// ---------------------------------------------------------------------------
+// Session limits
+// ---------------------------------------------------------------------------
+const MAX_USER_MESSAGES = 8;
+const MAX_TTS = 5;
+const SESSION_DURATION_MS = 8 * 60 * 1000; // 8 minutes
+
+// ---------------------------------------------------------------------------
+// LocalStorage persistence
+// ---------------------------------------------------------------------------
+const getStorageKey = (sid: string) => `mwus_aurora_${sid}`;
+
+interface PersistedSession {
+  userMsgCount: number;
+  auroraMsgCount: number;
+  ttsCount: number;
+  sessionEnded: boolean;
+  sessionStartTime: number | null;
+}
+
+function loadSession(sid: string): PersistedSession | null {
+  try {
+    const raw = localStorage.getItem(getStorageKey(sid));
+    if (!raw) return null;
+    return JSON.parse(raw) as PersistedSession;
+  } catch {
+    return null;
+  }
+}
+
+function saveSession(sid: string, state: PersistedSession) {
+  try {
+    localStorage.setItem(getStorageKey(sid), JSON.stringify(state));
+  } catch {}
+}
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-type SessionPhase = "gate" | "revelation" | "guided" | "open";
+type SessionPhase = "gate" | "opening" | "active" | "complete";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -35,15 +74,7 @@ interface ChatMessage {
 }
 
 // ---------------------------------------------------------------------------
-// Guided questions
-// ---------------------------------------------------------------------------
-const GUIDED_QUESTIONS = [
-  "When did you last feel like things were truly flowing — not forced, just right?",
-  "If I could show you one thing clearly right now — one open door you've been standing in front of — what would you most want to see?",
-];
-
-// ---------------------------------------------------------------------------
-// Opening sequence — 3 messages, each personalized from funnel data
+// Opening messages — personalized from funnel data
 // ---------------------------------------------------------------------------
 const buildOpeningMessages = (
   name?: string,
@@ -52,10 +83,8 @@ const buildOpeningMessages = (
   palmObservations?: string,
   emotionalState?: string,
 ) => {
-  // Msg 1 — Very short. Just the name. Like a first text.
   const msg1 = name ? `${name}.` : `You're here.`;
 
-  // Msg 2 — Context, no question yet. Uses emotional state + palm obs.
   const emotionLine = emotionalState
     ? `I noticed you were feeling ${emotionalState.toLowerCase()} when you came to me. That stayed with me.`
     : `Something in your energy stood out the moment your reading came through.`;
@@ -64,20 +93,19 @@ const buildOpeningMessages = (
     : `There's something in your lines I need to speak to you directly — it doesn't come through clearly in writing alone.`;
   const msg2 = `${emotionLine}\n\n${palmLine}`;
 
-  // Msg 3 — Revelation + opening question
   const energyLine = energyType
     ? `Your ${energyType} energy is unusually active right now. I see it as both a gift and a source of friction in your lines — and the two are more connected than you realize.`
     : `The energy in your palm is unusually active. There's both a gift and a tension running through your lines, and they're connected.`;
   const questionLine = mainConcern
     ? `You mentioned "${mainConcern}". I want to start there.\n\nWhat does that feel like in your body right now — heavy, urgent, or something you've been avoiding looking at directly?`
-    : GUIDED_QUESTIONS[0];
+    : `When did you last feel like things were truly flowing — not forced, just right?`;
   const msg3 = `${energyLine}\n\n${questionLine}`;
 
   return [msg1, msg2, msg3];
 };
 
 // ---------------------------------------------------------------------------
-// Preview mock replies (rotates)
+// Preview mock replies
 // ---------------------------------------------------------------------------
 const PREVIEW_REPLIES = [
   "I sense that more clearly than you might expect. The tension you're describing is written into your lines — it's not chaos, it's a threshold. What you're feeling is the pressure of something that's finally ready to move.\n\nWhat does 'moving forward' feel like to you right now — exciting, or terrifying?",
@@ -87,16 +115,25 @@ const PREVIEW_REPLIES = [
   "The lines don't lie. There's something unresolved here that's been asking for your attention for longer than you've acknowledged.\n\nWhat's kept you from looking at it directly?",
 ];
 let previewIdx = 0;
-const getPreviewReply = (name?: string) => {
-  const base = PREVIEW_REPLIES[previewIdx % PREVIEW_REPLIES.length];
+const getPreviewReply = () => {
+  const r = PREVIEW_REPLIES[previewIdx % PREVIEW_REPLIES.length];
   previewIdx++;
-  return name ? base : base;
+  return r;
+};
+
+// ---------------------------------------------------------------------------
+// Formatting
+// ---------------------------------------------------------------------------
+const formatTime = (ms: number) => {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
 };
 
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
-
 const SoundWaves = () => (
   <svg width="20" height="14" viewBox="0 0 20 14" fill="none" aria-hidden="true">
     {[0, 1, 2, 3].map((i) => (
@@ -151,11 +188,8 @@ const AuroraAvatar = ({ size = "md", pulse = true }: { size?: "sm" | "md" | "lg"
   );
 };
 
-// ── Mystic Palm Icon — mão com linhas da palma iluminadas ────────────────────
-
 const MysticPalmIcon = () => (
   <div className="relative w-40 h-40 flex items-center justify-center">
-    {/* Glow de fundo */}
     <motion.div
       className="absolute inset-0 rounded-full"
       style={{ background: "radial-gradient(circle, hsl(280 60% 55% / 0.4) 0%, transparent 70%)", filter: "blur(22px)" }}
@@ -170,7 +204,6 @@ const MysticPalmIcon = () => (
       animate={{ filter: ["drop-shadow(0 0 6px hsl(280 60% 65% / 0.5))", "drop-shadow(0 0 18px hsl(45 95% 60% / 0.65))", "drop-shadow(0 0 6px hsl(280 60% 65% / 0.5))"] }}
       transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
     >
-      {/* Silhueta da mão */}
       <path
         d="M28,102 L28,52 Q28,41 34,39 Q40,37 42,44 L42,32
            Q42,23 47,22 Q53,21 54,28 L54,30
@@ -184,39 +217,18 @@ const MysticPalmIcon = () => (
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      {/* Linha do coração — rosa */}
-      <motion.path
-        d="M35,56 Q50,49 70,54"
-        fill="none" stroke="hsl(340 80% 70%)" strokeWidth="1.4" strokeLinecap="round"
-        animate={{ opacity: [0.6, 1, 0.6] }}
-        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0 }}
-      />
-      {/* Linha da cabeça — âmbar */}
-      <motion.path
-        d="M35,65 Q53,70 73,65"
-        fill="none" stroke="hsl(45 95% 65%)" strokeWidth="1.2" strokeLinecap="round"
-        animate={{ opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-      />
-      {/* Linha da vida — violeta */}
-      <motion.path
-        d="M43,44 Q38,68 41,88"
-        fill="none" stroke="hsl(280 65% 75%)" strokeWidth="1.1" strokeLinecap="round"
-        animate={{ opacity: [0.4, 0.9, 0.4] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-      />
-      {/* Linha do destino — branco suave */}
-      <motion.path
-        d="M58,88 L60,60"
-        fill="none" stroke="hsl(0 0% 90% / 0.45)" strokeWidth="0.9" strokeLinecap="round"
-        animate={{ opacity: [0.2, 0.7, 0.2] }}
-        transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
-      />
+      <motion.path d="M35,56 Q50,49 70,54" fill="none" stroke="hsl(340 80% 70%)" strokeWidth="1.4" strokeLinecap="round"
+        animate={{ opacity: [0.6, 1, 0.6] }} transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0 }} />
+      <motion.path d="M35,65 Q53,70 73,65" fill="none" stroke="hsl(45 95% 65%)" strokeWidth="1.2" strokeLinecap="round"
+        animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: 0.4 }} />
+      <motion.path d="M43,44 Q38,68 41,88" fill="none" stroke="hsl(280 65% 75%)" strokeWidth="1.1" strokeLinecap="round"
+        animate={{ opacity: [0.4, 0.9, 0.4] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.8 }} />
+      <motion.path d="M58,88 L60,60" fill="none" stroke="hsl(0 0% 90% / 0.45)" strokeWidth="0.9" strokeLinecap="round"
+        animate={{ opacity: [0.2, 0.7, 0.2] }} transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 1.2 }} />
     </motion.svg>
   </div>
 );
 
-// Gate screen — user must click to start (unlocks browser audio)
 const SessionGate = ({ name, onStart }: { name?: string; onStart: () => void }) => (
   <motion.div
     initial={{ opacity: 0 }}
@@ -224,19 +236,13 @@ const SessionGate = ({ name, onStart }: { name?: string; onStart: () => void }) 
     exit={{ opacity: 0 }}
     className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 bg-[#0D0D0D]"
   >
-    <ParticlesBackground />
-    <FloatingOrbs />
-
-    {/* Full-page radial glow behind orb */}
     <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,hsl(280_60%_20%_/_0.45)_0%,transparent_65%)]" />
-
     <motion.div
       initial={{ opacity: 0, y: 28 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.25, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       className="relative z-10 flex flex-col items-center text-center gap-5 max-w-sm"
     >
-      {/* Palm icon — centerpiece */}
       <motion.div
         initial={{ opacity: 0, scale: 0.7 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -253,7 +259,7 @@ const SessionGate = ({ name, onStart }: { name?: string; onStart: () => void }) 
           Madam Aurora is ready{name ? `, ${name}` : ""}.
         </h1>
         <p className="text-sm text-white/40 leading-relaxed max-w-xs mx-auto">
-          She has already studied your palm. This session is private, and her voice is live.
+          Use headphones. Find a quiet moment. This session lasts up to 8 minutes.
         </p>
       </div>
 
@@ -268,7 +274,7 @@ const SessionGate = ({ name, onStart }: { name?: string; onStart: () => void }) 
           style={{ boxShadow: "0 0 40px hsl(280 60% 55% / 0.3), 0 8px 32px rgba(0,0,0,0.4)" }}
         >
           <Mic className="w-5 h-5" />
-          Begin My Session
+          Begin My Private Session
         </Button>
       </motion.div>
 
@@ -279,7 +285,6 @@ const SessionGate = ({ name, onStart }: { name?: string; onStart: () => void }) 
   </motion.div>
 );
 
-// Audio status bar on each Aurora message
 const AudioBar = ({
   voiceStatus, onPlay, onPause, onResume, onStop, content,
 }: {
@@ -309,7 +314,6 @@ const AudioBar = ({
       >
         {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : playing ? <Pause className="w-2.5 h-2.5" /> : <Play className="w-2.5 h-2.5 ml-0.5" />}
       </button>
-
       <div className="flex-1 h-0.5 bg-white/8 rounded-full overflow-hidden">
         {active && (
           <motion.div
@@ -320,17 +324,50 @@ const AudioBar = ({
           />
         )}
       </div>
-
       {active && (
         <button onClick={onStop} className="w-4 h-4 flex items-center justify-center text-white/25 hover:text-red-400/60 transition-colors flex-shrink-0">
           <Square className="w-2.5 h-2.5 fill-current" />
         </button>
       )}
-
       {playing && <SoundWaves />}
     </motion.div>
   );
 };
+
+// Session-complete card shown at bottom of chat
+const SessionCompleteCard = ({ onReturn }: { onReturn: () => void }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 16 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    className="mx-2 my-4 rounded-2xl p-5 text-center"
+    style={{
+      background: "linear-gradient(135deg, hsl(45 95% 55% / 0.08) 0%, hsl(280 60% 55% / 0.08) 100%)",
+      border: "1px solid hsl(45 95% 55% / 0.25)",
+    }}
+  >
+    <div className="w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center"
+      style={{ background: "hsl(45 95% 55% / 0.15)", border: "1px solid hsl(45 95% 55% / 0.3)" }}>
+      <Sparkles className="w-5 h-5 text-amber-400" />
+    </div>
+    <p className="text-sm font-semibold text-amber-300 mb-2">Your session is complete.</p>
+    <p className="text-xs text-white/50 leading-relaxed mb-4">
+      Your pattern is not random — it has a rhythm. Return to your full reading whenever you need clarity.
+    </p>
+    <Button
+      onClick={onReturn}
+      size="sm"
+      className="text-xs px-5 py-2 rounded-xl"
+      style={{
+        background: "linear-gradient(135deg, hsl(280 60% 45%), hsl(45 95% 55% / 0.7))",
+        border: "none",
+        color: "#fff",
+      }}
+    >
+      Return to My Reading
+    </Button>
+  </motion.div>
+);
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -341,7 +378,9 @@ const SessaoAurora = () => {
 
   const energyType = analysisResult?.energyType?.name;
   const palmObservations = analysisResult?.palmObservations;
-  const openingMessages = buildOpeningMessages(name || undefined, energyType, mainConcern || undefined, palmObservations, emotionalState || undefined);
+  const openingMessages = buildOpeningMessages(
+    name || undefined, energyType, mainConcern || undefined, palmObservations, emotionalState || undefined,
+  );
 
   const [phase, setPhase] = useState<SessionPhase>("gate");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -352,25 +391,97 @@ const SessaoAurora = () => {
   const [accessError, setAccessError] = useState<string | null>(null);
   const [activeAudioMsgId, setActiveAudioMsgId] = useState<string | null>(null);
   const [revealedMsgs, setRevealedMsgs] = useState<Set<string>>(new Set());
-  const [guidedIdx, setGuidedIdx] = useState(0);
-  const turnCountRef = useRef(0);
+
+  // Session counters
+  const [userMsgCount, setUserMsgCount] = useState(0);
+  const [ttsCount, setTtsCount] = useState(0);
+  const [sessionEnded, setSessionEnded] = useState(false);
+  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
+  const [timeRemainingMs, setTimeRemainingMs] = useState<number | null>(null);
+
+  const auroraMsgCountRef = useRef(0); // aurora replies counter for API payload
+  const ttsCountRef = useRef(0);       // sync ref for use inside async callbacks
+  const userMsgCountRef = useRef(0);   // sync ref for use inside async callbacks
+  const ttsLimitFiredRef = useRef(false);
+  const didStartRef = useRef(false);
 
   const { status: voiceStatus, play: playVoice, playAndWait, pause: pauseVoice, resume: resumeVoice, stop: stopVoice } = useAuroraVoice();
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Quando o áudio termina, marca mensagem como revelada (texto fica visível)
+  // Sync ttsCountRef when state changes
+  useEffect(() => { ttsCountRef.current = ttsCount; }, [ttsCount]);
+  useEffect(() => { userMsgCountRef.current = userMsgCount; }, [userMsgCount]);
+
+  // When audio finishes, reveal message text
   useEffect(() => {
     if (voiceStatus === "idle" && activeAudioMsgId) {
       setRevealedMsgs((prev) => new Set(prev).add(activeAudioMsgId));
     }
   }, [voiceStatus, activeAudioMsgId]);
-  const didRevealRef = useRef(false);
 
-  // Access guard — verify real Stripe entitlement
+  // Persist session state to localStorage whenever counters change
   useEffect(() => {
-    // Dev-only preview bypass: /sessao-aurora?preview=1
+    if (!sessionId || sessionId === "preview-session-dev") return;
+    saveSession(sessionId, {
+      userMsgCount,
+      auroraMsgCount: auroraMsgCountRef.current,
+      ttsCount,
+      sessionEnded,
+      sessionStartTime,
+    });
+  }, [sessionId, userMsgCount, ttsCount, sessionEnded, sessionStartTime]);
+
+  // Load persisted session state when sessionId is set
+  useEffect(() => {
+    if (!sessionId || sessionId === "preview-session-dev") return;
+    const saved = loadSession(sessionId);
+    if (!saved) return;
+    userMsgCountRef.current = saved.userMsgCount;
+    auroraMsgCountRef.current = saved.auroraMsgCount;
+    ttsCountRef.current = saved.ttsCount;
+    setUserMsgCount(saved.userMsgCount);
+    setTtsCount(saved.ttsCount);
+    if (saved.sessionEnded) {
+      setSessionEnded(true);
+      setPhase("complete");
+      didStartRef.current = true;
+    } else if (saved.sessionStartTime) {
+      // Session was started but not ended — resume from active state
+      setSessionStartTime(saved.sessionStartTime);
+      didStartRef.current = true;
+      setPhase("active");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
+
+  // 8-minute countdown timer
+  useEffect(() => {
+    if (!sessionStartTime || sessionEnded) return;
+    const update = () => {
+      const elapsed = Date.now() - sessionStartTime;
+      const remaining = SESSION_DURATION_MS - elapsed;
+      if (remaining <= 0) {
+        setTimeRemainingMs(0);
+        endSession("timer_expired");
+      } else {
+        setTimeRemainingMs(remaining);
+      }
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionStartTime, sessionEnded]);
+
+  // Scroll to bottom
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isLoading, isAutoTyping, sessionEnded]);
+
+  // Entitlement check
+  useEffect(() => {
     if (import.meta.env.DEV) {
       const params = new URLSearchParams(window.location.search);
       if (params.get("preview") === "1") {
@@ -378,7 +489,6 @@ const SessaoAurora = () => {
         return;
       }
     }
-
     let cancelled = false;
     const check = async () => {
       try {
@@ -397,54 +507,79 @@ const SessaoAurora = () => {
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading, isAutoTyping]);
+  const endSession = useCallback((reason: string) => {
+    setSessionEnded(true);
+    setPhase("complete");
+    stopVoice();
+    track("AuroraSessionCompleted", {
+      reason,
+      user_msg_count: userMsgCountRef.current,
+      aurora_msg_count: auroraMsgCountRef.current,
+      tts_count: ttsCountRef.current,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stopVoice]);
 
-  // Typing delay proportional to message length (feels realistic)
-  const typingDelay = (text: string) =>
-    Math.max(1200, Math.min(4500, text.length * 28));
+  // TTS play helper — respects MAX_TTS limit
+  const maybeTTS = useCallback(async (content: string, msgId?: string, waitForEnd = true) => {
+    if (ttsCountRef.current >= MAX_TTS) {
+      if (!ttsLimitFiredRef.current) {
+        ttsLimitFiredRef.current = true;
+        track("AuroraTTSLimitReached", { tts_count: ttsCountRef.current });
+      }
+      // Reveal text immediately instead of waiting for audio
+      if (msgId) setRevealedMsgs((prev) => new Set(prev).add(msgId));
+      return;
+    }
+    ttsCountRef.current++;
+    setTtsCount(ttsCountRef.current);
+    if (msgId) setActiveAudioMsgId(msgId);
+    if (waitForEnd) {
+      await playAndWait(content);
+    } else {
+      playVoice(content);
+    }
+  }, [playAndWait, playVoice]);
 
-  // Start session — button click unlocks browser audio for the entire session
+  const typingDelay = (text: string) => Math.max(1200, Math.min(4500, text.length * 28));
+
+  // Start session — unlock browser audio and fire opening sequence
   const handleStart = useCallback(async () => {
-    if (didRevealRef.current) return;
-    didRevealRef.current = true;
-    setPhase("revelation");
+    if (didStartRef.current) return;
+    didStartRef.current = true;
+
+    const now = Date.now();
+    setSessionStartTime(now);
+    setPhase("opening");
+
+    track("AuroraSessionStarted", {
+      session_id: sessionId,
+      name: name || undefined,
+      main_concern: mainConcern || undefined,
+    });
 
     const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-    // Helper: show typing → reveal message → play audio → wait until audio ends
     const sendAndSpeak = async (id: string, content: string) => {
       setIsAutoTyping(true);
       await delay(typingDelay(content));
       const msg: ChatMessage = { id, role: "assistant", content };
       setMessages((prev) => [...prev, msg]);
       setIsAutoTyping(false);
-      // Let blur + play button render briefly before auto-playing
       await delay(650);
-      setActiveAudioMsgId(id);
-      await playAndWait(content); // waits for audio to finish before next message
+      await maybeTTS(content, id, true);
     };
 
-    // Msg 1 — very short ("Stenio." / "You're here.") — tiny pause first
     await delay(800);
     await sendAndSpeak("open-1", openingMessages[0]);
-
-    // Natural reading pause after msg 1
     await delay(1800);
-
-    // Msg 2 — context + emotional / palm observation
     await sendAndSpeak("open-2", openingMessages[1]);
-
-    // Reading pause
     await delay(2000);
-
-    // Msg 3 — revelation + question
     await sendAndSpeak("open-3", openingMessages[2]);
 
-    setPhase("guided");
+    setPhase("active");
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openingMessages, playAndWait]);
+  }, [sessionId, name, mainConcern, openingMessages, maybeTTS]);
 
   const addAuroraMessage = useCallback((content: string): ChatMessage => {
     const msg: ChatMessage = { id: `a-${Date.now()}`, role: "assistant", content };
@@ -454,7 +589,11 @@ const SessaoAurora = () => {
 
   const sendMessage = async () => {
     const trimmed = input.trim();
-    if (!trimmed || isLoading || isAutoTyping || phase === "revelation" || phase === "gate" || !sessionId) return;
+    if (!trimmed || isLoading || isAutoTyping || phase !== "active" || !sessionId) return;
+    if (sessionEnded || userMsgCountRef.current >= MAX_USER_MESSAGES) {
+      setAccessError("Your session has reached its limit.");
+      return;
+    }
 
     const userMsg: ChatMessage = { id: `u-${Date.now()}`, role: "user", content: trimmed };
     const historyForApi = messages.map(({ role, content }) => ({ role, content }));
@@ -464,15 +603,21 @@ const SessaoAurora = () => {
     setIsLoading(true);
     setAccessError(null);
 
+    const currentUserCount = userMsgCountRef.current;
+    const currentAuroraCount = auroraMsgCountRef.current;
+
+    track("AuroraMessageSent", {
+      turn: currentUserCount + 1,
+      session_id: sessionId,
+    });
+
     try {
       let reply: string;
-
-      turnCountRef.current += 1;
+      let serverSessionEnded = false;
 
       if (sessionId === "preview-session-dev") {
-        const thinkMs = 2800 + Math.random() * 2000;
-        await new Promise((r) => setTimeout(r, thinkMs));
-        reply = getPreviewReply(name || undefined);
+        await new Promise((r) => setTimeout(r, 2800 + Math.random() * 2000));
+        reply = getPreviewReply();
       } else {
         const { data, error } = await supabase.functions.invoke("aurora-chat", {
           body: {
@@ -486,31 +631,34 @@ const SessaoAurora = () => {
             emotionalState: emotionalState || undefined,
             palmObservations: palmObservations || undefined,
             spiritualMessage: analysisResult?.spiritualMessage || undefined,
-            turn_count: turnCountRef.current,
+            user_msg_count: currentUserCount,
+            aurora_msg_count: currentAuroraCount,
           },
         });
         if (error) throw new Error(error.message || "Chat failed");
-        const resp = data as { reply?: string; detected_state?: string; phase?: string; suggested_delay_ms?: number };
+        const resp = data as {
+          reply?: string;
+          detected_state?: string;
+          session_ended?: boolean;
+          messages_remaining?: number;
+        };
         reply = resp?.reply ?? "";
         if (!reply) throw new Error("Empty response");
-
-        // Advance local phase
-        const serverPhase = resp?.phase;
-        if (serverPhase === "insight" || serverPhase === "integration") setPhase("open");
-        else if (serverPhase === "deepening") setPhase("guided");
+        serverSessionEnded = resp?.session_ended === true;
       }
 
+      // Update counters
+      userMsgCountRef.current = currentUserCount + 1;
+      auroraMsgCountRef.current = currentAuroraCount + 1;
+      setUserMsgCount(userMsgCountRef.current);
+
       const assistantMsg = addAuroraMessage(reply);
-      // Brief render window so play button renders before auto-playing
       setTimeout(() => {
-        setActiveAudioMsgId(assistantMsg.id);
-        playVoice(reply);
+        maybeTTS(reply, assistantMsg.id, false);
       }, 350);
 
-      if (phase === "guided") {
-        const nextIdx = guidedIdx + 1;
-        if (nextIdx >= GUIDED_QUESTIONS.length) setPhase("open");
-        else setGuidedIdx(nextIdx);
+      if (serverSessionEnded || userMsgCountRef.current >= MAX_USER_MESSAGES) {
+        setTimeout(() => endSession("message_limit"), 1200);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
@@ -532,19 +680,29 @@ const SessaoAurora = () => {
   };
 
   const isVoicePlaying = voiceStatus === "playing" || voiceStatus === "loading";
-  const inputDisabled = isLoading || isAutoTyping || phase === "revelation" || phase === "gate" || !sessionId;
+  const voiceEnabled = ttsCount < MAX_TTS;
+  const msgsRemaining = Math.max(0, MAX_USER_MESSAGES - userMsgCount);
+  const inputDisabled = isLoading || isAutoTyping || phase !== "active" || !sessionId || sessionEnded;
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col bg-[#0D0D0D]">
-      <ParticlesBackground />
-      <FloatingOrbs />
 
       {/* Gate screen */}
       <AnimatePresence>
-        {phase === "gate" && (
+        {phase === "gate" && sessionId && !accessError && (
           <SessionGate name={name || undefined} onStart={handleStart} />
         )}
       </AnimatePresence>
+
+      {/* Access error overlay */}
+      {accessError && phase === "gate" && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 bg-[#0D0D0D]">
+          <p className="text-sm text-red-400/80 text-center max-w-sm">{accessError}</p>
+          <Button onClick={() => navigate(-1)} variant="ghost" className="mt-4 text-white/40">
+            <ArrowLeft className="w-4 h-4 mr-1" /> Go back
+          </Button>
+        </div>
+      )}
 
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-[#0D0D0D]/85 backdrop-blur-xl">
@@ -561,23 +719,53 @@ const SessaoAurora = () => {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-amber-200 leading-none">Madam Aurora</span>
-                <Badge variant="outline" className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
-                  <motion.span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
-                  Active Session
-                </Badge>
+                {!sessionEnded && (
+                  <Badge variant="outline" className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
+                    <motion.span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                    Active
+                  </Badge>
+                )}
+                {sessionEnded && (
+                  <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-300 text-[10px] px-1.5 py-0 h-4">
+                    Complete
+                  </Badge>
+                )}
               </div>
-              <p className="text-[11px] text-white/35 mt-0.5">Spiritual Guide · Private Reading</p>
+              <p className="text-[11px] text-white/35 mt-0.5">Private Reading · Voice Session</p>
             </div>
           </div>
 
-          {/* Voice indicator (always on, no toggle) */}
+          {/* Timer */}
+          {timeRemainingMs !== null && !sessionEnded && (
+            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] border ${
+              timeRemainingMs < 60_000
+                ? "bg-red-500/10 border-red-500/25 text-red-400"
+                : "bg-white/[0.03] border-white/8 text-white/35"
+            }`}>
+              <Clock className="w-3 h-3" />
+              <span className="font-mono">{formatTime(timeRemainingMs)}</span>
+            </div>
+          )}
+
+          {/* Messages remaining */}
+          {phase === "active" && !sessionEnded && (
+            <div className="hidden sm:flex items-center gap-1 text-[10px] text-white/25 px-2">
+              <span>{msgsRemaining} left</span>
+            </div>
+          )}
+
+          {/* Voice indicator */}
           <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs border ${
             isVoicePlaying
               ? "bg-amber-400/10 border-amber-400/30 text-amber-300"
-              : "bg-white/[0.03] border-white/8 text-white/25"
+              : voiceEnabled
+                ? "bg-white/[0.03] border-white/8 text-white/25"
+                : "bg-white/[0.02] border-white/6 text-white/15"
           }`}>
-            {isVoicePlaying ? <SoundWaves /> : <Sparkles className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">{isVoicePlaying ? "Speaking…" : "Voice"}</span>
+            {isVoicePlaying ? <SoundWaves /> : voiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">
+              {isVoicePlaying ? "Speaking…" : voiceEnabled ? "Voice" : "Voice off"}
+            </span>
           </div>
         </div>
       </header>
@@ -587,7 +775,8 @@ const SessaoAurora = () => {
         <ScrollArea className="flex-1 h-0">
           <div className="container max-w-3xl mx-auto px-4 py-6 flex flex-col gap-1.5">
 
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col items-center text-center gap-3 mb-6 pt-2">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+              className="flex flex-col items-center text-center gap-3 mb-6 pt-2">
               <AuroraAvatar size="md" />
               <div>
                 <p className="text-base font-semibold text-amber-200">Madam Aurora</p>
@@ -595,6 +784,13 @@ const SessaoAurora = () => {
               </div>
               <Separator className="bg-white/[0.06] w-32" />
             </motion.div>
+
+            {/* Resumed session notice */}
+            {phase === "active" && messages.length === 0 && !isAutoTyping && !isLoading && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mb-4">
+                <p className="text-xs text-white/30">Session resumed — ask Aurora anything.</p>
+              </motion.div>
+            )}
 
             <AnimatePresence initial={false}>
               {messages.map((msg) => (
@@ -608,11 +804,8 @@ const SessaoAurora = () => {
                 >
                   {msg.role === "assistant" && (() => {
                     const isRevealed = revealedMsgs.has(msg.id);
-                    const isActive   = activeAudioMsgId === msg.id;
-                    // Text only reveals after audio finishes (isRevealed)
-                    const showText   = isRevealed;
-                    // Play button shows only when neither playing nor revealed
-                    const showPlayOverlay = !isActive && !isRevealed;
+                    const isActive = activeAudioMsgId === msg.id;
+                    const showPlayOverlay = !isActive && !isRevealed && voiceEnabled;
 
                     return (
                       <div className="flex items-end gap-2.5 max-w-[86%]">
@@ -622,19 +815,17 @@ const SessaoAurora = () => {
                             className="relative rounded-2xl rounded-bl-[4px] px-4 py-3 text-sm leading-[1.8] whitespace-pre-wrap overflow-hidden"
                             style={{ background: "linear-gradient(135deg, hsl(280 60% 55% / 0.13) 0%, hsl(320 55% 55% / 0.08) 100%)", border: "1px solid hsl(280 60% 55% / 0.22)" }}
                           >
-                            {/* Texto — borrado até o play */}
                             <span
                               className="transition-all duration-700 select-none"
                               style={{
-                                filter: showText ? "none" : "blur(6px)",
-                                color: showText ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.35)",
+                                filter: (isRevealed || !voiceEnabled) ? "none" : "blur(6px)",
+                                color: (isRevealed || !voiceEnabled) ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.35)",
                                 display: "block",
                               }}
                             >
                               {msg.content}
                             </span>
 
-                            {/* Botão de play — visível enquanto não está tocando e não foi revelado */}
                             {showPlayOverlay && (
                               <motion.div
                                 initial={{ opacity: 0, scale: 0.85 }}
@@ -644,7 +835,7 @@ const SessaoAurora = () => {
                                 style={{ background: "rgba(13,13,13,0.45)", backdropFilter: "blur(2px)" }}
                               >
                                 <motion.button
-                                  onClick={() => { setActiveAudioMsgId(msg.id); playVoice(msg.content); }}
+                                  onClick={() => maybeTTS(msg.content, msg.id, false)}
                                   animate={{ scale: [1, 1.1, 1], boxShadow: ["0 0 20px hsl(45 95% 55% / 0.35)", "0 0 45px hsl(45 95% 55% / 0.7)", "0 0 20px hsl(45 95% 55% / 0.35)"] }}
                                   transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
                                   whileTap={{ scale: 0.93 }}
@@ -661,12 +852,11 @@ const SessaoAurora = () => {
                             )}
                           </div>
 
-                          {/* AudioBar — só quando ativo ou já revelado */}
                           <AnimatePresence>
                             {(isActive || isRevealed) && (
                               <AudioBar
                                 voiceStatus={isActive ? voiceStatus : "idle"}
-                                onPlay={(t) => { setActiveAudioMsgId(msg.id); playVoice(t); }}
+                                onPlay={(t) => maybeTTS(t, msg.id, false)}
                                 onPause={pauseVoice}
                                 onResume={resumeVoice}
                                 onStop={() => { stopVoice(); setActiveAudioMsgId(null); }}
@@ -691,6 +881,7 @@ const SessaoAurora = () => {
               ))}
             </AnimatePresence>
 
+            {/* Typing indicator */}
             <AnimatePresence>
               {(isLoading || isAutoTyping) && (
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-end gap-2.5 mb-3">
@@ -702,6 +893,14 @@ const SessaoAurora = () => {
               )}
             </AnimatePresence>
 
+            {/* Session complete card */}
+            <AnimatePresence>
+              {sessionEnded && (
+                <SessionCompleteCard onReturn={() => navigate(-1)} />
+              )}
+            </AnimatePresence>
+
+            {/* Error message */}
             <AnimatePresence>
               {accessError && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-center">
@@ -710,50 +909,63 @@ const SessaoAurora = () => {
               )}
             </AnimatePresence>
 
-
             <div ref={bottomRef} className="h-1" />
           </div>
         </ScrollArea>
       </main>
 
       {/* Input */}
-      <div className="sticky bottom-0 z-20 border-t border-white/[0.07] bg-[#0D0D0D]/90 backdrop-blur-xl">
-        <div className="container max-w-3xl mx-auto px-4 pt-3 pb-4">
-          <div
-            className="flex gap-2.5 items-end rounded-2xl p-2 pl-3 transition-all"
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              boxShadow: input ? "0 0 0 1px hsl(280 60% 55% / 0.22), 0 4px 20px hsl(280 60% 55% / 0.07)" : "none",
-            }}
-          >
-            <Textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={phase === "gate" || phase === "revelation" ? "Aurora is speaking…" : "Share with Aurora…"}
-              rows={1}
-              className="resize-none min-h-[36px] max-h-32 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-white/22 text-white/85 py-1.5 px-0 shadow-none"
-              disabled={inputDisabled}
-            />
-            <Button
-              onClick={sendMessage}
-              disabled={!input.trim() || inputDisabled}
-              size="icon"
-              className="h-9 w-9 rounded-xl flex-shrink-0 transition-all duration-200 disabled:opacity-25"
+      {!sessionEnded && (
+        <div className="sticky bottom-0 z-20 border-t border-white/[0.07] bg-[#0D0D0D]/90 backdrop-blur-xl">
+          <div className="container max-w-3xl mx-auto px-4 pt-3 pb-4">
+            <div
+              className="flex gap-2.5 items-end rounded-2xl p-2 pl-3 transition-all"
               style={{
-                background: input.trim() && !inputDisabled ? "linear-gradient(135deg, hsl(280 60% 55%), hsl(45 95% 55% / 0.8))" : "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                color: input.trim() && !inputDisabled ? "#fff" : "rgba(255,255,255,0.25)",
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                boxShadow: input ? "0 0 0 1px hsl(280 60% 55% / 0.22), 0 4px 20px hsl(280 60% 55% / 0.07)" : "none",
               }}
             >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </Button>
+              <Textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={
+                  phase === "gate" || phase === "opening"
+                    ? "Aurora is speaking…"
+                    : sessionEnded
+                      ? "Session complete"
+                      : "Share with Aurora…"
+                }
+                rows={1}
+                className="resize-none min-h-[36px] max-h-32 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-white/22 text-white/85 py-1.5 px-0 shadow-none"
+                disabled={inputDisabled}
+              />
+              <Button
+                onClick={sendMessage}
+                disabled={!input.trim() || inputDisabled}
+                size="icon"
+                className="h-9 w-9 rounded-xl flex-shrink-0 transition-all duration-200 disabled:opacity-25"
+                style={{
+                  background: input.trim() && !inputDisabled ? "linear-gradient(135deg, hsl(280 60% 55%), hsl(45 95% 55% / 0.8))" : "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  color: input.trim() && !inputDisabled ? "#fff" : "rgba(255,255,255,0.25)",
+                }}
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </Button>
+            </div>
+            {/* Mobile messages remaining */}
+            <div className="flex justify-between items-center mt-2">
+              <p className="text-[10px] text-white/18">For entertainment and self-reflection purposes only</p>
+              {phase === "active" && msgsRemaining <= 3 && (
+                <p className="text-[10px] text-amber-400/40">{msgsRemaining} message{msgsRemaining !== 1 ? "s" : ""} left</p>
+              )}
+            </div>
           </div>
-          <p className="text-[10px] text-center text-white/18 mt-2">For entertainment and self-reflection purposes only</p>
         </div>
-      </div>
+      )}
     </div>
   );
 };

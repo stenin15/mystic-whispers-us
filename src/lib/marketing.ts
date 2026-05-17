@@ -1,10 +1,11 @@
-type UTMKeys = "utm_source" | "utm_medium" | "utm_campaign" | "utm_content" | "utm_term";
+type UTMKeys = "utm_source" | "utm_medium" | "utm_campaign" | "utm_content" | "utm_term" | "src" | "sck";
 type FocusKey = "love" | "marriage" | "career" | "future";
 type AngleKey = "A" | "B" | "C";
 
 const UTM_STORAGE_KEY = "mwus_utms";
 const FOCUS_STORAGE_KEY = "mwus_focus";
 const ANGLE_STORAGE_KEY = "mwus_angle";
+const FBCLID_STORAGE_KEY = "mwus_fbclid";
 
 const UTM_FIELDS: UTMKeys[] = [
   "utm_source",
@@ -12,6 +13,8 @@ const UTM_FIELDS: UTMKeys[] = [
   "utm_campaign",
   "utm_content",
   "utm_term",
+  "src",
+  "sck",
 ];
 
 type UtmRecord = Partial<Record<UTMKeys, string>>;
@@ -51,6 +54,24 @@ export function persistAttribution(params: URLSearchParams) {
     }
   } catch {
     // ignore
+  }
+
+  try {
+    const fbclid = (params.get("fbclid") || "").trim();
+    if (fbclid) {
+      localStorage.setItem(FBCLID_STORAGE_KEY, fbclid);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+export function getStoredFbclid(): string | undefined {
+  try {
+    const raw = (localStorage.getItem(FBCLID_STORAGE_KEY) || "").trim();
+    return raw || undefined;
+  } catch {
+    return undefined;
   }
 }
 

@@ -1,18 +1,26 @@
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { XCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
 import { Footer } from "@/components/layout/Footer";
+import { track } from "@/lib/tracking";
+import { getAttributionParams, getStoredAngle, getStoredFocus } from "@/lib/marketing";
 
 const Cancelado = () => {
   const navigate = useNavigate();
 
-  return (
-    <div className="min-h-screen relative overflow-hidden">
-      <ParticlesBackground />
-      <FloatingOrbs />
+  useEffect(() => {
+    track("CancelCheckout", {
+      page_path: "/cancelado",
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+  }, []);
 
+  return (
+    <div className="min-h-screen relative overflow-hidden" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
       <section className="pt-24 pb-12 px-4">
         <div className="container max-w-2xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -52,4 +60,3 @@ const Cancelado = () => {
 };
 
 export default Cancelado;
-

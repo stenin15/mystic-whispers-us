@@ -7,16 +7,13 @@ import {
   Star,
   Heart,
   Shield,
-  Gift,
   ArrowRight,
   Eye,
   Zap,
   Mic2,
-  Lock,
   CheckCircle2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
 import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
@@ -89,9 +86,6 @@ const Checkout = () => {
     <div className="min-h-screen relative overflow-hidden bg-background">
       {/* Countdown Timer */}
       <CountdownTimer minutes={15} />
-
-      <ParticlesBackground />
-      <FloatingOrbs />
 
       {/* Background layers */}
       <div className="fixed inset-0 pointer-events-none -z-10">
@@ -210,8 +204,8 @@ const Checkout = () => {
             {/* Voice session — highlighted separately */}
             <div className="mb-5 rounded-xl p-4"
               style={{
-                background: 'linear-gradient(135deg, hsl(280 60% 55% / 0.15) 0%, hsl(320 55% 55% / 0.1) 100%)',
-                border: '1px solid hsl(280 60% 55% / 0.4)',
+                background: 'rgba(255,200,60,0.06)',
+                border: '1px solid rgba(255,200,60,0.25)',
               }}
             >
               <div className="flex items-start gap-3">
@@ -234,11 +228,9 @@ const Checkout = () => {
             <div className="space-y-3.5 mb-8">
               {[
                 { text: "Complete palm reading — all patterns revealed", icon: Star },
-                { text: "7 activation practices matched to your energy type", icon: Zap },
-                { text: "Healing meditations (audio)", icon: Heart },
-                { text: "Manifestation map (PDF)", icon: Gift },
-                { text: "Daily protection ritual", icon: Shield },
-                { text: "Bonus: Tarot mini-reading", icon: Sparkles },
+                { text: "Advanced relationship timing patterns", icon: Zap },
+                { text: "Personalized emotional clarity tools", icon: Heart },
+                { text: "Daily emotional clarity practice", icon: Shield },
               ].map((item, index) => (
                 <div key={index} className="flex items-center gap-3">
                   <item.icon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
@@ -351,7 +343,7 @@ const Checkout = () => {
                 disabled={!!checkoutLoading}
                 className="w-full py-4 px-6 rounded-2xl border border-primary/30 bg-primary/6 text-sm font-semibold text-foreground hover:bg-primary/12 hover:border-primary/50 transition-all duration-200 flex items-center justify-between disabled:opacity-60"
               >
-                <span>Basic Reading — text only</span>
+                <span>Personal Reading — relationship patterns</span>
                 <span className="text-primary font-bold">
                   {checkoutLoading === "basic" ? "Redirecting…" : `${PRICE_MAP.basic.display} →`}
                 </span>
@@ -362,7 +354,7 @@ const Checkout = () => {
                 disabled={!!checkoutLoading}
                 className="text-sm text-muted-foreground/50 hover:text-muted-foreground/80 underline underline-offset-4 transition-colors duration-200 disabled:opacity-40"
               >
-                {checkoutLoading === "basic" ? "Redirecting…" : `Prefer the basic reading? ${PRICE_MAP.basic.display} →`}
+                {checkoutLoading === "basic" ? "Redirecting…" : `Start with the basic reading — ${PRICE_MAP.basic.display} →`}
               </button>
             )}
           </motion.div>

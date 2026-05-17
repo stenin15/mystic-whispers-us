@@ -2,7 +2,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles, CheckCircle, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { quizQuestions } from '@/lib/quizQuestions';
 import { cn } from '@/lib/utils';
@@ -262,9 +261,7 @@ const Quiz = () => {
   if (!currentQuestion) return null;
 
   return (
-    <div className="min-h-screen relative overflow-hidden py-20 px-4">
-      <ParticlesBackground />
-      <FloatingOrbs />
+    <div className="min-h-screen relative overflow-hidden py-20 px-4" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
       
       {/* Audio banner — não bloqueante */}
       {showAudioBanner && audioEnabled && (

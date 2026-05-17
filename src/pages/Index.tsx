@@ -1,16 +1,15 @@
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { motion } from 'framer-motion';
 import {
-  Hand, Lock, Eye, ChevronRight, CheckCircle2,
-  Shield, Heart, Star, Zap, ArrowRight, Sparkles,
+  Hand, Lock, ChevronRight, CheckCircle2,
+  Shield, Heart, Star, Zap, Eye, Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/layout/Footer';
 import { StickyCTA } from '@/components/landing/StickyCTA';
 import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 import { Card3D } from '@/components/shared/Card3D';
-import { MysticHandScene } from '@/components/shared/MysticHandScene';
+import { ImageHero } from '@/components/landing/ImageHero';
 
 const QUIZ_ROUTE = "/formulario";
 
@@ -26,16 +25,6 @@ const NoiseOverlay = () => (
       backgroundSize: '128px 128px',
     }}
   />
-);
-
-// ---------------------------------------------------------------------------
-// Stat pill
-// ---------------------------------------------------------------------------
-const Stat = ({ value, label }: { value: string; label: string }) => (
-  <div className="flex flex-col items-center gap-0.5">
-    <span className="text-xl md:text-2xl font-bold text-white tabular-nums">{value}</span>
-    <span className="text-[11px] text-white/35 uppercase tracking-widest">{label}</span>
-  </div>
 );
 
 // ---------------------------------------------------------------------------
@@ -95,137 +84,20 @@ const TESTIMONIALS = [
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
-const Index = () => {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-
-  return (
+const Index = () => (
     <div className="min-h-screen relative overflow-x-hidden bg-[#060608]">
       <NoiseOverlay />
 
-      {/* ── Global background gradients ── */}
+      {/* ── Subtle background gradients (sections below hero) ── */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-5%,hsl(272_60%_18%_/_0.55)_0%,transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_85%_85%,hsl(320_55%_18%_/_0.25)_0%,transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_35%_at_5%_65%,hsl(260_55%_14%_/_0.2)_0%,transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_85%_85%,hsl(320_55%_18%_/_0.2)_0%,transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_35%_at_5%_65%,hsl(260_55%_14%_/_0.15)_0%,transparent_55%)]" />
       </div>
 
       {/* ═══════════════════════════════════════
-          HERO
+          HERO — full-bleed image
       ═══════════════════════════════════════ */}
-      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center px-5 pt-16 pb-12 overflow-hidden">
-
-        {/* Hero content */}
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="relative z-10 flex flex-col items-center text-center w-full max-w-4xl mx-auto"
-        >
-          {/* Live badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full mb-8 border border-white/10 bg-white/[0.04] backdrop-blur-sm"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-            </span>
-            <span className="text-[11px] font-medium text-white/60 tracking-[0.12em] uppercase">
-              Live readings · Available now
-            </span>
-          </motion.div>
-
-          {/* Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-[clamp(2.8rem,8vw,6rem)] font-serif font-bold leading-[1.04] tracking-tight mb-6 text-white"
-          >
-            This line on your palm may explain{' '}
-            <span
-              className="inline-block"
-              style={{
-                background: 'linear-gradient(135deg, hsl(272 65% 72%) 0%, hsl(320 60% 70%) 40%, hsl(45 95% 65%) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              why love keeps arriving at the wrong time
-            </span>
-          </motion.h1>
-
-          {/* Subheadline */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg md:text-xl text-white/45 mb-10 max-w-lg leading-relaxed"
-          >
-            Upload a photo of your palm. Aurora reads your specific lines and reveals the pattern behind your love life — delivered in under 60 seconds.
-          </motion.p>
-
-          {/* Hand visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-10 w-full max-w-[340px] md:max-w-[420px]"
-          >
-            <MysticHandScene tiltIntensity={12} />
-          </motion.div>
-
-          {/* CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.45 }}
-            className="flex flex-col items-center gap-3"
-          >
-            <Button
-              asChild
-              size="lg"
-              className="relative overflow-hidden text-white font-semibold px-10 py-7 text-base rounded-2xl gap-3 group"
-              style={{
-                background: 'linear-gradient(135deg, hsl(272 65% 55%) 0%, hsl(320 60% 55%) 100%)',
-                boxShadow: '0 0 40px hsl(272 65% 55% / 0.4), 0 8px 32px rgba(0,0,0,0.4)',
-              }}
-            >
-              <Link to={QUIZ_ROUTE} className="flex items-center gap-3">
-                <Hand className="w-5 h-5" />
-                Reveal My Pattern
-                <motion.span
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  <ArrowRight className="w-4 h-4" />
-                </motion.span>
-                {/* Shimmer */}
-                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent skew-x-12" />
-              </Link>
-            </Button>
-            <p className="text-xs text-white/25 tracking-wide">Free to start · No account required · Reading ready in 60s</p>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.65 }}
-            className="flex items-center gap-8 md:gap-12 mt-12 pt-8 border-t border-white/[0.06]"
-          >
-            <Stat value="27,841" label="Readings" />
-            <div className="w-px h-8 bg-white/[0.07]" />
-            <Stat value="4.9★" label="Rating" />
-            <div className="w-px h-8 bg-white/[0.07]" />
-            <Stat value="60s" label="Delivery" />
-          </motion.div>
-        </motion.div>
-      </section>
+      <ImageHero quizRoute={QUIZ_ROUTE} />
 
       {/* ═══════════════════════════════════════
           SOCIAL PROOF STRIP
@@ -537,7 +409,6 @@ const Index = () => {
       <Footer />
       <StickyCTA route={QUIZ_ROUTE} buttonText="Read My Palm Now" />
     </div>
-  );
-};
+);
 
 export default Index;

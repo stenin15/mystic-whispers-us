@@ -12,7 +12,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { toast } from "sonner";
 import { PRICE_MAP } from "@/lib/pricing";
@@ -70,7 +69,6 @@ const OfertaGuiaExclusivo = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <ParticlesBackground />
 
       {/* Floating orbs */}
       <div className="fixed inset-0 pointer-events-none">

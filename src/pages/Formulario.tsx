@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -8,12 +8,22 @@ import { Sparkles, ArrowRight, User, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { cn } from '@/lib/utils';
 import { supabase } from "@/integrations/supabase/client";
 import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
+
+const CONCERN_OPTIONS = [
+  "Wrong timing",
+  "Emotional confusion",
+  "Fear of losing someone",
+  "Repeating the same patterns",
+  "Feeling emotionally blocked",
+  "Moving on from someone",
+  "Overthinking relationships",
+  "Fear of ending up alone",
+] as const;
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -33,6 +43,8 @@ const Formulario = () => {
   const navigate = useNavigate();
   const { setFormData, resetQuiz } = useHandReadingStore();
   const hasTrackedFormStart = useRef(false);
+  const [mainConcern, setMainConcern] = useState('');
+  const [concernError, setConcernError] = useState(false);
 
   const {
     register,
@@ -65,6 +77,11 @@ const Formulario = () => {
   };
 
   const onSubmit = async (data: FormData) => {
+    if (!mainConcern) {
+      setConcernError(true);
+      return;
+    }
+    setConcernError(false);
     try {
       const leadEventId = getOrCreateEventId("lead_form_submit");
       track("Lead", {
@@ -114,7 +131,7 @@ const Formulario = () => {
         email: data.email,
         age: data.age,
         emotionalState: '',
-        mainConcern: '',
+        mainConcern,
       });
 
       resetQuiz();
@@ -126,7 +143,7 @@ const Formulario = () => {
         email: data.email,
         age: data.age,
         emotionalState: '',
-        mainConcern: '',
+        mainConcern,
       });
       resetQuiz();
       navigate('/quiz');
@@ -134,9 +151,7 @@ const Formulario = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden py-20 px-4">
-      <ParticlesBackground />
-      <FloatingOrbs />
+    <div className="min-h-screen relative overflow-hidden py-20 px-4" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
 
       <div className="container max-w-2xl mx-auto relative">
         {/* Header */}
@@ -147,7 +162,7 @@ const Formulario = () => {
           className="text-center mb-10"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-4">
-            <span className="text-sm text-primary">Step 1 of 2</span>
+            <span className="text-sm text-primary">Your reading begins here</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3">
             <span className="gradient-text">Tell us about you</span>
@@ -228,6 +243,33 @@ const Formulario = () => {
                 <p className="text-sm text-destructive">{formIssues.age.message}</p>
               )}
             </div>
+          </div>
+
+          {/* What hurts most right now */}
+          <div className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 space-y-4">
+            <h2 className="text-lg font-serif font-medium text-foreground">
+              What hurts most right now?
+            </h2>
+            <div className="grid grid-cols-2 gap-2">
+              {CONCERN_OPTIONS.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => { setMainConcern(option); setConcernError(false); }}
+                  className={cn(
+                    "px-3 py-3 rounded-xl text-sm text-left transition-all duration-200 border",
+                    mainConcern === option
+                      ? "bg-amber-500/15 border-amber-400/50 text-amber-300 font-medium"
+                      : "bg-white/3 border-white/10 text-muted-foreground hover:border-white/20 hover:text-foreground"
+                  )}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            {concernError && (
+              <p className="text-sm text-destructive">Please choose one option to continue.</p>
+            )}
           </div>
 
           {/* Submit */}

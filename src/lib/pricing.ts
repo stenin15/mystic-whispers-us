@@ -5,12 +5,12 @@ export const PRICE_MAP: Record<
   { label: string; amountUsd: number; display: string }
 > = {
   basic: {
-    label: "Personal Palm Reading",
-    amountUsd: 19.9,
-    display: "$19.90",
+    label: "Personal Relationship Pattern Reading",
+    amountUsd: 9.9,
+    display: "$9.90",
   },
   complete: {
-    label: "Complete Palm Reading",
+    label: "Complete Reading + Live Session",
     amountUsd: 29.9,
     display: "$29.90",
   },

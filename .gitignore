@@ -30,6 +30,7 @@ dist-ssr
 .vercel
 
 # Large media files
+public/ugc/Video Project 1.mp4
 vsl-production/**/*.mp4
 vsl-production/**/*.mov
 vsl-production/**/*.mp3
@@ -38,3 +39,5 @@ vsl-production/instagram/stories/
 vsl-production/instagram/images/
 vsl-production/pet_clipper/videos/
 vsl-production/pet_clipper/product_images/
+
+.env*.local

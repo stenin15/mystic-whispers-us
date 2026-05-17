@@ -15,7 +15,6 @@ import {
   Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
 import { VSLCard } from '@/components/shared/VSLCard';
@@ -59,9 +58,7 @@ const Upsell = () => {
   if (!analysisResult) return null;
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <ParticlesBackground />
-      <FloatingOrbs />
+    <div className="min-h-screen relative overflow-hidden" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
 
       {/* Hero Section */}
       <section className="pt-20 pb-10 px-4">

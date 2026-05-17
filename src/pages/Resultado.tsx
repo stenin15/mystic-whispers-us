@@ -13,54 +13,53 @@ import {
   CreditCard,
   RefreshCw,
   Mic,
+  Loader2,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { getIcon } from '@/lib/iconMapper';
 import { Footer } from '@/components/layout/Footer';
-import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus, appendUtmToPath } from '@/lib/marketing';
 import { PRICE_MAP } from '@/lib/pricing';
 import { supabase } from '@/integrations/supabase/client';
+import { UGCTrustSection } from '@/components/UGCTrustSection';
 
 // 24-hour countdown from first visit
 function useCountdown24h() {
   const KEY = 'aurora_resultado_expiry';
-  const freshExpiry = () => {
+  const getOrSetExpiry = () => {
+    try {
+      const stored = localStorage.getItem(KEY);
+      if (stored) {
+        const n = Number(stored);
+        if (n > Date.now()) return n;
+        return 0; // already expired, don't reset
+      }
+    } catch { /* ignore */ }
     const e = Date.now() + 24 * 60 * 60 * 1000;
-    localStorage.setItem(KEY, String(e));
+    try { localStorage.setItem(KEY, String(e)); } catch { /* ignore */ }
     return e;
   };
-  const getExpiry = () => {
-    const stored = localStorage.getItem(KEY);
-    if (stored) {
-      const n = Number(stored);
-      if (n > Date.now()) return n;
-    }
-    return freshExpiry();
-  };
-  const [expiry, setExpiry] = useState(getExpiry);
-  const [timeLeft, setTimeLeft] = useState(expiry - Date.now());
+  const [expiry] = useState(getOrSetExpiry);
+  const [timeLeft, setTimeLeft] = useState(() => Math.max(0, expiry - Date.now()));
 
   useEffect(() => {
+    if (expiry === 0) return;
     const id = setInterval(() => {
       const remaining = expiry - Date.now();
-      if (remaining <= 0) {
-        const next = freshExpiry();
-        setExpiry(next);
-        setTimeLeft(next - Date.now());
-      } else {
-        setTimeLeft(remaining);
-      }
+      setTimeLeft(Math.max(0, remaining));
+      if (remaining <= 0) clearInterval(id);
     }, 1000);
     return () => clearInterval(id);
   }, [expiry]);
 
+  const expired = timeLeft === 0;
   const h = Math.max(0, Math.floor(timeLeft / 3600000));
   const m = Math.max(0, Math.floor((timeLeft % 3600000) / 60000));
   const s = Math.max(0, Math.floor((timeLeft % 60000) / 1000));
-  return { h, m, s, expired: false };
+  return { h, m, s, expired };
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -97,14 +96,85 @@ const PREVIEW_RESULT = {
   spiritualMessage: 'You are not waiting for permission. You are waiting for certainty that will never fully come — and that is the pattern your palm is asking you to release. The window is open now. It will not stay open indefinitely.',
 };
 
+const CONCERN_COPY: Record<string, string> = {
+  "Wrong timing": "Your palm reveals why the timing keeps feeling off — and what's actually controlling it.",
+  "Emotional confusion": "Aurora found the root of the emotional confusion in your lines. It's not randomness — it's a pattern.",
+  "Fear of losing someone": "The fear of losing someone is written in your heart line. Here's what it's costing you.",
+  "Repeating the same patterns": "Your palm confirms the cycle. More importantly, it shows where the loop was first set.",
+  "Feeling emotionally blocked": "The block isn't in your mind — it's in an unresolved emotional decision Aurora found in your lines.",
+  "Moving on from someone": "Your lines reveal exactly what's keeping you tethered — and what moving on actually requires from you.",
+  "Overthinking relationships": "The overthinking is a symptom. Aurora found what it's protecting you from in your palm.",
+  "Fear of ending up alone": "That fear has a specific origin. Aurora identified it in your reading — and it can shift.",
+};
+
+// ─── Resultado ────────────────────────────────────────────────────────────────
+
 const Resultado = () => {
   const navigate = useNavigate();
-  const { name, email, analysisResult, canAccessResult } = useHandReadingStore();
+  const {
+    name, email, analysisResult, canAccessResult, mainConcern,
+    sessionKey, palmPhotoPath, previewReportUrl, setPreviewReportUrl,
+  } = useHandReadingStore();
   const isPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === '1';
 
   const hasTrackedRef = useRef(false);
-  const { h, m, s } = useCountdown24h();
+  const { h, m, s, expired } = useCountdown24h();
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'complete'>('complete');
+
+  // Visual preview state
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(previewReportUrl || null);
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
+  const [previewError, setPreviewError] = useState(false);
+  const previewAttemptRef = useRef(0);
+  const previewStartedRef = useRef(false);
+
+  useEffect(() => {
+    // Already have a cached URL from store — use it immediately
+    if (previewReportUrl && !localPreviewUrl) {
+      setLocalPreviewUrl(previewReportUrl);
+      return;
+    }
+    // No palm photo — nothing to generate
+    if (!palmPhotoPath || !sessionKey) return;
+    // Already started
+    if (previewStartedRef.current) return;
+    previewStartedRef.current = true;
+
+    const poll = async () => {
+      if (previewAttemptRef.current >= 20) {
+        setPreviewError(true);
+        setIsGeneratingPreview(false);
+        return;
+      }
+      previewAttemptRef.current += 1;
+      try {
+        const res = await supabase.functions.invoke("generate-palm-report-preview", {
+          body: { session_key: sessionKey, email: email || undefined, palm_photo_path: palmPhotoPath },
+        });
+        const url = (res.data as { preview_url?: string } | null)?.preview_url;
+        if (url) {
+          setLocalPreviewUrl(url);
+          setPreviewReportUrl(url);
+          setIsGeneratingPreview(false);
+          return;
+        }
+        const status = (res.data as { status?: string } | null)?.status;
+        if (status === "pending") {
+          setTimeout(poll, 5000);
+          return;
+        }
+        setPreviewError(true);
+        setIsGeneratingPreview(false);
+      } catch {
+        setPreviewError(true);
+        setIsGeneratingPreview(false);
+      }
+    };
+
+    setIsGeneratingPreview(true);
+    poll();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [palmPhotoPath, sessionKey]);
 
   const result = isPreview ? PREVIEW_RESULT : analysisResult;
 
@@ -149,13 +219,29 @@ const Resultado = () => {
   const [firstStrength, ...lockedStrengths] = result.strengths;
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#0D0D0D]">
-      {/* Cosmic background */}
-      <ParticlesBackground />
-      <FloatingOrbs />
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_45%_at_50%_0%,hsl(280_60%_20%_/_0.4)_0%,transparent_65%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_30%_at_80%_70%,hsl(320_55%_20%_/_0.15)_0%,transparent_55%)]" />
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background image — desktop / mobile responsive */}
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 -z-10 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/analysis/resultado-bg-mobile.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+        }}
+      >
+        <div className="absolute inset-0" style={{ background: 'rgba(4,4,14,0.80)' }} />
+      </div>
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 -z-10 pointer-events-none hidden md:block"
+        style={{
+          backgroundImage: 'url(/analysis/resultado-bg-desktop.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+        }}
+      >
+        <div className="absolute inset-0" style={{ background: 'rgba(4,4,14,0.78)' }} />
       </div>
 
       {/* ── HERO ── */}
@@ -168,78 +254,188 @@ const Resultado = () => {
           >
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-              style={{ background: 'hsl(280 60% 55% / 0.12)', border: '1px solid hsl(280 60% 55% / 0.3)' }}>
-              <Sparkles className="w-3.5 h-3.5 text-violet-300" />
-              <span className="text-xs font-semibold text-violet-300 tracking-wider uppercase">Your palm reading is ready</span>
+              style={{ background: 'rgba(255,200,60,0.08)', border: '1px solid rgba(255,200,60,0.2)' }}>
+              <Sparkles className="w-3.5 h-3.5 text-amber-400/80" />
+              <span className="text-xs font-semibold text-amber-400/80 tracking-wider uppercase">Your palm reading is ready</span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl font-serif font-bold mb-5 leading-tight text-white">
-              Aurora found an active pattern in your palm —{' '}
-              <span style={{ background: 'linear-gradient(135deg, hsl(280 70% 75%), hsl(45 95% 65%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                and it explains more than you think.
+            <h1 className="text-3xl md:text-5xl font-black uppercase leading-none mb-4 text-white tracking-tight">
+              YOUR PATTERNS ARE{' '}
+              <span style={{ background: 'linear-gradient(135deg, hsl(45 95% 65%), hsl(35 90% 55%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                FINALLY MAKING SENSE.
               </span>
             </h1>
 
             <p className="text-white/45 max-w-lg mx-auto text-base leading-relaxed mb-8">
-              This is only a preview. Your full reading reveals the timing, emotional patterns, and hidden blocks behind what keeps happening.
+              {(mainConcern && CONCERN_COPY[mainConcern]) || "You've been repeating emotional cycles without fully realizing why. This preview shows the beginning of what your palm revealed."}
             </p>
 
             {/* Countdown */}
-            <div className="inline-flex flex-col items-center gap-3 px-4 py-4 rounded-2xl mb-2 max-w-full"
-              style={{ background: 'hsl(350 80% 50% / 0.07)', border: '1px solid hsl(350 80% 55% / 0.2)' }}>
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-rose-400/70">
-                <Clock className="w-3 h-3 flex-shrink-0" />
-                <span>Reading reserved for you</span>
+            {expired ? (
+              <div className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl mb-4"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <Clock className="w-3.5 h-3.5 text-white/30 flex-shrink-0" />
+                <span className="text-xs text-white/40 italic">Your personalized access may no longer be reserved.</span>
               </div>
-              <div className="flex items-end gap-2">
-                <CountdownSegment value={h} label="hrs" />
-                <TimeSeparator />
-                <CountdownSegment value={m} label="min" />
-                <TimeSeparator />
-                <CountdownSegment value={s} label="sec" />
+            ) : (
+              <div className="inline-flex flex-col items-center gap-3 px-4 py-4 rounded-2xl mb-4 max-w-full"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-rose-400/70">
+                  <Clock className="w-3 h-3 flex-shrink-0" />
+                  <span>Reading reserved for you</span>
+                </div>
+                <div className="flex items-end gap-2">
+                  <CountdownSegment value={h} label="hrs" />
+                  <TimeSeparator />
+                  <CountdownSegment value={m} label="min" />
+                  <TimeSeparator />
+                  <CountdownSegment value={s} label="sec" />
+                </div>
               </div>
+            )}
+
+            {/* Mobile-only above-fold CTA */}
+            <div className="block md:hidden mb-2">
+              <Button
+                onClick={handleCTA}
+                size="lg"
+                className="w-full max-w-xs px-8 py-5 text-base font-bold rounded-2xl"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))',
+                  color: '#08080f',
+                  boxShadow: '0 8px 32px rgba(200,150,40,0.3)',
+                }}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Unlock My Full Reading
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+              <p className="text-[10px] text-white/25 mt-2">One-time · Instant access · 7-day refund</p>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ── ENERGY CARD ── */}
-      <section className="py-4 px-4">
+      {/* ── VISUAL PREVIEW (AI-generated image) ── */}
+      {(localPreviewUrl || isGeneratingPreview) && (
+        <section className="py-4 px-4">
+          <div className="container max-w-3xl mx-auto">
+            {isGeneratingPreview && !localPreviewUrl && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-3xl p-12 text-center"
+                style={{ background: 'rgba(18,18,22,0.92)', border: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                <Loader2 className="w-8 h-8 text-amber-400 animate-spin mx-auto mb-4" />
+                <h3 className="text-lg font-serif text-white mb-2">Generating your palm report…</h3>
+                <p className="text-sm text-white/40">We're mapping your lines. This takes about 30 seconds.</p>
+              </motion.div>
+            )}
+
+            {localPreviewUrl && (
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="relative rounded-3xl overflow-hidden shadow-2xl"
+                style={{ border: '1px solid rgba(255,200,60,0.2)' }}
+              >
+                <img
+                  src={localPreviewUrl}
+                  alt="Your AI Palm Reading Preview"
+                  className="w-full block"
+                  loading="eager"
+                />
+                {/* Bottom lock overlay */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 py-10 px-6 text-center"
+                  style={{
+                    background: 'linear-gradient(to top, rgba(8,8,16,0.97) 0%, rgba(8,8,16,0.70) 60%, transparent 100%)',
+                  }}
+                >
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Lock className="w-4 h-4 text-amber-400/80" />
+                    <span className="text-sm font-semibold text-amber-400/90">Sections locked — unlock to reveal</span>
+                  </div>
+                  <motion.div
+                    animate={{ scale: [1, 1.025, 1] }}
+                    transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                  >
+                    <Button
+                      onClick={handleCTA}
+                      size="lg"
+                      className="px-10 py-6 text-base font-bold rounded-2xl shadow-2xl hover:scale-[1.03] transition-transform duration-200"
+                      style={{
+                        background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))',
+                        color: '#08080f',
+                        boxShadow: '0 8px 24px rgba(200,140,30,0.4)',
+                        border: 'none',
+                      }}
+                    >
+                      <Lock className="w-4 h-4 mr-2" />
+                      Unlock Full Reading — {PRICE_MAP.basic.display}
+                    </Button>
+                  </motion.div>
+                  <p className="text-xs text-white/30 mt-3">Private · Encrypted · Photo deleted after analysis · 7-day guarantee</p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* 3 bullets below preview */}
+            {localPreviewUrl && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3"
+              >
+                {[
+                  { icon: Eye, label: 'Personalized from your palm photo' },
+                  { icon: Star, label: 'Relationship pattern analysis' },
+                  { icon: Lock, label: 'Hidden sections unlocked after payment' },
+                ].map(({ icon: Icon, label }) => (
+                  <div
+                    key={label}
+                    className="flex items-center gap-2.5 px-4 py-3 rounded-2xl text-sm text-white/60"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  >
+                    <Icon className="w-4 h-4 text-amber-400/70 flex-shrink-0" />
+                    {label}
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ── ENERGY CARD (only shown when no visual preview) ── */}
+      {!localPreviewUrl && !isGeneratingPreview && <section className="py-4 px-4">
         <div className="container max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="relative rounded-3xl p-8 md:p-10 text-center overflow-hidden"
+            className="relative rounded-3xl p-8 md:p-10 text-center"
             style={{
-              background: 'linear-gradient(135deg, hsl(280 60% 55% / 0.12) 0%, hsl(320 55% 55% / 0.08) 60%, hsl(280 60% 55% / 0.06) 100%)',
-              border: '1px solid hsl(280 60% 55% / 0.3)',
-              boxShadow: '0 0 80px hsl(280 60% 55% / 0.1), inset 0 1px 0 hsl(280 60% 75% / 0.1)',
+              background: 'rgba(18,18,22,0.92)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
+              backdropFilter: 'blur(8px)',
             }}
           >
-            {/* Glow radial */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,hsl(280_60%_55%_/_0.12)_0%,transparent_70%)] pointer-events-none" />
-
             {/* Energy icon */}
-            <div className="relative w-24 h-24 mx-auto mb-6">
-              <motion.div
-                className="absolute inset-0 rounded-full"
-                style={{ background: 'radial-gradient(circle, hsl(280 60% 55% / 0.5) 0%, transparent 70%)', filter: 'blur(16px)' }}
-                animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <div className="relative w-full h-full rounded-full flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, hsl(280 60% 40% / 0.5), hsl(320 55% 40% / 0.3))', border: '1.5px solid hsl(280 60% 65% / 0.4)' }}>
-                <EnergyIcon className="w-11 h-11 text-violet-300" />
-              </div>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(45,20,70,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <EnergyIcon className="w-10 h-10 text-amber-400/80" />
             </div>
 
-            <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400/60 mb-2">Energy Type</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-3"
-              style={{ background: 'linear-gradient(135deg, hsl(280 70% 80%), hsl(45 95% 65%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">Pattern Type</p>
+            <h2 className="text-2xl md:text-3xl font-serif font-bold mb-3 text-white">
               {result.energyType.name}
             </h2>
-            <p className="text-white/55 leading-relaxed max-w-xl mx-auto text-sm md:text-base">
+            <p className="text-white/50 leading-relaxed max-w-xl mx-auto text-sm md:text-base">
               {result.energyType.description}
             </p>
 
@@ -248,92 +444,185 @@ const Resultado = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="mt-7 p-5 rounded-2xl text-left"
+                className="mt-6 p-5 rounded-2xl text-left"
                 style={{
-                  background: 'hsl(45 95% 55% / 0.05)',
-                  border: '1px solid hsl(45 95% 55% / 0.2)',
-                  boxShadow: '0 0 20px hsl(45 95% 55% / 0.05)',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,200,60,0.12)',
                 }}
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <Eye className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
-                  <span className="text-xs font-semibold tracking-wide text-amber-400">What Aurora noticed in your palm:</span>
+                  <Eye className="w-3.5 h-3.5 flex-shrink-0 text-amber-400/70" />
+                  <span className="text-xs font-semibold tracking-wide text-amber-400/70">What Aurora noticed in your palm:</span>
                 </div>
-                <p className="text-sm text-white/70 italic leading-relaxed">{result.palmObservations}</p>
+                <p className="text-sm text-white/55 italic leading-relaxed">{result.palmObservations}</p>
               </motion.div>
             )}
           </motion.div>
         </div>
-      </section>
+      </section>}
 
-      {/* ── GIFTS PREVIEW ── */}
-      <section className="py-4 px-4">
+      {/* ── PERSONALIZATION CARD (V4) ── */}
+      {!localPreviewUrl && !isGeneratingPreview && <section className="py-4 px-4">
+        <div className="container max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.16 }}
+            className="rounded-2xl p-5 md:p-6"
+            style={{
+              background: 'rgba(18,18,22,0.92)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-widest text-amber-400/60 mb-4">
+              Based on your answers…
+            </p>
+            <div className="space-y-3">
+              {[
+                mainConcern
+                  ? `You tend to overthink situations related to "${mainConcern}" — searching for clarity in places that don't yet have answers.`
+                  : "You tend to overthink emotional distance after strong connections.",
+                result.energyType?.name
+                  ? `Your ${result.energyType.name} energy often makes you feel things more intensely than others realize.`
+                  : "You often feel something is 'off' before relationships change — even when you can't explain why.",
+              ].map((sentence, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400/60 mt-2 flex-shrink-0" />
+                  <p className="text-sm text-white/75 leading-relaxed italic">{sentence}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>}
+
+      {/* ── INSIGHT CARDS V4 — 2 visible + 2 locked ── */}
+      {!localPreviewUrl && !isGeneratingPreview && <section className="py-4 px-4">
         <div className="container max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.18 }}
           >
-            <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400/50 mb-4 px-1">
-              Your Inner Gifts — Preview
+            <p className="text-[10px] font-bold uppercase tracking-widest text-amber-400/50 mb-4 px-1">
+              Pattern Analysis — Your Results
             </p>
 
-            {/* First gift — visible */}
-            {firstStrength && (() => {
-              const StrengthIcon = getIcon(firstStrength.icon);
-              return (
-                <div className="rounded-2xl p-5 mb-3"
-                  style={{ background: 'hsl(280 60% 55% / 0.08)', border: '1px solid hsl(280 60% 55% / 0.2)' }}>
-                  <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'hsl(280 60% 55% / 0.18)', border: '1px solid hsl(280 60% 55% / 0.3)' }}>
-                      <StrengthIcon className="w-5 h-5 text-violet-300" />
-                    </div>
-                    <div>
-                      <h4 className="font-serif font-semibold text-white mb-1.5">{firstStrength.title}</h4>
-                      <p className="text-sm text-white/50 leading-relaxed">{firstStrength.desc}</p>
+            <div className="space-y-3">
+              {/* Card 1 — visible */}
+              {firstStrength && (() => {
+                const StrengthIcon = getIcon(firstStrength.icon);
+                return (
+                  <div className="rounded-2xl p-5"
+                    style={{ background: 'rgba(18,18,22,0.92)', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.35)' }}>
+                    <div className="flex items-start gap-4">
+                      <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                        style={{ background: 'rgba(255,200,60,0.08)', border: '1px solid rgba(255,200,60,0.15)' }}>
+                        <StrengthIcon className="w-5 h-5 text-amber-400" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                          <h4 className="font-semibold text-white text-sm">{firstStrength.title}</h4>
+                          <span className="text-[9px] px-2 py-0.5 rounded-full font-bold"
+                            style={{ background: 'hsl(350 80% 55% / 0.18)', color: 'hsl(350 80% 72%)', border: '1px solid hsl(350 80% 55% / 0.3)' }}>
+                            HIGH IMPACT
+                          </span>
+                        </div>
+                        <p className="text-sm text-white/50 leading-relaxed">{firstStrength.desc}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })()}
+                );
+              })()}
 
-            {/* Locked gifts */}
-            {lockedStrengths.length > 0 && (
+              {/* Card 2 — visible (second strength if available) */}
+              {lockedStrengths[0] && (() => {
+                const Icon = getIcon(lockedStrengths[0].icon);
+                return (
+                  <div className="rounded-2xl p-5"
+                    style={{ background: 'rgba(18,18,22,0.92)', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.35)' }}>
+                    <div className="flex items-start gap-4">
+                      <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                        style={{ background: 'rgba(255,200,60,0.08)', border: '1px solid rgba(255,200,60,0.15)' }}>
+                        <Icon className="w-5 h-5 text-amber-400" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                          <h4 className="font-semibold text-white text-sm">{lockedStrengths[0].title}</h4>
+                          <span className="text-[9px] px-2 py-0.5 rounded-full font-bold"
+                            style={{ background: 'hsl(350 80% 55% / 0.18)', color: 'hsl(350 80% 72%)', border: '1px solid hsl(350 80% 55% / 0.3)' }}>
+                            HIGH IMPACT
+                          </span>
+                        </div>
+                        <p className="text-sm text-white/50 leading-relaxed">{lockedStrengths[0].desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Cards 3 & 4 — locked + blurred */}
               <div className="relative rounded-2xl overflow-hidden">
                 <div className="space-y-3 select-none pointer-events-none">
-                  {lockedStrengths.map((s, i) => {
+                  {(lockedStrengths.length > 1 ? lockedStrengths.slice(1) : [
+                    { icon: 'lock', title: 'Attachment Response Pattern', desc: 'The way your lines intersect here reveals a deep emotional response cycle that activates when intimacy increases.' },
+                    { icon: 'cloud', title: 'Timing Sensitivity Window', desc: 'Your fate line indicates a specific emotional window that is currently active — and one that will shift in the coming weeks.' },
+                  ]).map((s, i) => {
                     const Icon = getIcon(s.icon);
                     return (
                       <div key={i} className="p-5 rounded-2xl"
                         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
                         <div className="flex items-start gap-4">
                           <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 opacity-40"
-                            style={{ background: 'hsl(280 60% 55% / 0.1)', border: '1px solid hsl(280 60% 55% / 0.15)' }}>
-                            <Icon className="w-5 h-5 text-violet-300" />
+                            style={{ background: 'hsl(45 95% 55% / 0.08)', border: '1px solid hsl(45 95% 55% / 0.12)' }}>
+                            <Icon className="w-5 h-5 text-amber-400/60" />
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-serif font-semibold text-white/40 mb-1 text-sm">{s.title}</h4>
-                            <p className="text-sm text-white/25" style={{ filter: 'blur(5px)' }}>{s.desc}</p>
+                            <h4 className="font-semibold text-white/35 mb-1 text-sm" style={{ filter: 'blur(14px)' }}>{s.title}</h4>
+                            <p className="text-sm text-white/20" style={{ filter: 'blur(18px)' }}>{s.desc}</p>
                           </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
+                {/* Lock overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl"
-                  style={{ background: 'rgba(10,6,20,0.55)', backdropFilter: 'blur(2px)' }}>
+                  style={{ background: 'rgba(8,8,16,0.65)', backdropFilter: 'blur(4px)' }}>
                   <div className="w-11 h-11 rounded-full flex items-center justify-center mb-3"
-                    style={{ background: 'hsl(280 60% 55% / 0.15)', border: '1px solid hsl(280 60% 55% / 0.3)' }}>
-                    <Lock className="w-5 h-5 text-violet-300" />
+                    style={{ background: 'rgba(255,200,60,0.1)', border: '1px solid rgba(255,200,60,0.22)' }}>
+                    <Lock className="w-5 h-5 text-amber-400/80" />
                   </div>
-                  <p className="text-sm font-semibold text-white">{lockedStrengths.length} more gifts identified — unlock to see</p>
+                  <p className="text-sm font-semibold text-white/90 mb-1">2 more patterns identified</p>
+                  <p className="text-xs text-white/35">Unlock to reveal</p>
                 </div>
               </div>
-            )}
+
+              {/* Floating mystery card — off-screen tease */}
+              <div className="relative h-16 overflow-hidden rounded-xl opacity-40 pointer-events-none select-none"
+                style={{ filter: 'blur(3px)', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="absolute inset-0 flex items-center px-5 gap-4">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-2 bg-white/10 rounded-full w-3/4" />
+                    <div className="h-2 bg-white/6 rounded-full w-1/2" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Reassurance line */}
+            <p className="text-center text-xs text-white/30 mt-5 italic">
+              "This isn't about predicting love. It's about understanding your patterns."
+            </p>
           </motion.div>
         </div>
-      </section>
+      </section>}
+
+      {/* ── UGC TRUST CARDS ── */}
+      <UGCTrustSection onCTA={handleCTA} />
 
       {/* ── MAIN CTA BOX ── */}
       <section className="py-8 px-4">
@@ -342,14 +631,14 @@ const Resultado = () => {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.22 }}
-            className="relative rounded-3xl p-8 md:p-10 overflow-hidden"
+            className="relative rounded-3xl p-8 md:p-10"
             style={{
-              background: 'linear-gradient(135deg, hsl(280 60% 55% / 0.13) 0%, hsl(320 55% 55% / 0.1) 50%, hsl(280 55% 45% / 0.08) 100%)',
-              border: '1px solid hsl(280 60% 55% / 0.35)',
-              boxShadow: '0 0 80px hsl(280 60% 55% / 0.1), inset 0 1px 0 hsl(280 60% 75% / 0.08)',
+              background: 'rgba(18,18,22,0.95)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(12px)',
             }}
           >
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(280_60%_55%_/_0.1)_0%,transparent_70%)] pointer-events-none" />
 
             <div className="relative text-center">
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3">
@@ -360,22 +649,22 @@ const Resultado = () => {
               </p>
 
               {/* Voice session highlight */}
-              <div className="relative max-w-lg mx-auto rounded-2xl overflow-hidden mb-6"
-                style={{ background: 'hsl(280 60% 55% / 0.12)', border: '1px solid hsl(280 60% 55% / 0.4)', boxShadow: '0 0 32px hsl(280 60% 55% / 0.1)' }}>
+              <div className="relative max-w-lg mx-auto rounded-2xl mb-6"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,200,60,0.15)' }}>
                 <div className="flex items-start gap-3.5 p-4">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'hsl(280 60% 55% / 0.2)', border: '1px solid hsl(280 60% 55% / 0.4)' }}>
-                    <Mic className="w-4.5 h-4.5 text-violet-300" />
+                    style={{ background: 'rgba(255,200,60,0.08)', border: '1px solid rgba(255,200,60,0.18)' }}>
+                    <Mic className="w-4 h-4 text-amber-400/80" />
                   </div>
                   <div className="text-left">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span className="text-sm font-bold text-white">Live voice session with Aurora</span>
+                      <span className="text-sm font-bold text-white/90">Live voice session with Aurora</span>
                       <span className="text-[9px] px-2 py-0.5 rounded-full font-bold"
-                        style={{ background: 'hsl(280 60% 55% / 0.3)', color: 'hsl(280 80% 85%)', border: '1px solid hsl(280 60% 55% / 0.4)' }}>
+                        style={{ background: 'rgba(255,200,60,0.12)', color: 'hsl(45 85% 65%)', border: '1px solid rgba(255,200,60,0.2)' }}>
                         INCLUDED
                       </span>
                     </div>
-                    <p className="text-xs text-white/45 leading-relaxed">
+                    <p className="text-xs text-white/40 leading-relaxed">
                       Hear Aurora speak your name, your energy type, and what your palm revealed about your love timing.
                     </p>
                   </div>
@@ -393,7 +682,7 @@ const Resultado = () => {
                   'Active blocks & how to move past them',
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-2.5 text-sm text-white/75">
-                    <CheckCircle2 className="w-4 h-4 text-violet-400 flex-shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-amber-400/70 flex-shrink-0" />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -406,17 +695,16 @@ const Resultado = () => {
                   onClick={() => setSelectedPlan('basic')}
                   className="p-4 rounded-2xl text-left transition-all duration-200 relative"
                   style={{
-                    background: selectedPlan === 'basic' ? 'hsl(280 60% 55% / 0.15)' : 'rgba(255,255,255,0.07)',
-                    border: selectedPlan === 'basic' ? '2px solid hsl(280 60% 60%)' : '2px solid rgba(255,255,255,0.22)',
-                    boxShadow: selectedPlan === 'basic' ? '0 0 20px hsl(280 60% 55% / 0.15)' : 'none',
+                    background: selectedPlan === 'basic' ? 'rgba(255,200,60,0.08)' : 'rgba(255,255,255,0.03)',
+                    border: selectedPlan === 'basic' ? '2px solid rgba(255,200,60,0.4)' : '2px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">Basic</span>
-                    {selectedPlan === 'basic' && <CheckCircle2 className="w-3.5 h-3.5 text-violet-400" />}
+                    {selectedPlan === 'basic' && <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />}
                   </div>
                   <div className="text-xl font-bold text-white mb-0.5">{PRICE_MAP.basic.display}</div>
-                  <p className="text-[11px] text-white/55 leading-snug">Full text reading · No voice</p>
+                  <p className="text-[11px] text-white/55 leading-snug">Relationship pattern reading · Instant access</p>
                 </button>
 
                 {/* Complete — default/highlighted */}
@@ -424,20 +712,19 @@ const Resultado = () => {
                   onClick={() => setSelectedPlan('complete')}
                   className="p-4 rounded-2xl text-left relative transition-all duration-200"
                   style={{
-                    background: selectedPlan === 'complete' ? 'linear-gradient(135deg, hsl(280 60% 55% / 0.22) 0%, hsl(320 55% 55% / 0.15) 100%)' : 'hsl(280 60% 55% / 0.08)',
-                    border: selectedPlan === 'complete' ? '2px solid hsl(280 60% 65%)' : '2px solid hsl(280 60% 55% / 0.3)',
-                    boxShadow: selectedPlan === 'complete' ? '0 0 30px hsl(280 60% 55% / 0.25), inset 0 1px 0 hsl(280 60% 75% / 0.1)' : 'none',
+                    background: selectedPlan === 'complete' ? 'rgba(255,200,60,0.1)' : 'rgba(255,255,255,0.03)',
+                    border: selectedPlan === 'complete' ? '2px solid rgba(255,200,60,0.45)' : '2px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div className="absolute -top-2.5 left-3">
                     <span className="text-[9px] px-2.5 py-0.5 rounded-full font-bold tracking-wider"
-                      style={{ background: 'linear-gradient(135deg, hsl(320 85% 55%), hsl(25 95% 55%))', color: '#fff' }}>
+                      style={{ background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))', color: '#08080f' }}>
                       BEST VALUE
                     </span>
                   </div>
                   <div className="flex items-center justify-between mb-2 mt-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-violet-300">Complete</span>
-                    {selectedPlan === 'complete' && <CheckCircle2 className="w-3.5 h-3.5 text-violet-400" />}
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400/80">Complete</span>
+                    {selectedPlan === 'complete' && <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />}
                   </div>
                   <div className="flex items-baseline gap-2 mb-0.5">
                     <span className="text-xl font-bold text-white">{PRICE_MAP.complete.display}</span>
@@ -459,13 +746,15 @@ const Resultado = () => {
                   size="lg"
                   className="w-full sm:w-auto px-12 py-7 text-lg font-bold rounded-2xl shadow-2xl hover:scale-[1.03] transition-transform duration-200 mb-4"
                   style={{
-                    background: 'linear-gradient(135deg, hsl(320 85% 55%), hsl(25 95% 55%))',
-                    color: '#fff',
-                    boxShadow: '0 0 50px hsl(320 85% 55% / 0.3), 0 8px 32px rgba(0,0,0,0.4)',
+                    background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))',
+                    color: '#08080f',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
                     border: 'none',
                   }}
                 >
-                  {selectedPlan === 'complete' ? 'Unlock My Full Reading → Instant Access' : 'Unlock My Reading → Instant Access'}
+                  {selectedPlan === 'basic'
+                    ? `Unlock My Reading — ${PRICE_MAP.basic.display}`
+                    : 'UNLOCK FULL READING →'}
                 </Button>
               </motion.div>
 
@@ -480,7 +769,7 @@ const Resultado = () => {
                   <Shield className="w-3.5 h-3.5 flex-shrink-0" />
                   <span>7-day money-back guarantee — no questions asked</span>
                 </div>
-                <p className="text-[10px] text-white/25">Secure checkout · Photo never shared · Cancel anytime</p>
+                <p className="text-[10px] text-white/25">Secure checkout · Photo never shared · No subscription</p>
               </div>
             </div>
           </motion.div>
@@ -520,12 +809,12 @@ const Resultado = () => {
                 })}
               </div>
               <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl"
-                style={{ background: 'rgba(10,6,20,0.55)', backdropFilter: 'blur(2px)' }}>
+                style={{ background: 'rgba(8,8,16,0.65)', backdropFilter: 'blur(4px)' }}>
                 <div className="w-11 h-11 rounded-full flex items-center justify-center mb-3"
-                  style={{ background: 'hsl(350 70% 50% / 0.15)', border: '1px solid hsl(350 70% 55% / 0.3)' }}>
-                  <Lock className="w-5 h-5 text-rose-400" />
+                  style={{ background: 'rgba(255,200,60,0.08)', border: '1px solid rgba(255,200,60,0.18)' }}>
+                  <Lock className="w-5 h-5 text-amber-400/80" />
                 </div>
-                <p className="text-sm font-semibold text-white">Unlock to see what may be blocking you</p>
+                <p className="text-sm font-semibold text-white/90">Unlock to see what may be blocking you</p>
               </div>
             </div>
           </motion.div>
@@ -540,21 +829,21 @@ const Resultado = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.32 }}
             className="relative rounded-3xl overflow-hidden"
-            style={{ border: '1px solid hsl(280 60% 55% / 0.2)' }}
+            style={{ border: '1px solid rgba(255,255,255,0.06)' }}
           >
             <div
               className="p-8 select-none pointer-events-none whitespace-pre-line font-serif italic text-white/40 text-base leading-relaxed"
-              style={{ filter: 'blur(8px)', background: 'hsl(280 60% 55% / 0.05)' }}
+              style={{ filter: 'blur(8px)', background: 'rgba(18,18,22,0.9)' }}
             >
               {result.spiritualMessage}
             </div>
             <div
               className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
-              style={{ backdropFilter: 'blur(3px)', background: 'rgba(10,6,20,0.55)' }}
+              style={{ backdropFilter: 'blur(4px)', background: 'rgba(8,8,16,0.6)' }}
             >
               <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4"
-                style={{ background: 'hsl(280 60% 55% / 0.15)', border: '1px solid hsl(280 60% 55% / 0.35)' }}>
-                <Lock className="w-6 h-6 text-violet-300" />
+                style={{ background: 'rgba(255,200,60,0.1)', border: '1px solid rgba(255,200,60,0.2)' }}>
+                <Lock className="w-6 h-6 text-amber-400/80" />
               </div>
               <p className="text-lg font-serif font-semibold text-white mb-2">Your personal message is locked</p>
               <p className="text-sm text-white/40 mb-5">Unlock the full reading to receive it.</p>
@@ -566,9 +855,9 @@ const Resultado = () => {
                   onClick={handleCTA}
                   className="px-8 py-5 font-bold rounded-xl"
                   style={{
-                    background: 'linear-gradient(135deg, hsl(320 85% 55%), hsl(25 95% 55%))',
-                    color: '#fff',
-                    boxShadow: '0 0 30px hsl(320 85% 55% / 0.25)',
+                    background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))',
+                    color: '#08080f',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
                     border: 'none',
                   }}
                 >
@@ -634,10 +923,10 @@ const Resultado = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.42 }}
-            className="relative rounded-2xl p-7 overflow-hidden"
-            style={{ background: 'hsl(280 60% 55% / 0.07)', border: '1px solid hsl(280 60% 55% / 0.15)' }}
+            className="relative rounded-2xl p-7"
+            style={{ background: 'rgba(18,18,22,0.92)', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.35)' }}
           >
-            <div className="absolute top-3 left-5 text-5xl font-serif text-violet-400/8 leading-none select-none">"</div>
+            <div className="absolute top-3 left-5 text-5xl font-serif text-white/5 leading-none select-none">"</div>
             <div className="flex gap-0.5 mb-4">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -648,7 +937,7 @@ const Resultado = () => {
             </p>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, hsl(280 60% 55%), hsl(320 55% 55%))' }}>
+                style={{ background: 'rgba(255,200,60,0.15)', border: '1px solid rgba(255,200,60,0.2)' }}>
                 <span className="text-[9px] font-bold text-white">R</span>
               </div>
               <div>

@@ -72,7 +72,16 @@ export function getCookie(name: string): string {
 
 export function getAdIds(): { fbp?: string; fbc?: string; ttclid?: string } {
   const fbp = getCookie("_fbp") || undefined;
-  const fbc = getCookie("_fbc") || undefined;
+  let fbc = getCookie("_fbc") || undefined;
+  // Fallback: build _fbc from stored fbclid if cookie missing
+  if (!fbc) {
+    try {
+      const storedFbclid = (localStorage.getItem("mwus_fbclid") || "").trim();
+      if (storedFbclid) fbc = `fb.1.${Date.now()}.${storedFbclid}`;
+    } catch {
+      // ignore
+    }
+  }
 
   // TikTok click id often arrives as ttclid in URL; persist to sessionStorage.
   let ttclid: string | undefined;

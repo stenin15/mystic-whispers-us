@@ -2,7 +2,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, Heart, ArrowRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { useEffect } from 'react';
 
@@ -16,9 +15,7 @@ const Conexao = () => {
   }, [reset]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-20">
-      <ParticlesBackground />
-      <FloatingOrbs />
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-20" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}

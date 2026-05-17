@@ -1,8 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Eye, Moon, Star, Volume2, Heart, Brain, Hand, Waves, Fingerprint } from 'lucide-react';
-import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
+import { Lock, Shield } from 'lucide-react';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { processAnalysis, generateVoiceMessage } from '@/lib/api';
 import { useMysticSounds } from '@/hooks/useMysticSounds';
@@ -11,139 +10,152 @@ import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 import { supabase } from '@/integrations/supabase/client';
 
-const getAnalysisPhases = (name: string) => [
-  { text: "Connecting with your energy...",      subtext: "Setting a calm baseline",              icon: Sparkles,    duration: 6500, sound: 'sparkle'    as const, voiceText: `Hi, ${name}… I'm Madam Aurora. I'm going to combine what you shared with patterns that often show up in decision seasons.` },
-  { text: "Tuning into your presence...",         subtext: "Noticing your unique rhythm",          icon: Hand,        duration: 7000, sound: 'chime'      as const, voiceText: `Take a slow breath. This step is simply organizing what feels active for you right now.` },
-  { text: "Reading the lines in your palm...",    subtext: "Every line carries a story",           icon: Fingerprint, duration: 7500, sound: 'whoosh'     as const, voiceText: `From the way you answered… there's a weight you've been carrying quietly.` },
-  { text: "Listening to your heart line...",      subtext: "Making sense of what you feel",        icon: Heart,       duration: 8000, sound: 'heartPulse' as const, voiceText: `In certain seasons, you don't want to make the wrong move… so the decision stalls.` },
-  { text: "Clarifying your mind...",              subtext: "Making your thoughts easier to hold",  icon: Brain,       duration: 7200, sound: 'chime'      as const, voiceText: `What stands out most is a repeating signal. It can feel like something keeps returning.` },
-  { text: "Gathering intuitive insights...",      subtext: "Tuning into what matters most",        icon: Waves,       duration: 7800, sound: 'mysticTone' as const, voiceText: `When this pattern becomes active, you may start doubting yourself… but it's a protective mechanism.` },
-  { text: "Revealing what's underneath...",       subtext: "Bringing the hidden pattern into view", icon: Eye,        duration: 7500, sound: 'whoosh'     as const, voiceText: `Now I can see which strengths are most present for you. And which blocks tend to show up.` },
-  { text: "Looking at the bigger picture...",     subtext: "Finding the cleanest next step",       icon: Moon,        duration: 7000, sound: 'mysticTone' as const, voiceText: `The path isn't to force it. It's to choose with awareness.` },
-  { text: "Organizing your reading...",           subtext: "Putting everything into clear language", icon: Star,      duration: 6500, sound: 'sparkle'    as const, voiceText: `All right… now I'm turning this into a clear, structured reading.` },
-  { text: "Finishing up...",                      subtext: "Your reading is ready",               icon: Volume2,     duration: 5000, sound: 'chime'      as const, voiceText: `Done. You're in a decision cycle. And cycles ask for courage, but also direction.` },
-];
+// ─── Phase config ────────────────────────────────────────────────────────────
 
-// SVG palm lines — heart, head, life, fate
-const PALM_LINES = [
-  { id: 'heart', d: 'M 30 55 Q 55 35 80 40 Q 105 45 120 35', color: '#f472b6', delay: 0 },
-  { id: 'head',  d: 'M 28 75 Q 55 70 80 72 Q 105 74 125 65', color: '#a78bfa', delay: 0.6 },
-  { id: 'life',  d: 'M 55 45 Q 42 75 45 105 Q 48 130 52 145', color: '#34d399', delay: 1.2 },
-  { id: 'fate',  d: 'M 80 145 Q 78 110 76 80 Q 74 55 78 38', color: '#fbbf24', delay: 1.8 },
-];
+const PHASES = [
+  {
+    text: "Scanning your palm lines…",
+    sub: "Reading the patterns in your hand",
+    bar: "Analyzing relationship line…",
+    voiceText: (n: string) => `Hi, ${n}… I'm Madam Aurora. I can already see patterns in what you shared.`,
+  },
+  {
+    text: "Mapping emotional timing…",
+    sub: "Tracing the emotional loop",
+    bar: "Reading emotional timing…",
+    voiceText: null,
+  },
+  {
+    text: "Reading relationship patterns…",
+    sub: "Connecting signal to pattern",
+    bar: "Detecting recurring patterns…",
+    voiceText: null,
+  },
+  {
+    text: "Detecting emotional cycles…",
+    sub: "Surfacing recurring themes",
+    bar: "Reading emotional timing…",
+    voiceText: null,
+  },
+  {
+    text: "Preparing your personal preview…",
+    sub: "Your reading is almost ready",
+    bar: "Finalizing your report…",
+    voiceText: null,
+  },
+] as const;
+
+const PHASE_DURATIONS = [2800, 3000, 3200, 3000, 2600];
+
+// ─── Upload helper ───────────────────────────────────────────────────────────
+
+async function uploadPalmPhotoToStorage(base64DataUrl: string, sessionKey: string): Promise<string> {
+  const { supabase: sb } = await import("@/integrations/supabase/client");
+  const commaIdx = base64DataUrl.indexOf(",");
+  const header = commaIdx >= 0 ? base64DataUrl.slice(0, commaIdx) : "";
+  const b64 = commaIdx >= 0 ? base64DataUrl.slice(commaIdx + 1) : base64DataUrl;
+  const mimeMatch = header.match(/data:([^;]+)/);
+  const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+  const ext = mimeType.includes("png") ? "png" : "jpg";
+  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  const blob = new Blob([bytes], { type: mimeType });
+  const path = `${sessionKey}/palm.${ext}`;
+  const { error } = await sb.storage.from("palm-photos").upload(path, blob, { contentType: mimeType, upsert: false });
+  if (error) throw error;
+  return path;
+}
+
+const prefersReducedMotion =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ─── Component ───────────────────────────────────────────────────────────────
 
 const Analise = () => {
   const navigate = useNavigate();
-  const { name, email, age, emotionalState, mainConcern, handPhotoData, quizAnswers, setAnalysisResult, setIsAnalyzing, setAudioUrl, canAccessAnalysis } = useHandReadingStore();
+  const {
+    name, email, age, emotionalState, mainConcern, handPhotoData, quizAnswers,
+    setAnalysisResult, setIsAnalyzing, setAudioUrl, canAccessAnalysis,
+    setSessionKey, setPalmPhotoPath, setPreviewReportUrl,
+  } = useHandReadingStore();
 
-  const safeName = name?.trim() ? name.trim() : "there";
-  const analysisPhases = getAnalysisPhases(safeName);
+  const safeName = name?.trim() || 'there';
 
-  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
+  const [phaseIdx, setPhaseIdx] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [isApiDone, setIsApiDone] = useState(false);
+  const [showAudioPrompt, setShowAudioPrompt] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+
   const isApiDoneRef = useRef(false);
   const navigatedRef = useRef(false);
-  const [showAudioPrompt, setShowAudioPrompt] = useState(false);
-  const [scanLine, setScanLine] = useState(0); // 0-100 for scan beam position
   const analysisStarted = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const currentPhaseAudioPlayed = useRef<Set<number>>(new Set());
   const audioUnlockedRef = useRef(false);
-  const pendingPhaseToReplayRef = useRef<number | null>(null);
-  const hasPromptedForAudioRef = useRef(false);
+  const pendingPhaseRef = useRef<number | null>(null);
+  const hasPromptedRef = useRef(false);
+  const audioPlayedRef = useRef<Set<number>>(new Set());
 
-  const { playTransitionChime, playWhoosh, playMysticTone, playSparkle, playHeartPulse, playCompletion, cleanup } = useMysticSounds();
+  const { playTransitionChime, playCompletion, cleanup } = useMysticSounds();
 
-  // Track AnaliseView — fires once when user reaches this step
-  const hasTrackedAnaliseRef = useRef(false);
+  // ── Track page view ──────────────────────────────────────────────────────
+  const hasTrackedRef = useRef(false);
   useEffect(() => {
-    if (hasTrackedAnaliseRef.current) return;
-    hasTrackedAnaliseRef.current = true;
+    if (hasTrackedRef.current) return;
+    hasTrackedRef.current = true;
     const eventId = getOrCreateEventId("analise_view");
-    track("AnaliseView", {
-      event_id: eventId,
-      page_path: "/analise",
-      angle: getStoredAngle(),
-      focus: getStoredFocus(),
-      ...getAttributionParams(),
-    });
+    track("AnaliseView", { event_id: eventId, page_path: "/analise", angle: getStoredAngle(), focus: getStoredFocus(), ...getAttributionParams() });
     const { fbp, fbc, ttclid } = getAdIds();
     supabase.functions.invoke('track-event', {
-      body: {
-        event_name: "AnaliseView",
-        event_id: eventId,
-        page_url: window.location.href,
-        user: { email: email || undefined },
-        utm: getAttributionParams(),
-        meta: { fbp, fbc },
-        tiktok: { ttclid },
-      },
+      body: { event_name: "AnaliseView", event_id: eventId, page_url: window.location.href, user: { email: email || undefined }, utm: getAttributionParams(), meta: { fbp, fbc }, tiktok: { ttclid } },
     }).catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const playSoundForPhase = (i: number) => {
-    const s = analysisPhases[i]?.sound;
-    if (s === 'chime') playTransitionChime();
-    else if (s === 'whoosh') playWhoosh();
-    else if (s === 'mysticTone') playMysticTone();
-    else if (s === 'sparkle') playSparkle();
-    else if (s === 'heartPulse') playHeartPulse();
-  };
 
   useEffect(() => {
     try { if (localStorage.getItem("ma_audio_unlocked") === "1") audioUnlockedRef.current = true; } catch {}
   }, []);
 
-  const playPhaseVoice = async (phaseIndex: number) => {
-    if (currentPhaseAudioPlayed.current.has(phaseIndex)) return;
-    const voiceText = analysisPhases[phaseIndex]?.voiceText;
+  // ── ElevenLabs voice ────────────────────────────────────────────────────
+  const playPhaseVoice = async (idx: number) => {
+    if (audioPlayedRef.current.has(idx)) return;
+    const phase = PHASES[idx];
+    const voiceText = phase.voiceText ? phase.voiceText(safeName) : null;
     if (!voiceText) return;
     try {
-      const audioDataUrl = await generateVoiceMessage(voiceText);
-      if (!audioDataUrl) return;
+      const dataUrl = await generateVoiceMessage(voiceText);
+      if (!dataUrl) return;
       if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-      const audio = new Audio(audioDataUrl);
+      const audio = new Audio(dataUrl);
       audioRef.current = audio;
-      audio.volume = 0.8;
-      audio.onplay = () => { audioUnlockedRef.current = true; try { localStorage.setItem("ma_audio_unlocked", "1"); } catch {} };
+      audio.volume = 0.75;
+      audio.onplay = () => {
+        audioUnlockedRef.current = true;
+        try { localStorage.setItem("ma_audio_unlocked", "1"); } catch {}
+      };
       try {
         await audio.play();
-        currentPhaseAudioPlayed.current.add(phaseIndex);
+        audioPlayedRef.current.add(idx);
       } catch (err) {
-        const e = err as { name?: string; message?: string };
-        if ((e?.name === 'NotAllowedError' || String(e?.message || '').toLowerCase().includes('not allowed')) && !audioUnlockedRef.current && !hasPromptedForAudioRef.current) {
-          hasPromptedForAudioRef.current = true;
-          pendingPhaseToReplayRef.current = phaseIndex;
+        const e = err as { name?: string };
+        if (e?.name === 'NotAllowedError' && !audioUnlockedRef.current && !hasPromptedRef.current) {
+          hasPromptedRef.current = true;
+          pendingPhaseRef.current = idx;
           setShowAudioPrompt(true);
         }
       }
-    } catch (err) { console.warn('Phase voice failed:', err); }
+    } catch { /* non-blocking */ }
   };
 
-  const handleAudioPromptConfirm = () => {
+  const handleAudioConfirm = () => {
     setShowAudioPrompt(false);
     audioUnlockedRef.current = true;
     try { localStorage.setItem("ma_audio_unlocked", "1"); } catch {}
-    const p = pendingPhaseToReplayRef.current ?? currentPhaseIndex;
-    pendingPhaseToReplayRef.current = null;
+    const p = pendingPhaseRef.current ?? 0;
+    pendingPhaseRef.current = null;
     playPhaseVoice(p);
   };
 
-  // Scan beam animation
-  useEffect(() => {
-    let dir = 1;
-    let pos = 0;
-    const id = setInterval(() => {
-      pos += dir * 1.2;
-      if (pos >= 100) { pos = 100; dir = -1; }
-      if (pos <= 0)   { pos = 0;   dir =  1; }
-      setScanLine(pos);
-    }, 30);
-    return () => clearInterval(id);
-  }, []);
-
+  // ── Main orchestration ────────────────────────────────────────────────────
   useEffect(() => {
     if (!canAccessAnalysis()) { navigate('/foto'); return; }
     if (analysisStarted.current) return;
@@ -155,273 +167,265 @@ const Analise = () => {
         const result = await processAnalysis({ name, age, emotionalState, mainConcern, handPhotoData }, quizAnswers);
         setAnalysisResult(result);
         generateVoiceMessage(result.spiritualMessage).then(u => { if (u) setAudioUrl(u); }).catch(() => {});
+        if (handPhotoData) {
+          const sk = crypto.randomUUID();
+          setSessionKey(sk);
+          uploadPalmPhotoToStorage(handPhotoData, sk).then((path) => {
+            setPalmPhotoPath(path);
+            supabase.functions.invoke("generate-palm-report-preview", {
+              body: { session_key: sk, email: email || undefined, palm_photo_path: path },
+            }).then((res) => {
+              const url = (res.data as { preview_url?: string } | null)?.preview_url;
+              if (url) setPreviewReportUrl(url);
+            }).catch(() => {});
+          }).catch(() => {});
+        }
+      } finally {
         isApiDoneRef.current = true;
-        setIsApiDone(true);
-      } catch {
-        isApiDoneRef.current = true;
-        setIsApiDone(true);
       }
     };
-    setTimeout(runAnalysis, 200);
+    setTimeout(runAnalysis, 150);
 
-    playSoundForPhase(0);
+    playTransitionChime();
     playPhaseVoice(0);
 
-    let phaseIndex = 0;
+    let idx = 0;
     const advancePhase = () => {
-      if (phaseIndex < analysisPhases.length - 1) {
-        phaseIndex++;
-        setCurrentPhaseIndex(phaseIndex);
-        playSoundForPhase(phaseIndex);
-        playPhaseVoice(phaseIndex);
-        const next = analysisPhases[phaseIndex].duration + (Math.random() * 800 - 400);
-        setTimeout(advancePhase, next);
+      if (idx < PHASES.length - 1) {
+        idx++;
+        setPhaseIdx(idx);
+        if (idx === 1 || idx === 3) playTransitionChime();
+        setTimeout(advancePhase, PHASE_DURATIONS[idx] + Math.random() * 600 - 300);
       }
     };
-    setTimeout(advancePhase, analysisPhases[0].duration);
+    setTimeout(advancePhase, PHASE_DURATIONS[0]);
 
     const progressInterval = setInterval(() => {
       setProgress(prev => {
-        const speed = prev < 30 ? 0.3 : prev < 70 ? 0.5 : prev < 90 ? 0.2 : 0.1;
+        if (prev >= 95) return prev;
+        const speed = prev < 40 ? 0.55 : prev < 70 ? 0.4 : prev < 88 ? 0.18 : 0.06;
         return Math.min(prev + Math.random() * speed, 95);
       });
-    }, 100);
+    }, 120);
 
-    const checkCompletion = setInterval(() => {
+    const checkDone = setInterval(() => {
       setProgress(prev => {
-        if (isApiDoneRef.current && prev >= 90) {
+        if (isApiDoneRef.current && prev >= 88) {
           clearInterval(progressInterval);
-          clearInterval(checkCompletion);
+          clearInterval(checkDone);
           if (!navigatedRef.current) {
             navigatedRef.current = true;
             playCompletion();
-            setTimeout(() => { setIsAnalyzing(false); navigate('/resultado'); }, 1000);
+            setTimeout(() => { setIsAnalyzing(false); navigate('/resultado'); }, 900);
           }
           return 100;
         }
         return prev;
       });
-    }, 500);
+    }, 400);
 
     const maxTimeout = setTimeout(() => {
       clearInterval(progressInterval);
-      clearInterval(checkCompletion);
+      clearInterval(checkDone);
       if (!navigatedRef.current) {
         navigatedRef.current = true;
         playCompletion();
         setIsAnalyzing(false);
         navigate('/resultado');
       }
-    }, 45000);
+    }, 22000);
 
     return () => {
       clearInterval(progressInterval);
-      clearInterval(checkCompletion);
+      clearInterval(checkDone);
       clearTimeout(maxTimeout);
       cleanup();
       if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (isApiDone && progress >= 90 && !navigatedRef.current) {
+    if (isApiDoneRef.current && progress >= 88 && !navigatedRef.current) {
       navigatedRef.current = true;
       setProgress(100);
       playCompletion();
-      setTimeout(() => { setIsAnalyzing(false); navigate('/resultado'); }, 1000);
+      setTimeout(() => { setIsAnalyzing(false); navigate('/resultado'); }, 900);
     }
-  }, [isApiDone, progress]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progress]);
 
-  const CurrentIcon = analysisPhases[currentPhaseIndex].icon;
-  const currentPhase = analysisPhases[currentPhaseIndex];
+  const phase = PHASES[phaseIdx];
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center px-4 py-12">
-      {/* Galaxy background — mesma base da VSL */}
-      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: -1, overflow: 'hidden' }}>
-        <div style={{
-          position: 'absolute', inset: '-8%', width: '116%', height: '116%',
-          backgroundImage: 'url(/galaxy-bg.webp)', backgroundSize: 'cover', backgroundPosition: 'center',
-          filter: 'brightness(0.22) saturate(0.9) hue-rotate(210deg)',
-          animation: 'kenBurns 40s ease-in-out infinite alternate', willChange: 'transform',
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse 80% 60% at 50% 40%, hsl(280 60% 15% / 0.55) 0%, hsl(260 40% 4% / 0.85) 100%)',
-        }} />
-      </div>
-      <ParticlesBackground />
-      <FloatingOrbs />
-
-      <AudioPromptModal isOpen={showAudioPrompt} onConfirm={handleAudioPromptConfirm} userName={name} />
-
-      {/* Card principal */}
-      <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
-        className="relative w-full max-w-md section-panel px-6 py-10 text-center"
+    <div
+      className="min-h-screen relative flex items-center justify-center px-4 py-10"
+      style={{ isolation: 'isolate' }}
+    >
+      {/* ── Background image — fixed, no animation ── */}
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 -z-10"
+        style={{
+          backgroundImage: 'url(/analysis/resultado-bg-mobile.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+        }}
       >
-        {/* Glow de fundo no card */}
-        <div className="absolute inset-0 rounded-2xl pointer-events-none overflow-hidden">
-          <motion.div
-            animate={{ opacity: [0.15, 0.35, 0.15] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute inset-0 bg-gradient-radial from-primary/20 via-transparent to-transparent"
+        {/* Dark overlay */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(180deg, rgba(4,4,14,0.72) 0%, rgba(4,4,14,0.88) 60%, rgba(4,4,14,0.96) 100%)' }}
+        />
+      </div>
+
+      <AudioPromptModal isOpen={showAudioPrompt} onConfirm={handleAudioConfirm} userName={name} />
+
+      {/* ── Glass card ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.65, ease: [0.23, 1, 0.32, 1] }}
+        className="relative w-full max-w-sm md:max-w-md overflow-hidden rounded-3xl"
+        style={{
+          background: 'rgba(10,7,20,0.82)',
+          border: '1px solid rgba(168,85,247,0.2)',
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.7), 0 0 60px rgba(120,40,200,0.12)',
+          backdropFilter: 'blur(24px)',
+        }}
+      >
+        {/* ── Holographic video top ── */}
+        <div
+          className="relative w-full overflow-hidden"
+          style={{
+            aspectRatio: '9/16',
+            maxHeight: 340,
+            background: 'linear-gradient(180deg, #1a0830 0%, #0a0520 100%)',
+          }}
+        >
+          {!prefersReducedMotion && !videoError ? (
+            <video
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              onError={() => setVideoError(true)}
+            >
+              <source src="/analysis/aurora-loop-mobile.mp4" type="video/mp4" />
+              <source src="/analysis/aurora-loop-mobile.webm" type="video/webm" />
+            </video>
+          ) : null}
+
+          {/* Gradient fade bottom */}
+          <div
+            className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
+            style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(10,7,20,0.95) 100%)' }}
           />
         </div>
 
-        {/* ── Orbe central ── */}
-        <div className="relative w-44 h-44 mx-auto mb-6">
-          {/* Halo pulsante */}
-          <motion.div
-            animate={{ scale: [1, 1.25, 1], opacity: [0.18, 0.38, 0.18] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 to-accent/30 blur-2xl"
-          />
-          {/* Anéis orbitais */}
-          {[{ size: 'inset-0', d: 8, border: 'border-2 border-dashed border-primary/25' },
-            { size: 'inset-3', d: -12, border: 'border border-accent/30' },
-            { size: 'inset-7', d: 18, border: 'border border-yellow-400/20' }
-          ].map((r, i) => (
-            <motion.div key={i}
-              animate={{ rotate: r.d > 0 ? 360 : -360 }}
-              transition={{ duration: Math.abs(r.d), repeat: Infinity, ease: 'linear' }}
-              className={`absolute ${r.size} rounded-full ${r.border}`}
-            />
-          ))}
-
-          {/* ── Palma SVG com linhas sendo lidas ── */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative w-28 h-28">
-              {/* Círculo base */}
-              <motion.div
-                animate={{ boxShadow: ['0 0 18px 4px hsl(280 60% 55% / 0.3)', '0 0 36px 8px hsl(280 60% 55% / 0.55)', '0 0 18px 4px hsl(280 60% 55% / 0.3)'] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-full h-full rounded-full bg-gradient-to-br from-primary/30 to-accent/20 backdrop-blur-xl border border-primary/40 flex items-center justify-center overflow-hidden"
+        {/* ── Text content ── */}
+        <div className="px-6 pb-8 pt-2">
+          {/* Dynamic phase text */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={phaseIdx}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.38 }}
+              className="mb-4 text-center"
+            >
+              <h2
+                className="text-lg md:text-xl font-serif font-bold mb-1"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(280 60% 85%), hsl(320 55% 80%), hsl(45 95% 75%))',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
               >
-                {/* SVG palm lines */}
-                <svg viewBox="20 30 120 130" className="w-20 h-20" fill="none">
-                  {/* Scan beam */}
-                  <line
-                    x1="20" y1={30 + scanLine * 1.3} x2="140" y2={30 + scanLine * 1.3}
-                    stroke="rgba(168,85,247,0.6)" strokeWidth="1.5"
-                    style={{ filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.9))' }}
-                  />
-                  {/* Palm lines traced progressively */}
-                  {PALM_LINES.map((line) => (
-                    <motion.path
-                      key={line.id}
-                      d={line.d}
-                      stroke={line.color}
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      fill="none"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 0.9 }}
-                      transition={{ duration: 2.5, delay: line.delay, ease: 'easeInOut', repeat: Infinity, repeatDelay: 3 }}
-                      style={{ filter: `drop-shadow(0 0 3px ${line.color})` }}
-                    />
-                  ))}
-                </svg>
+                {phase.text}
+              </h2>
+              <p className="text-xs text-white/35 italic">{phase.sub}</p>
+            </motion.div>
+          </AnimatePresence>
 
-                {/* Ícone da fase em cima */}
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentPhaseIndex}
-                    initial={{ opacity: 0, scale: 0.4 }}
-                    animate={{ opacity: 0.35, scale: 1 }}
-                    exit={{ opacity: 0, scale: 1.4 }}
-                    transition={{ duration: 0.4 }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <CurrentIcon className="w-10 h-10 text-primary/60" />
-                  </motion.div>
-                </AnimatePresence>
-              </motion.div>
+          {/* Personalized name line */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9 }}
+            className="text-sm text-white/45 mb-5 text-center"
+          >
+            {safeName !== 'there' ? (
+              <><span className="text-purple-300/80 font-medium">{name}</span>, your reading is being prepared with care…</>
+            ) : (
+              'Your reading is being prepared with care…'
+            )}
+          </motion.p>
 
-              {/* Partículas orbitais */}
-              {[{ dur: 5, color: 'bg-yellow-400', shadow: 'shadow-yellow-400/60', pos: 'top-0 left-1/2 -translate-x-1/2', size: 'w-2.5 h-2.5' },
-                { dur: 9, color: 'bg-fuchsia-400', shadow: 'shadow-fuchsia-400/50', pos: 'bottom-0 left-1/2 -translate-x-1/2', size: 'w-2 h-2' },
-                { dur: 13, color: 'bg-primary/70', shadow: '', pos: 'left-0 top-1/2 -translate-y-1/2', size: 'w-2 h-2' },
-              ].map((p, i) => (
-                <motion.div key={i}
-                  animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
-                  transition={{ duration: p.dur, repeat: Infinity, ease: 'linear' }}
-                  className="absolute inset-0"
+          {/* Progress bar */}
+          <div className="w-full mb-2">
+            <div className="h-[3px] bg-white/6 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full rounded-full"
+                style={{
+                  width: `${progress}%`,
+                  background: 'linear-gradient(90deg, hsl(280 60% 55%), hsl(320 55% 65%), hsl(45 95% 60%))',
+                  boxShadow: '0 0 10px hsl(280 60% 55% / 0.5)',
+                }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            <div className="flex justify-between mt-1.5 text-[10px] text-white/20">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={phaseIdx}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <div className={`absolute ${p.pos} ${p.size} rounded-full ${p.color} shadow-lg ${p.shadow}`} />
-                </motion.div>
-              ))}
+                  {phase.bar}
+                </motion.span>
+              </AnimatePresence>
+              <span className="font-mono tabular-nums">{Math.round(progress)}%</span>
             </div>
           </div>
-        </div>
 
-        {/* ── Fase atual ── */}
-        <AnimatePresence mode="wait">
-          <motion.div key={currentPhaseIndex}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.45 }}
-            className="mb-5"
-          >
-            <h2 className="text-xl md:text-2xl font-serif font-bold mb-1"
-              style={{ background: 'linear-gradient(135deg, hsl(280 60% 85%), hsl(320 55% 80%), hsl(45 95% 75%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
-            >
-              {currentPhase.text}
-            </h2>
-            <p className="text-sm text-muted-foreground/70 italic">{currentPhase.subtext}</p>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* ── Nome personalizado ── */}
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-          className="text-sm text-muted-foreground mb-6"
-        >
-          {safeName !== 'there'
-            ? <><span className="text-primary/90 font-medium">{name}</span>, your reading is being prepared with special care…</>
-            : 'Your reading is being prepared with special care…'}
-        </motion.p>
-
-        {/* ── Barra de progresso ── */}
-        <div className="w-full mb-3">
-          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/[0.07]">
-            <motion.div
-              className="h-full rounded-full"
-              style={{
-                width: `${progress}%`,
-                background: 'linear-gradient(90deg, hsl(280 60% 55%), hsl(320 55% 65%), hsl(45 95% 60%))',
-                boxShadow: '0 0 12px hsl(280 60% 55% / 0.7)',
-              }}
-              transition={{ duration: 0.4 }}
-            />
+          {/* Phase dots */}
+          <div className="flex justify-center gap-1.5 mb-5">
+            {PHASES.map((_, i) => (
+              <div
+                key={i}
+                className="rounded-full transition-all duration-500"
+                style={{
+                  width: i === phaseIdx ? 18 : 6,
+                  height: 6,
+                  background:
+                    i < phaseIdx
+                      ? 'hsl(280 60% 55%)'
+                      : i === phaseIdx
+                      ? 'hsl(45 95% 60%)'
+                      : 'rgba(255,255,255,0.10)',
+                }}
+              />
+            ))}
           </div>
-          <div className="flex justify-between mt-1.5 text-xs text-muted-foreground/50">
-            <span>Analyzing palm patterns…</span>
-            <span className="font-mono">{Math.round(progress)}%</span>
+
+          {/* Trust line */}
+          <div className="flex items-center justify-center gap-1.5 flex-wrap text-[10px] text-white/22">
+            <Lock className="w-3 h-3 flex-shrink-0 text-white/25" />
+            <span>Private</span>
+            <span className="text-white/12">•</span>
+            <Shield className="w-3 h-3 flex-shrink-0 text-white/25" />
+            <span>Encrypted</span>
+            <span className="text-white/12">•</span>
+            <span>Photo deleted after analysis</span>
           </div>
         </div>
-
-        {/* ── Dots das fases ── */}
-        <div className="flex justify-center gap-1 mt-4">
-          {analysisPhases.map((_, i) => (
-            <motion.div key={i}
-              animate={{ scale: i === currentPhaseIndex ? 1.5 : 1, opacity: i <= currentPhaseIndex ? 1 : 0.18 }}
-              className={`rounded-full transition-colors duration-300 ${
-                i < currentPhaseIndex  ? 'w-1.5 h-1.5 bg-primary' :
-                i === currentPhaseIndex ? 'w-1.5 h-1.5 bg-yellow-400' : 'w-1 h-1 bg-white/20'
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* ── Quote ── */}
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.45 }} transition={{ delay: 4 }}
-          className="text-[11px] text-muted-foreground/50 mt-7 italic"
-        >
-          "Your palm lines carry patterns — and patterns can be understood."
-        </motion.p>
       </motion.div>
     </div>
   );

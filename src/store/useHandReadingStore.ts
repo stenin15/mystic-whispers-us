@@ -58,6 +58,12 @@ interface HandReadingState {
   analysisResult: AnalysisResult | null;
   isAnalyzing: boolean;
 
+  // Palm report (visual AI-generated report)
+  sessionKey: string | null;
+  palmPhotoPath: string | null;  // Supabase Storage path
+  previewReportUrl: string | null;
+  fullReportUrl: string | null;
+
   // Audio
   audioUrl: string | null;
   isPlayingAudio: boolean;
@@ -88,6 +94,10 @@ interface HandReadingState {
   setIsAnalyzing: (isAnalyzing: boolean) => void;
   setAudioUrl: (url: string | null) => void;
   setIsPlayingAudio: (isPlaying: boolean) => void;
+  setSessionKey: (key: string) => void;
+  setPalmPhotoPath: (path: string | null) => void;
+  setPreviewReportUrl: (url: string | null) => void;
+  setFullReportUrl: (url: string | null) => void;
   setSelectedPlan: (plan: SelectedPlan | null) => void;
   setHasSeenVsl: (hasSeen: boolean) => void;
   setPaymentCompleted: (completed: boolean, token?: string) => void;
@@ -114,6 +124,10 @@ const initialState = {
   currentQuestionIndex: 0,
   analysisResult: null,
   isAnalyzing: false,
+  sessionKey: null,
+  palmPhotoPath: null,
+  previewReportUrl: null,
+  fullReportUrl: null,
   audioUrl: null,
   isPlayingAudio: false,
   selectedPlan: null,
@@ -134,6 +148,11 @@ export const useHandReadingStore = create<HandReadingState>()(
       ...initialState,
 
       setHasSeenVsl: (hasSeen) => set({ hasSeenVsl: hasSeen }),
+
+      setSessionKey: (key) => set({ sessionKey: key }),
+      setPalmPhotoPath: (path) => set({ palmPhotoPath: path }),
+      setPreviewReportUrl: (url) => set({ previewReportUrl: url }),
+      setFullReportUrl: (url) => set({ fullReportUrl: url }),
 
       setFormData: (data) => set((state) => ({ ...state, ...data })),
 
@@ -238,6 +257,10 @@ export const useHandReadingStore = create<HandReadingState>()(
         mainConcern: state.mainConcern,
         hasHandPhoto: state.hasHandPhoto,
         // handPhotoData excluded: large base64 image, only needed in-session during Analise
+        sessionKey: state.sessionKey,
+        palmPhotoPath: state.palmPhotoPath,
+        previewReportUrl: state.previewReportUrl,
+        fullReportUrl: state.fullReportUrl,
         quizAnswers: state.quizAnswers,
         currentQuestionIndex: state.currentQuestionIndex,
         analysisResult: state.analysisResult,

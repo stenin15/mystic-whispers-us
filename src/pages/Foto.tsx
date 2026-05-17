@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ParticlesBackground, FloatingOrbs } from '@/components/shared/ParticlesBackground';
 import { HandImageUpload } from '@/components/shared/HandImageUpload';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { cn, compressImageForVision } from '@/lib/utils';
@@ -58,9 +57,7 @@ const Foto = () => {
   const firstName = name?.trim().split(' ')[0] || 'there';
 
   return (
-    <div className="min-h-screen relative overflow-hidden py-20 px-4">
-      <ParticlesBackground />
-      <FloatingOrbs />
+    <div className="min-h-screen relative overflow-hidden py-20 px-4" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
 
       <div className="container max-w-xl mx-auto relative">
         <motion.div

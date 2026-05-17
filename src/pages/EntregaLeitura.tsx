@@ -1,12 +1,11 @@
 import { motion } from "framer-motion";
-import { Hand, Sparkles, ArrowRight, Gift, Loader2, BookOpen, Moon, Stars, Wand2, Shield, Crown, Heart, Bolt } from "lucide-react";
+import { Hand, Sparkles, ArrowRight, Gift, Loader2, BookOpen, Moon, Stars, Wand2, Shield, Crown, Heart, Bolt, Mic, Download, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import DeliveryFAQ from "@/components/delivery/DeliveryFAQ";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -16,9 +15,18 @@ import { verifyEntitlement } from "@/lib/entitlement";
 
 const EntregaLeitura = () => {
   const navigate = useNavigate();
-  const { name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, canAccessDelivery, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
+  const {
+    name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult,
+    canAccessDelivery, setPendingPurchase, setSelectedPlan,
+    sessionKey, palmPhotoPath, fullReportUrl, setFullReportUrl,
+  } = useHandReadingStore();
   const [reading, setReading] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Full visual report state
+  const [localFullUrl, setLocalFullUrl] = useState<string | null>(fullReportUrl || null);
+  const [isGeneratingFull, setIsGeneratingFull] = useState(false);
+  const fullReportStartedRef = useRef(false);
   const [issue, setIssue] = useState<string | null>(null);
 
   useEffect(() => {
@@ -81,6 +89,52 @@ const EntregaLeitura = () => {
     };
   }, [name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, navigate]);
 
+  // Generate full visual report
+  useEffect(() => {
+    if (localFullUrl) return;
+    if (fullReportUrl) { setLocalFullUrl(fullReportUrl); return; }
+    if (!sessionKey || !palmPhotoPath) return;
+    if (fullReportStartedRef.current) return;
+    fullReportStartedRef.current = true;
+
+    const stripeSessionId = (() => {
+      try {
+        const p = new URLSearchParams(window.location.search);
+        return p.get("session_id") || "";
+      } catch { return ""; }
+    })();
+
+    if (!stripeSessionId) return;
+
+    const generate = async (attempt = 0) => {
+      if (attempt >= 20) { setIsGeneratingFull(false); return; }
+      try {
+        const res = await supabase.functions.invoke("generate-palm-report-full", {
+          body: {
+            session_key: sessionKey,
+            stripe_session_id: stripeSessionId,
+            email: email || undefined,
+            palm_photo_path: palmPhotoPath,
+          },
+        });
+        const url = (res.data as { full_url?: string } | null)?.full_url;
+        if (url) {
+          setLocalFullUrl(url);
+          setFullReportUrl(url);
+          setIsGeneratingFull(false);
+          return;
+        }
+        const status = (res.data as { status?: string } | null)?.status;
+        if (status === "pending") { setTimeout(() => generate(attempt + 1), 6000); return; }
+        setIsGeneratingFull(false);
+      } catch { setIsGeneratingFull(false); }
+    };
+
+    setIsGeneratingFull(true);
+    generate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionKey, palmPhotoPath]);
+
   const highlights = [
     { icon: Crown, title: "Deep energy insight", desc: "A clear map of what's active for you now" },
     { icon: Heart, title: "Your strengths", desc: "Gifts you can lean on and develop" },
@@ -102,7 +156,6 @@ const EntregaLeitura = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <ParticlesBackground />
 
       {/* Floating orbs */}
       <div className="fixed inset-0 pointer-events-none">
@@ -112,6 +165,57 @@ const EntregaLeitura = () => {
       </div>
 
       <main className="relative z-10 container mx-auto px-4 py-12 max-w-3xl">
+        {/* ── Full Visual Report ── */}
+        {(localFullUrl || isGeneratingFull) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="text-center mb-4">
+              <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-medium">
+                <Sparkles className="w-4 h-4" />
+                Your Full AI Palm Reading Guide
+              </div>
+            </div>
+
+            {isGeneratingFull && !localFullUrl && (
+              <div className="glass rounded-2xl p-10 text-center">
+                <Loader2 className="w-8 h-8 text-mystic-gold animate-spin mx-auto mb-4" />
+                <p className="text-foreground font-serif text-lg mb-1">Generating your complete report…</p>
+                <p className="text-muted-foreground text-sm">This takes about 45 seconds — your full reading is being created with care.</p>
+              </div>
+            )}
+
+            {localFullUrl && (
+              <div className="glass rounded-2xl overflow-hidden">
+                <img
+                  src={localFullUrl}
+                  alt="Your Full AI Palm Reading Guide"
+                  className="w-full block"
+                  loading="eager"
+                />
+                <div className="p-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <a
+                    href={localFullUrl}
+                    download="my-palm-reading-guide.png"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:scale-[1.02]"
+                    style={{ background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))', color: '#08080f' }}
+                  >
+                    <Download className="w-4 h-4" />
+                    Download My Guide
+                  </a>
+                </div>
+                <p className="text-center text-xs text-muted-foreground pb-5">
+                  Private · Encrypted · Photo deleted after analysis
+                </p>
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -223,10 +327,10 @@ const EntregaLeitura = () => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-serif font-bold text-foreground">
-                      Your reading (basic)
+                      Your Personal Reading
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Text-first, personalized, and meant to feel human -- not robotic.
+                      Personalized, and meant to feel human — not robotic.
                     </p>
                   </div>
                 </div>
@@ -270,10 +374,10 @@ const EntregaLeitura = () => {
                 {/* Loop opener */}
                 <div className="mt-10 p-6 rounded-2xl bg-card/30 border border-border/30 text-center">
                   <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
-                    What this covers -- and what it doesn't (yet)
+                    What this covers — and what it doesn't (yet)
                   </h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    This reading highlights what is active -- but not yet how to work with it.
+                    This reading highlights what is active — but not yet how to work with it.
                     That's where deeper guidance becomes important.
                   </p>
                 </div>
@@ -312,28 +416,41 @@ const EntregaLeitura = () => {
         >
           <div className="absolute top-0 right-0 w-40 h-40 bg-mystic-gold/20 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-mystic-purple/20 rounded-full blur-3xl" />
-          
+
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-mystic-gold mb-4">
-              <Gift className="w-6 h-6" />
+              <Mic className="w-6 h-6" />
               <span className="text-sm font-semibold uppercase tracking-wide">Next step</span>
             </div>
 
-            <h3 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-4">
-              A deeper look into the patterns shaping your decisions
+            <h3 className="text-xl md:text-2xl font-serif font-bold text-foreground mb-3">
+              Talk to Aurora — she's already studied your palm.
             </h3>
-            
-            <p className="text-muted-foreground mb-6 text-base md:text-lg leading-relaxed">
-              Upgrade to the complete reading to go deeper into your recurring patterns, strengths, and the blocks that show up when you try to move forward.
+
+            <p className="text-muted-foreground mb-5 text-base md:text-lg leading-relaxed">
+              The complete plan unlocks a private live session: Aurora speaks to you directly, using your reading as the foundation. Voice-guided, personalized, and ready now.
             </p>
+
+            <ul className="space-y-2 mb-6">
+              {[
+                "Private voice conversation with Aurora",
+                "Deeper analysis of your recurring patterns",
+                "Practical direction for your next step",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-2 text-sm text-foreground/80">
+                  <Sparkles className="w-4 h-4 text-mystic-gold flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
 
             <Button
               onClick={handleUpgradeToComplete}
               size="lg"
               className="w-full bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-lg py-7 rounded-xl shadow-lg shadow-mystic-gold/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-mystic-gold/40"
             >
-              Unlock the complete reading ({PRICE_MAP.complete.display})
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <Mic className="w-5 h-5 mr-2" />
+              Unlock complete reading + live session ({PRICE_MAP.complete.display})
             </Button>
 
             <p className="text-center text-sm text-muted-foreground mt-4">

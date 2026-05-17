@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
 import { Footer } from "@/components/layout/Footer";
 
 const NotFound = () => {
@@ -14,10 +13,7 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <ParticlesBackground />
-      <FloatingOrbs />
-      
+    <div className="min-h-screen relative overflow-hidden" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
       <div className="flex min-h-screen items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

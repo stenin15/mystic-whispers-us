@@ -611,6 +611,24 @@ html, body {
   max-width: 100vw;
 }
 
+/* ── Hero image fade-in — CSS-only, no JS dependency ── */
+@keyframes heroFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.hero-fade-in {
+  animation: heroFadeIn 0.8s ease-out forwards;
+}
+
+/* ── Scroll cue bounce ── */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(5px); }
+}
+.scroll-bounce {
+  animation: scrollBounce 2.2s ease-in-out infinite;
+}
+
 /* ── Hero full-background — responsivo ──────────────────────────────────── */
 
 /* Base mobile-first (< 480px) */

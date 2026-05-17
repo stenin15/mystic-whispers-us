@@ -3,12 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ParticlesBackground, FloatingOrbs } from "@/components/shared/ParticlesBackground";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Footer } from "@/components/layout/Footer";
 import { getEntitlement } from "@/lib/entitlement";
 import { PRICE_MAP } from "@/lib/pricing";
-import { getAdIds, track } from "@/lib/tracking";
+import { track } from "@/lib/tracking";
 import { getAttributionParams, getStoredAngle, getStoredFocus } from "@/lib/marketing";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -135,27 +134,6 @@ const Sucesso = () => {
               // ignore (do not block UX)
             }
 
-            // Server-side Events API (best-effort). Does NOT affect access.
-            try {
-              const { fbp, fbc, ttclid } = getAdIds();
-              await supabase.functions.invoke("track-event", {
-                body: {
-                  event_name: "Purchase",
-                  event_id,
-                  session_id: sessionId,
-                  product_code: primary,
-                  value: PRICE_MAP[primary].amountUsd,
-                  currency: "USD",
-                  page_url: window.location.href,
-                  user: { email: email || undefined },
-                  utm: getAttributionParams(),
-                  meta: { fbp, fbc },
-                  tiktok: { ttclid },
-                },
-              });
-            } catch {
-              // ignore (do not block UX)
-            }
           } else {
             console.log("[SUCCESS_PAGE] purchase already tracked — skipping", {
               sessionId,
@@ -167,7 +145,7 @@ const Sucesso = () => {
         }
 
         const elapsed = Date.now() - startedAt;
-        if (elapsed >= 30_000) {
+        if (elapsed >= 60_000) {
           console.warn("[SUCCESS_PAGE] entitlement timeout", {
             sessionId,
             attempts: attempt,
@@ -215,7 +193,7 @@ const Sucesso = () => {
     setGuideError(null);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
-        body: { product_code: "guide", email: email || undefined },
+        body: { productCode: "guide", email: email || undefined },
       });
       if (error) throw error;
       if (data?.url) {
@@ -230,9 +208,7 @@ const Sucesso = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <ParticlesBackground />
-      <FloatingOrbs />
+    <div className="min-h-screen relative overflow-hidden" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
 
       <section className="pt-24 pb-12 px-4">
         <div className="container max-w-2xl mx-auto text-center">
@@ -328,8 +304,30 @@ const Sucesso = () => {
               </motion.div>
             )}
 
-            {/* Aurora Session CTA — urgency block */}
-            {verified && (
+            {/* Basic buyer message */}
+            {verified && !purchases.complete && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-8 rounded-3xl p-6 text-center"
+                style={{
+                  background: "rgba(18,18,22,0.92)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  boxShadow: "0 10px 40px rgba(0,0,0,0.35)",
+                }}
+              >
+                <p className="text-xs font-semibold uppercase tracking-widest text-amber-400/70 mb-2">
+                  Your reading is ready
+                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Aurora analyzed the patterns in your palm. Open your personalized reading when you're ready.
+                </p>
+              </motion.div>
+            )}
+
+            {/* Aurora Session CTA — complete buyers only */}
+            {verified && purchases.complete && (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { BookOpen, Sparkles, Star, Moon, Sun, Shield, Gift, Crown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ParticlesBackground } from "@/components/shared/ParticlesBackground";
 import DownloadCard from "@/components/delivery/DownloadCard";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
@@ -86,7 +85,6 @@ const EntregaGuia = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <ParticlesBackground />
 
       {/* Floating orbs */}
       <div className="fixed inset-0 pointer-events-none">
