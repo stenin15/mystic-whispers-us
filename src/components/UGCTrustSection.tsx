@@ -137,13 +137,14 @@ const UGCModal = ({ item, onClose }: { item: UGCTestimonial; onClose: () => void
         {item.videoSrc ? (
           <video
             ref={videoRef}
-            src={item.videoSrc}
+            src={item.videoSrc ? encodeURI(item.videoSrc) : undefined}
             poster={item.posterSrc ?? undefined}
             playsInline
             loop
             controls
             className="absolute inset-0 w-full h-full object-cover bg-black"
           />
+
         ) : (
           <div
             className="absolute inset-0 flex flex-col items-center justify-center p-8"

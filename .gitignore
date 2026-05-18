@@ -30,7 +30,6 @@ dist-ssr
 .vercel
 
 # Large media files
-public/ugc/Video Project 1.mp4
 vsl-production/**/*.mp4
 vsl-production/**/*.mov
 vsl-production/**/*.mp3
