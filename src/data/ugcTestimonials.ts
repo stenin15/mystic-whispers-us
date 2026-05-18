@@ -42,7 +42,7 @@ export const ugcTestimonials: UGCTestimonial[] = [
     duration: "0:09",
     tag: "Verified reaction",
     headline: "Finally something that doesn't feel generic.",
-    videoSrc: "/ugc/Video Project 1.mp4",
+    videoSrc: null,
     posterSrc: "/ugc/ugc-chloe-poster.svg",
     transcript:
       "Every other app I've tried gives you the same reading with your name swapped in. This one used my actual photo and the observations were totally specific. Different experience.",
