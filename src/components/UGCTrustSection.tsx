@@ -7,7 +7,12 @@ import { track } from '@/lib/tracking';
 // ── Carousel card (static poster + play icon — no autoplay) ──────────────────
 
 const UGCCard = ({ item, onClick }: { item: UGCTestimonial; onClick: () => void }) => {
-  const [imgError, setImgError] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Força exibição do primeiro frame após carregar metadata
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) videoRef.current.currentTime = 0.01;
+  };
 
   return (
     <div
@@ -38,13 +43,16 @@ const UGCCard = ({ item, onClick }: { item: UGCTestimonial; onClick: () => void 
         {item.duration}
       </div>
 
-      {/* Poster or gradient fallback */}
-      {item.posterSrc && !imgError ? (
-        <img
-          src={item.posterSrc}
-          alt={item.name}
+      {/* Preview: vídeo parado no primeiro frame ou fallback gradiente */}
+      {item.videoSrc ? (
+        <video
+          ref={videoRef}
+          src={encodeURI(item.videoSrc)}
           className="absolute inset-0 w-full h-full object-cover"
-          onError={() => setImgError(true)}
+          preload="metadata"
+          playsInline
+          muted
+          onLoadedMetadata={handleLoadedMetadata}
         />
       ) : (
         <div

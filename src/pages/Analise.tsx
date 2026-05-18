@@ -257,86 +257,186 @@ const Analise = () => {
   const phase = PHASES[phaseIdx];
 
   return (
-    <div
-      className="min-h-screen relative flex items-center justify-center px-4 py-10"
-    >
-      {/* ── Background image ── */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'url(/analysis/resultado-bg-mobile.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-        }}
-      >
-        {/* Dark overlay */}
+    <div className="min-h-screen relative overflow-hidden flex flex-col">
+
+      {/* ── Full-screen background ── */}
+      <div className="absolute inset-0">
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(180deg, rgba(4,4,14,0.72) 0%, rgba(4,4,14,0.88) 60%, rgba(4,4,14,0.96) 100%)' }}
+          style={{
+            backgroundImage: 'url(/analysis/resultado-bg-mobile.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        {/* Aurora video — ambient overlay, não enquadrado */}
+        {!prefersReducedMotion && !videoError && (
+          <video
+            autoPlay muted loop playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-25"
+            style={{ mixBlendMode: 'screen' }}
+            onError={() => setVideoError(true)}
+          >
+            <source src="/analysis/aurora-loop-mobile.mp4" type="video/mp4" />
+          </video>
+        )}
+        {/* Vignette radial — abre no centro, escurece nas bordas */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'radial-gradient(ellipse 75% 65% at 50% 42%, rgba(4,4,14,0.25) 0%, rgba(4,4,14,0.72) 55%, rgba(4,4,14,0.96) 100%)',
+          }}
         />
       </div>
 
       <AudioPromptModal isOpen={showAudioPrompt} onConfirm={handleAudioConfirm} userName={name} />
 
-      {/* ── Glass card ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.65, ease: [0.23, 1, 0.32, 1] }}
-        className="relative w-full max-w-sm md:max-w-md overflow-hidden rounded-3xl"
-        style={{
-          background: 'rgba(10,7,20,0.82)',
-          border: '1px solid rgba(168,85,247,0.2)',
-          boxShadow: '0 0 0 1px rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.7), 0 0 60px rgba(120,40,200,0.12)',
-          backdropFilter: 'blur(24px)',
-        }}
-      >
-        {/* ── Holographic video top ── */}
-        <div
-          className="relative w-full overflow-hidden"
-          style={{
-            aspectRatio: '9/16',
-            maxHeight: 340,
-            background: 'linear-gradient(180deg, #1a0830 0%, #0a0520 100%)',
-          }}
-        >
-          {!prefersReducedMotion && !videoError ? (
-            <video
-              className="absolute inset-0 w-full h-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              onError={() => setVideoError(true)}
-            >
-              <source src="/analysis/aurora-loop-mobile.mp4" type="video/mp4" />
-              <source src="/analysis/aurora-loop-mobile.webm" type="video/webm" />
-            </video>
-          ) : null}
+      {/* ── Conteúdo principal ── */}
+      <div className="relative z-10 flex flex-col items-center justify-between flex-1 px-6 py-10 gap-6">
 
-          {/* Gradient fade bottom */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-            style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(10,7,20,0.95) 100%)' }}
+        {/* Topo */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-[10px] font-bold tracking-[0.3em] uppercase text-purple-300/40"
+        >
+          ✦ Madam Aurora
+        </motion.p>
+
+        {/* ── Scanner da palma ── */}
+        <div className="relative flex items-center justify-center">
+
+          {/* Anéis pulsantes externos */}
+          <motion.div
+            className="absolute rounded-2xl border border-purple-500/20"
+            style={{ width: 284, height: 304 }}
+            animate={{ scale: [1, 1.05, 1], opacity: [0.25, 0.55, 0.25] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           />
+          <motion.div
+            className="absolute rounded-2xl border border-purple-400/10"
+            style={{ width: 316, height: 336 }}
+            animate={{ scale: [1, 1.07, 1], opacity: [0.1, 0.28, 0.1] }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
+          />
+
+          {/* Frame do scanner */}
+          <div
+            className="relative overflow-hidden rounded-2xl"
+            style={{
+              width: 256,
+              height: 276,
+              boxShadow: '0 0 48px rgba(168,85,247,0.28), 0 0 100px rgba(168,85,247,0.08)',
+            }}
+          >
+            {/* Foto da palma do usuário ou fallback gradiente */}
+            {handPhotoData ? (
+              <img
+                src={handPhotoData}
+                alt="Your palm"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ filter: 'brightness(0.8) saturate(1.3)' }}
+              />
+            ) : (
+              <div
+                className="absolute inset-0"
+                style={{ background: 'linear-gradient(160deg, rgba(45,20,70,0.92) 0%, rgba(10,8,22,0.97) 100%)' }}
+              />
+            )}
+
+            {/* Tinte roxo sobre a foto */}
+            <div className="absolute inset-0" style={{ background: 'rgba(90,20,160,0.15)', mixBlendMode: 'color' }} />
+
+            {/* Grid de linhas de scan (estático) */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage: 'repeating-linear-gradient(0deg, rgba(168,85,247,0.12) 0px, transparent 1px, transparent 10px)',
+                opacity: 0.6,
+              }}
+            />
+
+            {/* Linha de scan animada */}
+            <motion.div
+              className="absolute left-0 right-0 pointer-events-none"
+              style={{
+                height: 56,
+                background: 'linear-gradient(to bottom, transparent 0%, rgba(168,85,247,0.28) 35%, rgba(200,120,255,0.55) 50%, rgba(168,85,247,0.28) 65%, transparent 100%)',
+              }}
+              animate={{ top: ['-18%', '118%'] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'linear' }}
+            />
+
+            {/* Pontos de detecção — aparecem com cada fase */}
+            {phaseIdx >= 1 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: [0, 1, 0.7], scale: 1 }}
+                transition={{ duration: 0.4 }}
+                className="absolute w-2 h-2 rounded-full"
+                style={{ top: '33%', left: '38%', background: '#a855f7', boxShadow: '0 0 10px #a855f7, 0 0 20px rgba(168,85,247,0.4)' }}
+              />
+            )}
+            {phaseIdx >= 2 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: [0, 1, 0.7], scale: 1 }}
+                transition={{ duration: 0.4 }}
+                className="absolute w-1.5 h-1.5 rounded-full"
+                style={{ top: '54%', left: '62%', background: '#fbbf24', boxShadow: '0 0 8px #fbbf24' }}
+              />
+            )}
+            {phaseIdx >= 3 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: [0, 1, 0.7], scale: 1 }}
+                transition={{ duration: 0.4 }}
+                className="absolute w-1.5 h-1.5 rounded-full"
+                style={{ top: '44%', left: '24%', background: '#a855f7', boxShadow: '0 0 8px #a855f7' }}
+              />
+            )}
+            {phaseIdx >= 4 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: [0, 1, 0.7], scale: 1 }}
+                transition={{ duration: 0.4 }}
+                className="absolute w-1.5 h-1.5 rounded-full"
+                style={{ top: '68%', left: '50%', background: '#fbbf24', boxShadow: '0 0 8px #fbbf24' }}
+              />
+            )}
+
+            {/* Corner brackets */}
+            <div className="absolute top-2.5 left-2.5 w-5 h-5 border-l-2 border-t-2 border-purple-400/90 rounded-tl-sm" />
+            <div className="absolute top-2.5 right-2.5 w-5 h-5 border-r-2 border-t-2 border-purple-400/90 rounded-tr-sm" />
+            <div className="absolute bottom-2.5 left-2.5 w-5 h-5 border-l-2 border-b-2 border-purple-400/90 rounded-bl-sm" />
+            <div className="absolute bottom-2.5 right-2.5 w-5 h-5 border-r-2 border-b-2 border-purple-400/90 rounded-br-sm" />
+
+            {/* Badge LIVE */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(168,85,247,0.35)' }}>
+              <motion.div
+                className="w-1.5 h-1.5 rounded-full bg-purple-400"
+                animate={{ opacity: [1, 0.2, 1] }}
+                transition={{ duration: 1.1, repeat: Infinity }}
+              />
+              <span className="text-[9px] font-bold tracking-widest text-purple-300/80 uppercase">Live</span>
+            </div>
+          </div>
         </div>
 
-        {/* ── Text content ── */}
-        <div className="px-6 pb-8 pt-2">
-          {/* Dynamic phase text */}
+        {/* Texto da fase */}
+        <div className="text-center max-w-xs w-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={phaseIdx}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
+              exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.38 }}
-              className="mb-4 text-center"
             >
               <h2
-                className="text-lg md:text-xl font-serif font-bold mb-1"
+                className="text-xl font-serif font-bold mb-1"
                 style={{
                   background: 'linear-gradient(135deg, hsl(280 60% 85%), hsl(320 55% 80%), hsl(45 95% 75%))',
                   WebkitBackgroundClip: 'text',
@@ -350,50 +450,40 @@ const Analise = () => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Personalized name line */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
-            className="text-sm text-white/45 mb-5 text-center"
-          >
-            {safeName !== 'there' ? (
-              <><span className="text-purple-300/80 font-medium">{name}</span>, your reading is being prepared with care…</>
-            ) : (
-              'Your reading is being prepared with care…'
-            )}
-          </motion.p>
+          {safeName !== 'there' && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+              className="text-sm text-white/40 mt-2"
+            >
+              <span className="text-purple-300/70 font-medium">{name}</span>, your reading is being prepared with care…
+            </motion.p>
+          )}
+        </div>
 
-          {/* Progress bar */}
-          <div className="w-full mb-2">
-            <div className="h-[3px] bg-white/6 rounded-full overflow-hidden">
-              <motion.div
-                className="h-full rounded-full"
-                style={{
-                  width: `${progress}%`,
-                  background: 'linear-gradient(90deg, hsl(280 60% 55%), hsl(320 55% 65%), hsl(45 95% 60%))',
-                  boxShadow: '0 0 10px hsl(280 60% 55% / 0.5)',
-                }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
-            <div className="flex justify-between mt-1.5 text-[10px] text-white/20">
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={phaseIdx}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {phase.bar}
-                </motion.span>
-              </AnimatePresence>
-              <span className="font-mono tabular-nums">{Math.round(progress)}%</span>
-            </div>
+        {/* Progress + dots + trust */}
+        <div className="w-full max-w-xs">
+          <div className="h-[2px] bg-white/6 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              style={{
+                width: `${progress}%`,
+                background: 'linear-gradient(90deg, hsl(280 60% 55%), hsl(320 55% 65%), hsl(45 95% 60%))',
+                boxShadow: '0 0 8px hsl(280 60% 55% / 0.5)',
+              }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
+          <div className="flex justify-between mt-1.5 text-[10px] text-white/20 mb-4">
+            <AnimatePresence mode="wait">
+              <motion.span key={phaseIdx} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+                {phase.bar}
+              </motion.span>
+            </AnimatePresence>
+            <span className="font-mono tabular-nums">{Math.round(progress)}%</span>
           </div>
 
-          {/* Phase dots */}
           <div className="flex justify-center gap-1.5 mb-5">
             {PHASES.map((_, i) => (
               <div
@@ -402,18 +492,12 @@ const Analise = () => {
                 style={{
                   width: i === phaseIdx ? 18 : 6,
                   height: 6,
-                  background:
-                    i < phaseIdx
-                      ? 'hsl(280 60% 55%)'
-                      : i === phaseIdx
-                      ? 'hsl(45 95% 60%)'
-                      : 'rgba(255,255,255,0.10)',
+                  background: i < phaseIdx ? 'hsl(280 60% 55%)' : i === phaseIdx ? 'hsl(45 95% 60%)' : 'rgba(255,255,255,0.10)',
                 }}
               />
             ))}
           </div>
 
-          {/* Trust line */}
           <div className="flex items-center justify-center gap-1.5 flex-wrap text-[10px] text-white/22">
             <Lock className="w-3 h-3 flex-shrink-0 text-white/25" />
             <span>Private</span>
@@ -424,7 +508,7 @@ const Analise = () => {
             <span>Photo deleted after analysis</span>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
