@@ -7,7 +7,6 @@ const ALLOWED_ORIGINS = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
-  "http://localhost:5174",
   "http://localhost:8080",
   "http://localhost:8910",
 ];
@@ -29,6 +28,84 @@ const getCorsHeaders = (origin: string | null) => {
   };
 };
 
+// ---------------------------------------------------------------------------
+// Cache helpers
+// ---------------------------------------------------------------------------
+async function hashText(text: string, voiceId: string): Promise<string> {
+  const buf = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(`${voiceId}:${text}`),
+  );
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+type Sb = NonNullable<ReturnType<typeof createServiceClient>>;
+
+async function lookupCache(sb: Sb, hash: string, voiceId: string): Promise<string | null> {
+  try {
+    const { data } = await sb
+      .from("aurora_tts_cache")
+      .select("audio_b64")
+      .eq("text_hash", hash)
+      .eq("voice_id", voiceId)
+      .single();
+    if (!data?.audio_b64) return null;
+    // Update usage timestamp (best-effort, non-blocking)
+    sb.from("aurora_tts_cache")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("text_hash", hash)
+      .eq("voice_id", voiceId)
+      .then(() => {})
+      .catch(() => {});
+    return data.audio_b64 as string;
+  } catch {
+    return null;
+  }
+}
+
+async function saveCache(
+  sb: Sb,
+  hash: string,
+  voiceId: string,
+  audioB64: string,
+  charCount: number,
+): Promise<void> {
+  try {
+    await sb.from("aurora_tts_cache").upsert(
+      {
+        text_hash: hash,
+        voice_id: voiceId,
+        audio_b64: audioB64,
+        char_count: charCount,
+        last_used_at: new Date().toISOString(),
+        use_count: 1,
+      },
+      { onConflict: "text_hash,voice_id" },
+    );
+  } catch (e) {
+    console.warn("TTS cache save failed:", e);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Audio buffer → base64
+// ---------------------------------------------------------------------------
+function bufferToBase64(audioBuffer: ArrayBuffer): string {
+  const uint8Array = new Uint8Array(audioBuffer);
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < uint8Array.length; i += chunkSize) {
+    const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
+    binary += String.fromCharCode.apply(null, Array.from(chunk));
+  }
+  return btoa(binary);
+}
+
+// ---------------------------------------------------------------------------
+// Handler
+// ---------------------------------------------------------------------------
 serve(async (req) => {
   const request_id = getRequestId();
   const origin = req.headers.get("origin");
@@ -74,14 +151,27 @@ serve(async (req) => {
 
     const truncated = text.slice(0, 4096);
 
-    // Try ElevenLabs first, fall back to OpenAI TTS
     const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
     const ELEVENLABS_VOICE_ID = Deno.env.get("ELEVENLABS_VOICE_ID") ?? "7NsaqHdLuKNFvEfjpUno";
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
+    // Determine voice_id used for caching (ElevenLabs id or "openai-shimmer" fallback)
+    const cacheVoiceId = ELEVENLABS_API_KEY ? ELEVENLABS_VOICE_ID : "openai-shimmer";
+    const hash = await hashText(truncated, cacheVoiceId);
+
+    // --- Check cache ---
+    const cached = await lookupCache(supabase, hash, cacheVoiceId);
+    if (cached) {
+      console.log("text-to-speech cache hit", { request_id, chars: truncated.length });
+      return new Response(JSON.stringify({ audioContent: cached }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // --- Generate audio ---
     let audioBuffer: ArrayBuffer | null = null;
 
-    // Attempt ElevenLabs
     if (ELEVENLABS_API_KEY) {
       try {
         const elRes = await fetch(
@@ -110,7 +200,6 @@ serve(async (req) => {
       }
     }
 
-    // Fall back to OpenAI TTS
     if (!audioBuffer && OPENAI_API_KEY) {
       const oaiRes = await fetch("https://api.openai.com/v1/audio/speech", {
         method: "POST",
@@ -141,14 +230,12 @@ serve(async (req) => {
       });
     }
 
-    const uint8Array = new Uint8Array(audioBuffer);
-    let binary = "";
-    const chunkSize = 0x8000;
-    for (let i = 0; i < uint8Array.length; i += chunkSize) {
-      const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
-      binary += String.fromCharCode.apply(null, Array.from(chunk));
-    }
-    const audioContent = btoa(binary);
+    const audioContent = bufferToBase64(audioBuffer);
+
+    // --- Save to cache (non-blocking) ---
+    saveCache(supabase, hash, cacheVoiceId, audioContent, truncated.length);
+
+    console.log("text-to-speech generated", { request_id, chars: truncated.length, provider: ELEVENLABS_API_KEY ? "elevenlabs" : "openai" });
 
     return new Response(JSON.stringify({ audioContent }), {
       status: 200,

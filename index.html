@@ -4,10 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     
+    <!-- Preload hero images — LCP optimization, scoped to viewport size -->
+    <link rel="preload" as="image" href="/hero-love-timing-desktop.png" media="(min-width: 768px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/hero-love-timing-mobile.png" media="(max-width: 767px)" fetchpriority="high" />
+
     <!-- SEO Meta Tags -->
-    <title>Madam Aurora | Intuitive Palm Reading</title>
-    <meta name="description" content="A calm, personalized palm reading designed to bring clarity and self-reflection. Upload your palm photo, answer a few questions, and receive grounded guidance — for entertainment and self-reflection purposes." />
-    <meta name="keywords" content="palm reading, intuitive guidance, self reflection, clarity, personal reading, palm photo, spiritual reading" />
+    <title>Madam Aurora | Love Timing & Relationship Pattern Reading</title>
+    <meta name="description" content="Upload a photo of your palm and discover the relationship patterns written in your lines. Personalized love timing analysis — delivered in under 60 seconds." />
+    <meta name="keywords" content="love timing, relationship patterns, palm reading, emotional insight, love analysis, self-discovery, palm photo reading" />
     <meta name="author" content="Madam Aurora" />
     <meta name="robots" content="index, follow" />
     <meta name="language" content="English" />
@@ -17,17 +21,19 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://madam-aurora.co" />
-    <meta property="og:title" content="Madam Aurora | Intuitive Palm Reading" />
-    <meta property="og:description" content="Upload your palm photo, answer a few quick questions, and receive grounded guidance — for entertainment and self-reflection purposes." />
+    <meta property="og:title" content="Why Does The Right Person Always Arrive At The Wrong Time?" />
+    <meta property="og:description" content="Personalized relationship pattern analysis powered by AI." />
     <meta property="og:image" content="https://madam-aurora.co/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="Madam Aurora" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://madam-aurora.co" />
-    <meta name="twitter:title" content="Madam Aurora | Intuitive Palm Reading" />
-    <meta name="twitter:description" content="A calm, personalized palm reading for clarity and self-reflection." />
+    <meta name="twitter:title" content="Why Does The Right Person Always Arrive At The Wrong Time?" />
+    <meta name="twitter:description" content="Personalized relationship pattern analysis powered by AI." />
     <meta name="twitter:image" content="https://madam-aurora.co/og-image.jpg" />
 
     <!-- Preconnect for performance -->
@@ -48,8 +54,15 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="mobile-web-app-capable" content="yes" />
 
-    <!-- UTMify — captura UTMs automaticamente no browser (sem API key) -->
-    <script src="https://cdn.utmify.com.br/scripts/utms/latest.js" async defer></script>
+    <!-- UTMify — deve ser o primeiro script no head -->
+    <script>
+      (function(w,d,s,u){
+        w.__utmify_queue=w.__utmify_queue||[];
+        w.utmify=function(){w.__utmify_queue.push(arguments)};
+        var f=d.getElementsByTagName(s)[0],j=d.createElement(s);
+        j.async=!0;j.src=u;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','https://cdn.utmify.com.br/scripts/utms/latest.js');
+    </script>
 
     <!-- Google Tag Manager (configured via VITE_GTM_ID) -->
     <script>

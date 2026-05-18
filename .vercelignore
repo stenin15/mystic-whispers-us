@@ -1,4 +1,9 @@
 vsl-production/
 docs/
 /supabase/
-public/downloads/0428.mp4
+public/downloads/
+public/versao nova/
+.claude/
+*.mp4
+*.mov
+*.pdf

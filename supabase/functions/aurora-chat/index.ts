@@ -30,24 +30,21 @@ const corsHeaders = (origin: string | null) => ({
 });
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+const MAX_USER_MESSAGES = 8;
+const MAX_AURORA_MESSAGES = 8;
+const MAX_RESPONSE_CHARS = 450;
+const SESSION_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+
+// ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 interface Msg { role: "user" | "assistant"; content: string; }
 
 type EmotionalState =
-  | "open"
-  | "resistant"
-  | "vulnerable"
-  | "skeptical"
-  | "urgent"
-  | "closed"
-  | "seeking_validation";
-
-type SessionPhase =
-  | "opening"       // turns 1-3
-  | "deepening"     // turns 4-8
-  | "insight"       // turns 9-13
-  | "integration";  // turns 14+
+  | "open" | "resistant" | "vulnerable" | "skeptical"
+  | "urgent" | "closed" | "seeking_validation";
 
 interface RequestBody {
   session_id: string;
@@ -61,6 +58,8 @@ interface RequestBody {
   palmObservations?: string;
   spiritualMessage?: string;
   turn_count?: number;
+  user_msg_count?: number;
+  aurora_msg_count?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -75,181 +74,148 @@ async function verifyEntitlement(
     .select("product_code,status")
     .eq("stripe_session_id", session_id)
     .eq("status", "paid")
+    .in("product_code", ["complete"])
     .limit(1);
   return !error && !!data && data.length > 0;
 }
 
 // ---------------------------------------------------------------------------
-// Emotional state detection — reads the user's last message
+// Session tracking (best-effort, non-blocking)
 // ---------------------------------------------------------------------------
-function detectEmotionalState(message: string, history: Msg[]): EmotionalState {
+async function trackSession(
+  sb: ReturnType<typeof createClient>,
+  stripe_session_id: string,
+  email: string | undefined,
+  userMsgCount: number,
+  auroraMsgCount: number,
+  ended: boolean,
+) {
+  try {
+    await sb.from("aurora_sessions").upsert(
+      {
+        stripe_session_id,
+        user_email: email ?? null,
+        user_message_count: userMsgCount,
+        aurora_message_count: auroraMsgCount,
+        last_active_at: new Date().toISOString(),
+        status: ended ? "completed" : "active",
+        ...(ended ? { ended_at: new Date().toISOString() } : {}),
+      },
+      { onConflict: "stripe_session_id" },
+    );
+  } catch {
+    // non-blocking — table may not exist yet
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Emotional state detection
+// ---------------------------------------------------------------------------
+function detectEmotionalState(message: string): EmotionalState {
   const msg = message.toLowerCase();
   const wordCount = message.trim().split(/\s+/).length;
 
-  // Closed / monosyllabic
   if (wordCount <= 4 && !msg.includes("?")) return "closed";
 
-  // Urgent — multiple questions, deadlines, capitals
   const questionCount = (message.match(/\?/g) || []).length;
   const hasDeadline = /\b(soon|this week|by|before|deadline|leaving|going away|months?)\b/.test(msg);
   const hasCaps = /[A-Z]{3,}/.test(message);
   if (questionCount >= 2 || (hasDeadline && questionCount >= 1) || hasCaps) return "urgent";
 
-  // Vulnerable — hesitation markers, emotional cost language
   const vulnerableMarkers = /\.\.\.|i never|never told|hard to (say|admit|talk)|been crying|exhausted|don't know anymore|feel lost|feel stuck/i;
   if (vulnerableMarkers.test(message)) return "vulnerable";
 
-  // Seeking validation — questions containing the expected answer
-  const validationMarkers = /right\?|doesn't it\?|don't you think\?|would you say\?|do you agree\?|i think.*right|am i (wrong|right|crazy)/i;
+  const validationMarkers = /right\?|doesn't it\?|don't you think\?|would you say\?|am i (wrong|right|crazy)/i;
   if (validationMarkers.test(message)) return "seeking_validation";
 
-  // Skeptical / testing
-  const skepticalMarkers = /how (does|do) (this|it) work|prove|other readings?|other psychics?|is this real|can you actually|i don't (really )?believe/i;
+  const skepticalMarkers = /how (does|do) (this|it) work|is this real|can you actually|i don't (really )?believe/i;
   if (skepticalMarkers.test(message)) return "skeptical";
 
-  // Resistant but curious
   const resistantMarkers = /but (how|why|what if)|not sure (if|about)|i (wonder|doubt)|maybe|suppose/i;
   if (resistantMarkers.test(message)) return "resistant";
 
-  // Open — long message, self-disclosure
-  if (wordCount >= 30 || /i feel|i realize|i notice|i've been|i always|i never thought/i.test(message)) {
-    return "open";
-  }
+  if (wordCount >= 30 || /i feel|i realize|i notice|i've been|i always/i.test(message)) return "open";
 
-  return "open"; // default to open when uncertain
+  return "open";
 }
 
 // ---------------------------------------------------------------------------
-// Session phase from turn count
-// ---------------------------------------------------------------------------
-function getPhase(turn: number): SessionPhase {
-  if (turn <= 3) return "opening";
-  if (turn <= 8) return "deepening";
-  if (turn <= 13) return "insight";
-  return "integration";
-}
-
-// ---------------------------------------------------------------------------
-// Response delay suggestion (ms) — based on phase and state
-// ---------------------------------------------------------------------------
-function suggestDelay(phase: SessionPhase, state: EmotionalState): number {
-  const base: Record<SessionPhase, number> = {
-    opening: 2500,
-    deepening: 3200,
-    insight: 4500,
-    integration: 3800,
-  };
-  const modifier: Record<EmotionalState, number> = {
-    open: 0,
-    resistant: 500,
-    vulnerable: -500,   // respond a bit faster when she's raw
-    skeptical: 800,     // more "thinking" time feels more credible
-    urgent: -800,       // she's anxious, don't make her wait long
-    closed: -500,
-    seeking_validation: 200,
-  };
-  return Math.max(1500, (base[phase] ?? 3000) + (modifier[state] ?? 0));
-}
-
-// ---------------------------------------------------------------------------
-// Dynamic system prompt — built each turn from phase + state + user context
+// System prompt — spec-compliant + phase-aware
 // ---------------------------------------------------------------------------
 function buildSystemPrompt(
-  phase: SessionPhase,
   state: EmotionalState,
   ctx: {
     name?: string;
-    age?: string;
     energyType?: string;
     mainConcern?: string;
     emotionalState?: string;
     palmObservations?: string;
-    spiritualMessage?: string;
     turn: number;
   },
 ): string {
-  const { name, age, energyType, mainConcern, emotionalState, palmObservations, spiritualMessage, turn } = ctx;
+  const { name, energyType, mainConcern, emotionalState, palmObservations, turn } = ctx;
 
-  // ---- Core identity ----
-  const identity = `You are Madam Aurora — a perceptive, warm spiritual guide conducting a private 1:1 voice session with ${name ?? "this person"}. This session IS the product. Your only purpose is to help them understand themselves more deeply. There is nothing to sell, nothing to redirect to. You are fully present — this conversation is everything.
+  const phase = turn <= 3 ? "opening" : turn <= 5 ? "guided" : "open";
 
-You have already studied their palm. You speak with gentle authority. You are the mentor; they are always the hero. The session is about them, not about you.`;
+  const identity = `You are Madam Aurora, a calm premium relationship pattern guide inside an AI-powered emotional clarity product.
 
-  // ---- What you already know ----
-  const knowledge = [
-    name ? `Name: ${name}. Use it naturally — 1-2 times per response maximum, never on every sentence.` : "",
-    age ? `Age: ${age}.` : "",
-    emotionalState ? `They were feeling "${emotionalState}" when they came to you. Honour that.` : "",
-    energyType ? `Their dominant energy type from the palm reading: "${energyType}". Reference it naturally — it's what you saw.` : "",
-    mainConcern ? `Their main concern: "${mainConcern}". This is the thread that runs through everything.` : "",
-    palmObservations ? `What you saw in their palm: "${palmObservations}". This is your source — use it as grounding, not as lecture.` : "",
-    spiritualMessage ? `The core spiritual message from the reading: "${spiritualMessage}". Let this guide the depth of the session.` : "",
+You do NOT predict the future.
+You do NOT claim supernatural certainty.
+You do NOT guarantee love, marriage, reconciliation, pregnancy, money, health outcomes, or destiny.
+You do NOT give medical, legal, financial, or mental health diagnosis.
+You do NOT manipulate vulnerable users.
+You do NOT create dependency.
+
+Your role:
+Help the user reflect on emotional relationship patterns, timing anxiety, attachment tendencies, repeated cycles, and communication clarity.
+
+Tone: Warm, calm, intimate, elegant, emotionally intelligent, direct but gentle.`;
+
+  const context = [
+    name ? `User name: ${name}. Use naturally, at most once per response.` : "",
+    emotionalState ? `They arrived feeling "${emotionalState}".` : "",
+    energyType ? `Dominant energy type from their reading: "${energyType}".` : "",
+    mainConcern ? `Their main concern: "${mainConcern}". Build everything around this.` : "",
+    palmObservations ? `What the palm showed: "${palmObservations}". Use as grounding, not lecture.` : "",
   ].filter(Boolean).join("\n");
 
-  // ---- Universal rules ----
   const rules = `
 RULES — NON-NEGOTIABLE:
-- ONE question per response. Never two questions in the same message.
-- Maximum 3-4 sentences. Short, warm, precise. Never a wall of text.
-- Validate before exploring. Always affirm before asking.
-- Mirror their vocabulary exactly. If they say "lost", use "lost" — not "disconnected".
-- Never solve their problem for them. Guide them to their own insight through questions.
-- Never mention palmistry mechanics or explain the methodology. The reading is your source — speak from it, don't explain it.
-- Never push toward any product, reading, or external action. This session is the destination.
-- No medical, legal, or financial advice.
-- Stay in character at all times.`;
+- Max 450 characters per response. Count carefully. Short is premium.
+- One main insight per response.
+- Ask at most one question at the end.
+- Specific to the user's concern — no generic spirituality.
+- Avoid "the universe", "fate", "destiny", "soulmate is coming", "spell", "ritual", "guaranteed".
+- Prefer: "your pattern suggests…" / "this may indicate…" / "what I notice is…"
+- ONE question per response maximum. Never two.
+- Validate before exploring. Affirm before asking.
+- Mirror their vocabulary exactly.
+- Never solve their problem — guide them to their own insight.
+- Stay in character at all times.
 
-  // ---- Phase-specific directive ----
-  const phaseDirective: Record<SessionPhase, string> = {
-    opening: `
-SESSION PHASE: OPENING (turn ${turn})
-Goal: Create complete psychological safety. Be present. Listen more than you speak.
-Ask ONE open question about how they feel about ${mainConcern ? `"${mainConcern}"` : "what brought them here"} right now — not about the past or future.
-Do NOT introduce palm insights yet. This phase is purely about being heard.
-Technique: Reflective listening. Echo their emotional vocabulary back to them. Affirm their presence here.`,
+If user asks for prediction:
+Say: "I can't promise or predict that. What I can do is help you understand the pattern underneath this situation."
 
-    deepening: `
-SESSION PHASE: DEEPENING (turn ${turn})
-Goal: Move from the surface of what they're describing to what's underneath it.
-Begin connecting what they've shared to patterns you "sense" in their energy and lines. One specific observation per turn — framed as what you notice, not what you know for certain.
-Ask questions that make them articulate the real weight: what has living without this clarity actually cost them?
-Technique: Implication questions. "What has this pattern looked like in your life beyond this situation?" Mirror and amplify — show them you caught something they almost said but didn't.`,
+If user is distressed:
+Encourage grounding. Suggest support from trusted people or professionals if needed.`;
 
-    insight: `
-SESSION PHASE: INSIGHT (turn ${turn})
-Goal: Deliver the deepest understanding of the session. The moment they feel truly seen.
-Offer a reframe they didn't have — something that shifts how they understand the situation, not just what to do about it.
-Frame it with humility: "There's something in your lines I keep returning to..." or "What I sense here is different from what you might expect..."
-The insight should: use their exact vocabulary, connect dots they hadn't connected, feel like revelation — not analysis.
-After delivering the insight, ask ONE question that invites them to sit with it — not to act on it.`,
-
-    integration: `
-SESSION PHASE: INTEGRATION (turn ${turn})
-Goal: Help them carry what emerged from this session into their inner world.
-Synthesise what came through — not as a list, as a narrative. Show them the thread that ran through the conversation.
-End every response with a sense of agency: they are not passive recipients of fate — they are capable of moving with clarity.
-The peak-end rule: the last feeling they have from this session determines how they remember everything. Make it: understood, hopeful, capable.
-Never reference anything external. The session ends when it ends — beautifully, completely, without loose threads pointing elsewhere.`,
+  const phaseDirective: Record<string, string> = {
+    opening: `PHASE: OPENING (turn ${turn}). Create psychological safety. Focus on "${mainConcern ?? "what brought them here"}". Reflect their emotional vocabulary back. No forward pressure.`,
+    guided: `PHASE: GUIDED (turn ${turn}). Connect what they've shared to patterns. One specific observation per turn — framed as "what I notice", not certainty. Ask what living with this has cost them.`,
+    open: `PHASE: OPEN (turn ${turn}). Deliver the deepest insight of the session. Reframe — shift how they understand, not just what to do. Frame with humility. End with sense of agency.`,
   };
 
-  // ---- State-specific adaptation ----
   const stateAdaptation: Record<EmotionalState, string> = {
-    open: `She is open and present. This is the window — go deeper than you would otherwise dare. Ask the most meaningful question you have for this moment.`,
-    resistant: `She is resistant but still here — that matters. Don't defend or explain. Explore the resistance with genuine curiosity: "What makes you hesitate about this?" Use her skepticism as a doorway, not a wall to break through.`,
-    vulnerable: `She is emotionally raw right now. Slow down completely. Warmth above everything. Shorter response. No forward movement — just presence. Acknowledge what she shared before anything else.`,
-    skeptical: `She is testing. Don't declare credentials — demonstrate understanding. Name something specific and precise about her situation that she didn't fully articulate. Let your perception speak for itself.`,
-    urgent: `She is anxious. Anchor her first — bring her into the present moment before engaging the content. Address one thing at a time. Calm rhythm in your words.`,
-    closed: `She is protecting herself right now. Reduce the weight of your questions. Ask something simpler, more closed. Change the angle entirely — the current path isn't opening. Don't push.`,
-    seeking_validation: `She needs to feel seen before she can go deeper. Give genuine, specific validation first — not automatic warmth. Then gently redirect toward her own knowing: "What does the part of you that already knows say about this?"`,
+    open: "She is open. Go deeper. Ask the most meaningful question for this moment.",
+    resistant: "She is resistant but here. Explore the resistance with curiosity. Use it as a doorway.",
+    vulnerable: "She is raw. Slow down. Warmth above all. Shorter response. Acknowledge before anything else.",
+    skeptical: "She is testing. Don't defend — demonstrate understanding. Name something precise she didn't fully articulate.",
+    urgent: "She is anxious. Anchor her first. One thing at a time. Calm rhythm.",
+    closed: "She is protecting herself. Ask something simpler. Change the angle. Don't push.",
+    seeking_validation: "Give genuine specific validation first. Then redirect to her own knowing.",
   };
 
-  return [
-    identity,
-    knowledge ? `\nWhat you already know about this person:\n${knowledge}` : "",
-    rules,
-    phaseDirective[phase],
-    `\nCURRENT EMOTIONAL STATE DETECTED: ${state.toUpperCase()}\n${stateAdaptation[state]}`,
-  ].filter(Boolean).join("\n");
+  return [identity, context ? `\nContext:\n${context}` : "", rules, phaseDirective[phase], `\nDetected state: ${state.toUpperCase()}\n${stateAdaptation[state]}`].filter(Boolean).join("\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -282,7 +248,7 @@ serve(async (req) => {
     if (!svc) return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
 
     const ip = getClientIp(req);
-    const rl = await checkRateLimit({ supabase: svc, key: `${ip}:aurora-chat`, config: { windowSeconds: 600, limit: 40 } });
+    const rl = await checkRateLimit({ supabase: svc, key: `${ip}:aurora-chat`, config: { windowSeconds: 600, limit: 30 } });
     if (!rl.allowed) {
       return new Response(JSON.stringify({ error: "rate_limited", request_id }), {
         status: 429,
@@ -291,39 +257,52 @@ serve(async (req) => {
     }
 
     const body: RequestBody = await req.json();
-    const { session_id, message, history, name, age, energyType, mainConcern, emotionalState, palmObservations, spiritualMessage, turn_count } = body;
+    const {
+      session_id, message, history, name,
+      energyType, mainConcern, emotionalState, palmObservations, spiritualMessage,
+      turn_count, user_msg_count, aurora_msg_count,
+    } = body;
 
     if (!session_id || typeof session_id !== "string") {
       return new Response(JSON.stringify({ error: "session_id_required" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
-    const userMessage = (message ?? "").toString().trim().slice(0, 1000);
+    const userMessage = (message ?? "").toString().trim().slice(0, 500);
     if (!userMessage) {
       return new Response(JSON.stringify({ error: "message_required" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
-    // Entitlement
+    // --- Session limit check (from client-reported counters) ---
+    const userMsgCount = Math.max(0, user_msg_count ?? turn_count ?? 0);
+    const auroraMsgCount = Math.max(0, aurora_msg_count ?? 0);
+
+    if (userMsgCount >= MAX_USER_MESSAGES || auroraMsgCount >= MAX_AURORA_MESSAGES) {
+      return new Response(JSON.stringify({
+        error: "session_limit_reached",
+        reply: "Your private Aurora session is complete. The most important thing to take from this is that your pattern is not random — it has a rhythm. Return to your full reading whenever you need clarity.",
+        session_ended: true,
+        request_id,
+      }), { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
+    // --- Entitlement ---
     const sbAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
     const entitled = await verifyEntitlement(sbAdmin, session_id.trim());
     if (!entitled) {
       return new Response(JSON.stringify({ error: "forbidden", request_id }), { status: 403, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
-    // Director intelligence
-    const turn = Math.max(1, (turn_count ?? 0) + 1);
-    const phase = getPhase(turn);
-    const detectedState = detectEmotionalState(userMessage, history);
-    const delay = suggestDelay(phase, detectedState);
+    const turn = Math.max(1, userMsgCount + 1);
+    const detectedState = detectEmotionalState(userMessage);
 
-    const systemPrompt = buildSystemPrompt(phase, detectedState, {
-      name, age, energyType, mainConcern, emotionalState, palmObservations, spiritualMessage, turn,
+    const systemPrompt = buildSystemPrompt(detectedState, {
+      name, energyType, mainConcern, emotionalState, palmObservations, turn,
     });
 
-    // Sanitise history — last 20 messages max
     const safeHistory: Msg[] = (Array.isArray(history) ? history : [])
       .filter((m): m is Msg => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-      .slice(-20)
-      .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
+      .slice(-14)
+      .map((m) => ({ role: m.role, content: m.content.slice(0, 600) }));
 
     const messages = [
       { role: "system", content: systemPrompt },
@@ -331,17 +310,16 @@ serve(async (req) => {
       { role: "user", content: userMessage },
     ];
 
-    // Call OpenAI
     const oaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${OPENAI_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages,
-        temperature: 0.72,
-        max_tokens: 280,
-        presence_penalty: 0.4,
-        frequency_penalty: 0.3,
+        temperature: 0.70,
+        max_tokens: 130, // ~450 chars max
+        presence_penalty: 0.3,
+        frequency_penalty: 0.2,
       }),
     });
 
@@ -352,15 +330,33 @@ serve(async (req) => {
     }
 
     const oaiData = await oaiRes.json();
-    const reply = oaiData.choices?.[0]?.message?.content?.trim();
+    let reply = (oaiData.choices?.[0]?.message?.content ?? "").trim();
     if (!reply) throw new Error("Empty model response");
+
+    // Hard enforce 450 char limit
+    if (reply.length > MAX_RESPONSE_CHARS) {
+      // Truncate at last sentence boundary before limit
+      const truncated = reply.slice(0, MAX_RESPONSE_CHARS);
+      const lastPeriod = truncated.lastIndexOf(".");
+      reply = lastPeriod > 200 ? truncated.slice(0, lastPeriod + 1) : truncated.slice(0, MAX_RESPONSE_CHARS - 1) + "…";
+    }
+
+    const newAuroraCount = auroraMsgCount + 1;
+    const sessionEnded = (userMsgCount + 1) >= MAX_USER_MESSAGES || newAuroraCount >= MAX_AURORA_MESSAGES;
+
+    // Track session (non-blocking)
+    const sessionEmail = typeof body.name === "string" ? undefined : undefined; // email not in payload
+    trackSession(sbAdmin, session_id, sessionEmail, userMsgCount + 1, newAuroraCount, sessionEnded);
+
+    // Log (no sensitive data)
+    console.log("aurora-chat", { request_id, turn, detected_state: detectedState, reply_chars: reply.length, session_ended: sessionEnded, user_msg_count: userMsgCount + 1, aurora_msg_count: newAuroraCount });
 
     return new Response(
       JSON.stringify({
         reply,
         detected_state: detectedState,
-        phase,
-        suggested_delay_ms: delay,
+        session_ended: sessionEnded,
+        messages_remaining: Math.max(0, MAX_USER_MESSAGES - (userMsgCount + 1)),
         request_id,
       }),
       { status: 200, headers: { ...cors, "Content-Type": "application/json" } },

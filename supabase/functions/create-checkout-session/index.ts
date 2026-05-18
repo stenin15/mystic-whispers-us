@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
+import Stripe from "https://esm.sh/stripe@15.12.0?target=deno";
 
 const ALLOWED_ORIGINS = [
   "https://madam-aurora.co",
@@ -132,6 +132,8 @@ serve(async (req) => {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: successUrl,
       cancel_url: cancelUrl,
+      billing_address_collection: "required",
+      phone_number_collection: { enabled: true },
       metadata: {
         product_code: productCode,
         app: "mystic-whispers-us",

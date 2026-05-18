@@ -219,28 +219,26 @@ const Resultado = () => {
   const [firstStrength, ...lockedStrengths] = result.strengths;
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ zIndex: 1 }}>
+    <div className="min-h-screen relative overflow-hidden">
       {/* Background image — desktop / mobile responsive */}
       <div
         aria-hidden="true"
-        className="fixed inset-0 pointer-events-none md:hidden"
+        className="absolute inset-0 pointer-events-none md:hidden"
         style={{
           backgroundImage: 'url(/analysis/resultado-bg-mobile.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
-          zIndex: 0,
         }}
       >
         <div className="absolute inset-0" style={{ background: 'rgba(4,4,14,0.80)' }} />
       </div>
       <div
         aria-hidden="true"
-        className="fixed inset-0 pointer-events-none hidden md:block"
+        className="absolute inset-0 pointer-events-none hidden md:block"
         style={{
           backgroundImage: 'url(/analysis/resultado-bg-desktop.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
-          zIndex: 0,
         }}
       >
         <div className="absolute inset-0" style={{ background: 'rgba(4,4,14,0.78)' }} />
