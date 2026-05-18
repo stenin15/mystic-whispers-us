@@ -259,16 +259,17 @@ const Analise = () => {
   return (
     <div
       className="min-h-screen relative flex items-center justify-center px-4 py-10"
-      style={{ isolation: 'isolate' }}
+      style={{ isolation: 'isolate', zIndex: 1 }}
     >
       {/* ── Background image — fixed, no animation ── */}
       <div
         aria-hidden="true"
-        className="fixed inset-0 -z-10"
+        className="fixed inset-0 pointer-events-none"
         style={{
           backgroundImage: 'url(/analysis/resultado-bg-mobile.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
+          zIndex: 0,
         }}
       >
         {/* Dark overlay */}
