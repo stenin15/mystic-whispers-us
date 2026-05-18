@@ -124,11 +124,18 @@ serve(async (req) => {
       });
     }
 
-    // Another call is already generating — tell client to poll
+    // Another call is currently generating — tell client to poll
     if (existing?.report_status === "pending") {
       return new Response(JSON.stringify({ status: "pending" }), {
         status: 202, headers: { ...ch, "Content-Type": "application/json" },
       });
+    }
+
+    // Previous attempt failed — reset to allow retry
+    if (existing?.report_status === "failed") {
+      await sb.from("reading_sessions")
+        .update({ report_status: "pending", palm_photo_path })
+        .eq("session_key", session_key);
     }
 
     if (!palm_photo_path) {
@@ -137,7 +144,7 @@ serve(async (req) => {
       });
     }
 
-    // ── Claim generation slot (INSERT … ON CONFLICT DO NOTHING) ───────────────
+    // ── Claim generation slot (upsert when no existing row) ──────────────────
     const { error: claimErr } = await sb.from("reading_sessions").insert({
       session_key,
       email,
@@ -145,7 +152,7 @@ serve(async (req) => {
       report_status: "pending",
     });
 
-    // 23505 = unique_violation: another request claimed it first
+    // 23505 = unique_violation: another request claimed it first (or we just reset above)
     if (claimErr && (claimErr as { code?: string }).code === "23505") {
       return new Response(JSON.stringify({ status: "pending" }), {
         status: 202, headers: { ...ch, "Content-Type": "application/json" },
