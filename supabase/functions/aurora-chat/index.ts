@@ -51,6 +51,7 @@ interface RequestBody {
   message: string;
   history: Msg[];
   name?: string;
+  email?: string;
   age?: string;
   energyType?: string;
   mainConcern?: string;
@@ -258,7 +259,7 @@ serve(async (req) => {
 
     const body: RequestBody = await req.json();
     const {
-      session_id, message, history, name,
+      session_id, message, history, name, email,
       energyType, mainConcern, emotionalState, palmObservations, spiritualMessage,
       turn_count, user_msg_count, aurora_msg_count,
     } = body;
@@ -272,9 +273,12 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "message_required" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
-    // --- Session limit check (from client-reported counters) ---
-    const userMsgCount = Math.max(0, user_msg_count ?? turn_count ?? 0);
-    const auroraMsgCount = Math.max(0, aurora_msg_count ?? 0);
+    // --- Session limit: take max of client-reported and history-derived counts ---
+    const rawHistory = Array.isArray(history) ? history : [];
+    const historyUserMsgs = rawHistory.filter((m: unknown) => (m as Msg)?.role === "user").length;
+    const historyAuroraMsgs = rawHistory.filter((m: unknown) => (m as Msg)?.role === "assistant").length;
+    const userMsgCount = Math.max(historyUserMsgs, Math.max(0, user_msg_count ?? turn_count ?? 0));
+    const auroraMsgCount = Math.max(historyAuroraMsgs, Math.max(0, aurora_msg_count ?? 0));
 
     if (userMsgCount >= MAX_USER_MESSAGES || auroraMsgCount >= MAX_AURORA_MESSAGES) {
       return new Response(JSON.stringify({
@@ -345,7 +349,7 @@ serve(async (req) => {
     const sessionEnded = (userMsgCount + 1) >= MAX_USER_MESSAGES || newAuroraCount >= MAX_AURORA_MESSAGES;
 
     // Track session (non-blocking)
-    const sessionEmail = typeof body.name === "string" ? undefined : undefined; // email not in payload
+    const sessionEmail = typeof email === "string" ? email.trim() : undefined;
     trackSession(sbAdmin, session_id, sessionEmail, userMsgCount + 1, newAuroraCount, sessionEnded);
 
     // Log (no sensitive data)

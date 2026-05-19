@@ -374,7 +374,7 @@ const SessionCompleteCard = ({ onReturn }: { onReturn: () => void }) => (
 // ---------------------------------------------------------------------------
 const SessaoAurora = () => {
   const navigate = useNavigate();
-  const { name, analysisResult, mainConcern, emotionalState } = useHandReadingStore();
+  const { name, email, analysisResult, mainConcern, emotionalState } = useHandReadingStore();
 
   const energyType = analysisResult?.energyType?.name;
   const palmObservations = analysisResult?.palmObservations;
@@ -625,6 +625,7 @@ const SessaoAurora = () => {
             message: trimmed,
             history: historyForApi,
             name: name || undefined,
+            email: email || undefined,
             age: useHandReadingStore.getState().age || undefined,
             energyType: energyType || undefined,
             mainConcern: mainConcern || undefined,
@@ -666,8 +667,10 @@ const SessaoAurora = () => {
         setAccessError("Your session has expired. Please refresh.");
       } else if (msg.includes("rate_limited") || msg.includes("429")) {
         setAccessError("Too many messages. Please wait a moment.");
+        setTimeout(() => setAccessError(null), 5000);
       } else {
         setAccessError("Aurora couldn't respond right now. Please try again.");
+        setTimeout(() => setAccessError(null), 5000);
       }
     } finally {
       setIsLoading(false);
