@@ -124,6 +124,12 @@ serve(async (req) => {
       });
     }
 
+    if (!palm_photo_path) {
+      return new Response(JSON.stringify({ error: "palm_photo_path required" }), {
+        status: 400, headers: { ...ch, "Content-Type": "application/json" },
+      });
+    }
+
     // Another call is currently generating — tell client to poll
     if (existing?.report_status === "pending") {
       return new Response(JSON.stringify({ status: "pending" }), {
@@ -131,32 +137,38 @@ serve(async (req) => {
       });
     }
 
-    // Previous attempt failed — reset to allow retry
-    if (existing?.report_status === "failed") {
-      await sb.from("reading_sessions")
+    // ── Claim generation slot ─────────────────────────────────────────────────
+    if (existing) {
+      // Row exists (failed or unknown state) — update in place and proceed to generation
+      const { error: resetErr } = await sb.from("reading_sessions")
         .update({ report_status: "pending", palm_photo_path })
         .eq("session_key", session_key);
-    }
-
-    if (!palm_photo_path) {
-      return new Response(JSON.stringify({ error: "palm_photo_path required" }), {
-        status: 400, headers: { ...ch, "Content-Type": "application/json" },
+      if (resetErr) {
+        console.error("Failed to reset session:", resetErr);
+        return new Response(JSON.stringify({ error: "Failed to initialize session" }), {
+          status: 500, headers: { ...ch, "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      // No existing row — insert new
+      const { error: claimErr } = await sb.from("reading_sessions").insert({
+        session_key,
+        email,
+        palm_photo_path,
+        report_status: "pending",
       });
-    }
-
-    // ── Claim generation slot (upsert when no existing row) ──────────────────
-    const { error: claimErr } = await sb.from("reading_sessions").insert({
-      session_key,
-      email,
-      palm_photo_path,
-      report_status: "pending",
-    });
-
-    // 23505 = unique_violation: another request claimed it first (or we just reset above)
-    if (claimErr && (claimErr as { code?: string }).code === "23505") {
-      return new Response(JSON.stringify({ status: "pending" }), {
-        status: 202, headers: { ...ch, "Content-Type": "application/json" },
-      });
+      // 23505 = unique_violation: another request claimed it first
+      if (claimErr && (claimErr as { code?: string }).code === "23505") {
+        return new Response(JSON.stringify({ status: "pending" }), {
+          status: 202, headers: { ...ch, "Content-Type": "application/json" },
+        });
+      }
+      if (claimErr) {
+        console.error("Failed to claim slot:", claimErr);
+        return new Response(JSON.stringify({ error: "Failed to initialize session" }), {
+          status: 500, headers: { ...ch, "Content-Type": "application/json" },
+        });
+      }
     }
 
     // ── Download palm photo from Supabase Storage ─────────────────────────────

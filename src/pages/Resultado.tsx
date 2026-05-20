@@ -244,8 +244,8 @@ const Resultado = () => {
         <div className="absolute inset-0" style={{ background: 'rgba(4,4,14,0.78)' }} />
       </div>
 
-      {/* ── HERO ── */}
-      <section className="relative pt-14 pb-6 px-4">
+      {/* ── HERO (mobile only) ── */}
+      <section className="relative pt-14 pb-6 px-4 md:hidden">
         <div className="container max-w-3xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -316,9 +316,9 @@ const Resultado = () => {
         </div>
       </section>
 
-      {/* ── VISUAL PREVIEW (AI-generated image) ── */}
+      {/* ── VISUAL PREVIEW (AI-generated image) — mobile only ── */}
       {(localPreviewUrl || isGeneratingPreview) && (
-        <section className="py-4 px-4">
+        <section className="py-4 px-4 md:hidden">
           <div className="container max-w-3xl mx-auto">
             {isGeneratingPreview && !localPreviewUrl && (
               <motion.div
@@ -410,8 +410,8 @@ const Resultado = () => {
         </section>
       )}
 
-      {/* ── ENERGY CARD (only shown when no visual preview) ── */}
-      {!localPreviewUrl && !isGeneratingPreview && <section className="py-4 px-4">
+      {/* ── ENERGY CARD (mobile only, shown when no visual preview) ── */}
+      {!localPreviewUrl && !isGeneratingPreview && <section className="py-4 px-4 md:hidden">
         <div className="container max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -461,8 +461,8 @@ const Resultado = () => {
         </div>
       </section>}
 
-      {/* ── PERSONALIZATION CARD (V4) ── */}
-      {!localPreviewUrl && !isGeneratingPreview && <section className="py-4 px-4">
+      {/* ── PERSONALIZATION CARD (V4) — mobile only ── */}
+      {!localPreviewUrl && !isGeneratingPreview && <section className="py-4 px-4 md:hidden">
         <div className="container max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -498,8 +498,8 @@ const Resultado = () => {
         </div>
       </section>}
 
-      {/* ── INSIGHT CARDS V4 — 2 visible + 2 locked ── */}
-      {!localPreviewUrl && !isGeneratingPreview && <section className="py-4 px-4">
+      {/* ── INSIGHT CARDS V4 — mobile only ── */}
+      {!localPreviewUrl && !isGeneratingPreview && <section className="py-4 px-4 md:hidden">
         <div className="container max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -620,6 +620,318 @@ const Resultado = () => {
           </motion.div>
         </div>
       </section>}
+
+      {/* ── DESKTOP HERO (16:9 grid) — hidden on mobile ── */}
+      <section className="relative hidden md:block px-6 pt-10 pb-8">
+        <div className="container max-w-[1280px] mx-auto">
+          <div className="grid grid-cols-[1fr_1.4fr_1fr] gap-5 items-start">
+
+            {/* LEFT: headline + insight cards */}
+            <div className="flex flex-col gap-4 pt-2">
+              {/* Badge */}
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full w-fit"
+                style={{ background: 'rgba(255,200,60,0.08)', border: '1px solid rgba(255,200,60,0.2)' }}
+              >
+                <Sparkles className="w-3 h-3 text-amber-400/80" />
+                <span className="text-[10px] font-semibold text-amber-400/80 tracking-wider uppercase">Palm reading ready</span>
+              </div>
+
+              {/* Dynamic headline */}
+              <div>
+                {name && <p className="text-xs text-white/40 mb-0.5 font-medium">{name},</p>}
+                <h1 className="text-xl xl:text-2xl font-black uppercase leading-tight text-white tracking-tight mb-2">
+                  YOUR EMOTIONAL{' '}
+                  <span style={{ background: 'linear-gradient(135deg, hsl(45 95% 65%), hsl(35 90% 55%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    PATTERN IS CLEAR.
+                  </span>
+                </h1>
+                <p className="text-xs text-white/40 leading-relaxed">
+                  {(mainConcern && CONCERN_COPY[mainConcern]) || "You've been repeating emotional cycles without realizing why."}
+                </p>
+              </div>
+
+              {/* Energy type chip */}
+              <div
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl w-fit"
+                style={{ background: 'rgba(255,200,60,0.05)', border: '1px solid rgba(255,200,60,0.12)' }}
+              >
+                <EnergyIcon className="w-4 h-4 text-amber-400/70 flex-shrink-0" />
+                <div>
+                  <p className="text-[9px] text-white/30 uppercase tracking-widest">Pattern Type</p>
+                  <p className="text-[11px] font-semibold text-white/80">{result.energyType.name}</p>
+                </div>
+              </div>
+
+              {/* Insight cards */}
+              <div className="space-y-2">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-amber-400/50 px-0.5">Pattern Analysis</p>
+
+                {/* Card 1 — open */}
+                {firstStrength && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    whileHover={{ scale: 1.015, rotateY: 1.5, rotateX: -0.8, transition: { duration: 0.2 } }}
+                    className="rounded-xl p-3.5 cursor-default"
+                    style={{ background: 'rgba(18,18,22,0.97)', border: '1px solid rgba(255,200,60,0.2)', transformStyle: 'preserve-3d', willChange: 'transform' }}
+                  >
+                    {(() => {
+                      const Icon = getIcon(firstStrength.icon);
+                      return (
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,200,60,0.08)', border: '1px solid rgba(255,200,60,0.15)' }}>
+                            <Icon className="w-4 h-4 text-amber-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                              <h4 className="font-semibold text-white text-[11px]">{firstStrength.title}</h4>
+                              <span className="text-[8px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: 'hsl(350 80% 55% / 0.18)', color: 'hsl(350 80% 72%)', border: '1px solid hsl(350 80% 55% / 0.3)' }}>UNLOCKED</span>
+                            </div>
+                            <p className="text-[11px] text-white/50 leading-relaxed">{firstStrength.desc}</p>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </motion.div>
+                )}
+
+                {/* Cards 2–4 — locked */}
+                {[
+                  lockedStrengths[0] ?? { icon: 'lock', title: 'Attachment Response Pattern', desc: 'The way your lines intersect reveals a deep emotional response cycle.' },
+                  result.blocks[0] ?? { icon: 'cloud', title: 'Hidden Love Timing', desc: 'Your fate line indicates a specific emotional window currently active.' },
+                  result.blocks[1] ?? { icon: 'star', title: 'What Comes Next', desc: 'Your personal message and next steps are encoded in your palm lines.' },
+                ].map((card, i) => {
+                  const Icon = getIcon(card.icon);
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15 + i * 0.07 }}
+                      className="rounded-xl p-3.5 relative overflow-hidden"
+                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    >
+                      <div className="flex items-start gap-3 select-none pointer-events-none" style={{ filter: 'blur(5px)' }}>
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 opacity-50" style={{ background: 'rgba(255,200,60,0.05)' }}>
+                          <Icon className="w-4 h-4 text-amber-400/50" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-white/40 text-[11px] mb-1">{card.title}</h4>
+                          <p className="text-[11px] text-white/25 leading-relaxed">{card.desc}</p>
+                        </div>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center gap-1.5" style={{ background: 'rgba(8,8,16,0.45)' }}>
+                        <Lock className="w-3 h-3 text-amber-400/60" />
+                        <span className="text-[10px] text-white/40">Locked</span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* CENTER: palm preview */}
+            <div className="flex flex-col gap-3">
+              {/* Loading state */}
+              {isGeneratingPreview && !localPreviewUrl && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="rounded-2xl flex flex-col items-center justify-center py-24"
+                  style={{ background: 'rgba(18,18,22,0.92)', border: '1px solid rgba(255,255,255,0.06)' }}
+                >
+                  <Loader2 className="w-7 h-7 text-amber-400 animate-spin mb-3" />
+                  <p className="text-sm font-medium text-white/60 mb-1">Generating your report…</p>
+                  <p className="text-xs text-white/30">About 30 seconds</p>
+                </motion.div>
+              )}
+
+              {/* Preview image with blur/lock overlay */}
+              {localPreviewUrl && (
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="relative rounded-2xl overflow-hidden shadow-2xl"
+                  style={{ border: '1px solid rgba(255,200,60,0.2)' }}
+                >
+                  <img src={localPreviewUrl} alt="Your AI Palm Reading Preview" className="w-full block" loading="eager" />
+                  <div className="absolute bottom-0 left-0 right-0 py-8 px-5 text-center" style={{ background: 'linear-gradient(to top, rgba(8,8,16,0.97) 0%, rgba(8,8,16,0.65) 55%, transparent 100%)' }}>
+                    <div className="flex items-center justify-center gap-1.5 mb-3">
+                      <Lock className="w-3.5 h-3.5 text-amber-400/80" />
+                      <span className="text-xs font-semibold text-amber-400/90">Sections locked — unlock to reveal</span>
+                    </div>
+                    <Button
+                      onClick={handleCTA}
+                      className="px-8 py-3 text-sm font-bold rounded-xl hover:scale-[1.03] transition-transform duration-200"
+                      style={{ background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))', color: '#08080f', boxShadow: '0 6px 20px rgba(200,140,30,0.4)', border: 'none' }}
+                    >
+                      <Lock className="w-3.5 h-3.5 mr-1.5" />
+                      Unlock Full Reading — {PRICE_MAP.basic.display}
+                    </Button>
+                    <p className="text-[10px] text-white/30 mt-2">Private · Encrypted · Photo deleted · 7-day guarantee</p>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* No preview — energy card placeholder */}
+              {!localPreviewUrl && !isGeneratingPreview && (
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="rounded-2xl p-8 text-center"
+                  style={{ background: 'rgba(18,18,22,0.92)', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 40px rgba(0,0,0,0.35)' }}
+                >
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(45,20,70,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <EnergyIcon className="w-8 h-8 text-amber-400/80" />
+                  </div>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-white/30 mb-1.5">Pattern Type</p>
+                  <h2 className="text-xl font-serif font-bold mb-3 text-white">{result.energyType.name}</h2>
+                  <p className="text-xs text-white/50 leading-relaxed max-w-xs mx-auto">{result.energyType.description}</p>
+                  {result.palmObservations && (
+                    <div className="mt-4 p-4 rounded-xl text-left" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,200,60,0.12)' }}>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <Eye className="w-3 h-3 text-amber-400/70" />
+                        <span className="text-[9px] font-semibold tracking-wide text-amber-400/70">What Aurora noticed:</span>
+                      </div>
+                      <p className="text-xs text-white/50 italic leading-relaxed">{result.palmObservations}</p>
+                    </div>
+                  )}
+                  <div className="mt-4 p-4 rounded-xl relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <p className="text-xs text-white/30 italic leading-relaxed select-none" style={{ filter: 'blur(6px)' }}>{result.spiritualMessage}</p>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ backdropFilter: 'blur(2px)', background: 'rgba(8,8,16,0.6)' }}>
+                      <Lock className="w-4 h-4 text-amber-400/70 mb-1" />
+                      <span className="text-[10px] text-white/50">Personal message locked</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Trust bullets */}
+              <div className="grid grid-cols-1 gap-1.5">
+                {[
+                  { icon: Eye, label: 'Personalized from your palm photo' },
+                  { icon: Star, label: 'Relationship pattern analysis' },
+                  { icon: Lock, label: 'Sections unlocked after payment' },
+                ].map(({ icon: Icon, label }) => (
+                  <div key={label} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-white/55" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <Icon className="w-3.5 h-3.5 text-amber-400/60 flex-shrink-0" />
+                    {label}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* RIGHT: offer cards + trust */}
+            <div className="flex flex-col gap-3 pt-2">
+              {/* Countdown */}
+              {!expired && (
+                <div className="rounded-xl px-3 py-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <div className="flex items-center justify-center gap-1 text-[9px] text-rose-400/70 mb-2">
+                    <Clock className="w-3 h-3" />
+                    <span>Reading reserved for you</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <CountdownSegment value={h} label="hrs" />
+                    <TimeSeparator />
+                    <CountdownSegment value={m} label="min" />
+                    <TimeSeparator />
+                    <CountdownSegment value={s} label="sec" />
+                  </div>
+                </div>
+              )}
+
+              {/* $9.90 — Full Report */}
+              <button
+                onClick={() => setSelectedPlan('basic')}
+                className="rounded-xl p-4 text-left transition-all duration-200 relative w-full"
+                style={{ background: selectedPlan === 'basic' ? 'rgba(255,200,60,0.08)' : 'rgba(255,255,255,0.03)', border: selectedPlan === 'basic' ? '2px solid rgba(255,200,60,0.4)' : '2px solid rgba(255,255,255,0.08)' }}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">Full Report</span>
+                  {selectedPlan === 'basic' && <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />}
+                </div>
+                <div className="text-xl font-bold text-white mb-0.5">{PRICE_MAP.basic.display}</div>
+                <p className="text-[10px] text-white/45 leading-snug">Relationship pattern reading · Instant access</p>
+              </button>
+
+              {/* $29.90 — Complete Kit (Most Popular + gold glow) */}
+              <button
+                onClick={() => setSelectedPlan('complete')}
+                className="rounded-xl p-4 text-left relative transition-all duration-200 w-full"
+                style={{ background: selectedPlan === 'complete' ? 'rgba(255,200,60,0.1)' : 'rgba(255,255,255,0.03)', border: selectedPlan === 'complete' ? '2px solid rgba(255,200,60,0.5)' : '2px solid rgba(255,255,255,0.08)', boxShadow: selectedPlan === 'complete' ? '0 0 24px rgba(200,150,40,0.18)' : 'none' }}
+              >
+                <div className="absolute -top-2.5 left-3">
+                  <span className="text-[8px] px-2 py-0.5 rounded-full font-bold tracking-wider" style={{ background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))', color: '#08080f' }}>MOST POPULAR</span>
+                </div>
+                <div className="flex items-center justify-between mb-1.5 mt-1">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-amber-400/80">Complete Kit</span>
+                  {selectedPlan === 'complete' && <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />}
+                </div>
+                <div className="flex items-baseline gap-1.5 mb-0.5">
+                  <span className="text-xl font-bold text-white">{PRICE_MAP.complete.display}</span>
+                  <span className="text-[10px] text-white/30 line-through">$49</span>
+                </div>
+                <p className="text-[10px] text-white/40 leading-snug">Reading + voice session 🎙️</p>
+              </button>
+
+              {/* CTA button */}
+              <motion.div
+                animate={{ scale: [1, 1.025, 1] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <Button
+                  onClick={handleCTA}
+                  className="w-full py-5 text-sm font-bold rounded-xl shadow-xl hover:scale-[1.03] transition-transform duration-200"
+                  style={{ background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))', color: '#08080f', boxShadow: '0 6px 24px rgba(200,140,30,0.35)', border: 'none' }}
+                >
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                  {selectedPlan === 'basic' ? `Unlock Reading — ${PRICE_MAP.basic.display}` : 'UNLOCK FULL READING →'}
+                </Button>
+              </motion.div>
+
+              <p className="text-[10px] text-white/25 text-center">One-time · Instant access · No subscription</p>
+
+              {/* Trust bar */}
+              <div className="flex flex-col gap-2 pt-1">
+                {[
+                  { icon: <Shield className="w-3 h-3 text-emerald-400" />, label: 'SSL Secure Checkout' },
+                  { icon: <CreditCard className="w-3 h-3 text-violet-300" />, label: 'Powered by Stripe' },
+                  { icon: <Eye className="w-3 h-3 text-blue-400" />, label: 'Photo deleted after analysis' },
+                  { icon: <RefreshCw className="w-3 h-3 text-amber-400" />, label: '7-day money-back guarantee' },
+                ].map(({ icon, label }) => (
+                  <div key={label} className="flex items-center gap-2 text-[10px] text-white/35">
+                    {icon}
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Voice session upsell (shown when complete plan selected) */}
+              {selectedPlan === 'complete' && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="rounded-xl p-3"
+                  style={{ background: 'rgba(255,200,60,0.05)', border: '1px solid rgba(255,200,60,0.15)' }}
+                >
+                  <div className="flex items-start gap-2.5">
+                    <Mic className="w-3.5 h-3.5 text-amber-400/80 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[10px] font-semibold text-white/80 mb-0.5">Voice session with Aurora</p>
+                      <p className="text-[10px] text-white/40 leading-relaxed">Hear Aurora speak your name and what your palm revealed about your love timing.</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* ── UGC TRUST CARDS ── */}
       <UGCTrustSection onCTA={handleCTA} />
