@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Play, Volume2, VolumeX } from "lucide-react";
 import { track, getOrCreateEventId } from "@/lib/tracking";
 import { getAttributionParams } from "@/lib/marketing";
 
@@ -12,7 +11,6 @@ interface EmbeddedVSLProps {
 
 export const EmbeddedVSL = ({ onFirstPlay }: EmbeddedVSLProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
   const milestones = useRef(new Set<number>());
@@ -24,6 +22,26 @@ export const EmbeddedVSL = ({ onFirstPlay }: EmbeddedVSLProps) => {
     });
   }, []);
 
+  // Autoplay muted on mount
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !VSL_URL) return;
+    v.muted = true;
+    v.play()
+      .then(() => {
+        setHasStarted(true);
+        track("VSLPlay", {
+          event_id: getOrCreateEventId("vsl_play"),
+          ...getAttributionParams(),
+        });
+        onFirstPlay?.();
+      })
+      .catch(() => {
+        // autoplay blocked — shows play button fallback
+      });
+  }, [onFirstPlay]);
+
+  // Milestone tracking
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -44,30 +62,19 @@ export const EmbeddedVSL = ({ onFirstPlay }: EmbeddedVSLProps) => {
     return () => v.removeEventListener("timeupdate", onTime);
   }, []);
 
-  const handlePlayPause = async () => {
+  const handlePlay = async () => {
     const v = videoRef.current;
     if (!v) return;
-    if (!hasStarted) {
+    v.muted = true;
+    try {
+      await v.play();
       setHasStarted(true);
       track("VSLPlay", {
         event_id: getOrCreateEventId("vsl_play"),
         ...getAttributionParams(),
       });
       onFirstPlay?.();
-      v.muted = false;
-      try {
-        await v.play();
-        setIsPlaying(true);
-        setIsMuted(false);
-      } catch {
-        v.muted = true;
-        setIsMuted(true);
-        try { await v.play(); setIsPlaying(true); } catch { /* blocked */ }
-      }
-      return;
-    }
-    if (v.paused) { await v.play(); setIsPlaying(true); }
-    else { v.pause(); setIsPlaying(false); }
+    } catch { /* blocked */ }
   };
 
   const toggleMute = () => {
@@ -79,64 +86,64 @@ export const EmbeddedVSL = ({ onFirstPlay }: EmbeddedVSLProps) => {
 
   return (
     <div
-      className="relative w-full rounded-xl overflow-hidden"
-      style={{
-        aspectRatio: "16/9",
-        background: "#030004",
-        boxShadow: "0 0 60px rgba(217,70,239,0.18), 0 20px 60px rgba(0,0,0,0.85)",
-        border: "1px solid rgba(217,70,239,0.16)",
-      }}
+      className="relative w-full"
+      style={{ aspectRatio: "16/9", background: "#000" }}
     >
       {VSL_URL ? (
         <>
           <video
             ref={videoRef}
             src={VSL_URL}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
             playsInline
-            preload="metadata"
+            muted
             loop
+            preload="auto"
             aria-label="Madam Aurora palm reading introduction"
           />
 
+          {/* Autoplay bloqueado — botão de play centralizado */}
           {!hasStarted && (
             <button
-              onClick={handlePlayPause}
-              className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors focus:outline-none group"
+              onClick={handlePlay}
+              className="absolute inset-0 flex items-center justify-center bg-black/50 hover:bg-black/60 transition-colors focus:outline-none border-none cursor-pointer"
               aria-label="Play"
             >
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                className="w-20 h-20 rounded-full flex items-center justify-center"
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center"
                 style={{
-                  background: "rgba(251,191,36,0.12)",
-                  border: "2px solid rgba(251,191,36,0.65)",
-                  boxShadow: "0 0 40px rgba(251,191,36,0.45), 0 0 80px rgba(251,191,36,0.18)",
+                  background: "rgba(251,191,36,0.15)",
+                  border: "2px solid rgba(251,191,36,0.7)",
+                  boxShadow: "0 0 40px rgba(251,191,36,0.5)",
                 }}
               >
-                <Play className="w-8 h-8 text-[#fbbf24] fill-[#fbbf24] ml-1" />
-              </motion.div>
+                <Play className="w-7 h-7 text-[#fbbf24] fill-[#fbbf24] ml-1" />
+              </div>
             </button>
           )}
 
-          {hasStarted && (
-            <div className="absolute bottom-3 right-3 flex gap-2 z-10">
-              <button
-                onClick={handlePlayPause}
-                className="w-9 h-9 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-                aria-label={isPlaying ? "Pause" : "Play"}
-              >
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-              </button>
-              <button
-                onClick={toggleMute}
-                className="w-9 h-9 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-                aria-label={isMuted ? "Unmute" : "Mute"}
-              >
-                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-            </div>
+          {/* Vídeo rodando — só botão de áudio */}
+          {hasStarted && isMuted && (
+            <button
+              onClick={toggleMute}
+              className="absolute inset-0 flex items-end justify-center pb-6 bg-black/20 hover:bg-black/30 transition-colors border-none cursor-pointer focus:outline-none"
+              aria-label="Tap to unmute"
+            >
+              <div className="flex items-center gap-2 bg-black/70 backdrop-blur-sm rounded-full px-4 py-2">
+                <VolumeX className="w-4 h-4 text-amber-400" />
+                <span className="text-amber-300 text-xs font-semibold tracking-wider uppercase">Tap to unmute</span>
+              </div>
+            </button>
+          )}
+
+          {hasStarted && !isMuted && (
+            <button
+              onClick={toggleMute}
+              className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors border-none cursor-pointer"
+              aria-label="Mute"
+            >
+              <Volume2 className="w-4 h-4" />
+            </button>
           )}
         </>
       ) : (
