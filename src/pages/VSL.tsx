@@ -66,19 +66,18 @@ const CTAButton = ({
   </motion.button>
 );
 
-// ── VSL Section 2 — imagem de fundo + player real posicionado sobre mockup ────
+// ── VSL Section 2 — player posicionado SOMENTE dentro do frame dourado à direita ──
 //
-// AJUSTE AS COORDENADAS abaixo se o player não ficar alinhado ao mockup da imagem.
-// Valores são percentuais da largura/altura da seção.
+// Desktop: frame dourado ocupa a metade direita da imagem
+// top/left/width em % da imagem. Sem height — o 16:9 do EmbeddedVSL auto-dimensiona.
 //
-const VSL_DESKTOP = { left: "9%", top: "28%", width: "82%", height: "52%" };
-const VSL_MOBILE  = { left: "4%", top: "16%", width: "92%", height: "42%" };
+const VSL_DESKTOP_FRAME = { left: "44%", top: "10%", width: "52%" };
+const VSL_MOBILE_FRAME  = { left: "3%",  top: "44%", width: "94%" };
 
 const VslSection = ({ onCtaClick }: { onCtaClick: (section: string) => void }) => (
   <section
     style={{ position: "relative", width: "100%", lineHeight: 0 }}
   >
-    {/* Imagem de fundo — fornece o contexto visual/moldura do player */}
     <picture>
       <source media="(min-width: 768px)" srcSet="/landing/section-2-desktop.png" type="image/png" />
       <img
@@ -92,27 +91,20 @@ const VslSection = ({ onCtaClick }: { onCtaClick: (section: string) => void }) =
       />
     </picture>
 
-    {/* Player desktop — posicionado sobre a área do mockup */}
+    {/* Player desktop — somente sobre o frame dourado (metade direita) */}
     <div
-      className="absolute hidden md:flex flex-col items-center gap-4"
-      style={{ ...VSL_DESKTOP, zIndex: 10 }}
+      className="absolute hidden md:block"
+      style={{ ...VSL_DESKTOP_FRAME, zIndex: 10 }}
     >
       <EmbeddedVSL onFirstPlay={() => onCtaClick("vsl_play")} />
-      <CTAButton onClick={() => onCtaClick("vsl")}>
-        BEGIN MY READING <ArrowRight className="w-5 h-5" />
-      </CTAButton>
-      <p className="text-xs text-white/30">Takes 2 minutes · Private · No credit card to start</p>
     </div>
 
     {/* Player mobile */}
     <div
-      className="absolute block md:hidden flex flex-col items-center gap-3"
-      style={{ ...VSL_MOBILE, zIndex: 10 }}
+      className="absolute block md:hidden"
+      style={{ ...VSL_MOBILE_FRAME, zIndex: 10 }}
     >
       <EmbeddedVSL onFirstPlay={() => onCtaClick("vsl_play")} />
-      <CTAButton onClick={() => onCtaClick("vsl")} className="text-sm px-6 py-3">
-        BEGIN MY READING <ArrowRight className="w-4 h-4" />
-      </CTAButton>
     </div>
   </section>
 );
