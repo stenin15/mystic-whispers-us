@@ -97,7 +97,7 @@ const VslSection = ({ onCtaClick }: { onCtaClick: (section: string) => void }) =
       className="absolute hidden md:block"
       style={{ ...VSL_DESKTOP_FRAME, zIndex: 10 }}
     >
-      <EmbeddedVSL onFirstPlay={() => onCtaClick("vsl_play")} />
+      <EmbeddedVSL />
     </div>
 
     {/* Player mobile */}
@@ -105,7 +105,7 @@ const VslSection = ({ onCtaClick }: { onCtaClick: (section: string) => void }) =
       className="absolute block md:hidden"
       style={{ ...VSL_MOBILE_FRAME, zIndex: 10 }}
     >
-      <EmbeddedVSL onFirstPlay={() => onCtaClick("vsl_play")} />
+      <EmbeddedVSL />
     </div>
   </section>
 );
