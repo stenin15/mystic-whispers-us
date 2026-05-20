@@ -86,8 +86,8 @@ export const EmbeddedVSL = ({ onFirstPlay }: EmbeddedVSLProps) => {
 
   return (
     <div
-      className="relative w-full"
-      style={{ aspectRatio: "16/9", background: "#000" }}
+      className="relative w-full h-full"
+      style={{ background: "#000" }}
     >
       {VSL_URL ? (
         <>

@@ -71,8 +71,9 @@ const CTAButton = ({
 // Desktop: frame dourado ocupa a metade direita da imagem
 // top/left/width em % da imagem. Sem height — o 16:9 do EmbeddedVSL auto-dimensiona.
 //
-const VSL_DESKTOP_FRAME = { left: "44.5%", top: "15%", width: "50.5%" };
-const VSL_MOBILE_FRAME  = { left: "1.5%", top: "41%", width: "97%" };
+// left/top/width/height em % da seção — cobre toda a moldura (borda + barra inferior)
+const VSL_DESKTOP_FRAME = { left: "44%", top: "7%", width: "50%", height: "69%" };
+const VSL_MOBILE_FRAME  = { left: "1%",  top: "11%", width: "98%", height: "76%" };
 
 const VslSection = ({ onCtaClick }: { onCtaClick: (section: string) => void }) => (
   <section
