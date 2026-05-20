@@ -249,7 +249,8 @@ const VSL = () => {
         </div>
       </header>
 
-      {/* ── SECTION 1 — HERO (full-screen, eager load) ─────────────────── */}
+      {/* ── SECTION 1 — HERO ───────────────────────────────────────────── */}
+      {/* "BEGIN MY READING →" — botão dourado lado esquerdo, ~55% do topo */}
       <ImageSection
         desktopSrc="/landing/section-1-desktop.png"
         mobileSrc="/landing/section-1-mobile.png"
@@ -258,10 +259,8 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "hero",
-            // AJUSTE: posição do botão CTA na imagem desktop (percentual da seção)
-            desktopStyle: { left: "4%", top: "76%", width: "28%", height: "10%" },
-            // AJUSTE: posição do botão CTA na imagem mobile
-            mobileStyle: { left: "3%", top: "84%", width: "94%", height: "9%" },
+            desktopStyle: { left: "3%", top: "52%", width: "40%", height: "14%" },
+            mobileStyle: { left: "5%", top: "68%", width: "90%", height: "11%" },
             label: "Begin My Reading",
           },
         ]}
@@ -272,6 +271,7 @@ const VSL = () => {
       <VslSection onCtaClick={handleCTA} />
 
       {/* ── SECTION 3 — PAIN PATTERNS ──────────────────────────────────── */}
+      {/* Botão CTA na parte inferior da seção */}
       <ImageSection
         desktopSrc="/landing/section-3-desktop.png"
         mobileSrc="/landing/section-3-mobile.png"
@@ -279,8 +279,8 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "patterns",
-            desktopStyle: { left: "3%", top: "88%", width: "35%", height: "8%" },
-            mobileStyle: { left: "3%", top: "90%", width: "94%", height: "7%" },
+            desktopStyle: { left: "3%", top: "83%", width: "42%", height: "12%" },
+            mobileStyle: { left: "4%", top: "85%", width: "92%", height: "10%" },
             label: "Begin My Reading",
           },
         ]}
@@ -288,7 +288,6 @@ const VSL = () => {
       />
 
       {/* ── SECTION 4 — EXPERIENCE / PALM READING ──────────────────────── */}
-      {/* Preparado para futura animação/vídeo loop via Seedance */}
       <ImageSection
         desktopSrc="/landing/section-4-desktop.png"
         mobileSrc="/landing/section-4-mobile.png"
@@ -296,8 +295,8 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "experience",
-            desktopStyle: { left: "3%", top: "88%", width: "35%", height: "8%" },
-            mobileStyle: { left: "3%", top: "90%", width: "94%", height: "7%" },
+            desktopStyle: { left: "3%", top: "83%", width: "42%", height: "12%" },
+            mobileStyle: { left: "4%", top: "85%", width: "92%", height: "10%" },
             label: "Begin My Reading",
           },
         ]}
@@ -305,13 +304,24 @@ const VSL = () => {
       />
 
       {/* ── SECTION 5 — SOCIAL PROOF ────────────────────────────────────── */}
+      {/* "DISCOVER YOURS →" — botão lado direito, ~85% do topo */}
       <ImageSection
         desktopSrc="/landing/section-5-desktop.png"
         mobileSrc="/landing/section-5-mobile.png"
         alt=""
+        ctaAreas={[
+          {
+            section: "proof",
+            desktopStyle: { left: "62%", top: "82%", width: "35%", height: "11%" },
+            mobileStyle: { left: "4%", top: "88%", width: "92%", height: "9%" },
+            label: "Discover Yours",
+          },
+        ]}
+        onCtaClick={handleCTA}
       />
 
       {/* ── SECTION 6 — FINAL CTA ───────────────────────────────────────── */}
+      {/* "UNLOCK YOUR READING ✦" — botão largo centralizado, ~70% do topo */}
       <ImageSection
         desktopSrc="/landing/section-6-desktop.png"
         mobileSrc="/landing/section-6-mobile.png"
@@ -319,9 +329,9 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "final",
-            desktopStyle: { left: "3%", top: "80%", width: "40%", height: "10%" },
-            mobileStyle: { left: "3%", top: "86%", width: "94%", height: "9%" },
-            label: "Begin My Reading",
+            desktopStyle: { left: "3%", top: "68%", width: "94%", height: "16%" },
+            mobileStyle: { left: "3%", top: "70%", width: "94%", height: "14%" },
+            label: "Unlock Your Reading",
           },
         ]}
         onCtaClick={handleCTA}
