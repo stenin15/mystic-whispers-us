@@ -22,6 +22,9 @@ export const EmbeddedVSL = ({ onFirstPlay }: EmbeddedVSLProps) => {
     });
   }, []);
 
+  const onFirstPlayRef = useRef(onFirstPlay);
+  useEffect(() => { onFirstPlayRef.current = onFirstPlay; }, [onFirstPlay]);
+
   // Autoplay muted on mount
   useEffect(() => {
     const v = videoRef.current;
@@ -34,12 +37,13 @@ export const EmbeddedVSL = ({ onFirstPlay }: EmbeddedVSLProps) => {
           event_id: getOrCreateEventId("vsl_play"),
           ...getAttributionParams(),
         });
-        onFirstPlay?.();
+        onFirstPlayRef.current?.();
       })
       .catch(() => {
         // autoplay blocked — shows play button fallback
       });
-  }, [onFirstPlay]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Milestone tracking
   useEffect(() => {
@@ -96,6 +100,7 @@ export const EmbeddedVSL = ({ onFirstPlay }: EmbeddedVSLProps) => {
             src={VSL_URL}
             className="w-full h-full object-cover"
             playsInline
+            autoPlay
             muted
             loop
             preload="auto"
