@@ -1072,7 +1072,7 @@ const Resultado = () => {
                     <span className="text-xl font-bold text-white">{PRICE_MAP.complete.display}</span>
                     <span className="text-[11px] text-white/30 line-through">$49</span>
                   </div>
-                  <p className="text-[11px] text-white/45 leading-snug">Reading + voice session 🎙️</p>
+                  <p className="text-[11px] text-white/45 leading-snug">Reading · PDF Guide · 15-min live session 🎙️</p>
                 </button>
               </div>
 
@@ -1096,7 +1096,7 @@ const Resultado = () => {
                 >
                   {selectedPlan === 'basic'
                     ? `Unlock My Reading — ${PRICE_MAP.basic.display}`
-                    : 'UNLOCK FULL READING →'}
+                    : `Unlock Everything — ${PRICE_MAP.complete.display}`}
                 </Button>
               </motion.div>
 

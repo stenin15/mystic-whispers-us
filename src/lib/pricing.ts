@@ -10,12 +10,12 @@ export const PRICE_MAP: Record<
     display: "$9.90",
   },
   complete: {
-    label: "Complete Reading + Live Session",
+    label: "Complete Reading + Exclusive PDF Guide + 15-min Live Session",
     amountUsd: 29.9,
     display: "$29.90",
   },
   guide: {
-    label: "Ritual & Integration Guide",
+    label: "Exclusive PDF Guide + Personal Energy Map",
     amountUsd: 27.0,
     display: "$27.00",
   },

@@ -262,6 +262,40 @@ const VSL = () => {
       {/* ── SECTION 2 — VSL ─────────────────────────────────────────────── */}
       <VslSection />
 
+      {/* ── AURORA SESSION HOOK — between VSL and section 3 ─────────────── */}
+      <div style={{ background: "linear-gradient(180deg, #030004 0%, #0a0412 50%, #030004 100%)", padding: "32px 16px" }}>
+        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(251,191,36,0.55)", marginBottom: 12 }}>
+            Included with your reading
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "stretch" }}>
+            {[
+              { icon: "🔮", title: "Complete Palm Analysis", desc: "AI reads your actual hand photo — heart line, fate line, and relationship patterns." },
+              { icon: "🎙️", title: "Live 15-Min Session with Madam Aurora", desc: "A real private conversation. Aurora asks about your situation and responds with insights specific to you." },
+              { icon: "📖", title: "Exclusive PDF Guide", desc: "Your personal energy map, rituals, and a 7-day practice to start integrating what your palm revealed." },
+            ].map(({ icon, title, desc }) => (
+              <div
+                key={title}
+                style={{
+                  display: "flex", alignItems: "flex-start", gap: 14, textAlign: "left",
+                  background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,200,60,0.12)",
+                  borderRadius: 16, padding: "14px 18px",
+                }}
+              >
+                <span style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>{icon}</span>
+                <div>
+                  <p style={{ color: "rgba(255,255,255,0.92)", fontWeight: 700, fontSize: 13, marginBottom: 3 }}>{title}</p>
+                  <p style={{ color: "rgba(255,255,255,0.38)", fontSize: 12, lineHeight: 1.55 }}>{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.22)", marginTop: 16 }}>
+            All of this for one reading. Start below.
+          </p>
+        </div>
+      </div>
+
       {/* ── SECTION 3 — PAIN PATTERNS ──────────────────────────────────── */}
       {/* Botão CTA na parte inferior da seção */}
       <ImageSection

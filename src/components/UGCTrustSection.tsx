@@ -231,6 +231,21 @@ export const UGCTrustSection = ({ onCTA }: { onCTA: () => void }) => {
         <p className="text-sm text-white/35 mt-0.5">
           Tap any video to hear their story.
         </p>
+
+        {/* Social proof bar */}
+        <div className="flex flex-wrap items-center gap-4 mt-3">
+          <div className="flex items-center gap-1.5">
+            {[1,2,3,4,5].map(i => (
+              <svg key={i} viewBox="0 0 12 12" className="w-3 h-3 fill-amber-400"><path d="M6 0l1.5 4.5H12L8.25 7.25l1.5 4.5L6 9l-3.75 2.75 1.5-4.5L0 4.5h4.5z"/></svg>
+            ))}
+            <span className="text-xs font-bold text-amber-400 ml-1">4.9</span>
+            <span className="text-xs text-white/35 ml-0.5">/ 5</span>
+          </div>
+          <span className="text-white/15">·</span>
+          <span className="text-xs text-white/40"><span className="text-white/70 font-semibold">14,200+</span> readings delivered</span>
+          <span className="text-white/15">·</span>
+          <span className="text-xs text-white/40"><span className="text-white/70 font-semibold">97%</span> felt it was accurate</span>
+        </div>
       </div>
 
       {/* Carousel — full-width but overflow clipped by parent section */}

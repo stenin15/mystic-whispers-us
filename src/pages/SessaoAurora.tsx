@@ -29,9 +29,9 @@ import { track } from "@/lib/tracking";
 // ---------------------------------------------------------------------------
 // Session limits
 // ---------------------------------------------------------------------------
-const MAX_USER_MESSAGES = 8;
-const MAX_TTS = 5;
-const SESSION_DURATION_MS = 8 * 60 * 1000; // 8 minutes
+const MAX_USER_MESSAGES = 15;
+const MAX_TTS = 10;
+const SESSION_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
 // ---------------------------------------------------------------------------
 // LocalStorage persistence
@@ -259,7 +259,7 @@ const SessionGate = ({ name, onStart }: { name?: string; onStart: () => void }) 
           Madam Aurora is ready{name ? `, ${name}` : ""}.
         </h1>
         <p className="text-sm text-white/40 leading-relaxed max-w-xs mx-auto">
-          Use headphones. Find a quiet moment. This session lasts up to 8 minutes.
+          Use headphones. Find a quiet moment. This session lasts up to 15 minutes.
         </p>
       </div>
 

@@ -59,26 +59,43 @@ const blocksPool: Block[] = [
   { title: "Purpose fog", desc: "Feeling lost can be a sign it's time to reconnect with what matters most to you.", icon: "Compass" },
 ];
 
-// Spiritual messages based on energy type and name
-const generateSpiritualMessage = (name: string, energyType: string): string => {
+// Spiritual messages based on energy type, name, and concern
+const generateSpiritualMessage = (name: string, energyType: string, mainConcern?: string, emotionalState?: string): string => {
+  const concern = mainConcern ? mainConcern.toLowerCase() : "";
+  const emotion = emotionalState ? emotionalState.toLowerCase() : "";
+
+  const concernLine = concern
+    ? `What you're feeling around ${concern} isn't confusion — it's a signal that something important is ready to shift.`
+    : `Something in your energy is asking to be acknowledged — not solved, just seen.`;
+
+  const emotionLine = emotion
+    ? `Coming in feeling ${emotion} is not a coincidence. The lines of the palm tend to amplify what the body already knows.`
+    : `Your energy has a particular quality right now — one that comes through in the lines of your palm.`;
+
   const messages: Record<string, string> = {
-    lunar: `${name}, you're in a season where sensitivity is not a weakness -- it's information.
+    lunar: `${name}, your lunar energy runs deep right now.
 
-Your lunar energy suggests you're picking up on subtle signals (in yourself and in others). When you slow down and listen, your intuition becomes clearer and kinder.
+${emotionLine}
 
-Use this moment for reflection and self-honesty. For entertainment and self-reflection purposes.`,
+${concernLine} Your intuition is your clearest tool in this moment — not certainty, but direction. Trust the pull, even when you can't explain it yet.
 
-    solar: `${name}, your solar energy is about momentum -- the part of you that knows how to move forward.
+For entertainment and self-reflection purposes.`,
 
-When you're aligned, you lead with warmth and certainty. The key is choosing direction without forcing outcomes.
+    solar: `${name}, there's momentum in your lines — the kind that comes before a clear move.
 
-Let this reading support your next step with clarity. For entertainment and self-reflection purposes.`,
+${concernLine}
 
-    stellar: `${name}, your stellar energy points to vision -- seeing patterns, meaning, and possibility.
+${emotionLine} Solar energy at this level asks for conscious choice, not reaction. You already know more than you're admitting to yourself.
 
-You're likely in a phase where you're reconnecting with what matters most, and refining what you want your life to feel like.
+For entertainment and self-reflection purposes.`,
 
-Use these insights as reflection, not certainty. For entertainment and self-reflection purposes.`,
+    stellar: `${name}, your stellar energy is active — pattern-seeing, future-oriented, searching for meaning.
+
+${emotionLine}
+
+${concernLine} You're in a phase of integration: the pieces are there. What's missing isn't information — it's the decision to act on what you already sense.
+
+For entertainment and self-reflection purposes.`,
   };
 
   return messages[energyType] || messages.lunar;
@@ -115,10 +132,44 @@ const calculateDominantEnergy = (answers: QuizAnswer[]): string => {
   return 'stellar';
 };
 
-// Select random items from array
 const selectRandom = <T>(arr: T[], count: number): T[] => {
   const shuffled = [...arr].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
+};
+
+type PoolItem = { title: string; desc: string; icon: string };
+
+const selectByRelevance = <T extends PoolItem>(pool: T[], count: number, mainConcern?: string): T[] => {
+  const concern = (mainConcern || "").toLowerCase();
+  const loveKeywords = ["love", "relationship", "partner", "someone", "alone", "moving on", "pattern"];
+  const purposeKeywords = ["purpose", "career", "direction", "path", "decision"];
+  const emotionKeywords = ["emotion", "blocked", "confusion", "overthinking", "anxiety"];
+
+  const isLove = loveKeywords.some(k => concern.includes(k));
+  const isPurpose = purposeKeywords.some(k => concern.includes(k));
+  const isEmotion = emotionKeywords.some(k => concern.includes(k));
+
+  const loveFirst = ["Deep empathy", "Personal magnetism", "Strong intuition", "Heart guarded", "Repeating cycles", "Difficulty receiving"];
+  const purposeFirst = ["Natural wisdom", "Creative thinking", "Inner resilience", "Purpose fog", "Fear of the unknown", "Energetic overload"];
+  const emotionFirst = ["Strong intuition", "Soothing presence", "Inner resilience", "Energetic overload", "Heart guarded", "Fear of the unknown"];
+
+  let priority: string[] = [];
+  if (isLove) priority = loveFirst;
+  else if (isPurpose) priority = purposeFirst;
+  else if (isEmotion) priority = emotionFirst;
+
+  if (priority.length === 0) return selectRandom(pool, count);
+
+  const sorted = [...pool].sort((a, b) => {
+    const ai = priority.indexOf(a.title);
+    const bi = priority.indexOf(b.title);
+    if (ai === -1 && bi === -1) return 0;
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+
+  return sorted.slice(0, count);
 };
 
 // Save analysis result to database
@@ -213,12 +264,12 @@ export const processAnalysis = async (
   } catch (err) {
     console.warn('processAnalysis failed:', err);
     
-    // Fallback to mock analysis if AI fails (sempre funciona)
+    // Fallback to local analysis if AI fails — uses concern + energy for relevance
     const dominantEnergy = calculateDominantEnergy(quizAnswers);
     const energyType = energyTypes[dominantEnergy];
-    const strengths = selectRandom(strengthsPool, 3);
-    const blocks = selectRandom(blocksPool, 2);
-    const spiritualMessage = generateSpiritualMessage(formData.name, dominantEnergy);
+    const strengths = selectByRelevance(strengthsPool, 3, formData.mainConcern) as Strength[];
+    const blocks = selectByRelevance(blocksPool, 2, formData.mainConcern) as Block[];
+    const spiritualMessage = generateSpiritualMessage(formData.name, dominantEnergy, formData.mainConcern, formData.emotionalState);
 
     const fallbackResult = {
       energyType,
