@@ -210,7 +210,7 @@ export const UGCTrustSection = ({ onCTA }: { onCTA: () => void }) => {
   const SET_W = items.length * (CARD_W + GAP); // px for one set
 
   return (
-    <section ref={sectionRef} className="py-6">
+    <section ref={sectionRef} className="py-6 overflow-hidden">
       {/* Keyframes injected once */}
       <style>{`
         @keyframes ugc-scroll {
@@ -233,8 +233,8 @@ export const UGCTrustSection = ({ onCTA }: { onCTA: () => void }) => {
         </p>
       </div>
 
-      {/* Carousel */}
-      <div className="overflow-hidden w-full">
+      {/* Carousel — full-width but overflow clipped by parent section */}
+      <div className="overflow-hidden">
         <div
           ref={trackDivRef}
           className={paused ? 'ugc-paused' : 'ugc-running'}

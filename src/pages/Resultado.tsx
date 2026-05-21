@@ -114,6 +114,7 @@ const Resultado = () => {
   const {
     name, email, analysisResult, canAccessResult, mainConcern,
     sessionKey, palmPhotoPath, previewReportUrl, setPreviewReportUrl,
+    handPhotoData,
   } = useHandReadingStore();
   const isPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === '1';
 
@@ -347,6 +348,20 @@ const Resultado = () => {
                   className="w-full block"
                   loading="eager"
                 />
+                {/* Palm photo thumbnail inset */}
+                {handPhotoData && (
+                  <div
+                    className="absolute top-3 right-3 rounded-xl overflow-hidden shadow-lg"
+                    style={{
+                      width: 64,
+                      height: 64,
+                      border: '2px solid rgba(255,200,60,0.5)',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
+                    }}
+                  >
+                    <img src={handPhotoData} alt="Your palm" className="w-full h-full object-cover" />
+                  </div>
+                )}
                 {/* Bottom lock overlay */}
                 <div
                   className="absolute bottom-0 left-0 right-0 py-10 px-6 text-center"
@@ -758,6 +773,21 @@ const Resultado = () => {
                   style={{ border: '1px solid rgba(255,200,60,0.2)' }}
                 >
                   <img src={localPreviewUrl} alt="Your AI Palm Reading Preview" className="w-full block" loading="eager" />
+                  {/* Palm photo thumbnail inset */}
+                  {handPhotoData && (
+                    <div
+                      className="absolute top-3 right-3 rounded-xl overflow-hidden shadow-lg"
+                      style={{
+                        width: 72,
+                        height: 72,
+                        border: '2px solid rgba(255,200,60,0.5)',
+                        boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
+                      }}
+                    >
+                      <img src={handPhotoData} alt="Your palm" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+
                   <div className="absolute bottom-0 left-0 right-0 py-8 px-5 text-center" style={{ background: 'linear-gradient(to top, rgba(8,8,16,0.97) 0%, rgba(8,8,16,0.65) 55%, transparent 100%)' }}>
                     <div className="flex items-center justify-center gap-1.5 mb-3">
                       <Lock className="w-3.5 h-3.5 text-amber-400/80" />
