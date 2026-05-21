@@ -243,7 +243,6 @@ const VSL = () => {
       </header>
 
       {/* ── SECTION 1 — HERO ───────────────────────────────────────────── */}
-      {/* "BEGIN MY READING →" — botão dourado lado esquerdo, ~55% do topo */}
       <ImageSection
         desktopSrc="/landing/section-1-desktop.png"
         mobileSrc="/landing/section-1-mobile.png"
@@ -252,8 +251,8 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "hero",
-            desktopStyle: { left: "3%", top: "52%", width: "40%", height: "14%" },
-            mobileStyle: { left: "5%", top: "68%", width: "90%", height: "11%" },
+            desktopStyle: { left: "3%", top: "64%", width: "40%", height: "14%" },
+            mobileStyle: { left: "5%", top: "76%", width: "90%", height: "12%" },
             label: "Begin My Reading",
           },
         ]}
@@ -297,7 +296,6 @@ const VSL = () => {
       />
 
       {/* ── SECTION 5 — SOCIAL PROOF ────────────────────────────────────── */}
-      {/* "DISCOVER YOURS →" — botão lado direito, ~85% do topo */}
       <ImageSection
         desktopSrc="/landing/section-5-desktop.png"
         mobileSrc="/landing/section-5-mobile.png"
@@ -305,8 +303,8 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "proof",
-            desktopStyle: { left: "62%", top: "82%", width: "35%", height: "11%" },
-            mobileStyle: { left: "4%", top: "88%", width: "92%", height: "9%" },
+            desktopStyle: { left: "32%", top: "62%", width: "36%", height: "12%" },
+            mobileStyle: { left: "14%", top: "63%", width: "72%", height: "11%" },
             label: "Discover Yours",
           },
         ]}
