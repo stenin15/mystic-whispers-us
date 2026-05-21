@@ -319,8 +319,8 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "final",
-            desktopStyle: { left: "33%", top: "74%", width: "38%", height: "9%" },
-            mobileStyle: { left: "4%", top: "83%", width: "92%", height: "8%" },
+            desktopStyle: { left: "50%", top: "76%", width: "35%", height: "9%" },
+            mobileStyle: { left: "10%", top: "85%", width: "80%", height: "8%" },
             label: "Unlock Your Reading",
           },
         ]}
