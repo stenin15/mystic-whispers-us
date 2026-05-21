@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Lock, Star } from "lucide-react";
+import { ArrowRight, Lock, Star, Sparkles, Mic, BookOpen, Hand } from "lucide-react";
 import { ImageSection } from "@/components/landing/ImageSection";
 import { EmbeddedVSL } from "@/components/landing/EmbeddedVSL";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
@@ -262,39 +262,158 @@ const VSL = () => {
       {/* ── SECTION 2 — VSL ─────────────────────────────────────────────── */}
       <VslSection />
 
-      {/* ── AURORA SESSION HOOK — between VSL and section 3 ─────────────── */}
-      <div style={{ background: "linear-gradient(180deg, #030004 0%, #0a0412 50%, #030004 100%)", padding: "32px 16px" }}>
-        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(251,191,36,0.55)", marginBottom: 12 }}>
+      {/* ── WHAT'S INCLUDED — Aurora session hook ────────────────────────── */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.9 }}
+        className="relative py-14 px-4 overflow-hidden"
+        style={{ background: "linear-gradient(180deg, #030004 0%, #08030f 55%, #030004 100%)" }}
+      >
+        {/* Ambient glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(139,62,218,0.10) 0%, transparent 70%)",
+          }}
+        />
+
+        <div className="relative z-10 max-w-xl mx-auto text-center">
+          {/* Label */}
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3"
+            style={{ color: "rgba(251,191,36,0.6)" }}
+          >
             Included with your reading
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "stretch" }}>
-            {[
-              { icon: "🔮", title: "Complete Palm Analysis", desc: "AI reads your actual hand photo — heart line, fate line, and relationship patterns." },
-              { icon: "🎙️", title: "Live 15-Min Session with Madam Aurora", desc: "A real private conversation. Aurora asks about your situation and responds with insights specific to you." },
-              { icon: "📖", title: "Exclusive PDF Guide", desc: "Your personal energy map, rituals, and a 7-day practice to start integrating what your palm revealed." },
-            ].map(({ icon, title, desc }) => (
-              <div
+          </motion.p>
+
+          {/* Headline */}
+          <motion.h2
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.18 }}
+            className="font-serif font-bold text-white mb-2"
+            style={{ fontSize: "clamp(1.35rem, 4vw, 1.75rem)", lineHeight: 1.25 }}
+          >
+            Everything that comes with your reading
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.26 }}
+            className="text-sm mb-8"
+            style={{ color: "rgba(255,255,255,0.32)" }}
+          >
+            One payment. No subscriptions. Yours forever.
+          </motion.p>
+
+          {/* Cards */}
+          <div className="flex flex-col gap-3 text-left">
+            {(
+              [
+                {
+                  Icon: Hand,
+                  accent: "rgba(251,191,36,0.9)",
+                  iconBg: "rgba(251,191,36,0.08)",
+                  iconBorder: "rgba(251,191,36,0.22)",
+                  title: "Complete Palm Analysis",
+                  desc: "AI reads your actual hand photo — heart line, fate line, and relationship patterns specific to you.",
+                },
+                {
+                  Icon: Mic,
+                  accent: "rgba(192,132,252,0.9)",
+                  iconBg: "rgba(139,62,218,0.10)",
+                  iconBorder: "rgba(139,62,218,0.28)",
+                  title: "Live 15-Min Private Session with Aurora",
+                  desc: "A real one-on-one conversation. Aurora responds to your situation with insights drawn directly from your reading.",
+                  badge: "Most valuable",
+                },
+                {
+                  Icon: BookOpen,
+                  accent: "rgba(251,191,36,0.9)",
+                  iconBg: "rgba(251,191,36,0.07)",
+                  iconBorder: "rgba(251,191,36,0.18)",
+                  title: "Exclusive PDF Guide",
+                  desc: "Your personal energy map, 7 grounding rituals, and a daily practice to integrate what your palm revealed.",
+                },
+              ] as Array<{
+                Icon: React.ComponentType<{ className?: string }>;
+                accent: string;
+                iconBg: string;
+                iconBorder: string;
+                title: string;
+                desc: string;
+                badge?: string;
+              }>
+            ).map(({ Icon, accent, iconBg, iconBorder, title, desc, badge }, i) => (
+              <motion.div
                 key={title}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.28 + i * 0.1, duration: 0.55 }}
+                className="flex items-start gap-4 rounded-2xl p-4"
                 style={{
-                  display: "flex", alignItems: "flex-start", gap: 14, textAlign: "left",
-                  background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,200,60,0.12)",
-                  borderRadius: 16, padding: "14px 18px",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
                 }}
               >
-                <span style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>{icon}</span>
-                <div>
-                  <p style={{ color: "rgba(255,255,255,0.92)", fontWeight: 700, fontSize: 13, marginBottom: 3 }}>{title}</p>
-                  <p style={{ color: "rgba(255,255,255,0.38)", fontSize: 12, lineHeight: 1.55 }}>{desc}</p>
+                {/* Icon circle */}
+                <div
+                  className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center mt-0.5"
+                  style={{ background: iconBg, border: `1px solid ${iconBorder}` }}
+                >
+                  <span style={{ color: accent, display: "flex" }}><Icon className="w-[18px] h-[18px]" /></span>
                 </div>
-              </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-sm font-bold" style={{ color: "rgba(255,255,255,0.92)" }}>
+                      {title}
+                    </span>
+                    {badge && (
+                      <span
+                        className="text-[9px] px-2 py-0.5 rounded-full font-bold tracking-wide flex-shrink-0"
+                        style={{
+                          background: "rgba(139,62,218,0.18)",
+                          color: "rgba(192,132,252,0.9)",
+                          border: "1px solid rgba(139,62,218,0.3)",
+                        }}
+                      >
+                        {badge.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>
+                    {desc}
+                  </p>
+                </div>
+              </motion.div>
             ))}
           </div>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.22)", marginTop: 16 }}>
-            All of this for one reading. Start below.
-          </p>
+
+          {/* Bottom stars */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.6 }}
+            className="flex items-center justify-center gap-2 mt-7"
+          >
+            <div className="h-px flex-1" style={{ background: "linear-gradient(to right, transparent, rgba(255,200,60,0.18))" }} />
+            <Star className="w-3 h-3" style={{ color: "rgba(251,191,36,0.45)", fill: "rgba(251,191,36,0.45)" }} />
+            <div className="h-px flex-1" style={{ background: "linear-gradient(to left, transparent, rgba(255,200,60,0.18))" }} />
+          </motion.div>
         </div>
-      </div>
+      </motion.section>
 
       {/* ── SECTION 3 — PAIN PATTERNS ──────────────────────────────────── */}
       {/* Botão CTA na parte inferior da seção */}
