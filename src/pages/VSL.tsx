@@ -303,7 +303,7 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "proof",
-            desktopStyle: { left: "71%", top: "83%", width: "25%", height: "10%" },
+            desktopStyle: { left: "72%", top: "84%", width: "24%", height: "8%" },
             mobileStyle: { left: "8%", top: "91%", width: "84%", height: "6%" },
             label: "Discover Yours",
           },
@@ -319,8 +319,8 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "final",
-            desktopStyle: { left: "33%", top: "73%", width: "40%", height: "10%" },
-            mobileStyle: { left: "4%", top: "82%", width: "92%", height: "8%" },
+            desktopStyle: { left: "33%", top: "74%", width: "38%", height: "9%" },
+            mobileStyle: { left: "4%", top: "83%", width: "92%", height: "8%" },
             label: "Unlock Your Reading",
           },
         ]}
