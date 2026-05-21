@@ -21,46 +21,90 @@ const corsHeaders = (origin: string | null): Record<string, string> => ({
   "Vary": "Origin",
 });
 
-// ─── Prompt ──────────────────────────────────────────────────────────────────
+// ─── Step 1: Analyze palm with GPT-4o Vision ─────────────────────────────────
 
-const PREVIEW_PROMPT = `Based on this open palm photo, create a premium AI Palm Reading Guide preview.
+async function analyzePalmFeatures(
+  photoBlob: Blob,
+  apiKey: string,
+): Promise<string> {
+  const arrayBuffer = await photoBlob.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  const b64 = btoa(binary);
+  const mimeType = photoBlob.type || "image/jpeg";
 
-Style: clean editorial layout, white background, minimal luxury design, thin black line art, rounded cards, expensive looking, modern diagnostic report aesthetic, elegant serif typography, soft shadows, Apple-like premium report design.
-
-Use the uploaded palm photo on the left side.
-Create a simple black-and-white contour drawing of the palm on the right side.
-Add elegant labeled sections.
-
-Title: "AI PALM READING GUIDE"
-Subtitle: "Your emotional patterns are being mapped."
-
-Visible sections:
-- Heart Line Preview
-- Relationship Pattern
-- Emotional Strengths
-
-Blur or lock these sections heavily:
-- Hidden Love Timing
-- Repeated Emotional Cycle
-- What Blocks You
-- What Comes Next
-
-Add lock icons and text: "Unlock to reveal"
-Add CTA button text: "UNLOCK FULL READING"
-
-The preview must feel personalized and based on the user's real palm, but must not reveal the full reading. Keep the most emotionally valuable insights blurred. Make it look like a real premium AI-generated report.
-
-No fantasy. No tarot. No witchcraft. No excessive mystical symbols. No medical claims. No future certainty.`;
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-const json = (body: unknown, status = 200, extra: Record<string, string> = {}) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json", ...extra },
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "gpt-4o",
+      max_tokens: 200,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a palm reading expert. Describe in 2-3 short sentences the most distinctive features you see in this palm: the heart line (top horizontal), head line (middle), life line (curves around thumb), and any notable patterns. Be specific and concise. Only mention what is clearly visible.",
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${b64}`,
+                detail: "low",
+              },
+            },
+            { type: "text", text: "Describe the palm lines briefly." },
+          ],
+        },
+      ],
+    }),
   });
 
-// ─── Main handler ────────────────────────────────────────────────────────────
+  if (!res.ok) return "";
+  const data = await res.json();
+  return (data.choices?.[0]?.message?.content as string | undefined) ?? "";
+}
+
+// ─── Step 2: Generate premium report image with gpt-image-2 ──────────────────
+
+function buildImagePrompt(palmDescription: string): string {
+  const personalNote = palmDescription
+    ? `The palm being analyzed shows: ${palmDescription.trim()} `
+    : "";
+
+  return `Create a premium AI Palm Reading Report preview image. ${personalNote}
+
+Design requirements:
+- Clean white background, premium editorial layout
+- Apple-inspired minimal luxury aesthetic, thin black line art
+- Elegant serif typography, soft drop shadows
+- Looks like an expensive diagnostic report or medical scan report
+
+Layout (top to bottom):
+1. Header: "AI PALM READING GUIDE" in bold serif, small subtitle "Your emotional patterns are being mapped."
+2. Left panel: stylized black-and-white line drawing of an open palm with labeled lines (Heart Line, Head Line, Life Line, Fate Line)
+3. Right panel: three clearly visible insight cards:
+   - "Heart Line Preview" with 1-2 lines of elegant placeholder text
+   - "Relationship Pattern" with visible content
+   - "Emotional Strengths" with visible content
+4. Below that: four HEAVILY BLURRED/FROSTED cards with lock icons:
+   - "Hidden Love Timing 🔒"
+   - "Repeated Emotional Cycle 🔒"
+   - "What Blocks You 🔒"
+   - "What Comes Next 🔒"
+   Each locked card shows "Unlock to reveal" in small text
+5. Bottom CTA button: "UNLOCK FULL READING" in gold/amber color, rounded corners
+
+No mystical symbols, no tarot, no witchcraft imagery. Premium, clean, professional look.`;
+}
+
+// ─── Main handler ─────────────────────────────────────────────────────────────
 
 serve(async (req) => {
   const origin = req.headers.get("origin");
@@ -108,7 +152,7 @@ serve(async (req) => {
       auth: { persistSession: false },
     });
 
-    // ── Idempotency: return existing preview if already generated ─────────────
+    // ── Idempotency ───────────────────────────────────────────────────────────
     const { data: existing } = await sb
       .from("reading_sessions")
       .select("preview_report_path, report_status")
@@ -130,106 +174,127 @@ serve(async (req) => {
       });
     }
 
-    // Another call is currently generating — tell client to poll
     if (existing?.report_status === "pending") {
       return new Response(JSON.stringify({ status: "pending" }), {
         status: 202, headers: { ...ch, "Content-Type": "application/json" },
       });
     }
 
-    // ── Claim generation slot ─────────────────────────────────────────────────
+    // ── Claim slot ────────────────────────────────────────────────────────────
     if (existing) {
-      // Row exists (failed or unknown state) — update in place and proceed to generation
       const { error: resetErr } = await sb.from("reading_sessions")
         .update({ report_status: "pending", palm_photo_path })
         .eq("session_key", session_key);
       if (resetErr) {
-        console.error("Failed to reset session:", resetErr);
         return new Response(JSON.stringify({ error: "Failed to initialize session" }), {
           status: 500, headers: { ...ch, "Content-Type": "application/json" },
         });
       }
     } else {
-      // No existing row — insert new
       const { error: claimErr } = await sb.from("reading_sessions").insert({
         session_key,
         email,
         palm_photo_path,
         report_status: "pending",
       });
-      // 23505 = unique_violation: another request claimed it first
       if (claimErr && (claimErr as { code?: string }).code === "23505") {
         return new Response(JSON.stringify({ status: "pending" }), {
           status: 202, headers: { ...ch, "Content-Type": "application/json" },
         });
       }
       if (claimErr) {
-        console.error("Failed to claim slot:", claimErr);
         return new Response(JSON.stringify({ error: "Failed to initialize session" }), {
           status: 500, headers: { ...ch, "Content-Type": "application/json" },
         });
       }
     }
 
-    // ── Download palm photo from Supabase Storage ─────────────────────────────
+    // ── Step 1: Download palm photo ───────────────────────────────────────────
+    let palmDescription = "";
     const { data: photoBlob, error: downloadErr } = await sb.storage
       .from("palm-photos")
       .download(palm_photo_path);
 
-    if (downloadErr || !photoBlob) {
-      console.error("download palm photo failed:", downloadErr);
-      await sb.from("reading_sessions")
-        .update({ report_status: "failed" })
-        .eq("session_key", session_key);
-      return new Response(JSON.stringify({ error: "Failed to retrieve palm photo" }), {
-        status: 500, headers: { ...ch, "Content-Type": "application/json" },
-      });
+    if (!downloadErr && photoBlob) {
+      // Step 2: Analyze palm with GPT-4o (non-blocking — if it fails, we still generate)
+      try {
+        palmDescription = await analyzePalmFeatures(photoBlob, OPENAI_API_KEY);
+        console.log("palm_analyzed", { session_key, chars: palmDescription.length });
+      } catch (e) {
+        console.warn("palm analysis skipped:", e);
+      }
+    } else {
+      console.warn("palm photo download skipped:", downloadErr);
     }
 
-    // ── Call OpenAI gpt-image-1 /images/edits ────────────────────────────────
-    const fd = new FormData();
-    fd.append("model", "gpt-image-1");
-    fd.append("image", photoBlob, "palm.jpg");
-    fd.append("prompt", PREVIEW_PROMPT);
-    fd.append("size", "1024x1536");
-    fd.append("quality", "medium");
-    fd.append("n", "1");
+    // ── Step 3: Generate report image with gpt-image-2 ────────────────────────
+    const imagePrompt = buildImagePrompt(palmDescription);
 
-    const openAIRes = await fetch("https://api.openai.com/v1/images/edits", {
+    const genRes = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
-      headers: { "Authorization": `Bearer ${OPENAI_API_KEY}` },
-      body: fd,
+      headers: {
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-image-2",
+        prompt: imagePrompt,
+        size: "1024x1536",
+        quality: "medium",
+        n: 1,
+        response_format: "b64_json",
+      }),
     });
 
-    if (!openAIRes.ok) {
-      const errText = await openAIRes.text();
-      console.error("OpenAI image edit failed:", openAIRes.status, errText);
+    if (!genRes.ok) {
+      const errText = await genRes.text();
+      console.error("gpt-image-2 failed:", genRes.status, errText);
       await sb.from("reading_sessions")
         .update({ report_status: "failed" })
         .eq("session_key", session_key);
-      return new Response(JSON.stringify({ error: "Image generation failed" }), {
+      return new Response(JSON.stringify({
+        error: "Image generation failed",
+        openai_status: genRes.status,
+        openai_error: errText.slice(0, 800),
+      }), {
         status: 502, headers: { ...ch, "Content-Type": "application/json" },
       });
     }
 
-    const imgJson = await openAIRes.json();
-    const b64 = imgJson?.data?.[0]?.b64_json as string | undefined;
+    const imgJson = await genRes.json();
+    const b64 = (imgJson?.data?.[0]?.b64_json ?? imgJson?.data?.[0]?.url) as string | undefined;
+
     if (!b64) {
+      const rawKeys = Object.keys(imgJson ?? {});
+      console.error("No image data in response, keys:", rawKeys);
       await sb.from("reading_sessions")
         .update({ report_status: "failed" })
         .eq("session_key", session_key);
-      return new Response(JSON.stringify({ error: "No image returned" }), {
+      return new Response(JSON.stringify({
+        error: "No image returned",
+        openai_response_keys: rawKeys,
+      }), {
         status: 502, headers: { ...ch, "Content-Type": "application/json" },
       });
     }
 
-    // ── Upload generated preview to palm-reports bucket ───────────────────────
-    const imageBytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-    const previewPath = `preview/${session_key}.png`;
+    // ── Step 4: Upload to palm-reports bucket ─────────────────────────────────
+    let imageBytes: Uint8Array;
+    let contentType = "image/png";
 
+    if (b64.startsWith("http")) {
+      // URL format — download it
+      const imgRes = await fetch(b64);
+      imageBytes = new Uint8Array(await imgRes.arrayBuffer());
+      contentType = imgRes.headers.get("content-type") || "image/png";
+    } else {
+      imageBytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    }
+
+    const previewPath = `preview/${session_key}.png`;
     const { error: uploadErr } = await sb.storage
       .from("palm-reports")
-      .upload(previewPath, imageBytes, { contentType: "image/png", upsert: true });
+      .upload(previewPath, imageBytes, { contentType, upsert: true });
 
     if (uploadErr) {
       console.error("Upload preview failed:", uploadErr);
@@ -257,9 +322,10 @@ serve(async (req) => {
     return new Response(JSON.stringify({ preview_url: urlData.publicUrl }), {
       status: 200, headers: { ...ch, "Content-Type": "application/json" },
     });
+
   } catch (err) {
     console.error("generate-palm-report-preview error:", err);
-    return new Response(JSON.stringify({ error: "Internal error" }), {
+    return new Response(JSON.stringify({ error: "Internal error", detail: String(err) }), {
       status: 500, headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
     });
   }

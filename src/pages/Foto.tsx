@@ -11,8 +11,8 @@ import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/mark
 
 const Foto = () => {
   const navigate = useNavigate();
-  const { name, setFormData, canAccessAnalysis, quizAnswers } = useHandReadingStore();
-  const [preview, setPreview] = useState('');
+  const { name, setFormData, canAccessAnalysis, quizAnswers, handPhotoData } = useHandReadingStore();
+  const [preview, setPreview] = useState(() => handPhotoData || '');
   const [issue, setIssue] = useState('');
   const [loading, setLoading] = useState(false);
 

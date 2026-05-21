@@ -257,7 +257,7 @@ const Analise = () => {
   const phase = PHASES[phaseIdx];
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col">
+    <div className="h-screen relative overflow-hidden flex flex-col">
 
       {/* ── Full-screen background ── */}
       <div className="absolute inset-0">
