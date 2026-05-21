@@ -75,7 +75,7 @@ const CTAButton = ({
 const VSL_DESKTOP_FRAME = { left: "42%", top: "6%", width: "54%", height: "71%" };
 const VSL_MOBILE_FRAME  = { left: "0%",  top: "10%", width: "100%", height: "78%" };
 
-const VslSection = ({ onCtaClick }: { onCtaClick: (section: string) => void }) => (
+const VslSection = () => (
   <section
     style={{ position: "relative", width: "100%", lineHeight: 0 }}
   >
@@ -261,7 +261,7 @@ const VSL = () => {
       />
 
       {/* ── SECTION 2 — VSL ─────────────────────────────────────────────── */}
-      <VslSection onCtaClick={handleCTA} />
+      <VslSection />
 
       {/* ── SECTION 3 — PAIN PATTERNS ──────────────────────────────────── */}
       {/* Botão CTA na parte inferior da seção */}
@@ -314,7 +314,6 @@ const VSL = () => {
       />
 
       {/* ── SECTION 6 — FINAL CTA ───────────────────────────────────────── */}
-      {/* "UNLOCK YOUR READING ✦" — botão largo centralizado, ~70% do topo */}
       <ImageSection
         desktopSrc="/landing/section-6-desktop.png"
         mobileSrc="/landing/section-6-mobile.png"
@@ -322,8 +321,8 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "final",
-            desktopStyle: { left: "3%", top: "68%", width: "94%", height: "16%" },
-            mobileStyle: { left: "3%", top: "70%", width: "94%", height: "14%" },
+            desktopStyle: { left: "56%", top: "62%", width: "40%", height: "16%" },
+            mobileStyle: { left: "4%", top: "70%", width: "92%", height: "12%" },
             label: "Unlock Your Reading",
           },
         ]}
