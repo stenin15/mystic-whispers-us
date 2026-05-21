@@ -2,9 +2,7 @@ import { motion } from "framer-motion";
 
 export interface CtaArea {
   section: string;
-  /** Posição absoluta sobre a imagem desktop (percentuais, ex: { left:"4%", top:"76%", width:"27%", height:"10%" }) */
   desktopStyle: React.CSSProperties;
-  /** Posição absoluta sobre a imagem mobile */
   mobileStyle: React.CSSProperties;
   label: string;
 }
@@ -15,9 +13,20 @@ interface ImageSectionProps {
   alt?: string;
   loading?: "eager" | "lazy";
   ctaAreas?: CtaArea[];
-  onCtaClick?: (section: string, placement: "desktop" | "mobile") => void;
+  onCtaClick?: (section: string) => void;
   className?: string;
 }
+
+const PULSE = {
+  animate: {
+    boxShadow: [
+      "0 0 0px rgba(251,191,36,0), inset 0 0 0px rgba(251,191,36,0)",
+      "0 0 28px rgba(251,191,36,0.65), inset 0 0 14px rgba(251,191,36,0.18)",
+      "0 0 0px rgba(251,191,36,0), inset 0 0 0px rgba(251,191,36,0)",
+    ],
+  },
+  transition: { duration: 2.4, repeat: Infinity, ease: "easeInOut" as const },
+};
 
 export const ImageSection = ({
   desktopSrc,
@@ -49,23 +58,49 @@ export const ImageSection = ({
       />
     </picture>
 
+    {/* Desktop overlays */}
     {ctaAreas.map((area, i) => (
-      <button
+      <motion.button
         key={`d-${i}`}
-        onClick={() => onCtaClick?.(area.section, "desktop")}
+        onClick={() => onCtaClick?.(area.section)}
         aria-label={area.label}
-        className="absolute hidden md:block bg-transparent border-none cursor-pointer"
-        style={{ ...area.desktopStyle, zIndex: 10 }}
+        className="absolute hidden md:block cursor-pointer"
+        style={{
+          ...area.desktopStyle,
+          zIndex: 10,
+          background: "transparent",
+          border: "none",
+          borderRadius: "9999px",
+          outline: "none",
+          WebkitTapHighlightColor: "transparent",
+        }}
+        animate={PULSE.animate}
+        transition={PULSE.transition}
+        whileHover={{ scale: 1.04, boxShadow: "0 0 48px rgba(251,191,36,0.9), inset 0 0 20px rgba(251,191,36,0.25)" }}
+        whileTap={{ scale: 0.96 }}
       />
     ))}
 
+    {/* Mobile overlays */}
     {ctaAreas.map((area, i) => (
-      <button
+      <motion.button
         key={`m-${i}`}
-        onClick={() => onCtaClick?.(area.section, "mobile")}
+        onClick={() => onCtaClick?.(area.section)}
         aria-label={area.label}
-        className="absolute block md:hidden bg-transparent border-none cursor-pointer"
-        style={{ ...area.mobileStyle, zIndex: 10 }}
+        className="absolute block md:hidden cursor-pointer"
+        style={{
+          ...area.mobileStyle,
+          zIndex: 10,
+          background: "transparent",
+          border: "none",
+          borderRadius: "9999px",
+          outline: "none",
+          WebkitTapHighlightColor: "transparent",
+        }}
+        animate={PULSE.animate}
+        transition={PULSE.transition}
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.96 }}
       />
     ))}
   </motion.section>
