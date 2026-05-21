@@ -303,7 +303,7 @@ const VSL = () => {
         ctaAreas={[
           {
             section: "proof",
-            desktopStyle: { left: "72%", top: "84%", width: "24%", height: "8%" },
+            desktopStyle: { left: "72%", top: "87%", width: "24%", height: "8%" },
             mobileStyle: { left: "8%", top: "91%", width: "84%", height: "6%" },
             label: "Discover Yours",
           },
