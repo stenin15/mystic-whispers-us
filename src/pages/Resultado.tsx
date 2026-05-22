@@ -1,3 +1,5 @@
+import { ResultOfferSection } from '@/components/results/ResultOfferSection';
+
 const Resultado = () => {
   return (
     <div style={{ width: '100%', margin: 0, padding: 0, lineHeight: 0 }}>
@@ -6,9 +8,8 @@ const Resultado = () => {
       <img src="/results/result-hero-desktop.png" alt="" className="hidden md:block w-full h-auto" draggable={false} />
       <img src="/results/result-hero-mobile.png"  alt="" className="block md:hidden w-full h-auto" draggable={false} />
 
-      {/* Seção 2 — Ofertas */}
-      <img src="/results/result-offers-desktop.png" alt="" className="hidden md:block w-full h-auto" draggable={false} />
-      <img src="/results/result-offers-mobile.png"  alt="" className="block md:hidden w-full h-auto" draggable={false} />
+      {/* Seção 2 — Ofertas + UGC Carousel */}
+      <ResultOfferSection />
 
       {/* Seção 3 — Preview */}
       <img src="/results/result-preview-desktop.png" alt="" className="hidden md:block w-full h-auto" draggable={false} />
