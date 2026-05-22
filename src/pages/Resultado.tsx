@@ -117,6 +117,11 @@ const Resultado = () => {
   const { h, m, s, expired } = useCountdown24h();
   const selectedPlan = 'complete' as const;
 
+  // Palm thumbnail from sessionStorage (set during Analise, survives navigation)
+  const [palmThumb] = useState<string | null>(() => {
+    try { return sessionStorage.getItem('mwus_palm_thumb'); } catch { return null; }
+  });
+
   // Visual preview state
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(previewReportUrl || null);
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
@@ -222,7 +227,7 @@ const Resultado = () => {
         name={name}
         mainConcern={mainConcern}
         result={result}
-        handPhotoData={handPhotoData}
+        handPhotoData={handPhotoData || palmThumb}
         localPreviewUrl={localPreviewUrl}
         isGeneratingPreview={isGeneratingPreview}
       />
@@ -231,7 +236,7 @@ const Resultado = () => {
       <ResultPreviewSection
         name={name}
         mainConcern={mainConcern}
-        handPhotoData={handPhotoData}
+        handPhotoData={handPhotoData || palmThumb}
         localPreviewUrl={localPreviewUrl}
         onUnlock={handleUnlock}
       />
