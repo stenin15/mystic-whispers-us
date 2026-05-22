@@ -166,7 +166,7 @@ export const ResultOfferSection = ({ name }: Props) => {
   ];
 
   return (
-    <section className="relative overflow-hidden">
+    <section id="offer-section" className="relative overflow-hidden">
 
       {/* ── Background images ── */}
       {/* Mobile */}

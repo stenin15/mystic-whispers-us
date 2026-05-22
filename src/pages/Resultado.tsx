@@ -18,6 +18,7 @@ import { getAttributionParams, getStoredAngle, getStoredFocus, appendUtmToPath }
 import { PRICE_MAP } from '@/lib/pricing';
 import { supabase } from '@/integrations/supabase/client';
 import { ResultHeroSection } from '@/components/results/ResultHeroSection';
+import { ResultPreviewSection } from '@/components/results/ResultPreviewSection';
 import { ResultOfferSection } from '@/components/results/ResultOfferSection';
 
 // 24-hour countdown from first visit
@@ -208,6 +209,10 @@ const Resultado = () => {
     navigate(appendUtmToPath(`/checkout?plan=${selectedPlan}`));
   };
 
+  const handleUnlock = () => {
+    document.getElementById('offer-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   if (!result) return null;
 
   return (
@@ -220,6 +225,15 @@ const Resultado = () => {
         handPhotoData={handPhotoData}
         localPreviewUrl={localPreviewUrl}
         isGeneratingPreview={isGeneratingPreview}
+      />
+
+      {/* ── PREVIEW SECTION (locked insights + palm analysis) ── */}
+      <ResultPreviewSection
+        name={name}
+        mainConcern={mainConcern}
+        handPhotoData={handPhotoData}
+        localPreviewUrl={localPreviewUrl}
+        onUnlock={handleUnlock}
       />
 
       {/* ── OFFER SECTION (pricing cards + UGC + trust) ── */}
