@@ -173,7 +173,7 @@ export const ResultOfferSection = ({ name }: Props) => {
       <div
         className="absolute inset-0 md:hidden"
         style={{
-          backgroundImage: 'url(/results/result-offers-mobile-9x16.png)',
+          backgroundImage: 'url(/results/result-offers-mobile.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
         }}
@@ -182,7 +182,7 @@ export const ResultOfferSection = ({ name }: Props) => {
       <div
         className="absolute inset-0 hidden md:block"
         style={{
-          backgroundImage: 'url(/results/result-offers-desktop-16x9.png)',
+          backgroundImage: 'url(/results/result-offers-desktop.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
