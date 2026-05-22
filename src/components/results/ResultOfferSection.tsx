@@ -20,7 +20,7 @@ const VIDEOS = [
   { src: '/ugc/ugc-5.mp4', quote: 'Shocked by how accurate this was.' },
 ];
 
-// ── Muted thumbnail card ──────────────────────────────────────────────────────
+// ── Thumbnail card — paused, shows first frame, opens modal on click ──────────
 const VideoCard = ({
   src, quote, onClick,
 }: { src: string; quote: string; onClick: () => void }) => {
@@ -29,8 +29,10 @@ const VideoCard = ({
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    v.muted = true;
-    v.play().catch(() => {});
+    // Seek to 0.5s so the first visible frame shows a face, not black
+    const onMeta = () => { v.currentTime = 0.5; };
+    v.addEventListener('loadedmetadata', onMeta);
+    return () => v.removeEventListener('loadedmetadata', onMeta);
   }, [src]);
 
   return (
@@ -38,44 +40,61 @@ const VideoCard = ({
       onClick={onClick}
       style={{
         position: 'relative',
-        borderRadius: 12,
+        borderRadius: 10,
         overflow: 'hidden',
         cursor: 'pointer',
-        aspectRatio: '9/16',
+        width: '100%',
+        height: '100%',
         background: '#0a0010',
-        flexShrink: 0,
       }}
     >
       <video
         ref={ref}
         src={src}
         muted
-        autoPlay
-        loop
         playsInline
-        preload="auto"
+        preload="metadata"
         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
       />
       {/* Gradient overlay */}
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 55%)', pointerEvents: 'none' }} />
-      {/* Play icon */}
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 42, height: 42, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)', border: '1.5px solid rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-        <Play style={{ width: 16, height: 16, color: 'white', marginLeft: 2 }} />
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 45%, transparent 100%)',
+        pointerEvents: 'none',
+      }} />
+      {/* Play button */}
+      <div style={{
+        position: 'absolute', top: '50%', left: '50%',
+        transform: 'translate(-50%, -58%)',
+        width: 36, height: 36, borderRadius: '50%',
+        background: 'rgba(255,255,255,0.22)',
+        backdropFilter: 'blur(6px)',
+        border: '1.5px solid rgba(255,255,255,0.45)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        pointerEvents: 'none',
+      }}>
+        <Play style={{ width: 13, height: 13, color: 'white', marginLeft: 2 }} />
       </div>
       {/* Quote + stars */}
-      <div style={{ position: 'absolute', bottom: 10, left: 10, right: 10, pointerEvents: 'none' }}>
-        <p style={{ color: 'white', fontSize: 11, fontWeight: 600, textAlign: 'center', marginBottom: 4, textShadow: '0 1px 6px rgba(0,0,0,0.9)', lineHeight: 1.3 }}>
+      <div style={{ position: 'absolute', bottom: 7, left: 6, right: 6, pointerEvents: 'none' }}>
+        <p style={{
+          color: 'white', fontSize: 9, fontWeight: 600,
+          textAlign: 'center', marginBottom: 3,
+          textShadow: '0 1px 5px rgba(0,0,0,0.9)', lineHeight: 1.25,
+        }}>
           {quote}
         </p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-          {[...Array(5)].map((_, i) => <Star key={i} style={{ width: 10, height: 10, color: '#fbbf24', fill: '#fbbf24' }} />)}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 1.5 }}>
+          {[...Array(5)].map((_, i) => (
+            <Star key={i} style={{ width: 7, height: 7, color: '#fbbf24', fill: '#fbbf24' }} />
+          ))}
         </div>
       </div>
     </div>
   );
 };
 
-// ── Full video modal ──────────────────────────────────────────────────────────
+// ── Full video modal — plays with audio ───────────────────────────────────────
 const VideoModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
@@ -92,17 +111,27 @@ const VideoModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(0,0,0,0.90)', backdropFilter: 'blur(14px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+      }}
     >
       <button
         onClick={onClose}
-        style={{ position: 'absolute', top: 20, right: 20, width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}
+        style={{
+          position: 'absolute', top: 20, right: 20,
+          width: 38, height: 38, borderRadius: '50%',
+          background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', color: 'white',
+        }}
       >
         <X style={{ width: 18, height: 18 }} />
       </button>
       <div
         onClick={e => e.stopPropagation()}
-        style={{ maxWidth: 400, width: '100%', borderRadius: 16, overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.7)' }}
+        style={{ maxWidth: 380, width: '100%', borderRadius: 16, overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.8)' }}
       >
         <video
           ref={ref}
@@ -134,36 +163,43 @@ const GlowButton = ({ onClick, gold }: { onClick: () => void; gold?: boolean }) 
 );
 
 // ── UGC Carousel ──────────────────────────────────────────────────────────────
-const UGCCarousel = ({ onOpenModal }: { onOpenModal: (src: string) => void }) => {
+const UGCCarousel = ({ onOpenModal, cardHeight }: { onOpenModal: (src: string) => void; cardHeight: number }) => {
   const [index, setIndex] = useState(0);
   const total = VIDEOS.length;
 
   const prev = useCallback(() => setIndex(i => (i - 1 + total) % total), [total]);
   const next = useCallback(() => setIndex(i => (i + 1) % total), [total]);
 
-  // Auto-advance every 6s
   useEffect(() => {
     const id = setInterval(next, 6000);
     return () => clearInterval(id);
   }, [next]);
 
-  // Visible indices: desktop shows 3 (prev, current, next), mobile shows 1
   const getVisible = (offset: number) => VIDEOS[(index + offset + total) % total];
+  const cardWidth = Math.round(cardHeight * 9 / 16);
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', gap: 0, position: 'relative' }}>
+    <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, position: 'relative' }}>
 
       {/* Prev arrow */}
-      <button onClick={prev} style={{ flexShrink: 0, width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white', zIndex: 2 }}>
-        <ChevronLeft style={{ width: 16, height: 16 }} />
+      <button onClick={prev} style={{
+        flexShrink: 0, width: 28, height: 28, borderRadius: '50%',
+        background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.20)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'pointer', color: 'white',
+      }}>
+        <ChevronLeft style={{ width: 14, height: 14 }} />
       </button>
 
       {/* Desktop: 3 cards */}
-      <div className="hidden md:flex" style={{ flex: 1, gap: 12, padding: '0 8px', height: '100%' }}>
+      <div className="hidden md:flex" style={{ gap: 10, alignItems: 'center' }}>
         {[-1, 0, 1].map((offset) => {
           const v = getVisible(offset);
+          const isCenter = offset === 0;
+          const h = isCenter ? cardHeight : Math.round(cardHeight * 0.85);
+          const w = Math.round(h * 9 / 16);
           return (
-            <div key={offset} style={{ flex: 1 }}>
+            <div key={offset} style={{ width: w, height: h, transition: 'all 0.3s', opacity: isCenter ? 1 : 0.65 }}>
               <VideoCard src={v.src} quote={v.quote} onClick={() => onOpenModal(v.src)} />
             </div>
           );
@@ -171,19 +207,28 @@ const UGCCarousel = ({ onOpenModal }: { onOpenModal: (src: string) => void }) =>
       </div>
 
       {/* Mobile: 1 card */}
-      <div className="flex md:hidden" style={{ flex: 1, padding: '0 8px', height: '100%' }}>
+      <div className="flex md:hidden" style={{ width: cardWidth, height: cardHeight }}>
         <VideoCard src={getVisible(0).src} quote={getVisible(0).quote} onClick={() => onOpenModal(getVisible(0).src)} />
       </div>
 
       {/* Next arrow */}
-      <button onClick={next} style={{ flexShrink: 0, width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white', zIndex: 2 }}>
-        <ChevronRight style={{ width: 16, height: 16 }} />
+      <button onClick={next} style={{
+        flexShrink: 0, width: 28, height: 28, borderRadius: '50%',
+        background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.20)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'pointer', color: 'white',
+      }}>
+        <ChevronRight style={{ width: 14, height: 14 }} />
       </button>
 
       {/* Dots */}
-      <div style={{ position: 'absolute', bottom: -18, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
+      <div style={{ position: 'absolute', bottom: -16, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 5 }}>
         {VIDEOS.map((_, i) => (
-          <button key={i} onClick={() => setIndex(i)} style={{ width: i === index ? 16 : 6, height: 6, borderRadius: 3, background: i === index ? 'rgba(255,200,60,0.9)' : 'rgba(255,255,255,0.25)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }} />
+          <button key={i} onClick={() => setIndex(i)} style={{
+            width: i === index ? 14 : 5, height: 5, borderRadius: 3,
+            background: i === index ? 'rgba(255,200,60,0.9)' : 'rgba(255,255,255,0.25)',
+            border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0,
+          }} />
         ))}
       </div>
     </div>
@@ -214,7 +259,7 @@ export const ResultOfferSection = ({ name: _name }: Props) => {
     <>
       <section id="offer-section" style={{ position: 'relative', width: '100%', lineHeight: 0 }}>
 
-        {/* ── Background images ── */}
+        {/* Background images */}
         <img src="/results/result-offers-desktop.png" alt="" aria-hidden className="hidden md:block w-full h-auto" draggable={false} />
         <img src="/results/result-offers-mobile.png"  alt="" aria-hidden className="block md:hidden w-full h-auto" draggable={false} />
 
@@ -230,12 +275,12 @@ export const ResultOfferSection = ({ name: _name }: Props) => {
           <GlowButton gold onClick={() => handleCheckout('complete')} />
         </div>
 
-        {/* UGC Carousel — desktop */}
+        {/* UGC Carousel — desktop: fixed 170px card height, centered */}
         <div
-          className="hidden md:flex absolute"
-          style={{ left: '4%', top: '57%', width: '92%', height: '22%' }}
+          className="hidden md:flex absolute items-center justify-center"
+          style={{ left: '0', top: '57%', width: '100%', height: '24%' }}
         >
-          <UGCCarousel onOpenModal={setModalSrc} />
+          <UGCCarousel onOpenModal={setModalSrc} cardHeight={170} />
         </div>
 
         {/* ════ MOBILE OVERLAYS ════ */}
@@ -250,12 +295,12 @@ export const ResultOfferSection = ({ name: _name }: Props) => {
           <GlowButton gold onClick={() => handleCheckout('complete')} />
         </div>
 
-        {/* UGC Carousel — mobile */}
+        {/* UGC Carousel — mobile: fixed 130px card height */}
         <div
-          className="flex md:hidden absolute"
-          style={{ left: '5%', top: '74%', width: '90%', height: '13%' }}
+          className="flex md:hidden absolute items-center justify-center"
+          style={{ left: '0', top: '74%', width: '100%', height: '12%' }}
         >
-          <UGCCarousel onOpenModal={setModalSrc} />
+          <UGCCarousel onOpenModal={setModalSrc} cardHeight={130} />
         </div>
 
       </section>
