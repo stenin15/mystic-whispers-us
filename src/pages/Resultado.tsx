@@ -1,19 +1,13 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-  Sparkles,
   ArrowRight,
   Lock,
-  CheckCircle2,
   Star,
   Shield,
-  Eye,
-  Clock,
   CreditCard,
   RefreshCw,
-  Mic,
-  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
@@ -23,8 +17,8 @@ import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus, appendUtmToPath } from '@/lib/marketing';
 import { PRICE_MAP } from '@/lib/pricing';
 import { supabase } from '@/integrations/supabase/client';
-import { UGCTrustSection } from '@/components/UGCTrustSection';
 import { ResultHeroSection } from '@/components/results/ResultHeroSection';
+import { ResultOfferSection } from '@/components/results/ResultOfferSection';
 
 // 24-hour countdown from first visit
 function useCountdown24h() {
@@ -120,7 +114,7 @@ const Resultado = () => {
 
   const hasTrackedRef = useRef(false);
   const { h, m, s, expired } = useCountdown24h();
-  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'complete'>('complete');
+  const selectedPlan = 'complete' as const;
 
   // Visual preview state
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(previewReportUrl || null);
@@ -216,9 +210,6 @@ const Resultado = () => {
 
   if (!result) return null;
 
-  const EnergyIcon = getIcon(result.energyType.icon);
-  const [firstStrength, ...lockedStrengths] = result.strengths;
-
   return (
     <div className="min-h-screen relative overflow-hidden">
 
@@ -231,160 +222,8 @@ const Resultado = () => {
         isGeneratingPreview={isGeneratingPreview}
       />
 
-      {/* ── UGC TRUST CARDS ── */}
-      <UGCTrustSection onCTA={handleCTA} />
-
-      {/* ── MAIN CTA BOX ── */}
-      <section className="py-8 px-4">
-        <div className="container max-w-3xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.22 }}
-            className="relative rounded-3xl p-8 md:p-10"
-            style={{
-              background: 'rgba(18,18,22,0.95)',
-              border: '1px solid rgba(255,255,255,0.07)',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(12px)',
-            }}
-          >
-
-            <div className="relative text-center">
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3">
-                Unlock everything Aurora found about you
-              </h2>
-              <p className="text-white/45 mb-6 max-w-lg mx-auto text-sm md:text-base leading-relaxed">
-                Your palm revealed more than one pattern. Unlock the full reading to see your timing, emotional blocks, love windows, and personal message.
-              </p>
-
-              {/* Voice session highlight */}
-              <div className="relative max-w-lg mx-auto rounded-2xl mb-6"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,200,60,0.15)' }}>
-                <div className="flex items-start gap-3.5 p-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(255,200,60,0.08)', border: '1px solid rgba(255,200,60,0.18)' }}>
-                    <Mic className="w-4 h-4 text-amber-400/80" />
-                  </div>
-                  <div className="text-left">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span className="text-sm font-bold text-white/90">Live voice session with Aurora</span>
-                      <span className="text-[9px] px-2 py-0.5 rounded-full font-bold"
-                        style={{ background: 'rgba(255,200,60,0.12)', color: 'hsl(45 85% 65%)', border: '1px solid rgba(255,200,60,0.2)' }}>
-                        INCLUDED
-                      </span>
-                    </div>
-                    <p className="text-xs text-white/40 leading-relaxed">
-                      Hear Aurora speak your name, your energy type, and what your palm revealed about your love timing.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Checklist */}
-              <div className="grid sm:grid-cols-2 gap-3 mb-7 text-left max-w-lg mx-auto">
-                {[
-                  'Heart Line — emotional patterns',
-                  'Marriage Line — timing & commitment signals',
-                  'Love Timing Window — when energy peaks',
-                  'Repeating Pattern — what keeps coming back',
-                  'Narrated personal message',
-                  'Active blocks & how to move past them',
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-2.5 text-sm text-white/75">
-                    <CheckCircle2 className="w-4 h-4 text-amber-400/70 flex-shrink-0" />
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Plan selector */}
-              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-3 mb-5 max-w-lg mx-auto">
-                {/* Basic */}
-                <button
-                  onClick={() => setSelectedPlan('basic')}
-                  className="p-4 rounded-2xl text-left transition-all duration-200 relative"
-                  style={{
-                    background: selectedPlan === 'basic' ? 'rgba(255,200,60,0.08)' : 'rgba(255,255,255,0.03)',
-                    border: selectedPlan === 'basic' ? '2px solid rgba(255,200,60,0.4)' : '2px solid rgba(255,255,255,0.08)',
-                  }}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">Basic</span>
-                    {selectedPlan === 'basic' && <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />}
-                  </div>
-                  <div className="text-xl font-bold text-white mb-0.5">{PRICE_MAP.basic.display}</div>
-                  <p className="text-[11px] text-white/55 leading-snug">Relationship pattern reading · Instant access</p>
-                </button>
-
-                {/* Complete — default/highlighted */}
-                <button
-                  onClick={() => setSelectedPlan('complete')}
-                  className="p-4 rounded-2xl text-left relative transition-all duration-200"
-                  style={{
-                    background: selectedPlan === 'complete' ? 'rgba(255,200,60,0.1)' : 'rgba(255,255,255,0.03)',
-                    border: selectedPlan === 'complete' ? '2px solid rgba(255,200,60,0.45)' : '2px solid rgba(255,255,255,0.08)',
-                  }}
-                >
-                  <div className="absolute -top-2.5 left-3">
-                    <span className="text-[9px] px-2.5 py-0.5 rounded-full font-bold tracking-wider"
-                      style={{ background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))', color: '#08080f' }}>
-                      BEST VALUE
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between mb-2 mt-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400/80">Complete</span>
-                    {selectedPlan === 'complete' && <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />}
-                  </div>
-                  <div className="flex items-baseline gap-2 mb-0.5">
-                    <span className="text-xl font-bold text-white">{PRICE_MAP.complete.display}</span>
-                    <span className="text-[11px] text-white/30 line-through">$49</span>
-                  </div>
-                  <p className="text-[11px] text-white/45 leading-snug">Reading · PDF Guide · 15-min live session 🎙️</p>
-                </button>
-              </div>
-
-              <p className="text-[11px] text-white/25 mb-5">One-time payment · No subscription · Instant access</p>
-
-              {/* Main CTA */}
-              <motion.div
-                animate={{ scale: [1, 1.025, 1] }}
-                transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <Button
-                  onClick={handleCTA}
-                  size="lg"
-                  className="w-full sm:w-auto px-12 py-7 text-lg font-bold rounded-2xl shadow-2xl hover:scale-[1.03] transition-transform duration-200 mb-4"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))',
-                    color: '#08080f',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
-                    border: 'none',
-                  }}
-                >
-                  {selectedPlan === 'basic'
-                    ? `Unlock My Reading — ${PRICE_MAP.basic.display}`
-                    : `Unlock Everything — ${PRICE_MAP.complete.display}`}
-                </Button>
-              </motion.div>
-
-              {/* Countdown inline */}
-              <div className="flex items-center justify-center gap-2 text-xs text-rose-400/70 mb-3">
-                <Clock className="w-3.5 h-3.5" />
-                <span>Reading expires in <span className="font-mono font-bold text-rose-400">{pad(h)}:{pad(m)}:{pad(s)}</span></span>
-              </div>
-
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center gap-2 text-xs text-emerald-400/80 font-medium">
-                  <Shield className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span>7-day money-back guarantee — no questions asked</span>
-                </div>
-                <p className="text-[10px] text-white/25">Secure checkout · Photo never shared · No subscription</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* ── OFFER SECTION (pricing cards + UGC + trust) ── */}
+      <ResultOfferSection name={name} />
 
       {/* ── ACTIVE BLOCKS ── */}
       <section className="py-4 px-4">
