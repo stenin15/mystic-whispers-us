@@ -312,12 +312,11 @@ export const ResultHeroSection = ({
               animate={{
                 y: [0, 8, 0],
                 opacity: [0.5, 1, 0.5],
-                filter: ['drop-shadow(0 0 4px rgba(251,191,36,0.3))', 'drop-shadow(0 0 14px rgba(251,191,36,0.8))', 'drop-shadow(0 0 4px rgba(251,191,36,0.3))'],
               }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
               className="mt-2 self-start"
             >
-              <ChevronDown className="w-7 h-7 text-amber-400/80" />
+              <ChevronDown className="w-7 h-7 text-amber-400/80" style={{ filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.6))' }} />
             </motion.div>
           </motion.div>
         </div>

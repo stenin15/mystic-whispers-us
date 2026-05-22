@@ -411,8 +411,8 @@ const Analise = () => {
               className="rounded-full"
               animate={{
                 width: i === stepIndex ? 16 : 6,
-                background: i <= stepIndex
-                  ? 'hsl(280 60% 65%)'
+                backgroundColor: i <= stepIndex
+                  ? 'hsl(280, 60%, 65%)'
                   : 'rgba(255,255,255,0.12)',
               }}
               style={{ height: 6 }}
