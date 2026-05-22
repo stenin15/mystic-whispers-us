@@ -53,7 +53,7 @@ const VideoCard = ({
         autoPlay
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
       />
       {/* Gradient overlay */}
@@ -221,19 +221,19 @@ export const ResultOfferSection = ({ name: _name }: Props) => {
         {/* ════ DESKTOP OVERLAYS ════ */}
 
         {/* Basic button */}
-        <div className="hidden md:block absolute" style={{ left: '13.5%', top: '58.5%', width: '30%', height: '7%' }}>
+        <div className="hidden md:block absolute" style={{ left: '9%', top: '43%', width: '33%', height: '7%' }}>
           <GlowButton onClick={() => handleCheckout('basic')} />
         </div>
 
         {/* Complete button */}
-        <div className="hidden md:block absolute" style={{ left: '47%', top: '58.5%', width: '36%', height: '7%' }}>
+        <div className="hidden md:block absolute" style={{ left: '47%', top: '43%', width: '39%', height: '7%' }}>
           <GlowButton gold onClick={() => handleCheckout('complete')} />
         </div>
 
         {/* UGC Carousel — desktop */}
         <div
           className="hidden md:flex absolute"
-          style={{ left: '5%', top: '20%', width: '90%', height: '34%' }}
+          style={{ left: '4%', top: '57%', width: '92%', height: '22%' }}
         >
           <UGCCarousel onOpenModal={setModalSrc} />
         </div>
@@ -241,19 +241,19 @@ export const ResultOfferSection = ({ name: _name }: Props) => {
         {/* ════ MOBILE OVERLAYS ════ */}
 
         {/* Basic button */}
-        <div className="block md:hidden absolute" style={{ left: '8%', top: '44%', width: '84%', height: '5.5%' }}>
+        <div className="block md:hidden absolute" style={{ left: '10%', top: '36%', width: '80%', height: '5%' }}>
           <GlowButton onClick={() => handleCheckout('basic')} />
         </div>
 
         {/* Complete button */}
-        <div className="block md:hidden absolute" style={{ left: '8%', top: '73%', width: '84%', height: '5.5%' }}>
+        <div className="block md:hidden absolute" style={{ left: '10%', top: '62%', width: '80%', height: '5%' }}>
           <GlowButton gold onClick={() => handleCheckout('complete')} />
         </div>
 
         {/* UGC Carousel — mobile */}
         <div
           className="flex md:hidden absolute"
-          style={{ left: '6%', top: '10%', width: '88%', height: '30%' }}
+          style={{ left: '5%', top: '74%', width: '90%', height: '13%' }}
         >
           <UGCCarousel onOpenModal={setModalSrc} />
         </div>
