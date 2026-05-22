@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Heart, Brain, Activity, Compass, Lock, ArrowRight, Shield, Zap, RefreshCw } from 'lucide-react';
 import { PalmAnalysisPreview } from './PalmAnalysisPreview';
+import { getDynamicTexts } from '@/lib/resultPersonalization';
 
 interface Props {
   name?: string;
@@ -67,6 +68,7 @@ export const ResultPreviewSection = ({
   onUnlock,
 }: Props) => {
   const displayName = name ? name.split(' ')[0] : 'Your';
+  const texts = getDynamicTexts({ firstName: displayName, mainConcern: mainConcern || '', age: '', emotionalPattern: '', quizAnswers: [], uploadedHandUrl: null });
 
   return (
     <section className="relative overflow-hidden">
@@ -148,10 +150,7 @@ export const ResultPreviewSection = ({
                   </span>
                 </h2>
                 <p className="text-white/45 text-sm md:text-base leading-relaxed max-w-sm">
-                  Your palm holds a map.
-                  {mainConcern
-                    ? ` The patterns around ${mainConcern.toLowerCase()} are already visible.`
-                    : " Here's what it's beginning to show."}
+                  Your palm holds a map. {texts.previewInsightText}
                 </p>
               </motion.div>
 

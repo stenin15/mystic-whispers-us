@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Heart, Clock, Sparkles, Lock, ChevronDown } from 'lucide-react';
 import type { AnalysisResult } from '@/store/useHandReadingStore';
 import { DynamicPalmPreview } from './DynamicPalmPreview';
+import { getDynamicTexts } from '@/lib/resultPersonalization';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -13,19 +14,6 @@ interface Props {
   localPreviewUrl?: string | null;
   isGeneratingPreview?: boolean;
 }
-
-// ── Insight text per concern ───────────────────────────────────────────────────
-
-const CONCERN_INSIGHT: Record<string, string> = {
-  'Wrong timing': 'You arrive fully just as the other person is pulling back. This pattern is in your lines.',
-  'Emotional confusion': 'You sense what is happening before you can name it. Your clarity lives in feeling.',
-  'Fear of losing someone': 'Your attachment lines show you love deeply — and hold on even when letting go would free you.',
-  'Repeating the same patterns': 'You tend to reopen emotional cycles instead of closing them. The loop has an exit.',
-  'Feeling emotionally blocked': 'There is a decision waiting behind the block. Your palm shows you already know what it is.',
-  'Moving on from someone': 'Part of you is still holding space for what you thought could have been.',
-  'Overthinking relationships': 'Your mind runs ahead to protect your heart from what it actually wants.',
-  'Fear of ending up alone': 'The fear of being left shapes how you love — often more than you allow yourself to receive.',
-};
 
 // ── Ambient particles ──────────────────────────────────────────────────────────
 
@@ -106,15 +94,10 @@ export const ResultHeroSection = ({
   name, mainConcern, result, handPhotoData, localPreviewUrl, isGeneratingPreview,
 }: Props) => {
   const firstStrength = result.strengths?.[0];
+  const texts = getDynamicTexts({ firstName: name?.split(' ')[0] || 'Your', mainConcern: mainConcern || '', age: '', emotionalPattern: '', quizAnswers: [], uploadedHandUrl: null });
 
-  const card1Text =
-    (mainConcern && CONCERN_INSIGHT[mainConcern]) ||
-    firstStrength?.desc ||
-    'You tend to reopen emotional cycles instead of closing them.';
-
-  const card3Text =
-    firstStrength?.desc ||
-    'You are learning to choose yourself without losing your softness.';
+  const card1Text = texts.emotionalPatternText;
+  const card3Text = texts.innerStrengthText || firstStrength?.desc || 'You are learning to choose yourself without losing your softness.';
 
   const LOCKED_ITEMS = [
     'Compatibility insight',
