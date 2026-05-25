@@ -1,12 +1,27 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { ResultOfferSection } from '@/components/results/ResultOfferSection';
 import { ResultHeroSection } from '@/components/results/ResultHeroSection';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
+import { handleCheckout, pushDL } from '@/lib/resultPersonalization';
 import type { AnalysisResult } from '@/store/useHandReadingStore';
 
 const scrollToOffer = () => {
   document.getElementById('offer-section')?.scrollIntoView({ behavior: 'smooth' });
+};
+
+// Fire full tracking + go to Stripe Complete Kit
+const fireMainCTA = (source: string) => {
+  // dataLayer
+  pushDL({ event: 'InitiateCheckout', plan: 'complete', price: '29.90', section: source });
+  // Meta Pixel
+  const w = window as unknown as { fbq?: (...a: unknown[]) => void; gtag?: (...a: unknown[]) => void };
+  if (w.fbq) w.fbq('track', 'InitiateCheckout', { value: 29.90, currency: 'USD', content_name: 'Complete Palm Reading' });
+  // GA4
+  if (w.gtag) w.gtag('event', 'begin_checkout', { currency: 'USD', value: 29.90 });
+  // Navigate
+  handleCheckout('complete', source);
 };
 
 const FALLBACK_RESULT: AnalysisResult = {
@@ -16,13 +31,31 @@ const FALLBACK_RESULT: AnalysisResult = {
   spiritualMessage: 'Your patterns are ready to be revealed.',
 };
 
-const SCROLL_BTN: React.CSSProperties = {
-  background: 'transparent',
-  border: 'none',
-  cursor: 'pointer',
-  zIndex: 10,
-  position: 'absolute',
-};
+// Invisible clickable hotspot over image buttons
+const Hotspot = ({
+  onClick, className, style,
+}: {
+  onClick: () => void;
+  className?: string;
+  style: React.CSSProperties;
+}) => (
+  <motion.button
+    onClick={onClick}
+    className={className}
+    style={{
+      position: 'absolute',
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      zIndex: 20,
+      borderRadius: 10,
+      ...style,
+    }}
+    whileHover={{ scale: 1.01 }}
+    whileTap={{ scale: 0.99 }}
+    aria-label="Unlock my full reading"
+  />
+);
 
 const Resultado = () => {
   const navigate = useNavigate();
@@ -64,15 +97,21 @@ const Resultado = () => {
         <img src="/results/result-locked-desktop.png" alt="" className="hidden md:block w-full h-auto" draggable={false} />
         <img src="/results/result-locked-mobile.png"  alt="" className="block md:hidden w-full h-auto" draggable={false} />
 
-        {/* Desktop — botão direito do banner inferior */}
-        <button onClick={scrollToOffer} className="hidden md:block"
-          style={{ ...SCROLL_BTN, left: '62%', top: '87%', width: '26%', height: '8%' }}
-          aria-label="Unlock my full reading" />
+        {/* Desktop — "UNLOCK MY FULL READING" no banner inferior direito
+            Pixel analysis: rows 829-831 (88.1%), cols 59.3-86.7% */}
+        <Hotspot
+          onClick={() => fireMainCTA('locked_banner')}
+          className="hidden md:block"
+          style={{ left: '58%', top: '86%', width: '30%', height: '6%' }}
+        />
 
-        {/* Mobile — botão do banner inferior */}
-        <button onClick={scrollToOffer} className="block md:hidden"
-          style={{ ...SCROLL_BTN, left: '10%', top: '89%', width: '80%', height: '4%' }}
-          aria-label="Unlock my full reading" />
+        {/* Mobile — "UNLOCK MY FULL READING" no banner inferior direito
+            Pixel analysis: rows 1470-1471 (88.0%), cols 49.9-95.1% */}
+        <Hotspot
+          onClick={() => fireMainCTA('locked_banner_mobile')}
+          className="block md:hidden"
+          style={{ left: '48%', top: '86%', width: '49%', height: '5%' }}
+        />
       </div>
 
       {/* Seção 5 — Final CTA */}
@@ -80,15 +119,21 @@ const Resultado = () => {
         <img src="/results/result-final-desktop.png" alt="" className="hidden md:block w-full h-auto" draggable={false} />
         <img src="/results/result-final-mobile.png"  alt="" className="block md:hidden w-full h-auto" draggable={false} />
 
-        {/* Desktop — botão do card UNLOCK YOUR COMPLETE PALM READING */}
-        <button onClick={scrollToOffer} className="hidden md:block"
-          style={{ ...SCROLL_BTN, left: '7%', top: '42%', width: '33%', height: '7%' }}
-          aria-label="Unlock my full reading" />
+        {/* Desktop — "UNLOCK MY FULL READING" no card central
+            Pixel analysis: rows 591-604 (62.8-64.2%), cols 7.8-36.8% */}
+        <Hotspot
+          onClick={() => fireMainCTA('final_cta')}
+          className="hidden md:block"
+          style={{ left: '7%', top: '59%', width: '31%', height: '7%' }}
+        />
 
-        {/* Mobile — botão do card */}
-        <button onClick={scrollToOffer} className="block md:hidden"
-          style={{ ...SCROLL_BTN, left: '13%', top: '61%', width: '74%', height: '4%' }}
-          aria-label="Unlock my full reading" />
+        {/* Mobile — "UNLOCK MY FULL READING" no card central
+            Pixel analysis: rows 1192-1238 (71.3-74.0%), cols 7.2-91.8% */}
+        <Hotspot
+          onClick={() => fireMainCTA('final_cta_mobile')}
+          className="block md:hidden"
+          style={{ left: '7%', top: '70%', width: '86%', height: '6%' }}
+        />
       </div>
 
     </div>
