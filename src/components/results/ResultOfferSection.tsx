@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, X, Play, Star } from 'lucide-react';
+import { X, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 // ── dataLayer ─────────────────────────────────────────────────────────────────
@@ -11,83 +11,32 @@ const pushDL = (payload: DLEvent) => {
   w.dataLayer.push(payload);
 };
 
-// ── UGC video list ────────────────────────────────────────────────────────────
 const VIDEOS = [
   { src: '/ugc/ugc-1.mp4', quote: 'It described me perfectly.' },
   { src: '/ugc/ugc-2.mp4', quote: 'I cried reading it. So accurate.' },
-  { src: '/ugc/ugc-3.mp4', quote: "I've never felt so seen before." },
-  { src: '/ugc/ugc-4.mp4', quote: 'It pulled me apart in the best way.' },
-  { src: '/ugc/ugc-5.mp4', quote: 'Shocked by how accurate this was.' },
+  { src: '/ugc/ugc-3.mp4', quote: 'Shocked by how accurate this was.' },
+  { src: '/ugc/ugc-4.mp4', quote: "I've never felt so seen before." },
+  { src: '/ugc/ugc-5.mp4', quote: 'It pulled me apart in the best way.' },
 ];
 
-// ── Thumbnail card — paused, first frame, opens modal on click ────────────────
-const VideoCard = ({
-  src, quote, onClick,
-}: { src: string; quote: string; onClick: () => void }) => {
-  const ref = useRef<HTMLVideoElement>(null);
+// ── Glow checkout button ──────────────────────────────────────────────────────
+const GlowButton = ({ onClick, gold }: { onClick: () => void; gold?: boolean }) => (
+  <motion.button
+    onClick={onClick}
+    className="w-full h-full rounded-xl cursor-pointer"
+    style={{ background: 'transparent', border: 'none', position: 'relative', zIndex: 10 }}
+    animate={{
+      boxShadow: gold
+        ? ['0 0 18px rgba(255,200,60,0.25)', '0 0 44px rgba(255,200,60,0.62)', '0 0 18px rgba(255,200,60,0.25)']
+        : ['0 0 16px rgba(139,62,218,0.25)', '0 0 38px rgba(139,62,218,0.60)', '0 0 16px rgba(139,62,218,0.25)'],
+    }}
+    transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.97 }}
+  />
+);
 
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    const onMeta = () => { v.currentTime = 0.5; };
-    v.addEventListener('loadedmetadata', onMeta);
-    return () => v.removeEventListener('loadedmetadata', onMeta);
-  }, [src]);
-
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        position: 'relative',
-        borderRadius: 10,
-        overflow: 'hidden',
-        cursor: 'pointer',
-        width: '100%',
-        height: '100%',
-        background: '#0a0010',
-      }}
-    >
-      <video
-        ref={ref}
-        src={src}
-        muted
-        playsInline
-        preload="metadata"
-        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-      />
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.10) 50%, transparent 100%)',
-        pointerEvents: 'none',
-      }} />
-      {/* Play button */}
-      <div style={{
-        position: 'absolute', top: '50%', left: '50%',
-        transform: 'translate(-50%, -60%)',
-        width: 34, height: 34, borderRadius: '50%',
-        background: 'rgba(255,255,255,0.22)', backdropFilter: 'blur(6px)',
-        border: '1.5px solid rgba(255,255,255,0.45)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        pointerEvents: 'none',
-      }}>
-        <Play style={{ width: 12, height: 12, color: 'white', marginLeft: 2 }} />
-      </div>
-      {/* Quote + stars */}
-      <div style={{ position: 'absolute', bottom: 6, left: 5, right: 5, pointerEvents: 'none' }}>
-        <p style={{ color: 'white', fontSize: 9, fontWeight: 600, textAlign: 'center', marginBottom: 3, textShadow: '0 1px 5px rgba(0,0,0,0.95)', lineHeight: 1.2 }}>
-          {quote}
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 1.5 }}>
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} style={{ width: 7, height: 7, color: '#fbbf24', fill: '#fbbf24' }} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ── Full video modal ──────────────────────────────────────────────────────────
+// ── Full-screen modal ─────────────────────────────────────────────────────────
 const VideoModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
@@ -102,104 +51,99 @@ const VideoModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(14px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.93)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
     >
-      <button onClick={onClose} style={{ position: 'absolute', top: 20, right: 20, width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
+      <button onClick={onClose} style={{ position: 'absolute', top: 20, right: 20, width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
         <X style={{ width: 18, height: 18 }} />
       </button>
-      <div onClick={e => e.stopPropagation()} style={{ maxWidth: 380, width: '100%', borderRadius: 16, overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.8)' }}>
+      <div onClick={e => e.stopPropagation()} style={{ maxWidth: 360, width: '100%', borderRadius: 18, overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.85)' }}>
         <video ref={ref} src={src} controls playsInline style={{ width: '100%', display: 'block', background: '#000' }} />
       </div>
     </motion.div>
   );
 };
 
-// ── Glow button ───────────────────────────────────────────────────────────────
-const GlowButton = ({ onClick, gold }: { onClick: () => void; gold?: boolean }) => (
-  <motion.button
-    onClick={onClick}
-    className="w-full h-full rounded-xl cursor-pointer"
-    style={{ background: 'transparent', border: 'none', zIndex: 10, position: 'relative' }}
-    animate={{
-      boxShadow: gold
-        ? ['0 0 18px rgba(255,200,60,0.25)', '0 0 42px rgba(255,200,60,0.60)', '0 0 18px rgba(255,200,60,0.25)']
-        : ['0 0 16px rgba(139,62,218,0.25)', '0 0 36px rgba(139,62,218,0.58)', '0 0 16px rgba(139,62,218,0.25)'],
-    }}
-    transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-    whileHover={{ scale: 1.03 }}
-    whileTap={{ scale: 0.97 }}
-  />
-);
-
-// ── UGC Carousel — cards fill container height via CSS ────────────────────────
-const UGCCarousel = ({ onOpenModal }: { onOpenModal: (src: string) => void }) => {
-  const [index, setIndex] = useState(0);
-  const total = VIDEOS.length;
-
-  const prev = useCallback(() => setIndex(i => (i - 1 + total) % total), [total]);
-  const next = useCallback(() => setIndex(i => (i + 1) % total), [total]);
+// ── UGC Video card — fills parent, autoplay muted, click opens modal ──────────
+const VideoCard = ({
+  src, quote, onClick, delay = 0,
+}: { src: string; quote: string; onClick: () => void; delay?: number }) => {
+  const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const id = setInterval(next, 6000);
-    return () => clearInterval(id);
-  }, [next]);
-
-  const getVisible = (offset: number) => VIDEOS[(index + offset + total) % total];
+    const v = ref.current;
+    if (!v) return;
+    const attempt = () => v.play().catch(() => setTimeout(() => v.play().catch(() => {}), 1000));
+    if (v.readyState >= 3) attempt();
+    else v.addEventListener('canplay', attempt, { once: true });
+  }, [src]);
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, position: 'relative' }}>
-
-      {/* Prev arrow */}
-      <button onClick={prev} style={{ flexShrink: 0, width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white', zIndex: 2 }}>
-        <ChevronLeft style={{ width: 14, height: 14 }} />
-      </button>
-
-      {/* Desktop: 3 cards — height fills container, width from aspect ratio */}
-      <div className="hidden md:flex" style={{ flex: 1, height: '100%', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
-        {[-1, 0, 1].map((offset) => {
-          const v = getVisible(offset);
-          const isCenter = offset === 0;
-          return (
-            <div
-              key={offset}
-              style={{
-                height: isCenter ? '100%' : '85%',
-                aspectRatio: '9/16',
-                flexShrink: 0,
-                opacity: isCenter ? 1 : 0.65,
-                transition: 'all 0.3s ease',
-              }}
-            >
-              <VideoCard src={v.src} quote={v.quote} onClick={() => onOpenModal(v.src)} />
-            </div>
-          );
-        })}
+    <motion.div
+      onClick={onClick}
+      initial={{ opacity: 0, y: 14, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '-30px' }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay }}
+      whileHover={{ scale: 1.025 }}
+      style={{
+        width: '100%', height: '100%',
+        borderRadius: 12,
+        overflow: 'hidden',
+        cursor: 'pointer',
+        background: 'rgba(10,10,20,0.25)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        backdropFilter: 'blur(12px)',
+        boxShadow: '0 0 16px rgba(139,62,218,0.15), 0 8px 32px rgba(0,0,0,0.5)',
+      }}
+    >
+      <video
+        ref={ref}
+        src={src}
+        muted autoPlay loop playsInline preload="auto"
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+      />
+      {/* Gradient overlay */}
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.08) 45%, transparent 100%)', pointerEvents: 'none' }} />
+      {/* Play hint */}
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-60%)', width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', border: '1.5px solid rgba(255,255,255,0.32)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+        <Play style={{ width: 12, height: 12, color: 'white', marginLeft: 2 }} />
       </div>
-
-      {/* Mobile: 1 card */}
-      <div className="flex md:hidden" style={{ height: '100%', aspectRatio: '9/16', flexShrink: 0 }}>
-        <VideoCard src={getVisible(0).src} quote={getVisible(0).quote} onClick={() => onOpenModal(getVisible(0).src)} />
-      </div>
-
-      {/* Next arrow */}
-      <button onClick={next} style={{ flexShrink: 0, width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white', zIndex: 2 }}>
-        <ChevronRight style={{ width: 14, height: 14 }} />
-      </button>
-
-      {/* Dots */}
-      <div style={{ position: 'absolute', bottom: -16, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 5 }}>
-        {VIDEOS.map((_, i) => (
-          <button key={i} onClick={() => setIndex(i)} style={{ width: i === index ? 14 : 5, height: 5, borderRadius: 3, background: i === index ? 'rgba(255,200,60,0.9)' : 'rgba(255,255,255,0.25)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }} />
-        ))}
-      </div>
-    </div>
+      {/* Quote */}
+      <p style={{ position: 'absolute', bottom: 8, left: 6, right: 6, color: 'white', fontSize: 10, fontWeight: 700, textAlign: 'center', lineHeight: 1.25, textShadow: '0 1px 6px rgba(0,0,0,0.95)', pointerEvents: 'none' }}>
+        {quote}
+      </p>
+    </motion.div>
   );
 };
 
-// ── Main component ────────────────────────────────────────────────────────────
-interface Props { name?: string }
+// ── Mobile carousel — 1 large edge-to-edge card ───────────────────────────────
+const MobileCarousel = ({ onOpen }: { onOpen: (src: string) => void }) => {
+  const [idx, setIdx] = useState(0);
+  const total = VIDEOS.length;
+  const prev = useCallback(() => setIdx(i => (i - 1 + total) % total), [total]);
+  const next = useCallback(() => setIdx(i => (i + 1) % total), [total]);
 
-export const ResultOfferSection = ({ name: _name }: Props) => {
+  useEffect(() => {
+    const id = setInterval(next, 7000);
+    return () => clearInterval(id);
+  }, [next]);
+
+  return (
+    <>
+      <VideoCard src={VIDEOS[idx].src} quote={VIDEOS[idx].quote} onClick={() => onOpen(VIDEOS[idx].src)} />
+      <button onClick={prev} style={{ position: 'absolute', left: -24, top: '50%', transform: 'translateY(-50%)', width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', color: 'white', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 7 }}>‹</button>
+      <button onClick={next} style={{ position: 'absolute', right: -24, top: '50%', transform: 'translateY(-50%)', width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', color: 'white', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 7 }}>›</button>
+      <div style={{ position: 'absolute', bottom: -14, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 4 }}>
+        {VIDEOS.map((_, i) => (
+          <button key={i} onClick={() => setIdx(i)} style={{ width: i === idx ? 12 : 4, height: 4, borderRadius: 2, background: i === idx ? 'rgba(255,200,60,0.9)' : 'rgba(255,255,255,0.25)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }} />
+        ))}
+      </div>
+    </>
+  );
+};
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
   const { toast } = useToast();
   const [modalSrc, setModalSrc] = useState<string | null>(null);
 
@@ -215,6 +159,15 @@ export const ResultOfferSection = ({ name: _name }: Props) => {
     window.location.href = url;
   };
 
+  // Desktop: 3 fixed video cards — coordinates measured from actual image pixels
+  // Image 1672×941 | face brightspots at x≈340-460, 700-860, 1040-1160 | y≈658-780
+  // Cards expanded ~27% wide to include dark frame
+  const desktopCards = [
+    { video: VIDEOS[0], left: '4%',    delay: 0 },
+    { video: VIDEOS[1], left: '36.5%', delay: 0.12 },
+    { video: VIDEOS[2], left: '69%',   delay: 0.24 },
+  ];
+
   return (
     <>
       <section id="offer-section" style={{ position: 'relative', width: '100%', lineHeight: 0 }}>
@@ -223,49 +176,48 @@ export const ResultOfferSection = ({ name: _name }: Props) => {
         <img src="/results/result-offers-desktop.png" alt="" aria-hidden className="hidden md:block w-full h-auto" draggable={false} />
         <img src="/results/result-offers-mobile.png"  alt="" aria-hidden className="block md:hidden w-full h-auto" draggable={false} />
 
-        {/* ════ DESKTOP ════ */}
-
-        {/* Basic button */}
+        {/* ── DESKTOP: checkout buttons ── */}
         <div className="hidden md:block absolute" style={{ left: '9%', top: '43%', width: '33%', height: '7%', zIndex: 10 }}>
           <GlowButton onClick={() => handleCheckout('basic')} />
         </div>
-
-        {/* Complete button */}
         <div className="hidden md:block absolute" style={{ left: '47%', top: '43%', width: '39%', height: '7%', zIndex: 10 }}>
           <GlowButton gold onClick={() => handleCheckout('complete')} />
         </div>
 
-        {/* UGC Carousel — desktop: container height drives card size */}
-        <div
-          className="hidden md:flex absolute"
-          style={{ left: '2%', top: '57%', width: '96%', height: '23%', zIndex: 5 }}
-        >
-          <UGCCarousel onOpenModal={setModalSrc} />
-        </div>
+        {/* ── DESKTOP: 3 UGC video overlay cards ── */}
+        {desktopCards.map(({ video, left, delay }) => (
+          <div
+            key={video.src}
+            className="hidden md:block absolute"
+            style={{ left, top: '68%', width: '27%', height: '15.5%', zIndex: 6 }}
+          >
+            <VideoCard
+              src={video.src}
+              quote={video.quote}
+              onClick={() => setModalSrc(video.src)}
+              delay={delay}
+            />
+          </div>
+        ))}
 
-        {/* ════ MOBILE ════ */}
-
-        {/* Basic button */}
+        {/* ── MOBILE: checkout buttons ── */}
         <div className="block md:hidden absolute" style={{ left: '10%', top: '36%', width: '80%', height: '5%', zIndex: 10 }}>
           <GlowButton onClick={() => handleCheckout('basic')} />
         </div>
-
-        {/* Complete button */}
         <div className="block md:hidden absolute" style={{ left: '10%', top: '62%', width: '80%', height: '5%', zIndex: 10 }}>
           <GlowButton gold onClick={() => handleCheckout('complete')} />
         </div>
 
-        {/* UGC Carousel — mobile */}
+        {/* ── MOBILE: edge-to-edge carousel ── */}
         <div
-          className="flex md:hidden absolute"
-          style={{ left: '5%', top: '74%', width: '90%', height: '12%', zIndex: 5 }}
+          className="block md:hidden absolute"
+          style={{ left: '5%', top: '72%', width: '90%', height: '13%', zIndex: 6 }}
         >
-          <UGCCarousel onOpenModal={setModalSrc} />
+          <MobileCarousel onOpen={setModalSrc} />
         </div>
 
       </section>
 
-      {/* Modal */}
       <AnimatePresence>
         {modalSrc && <VideoModal src={modalSrc} onClose={() => setModalSrc(null)} />}
       </AnimatePresence>
