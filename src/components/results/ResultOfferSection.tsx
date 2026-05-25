@@ -174,8 +174,9 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
 
         {/* ══════════════════════ DESKTOP ══════════════════════ */}
 
-        {/* CTA — UNLOCK BASIC READING — mesmo top/height do gold */}
-        <div className="hidden md:block absolute" style={{ left: '13%', top: '49%', width: '24%', height: '8%', zIndex: 10 }}>
+        {/* CTA — UNLOCK BASIC READING
+            Pixel analysis: purple cols 436-764 (26.1-45.7%), rows 481-513 (51-54%) */}
+        <div className="hidden md:block absolute" style={{ left: '26%', top: '49%', width: '20%', height: '8%', zIndex: 10 }}>
           <GlowButton onClick={() => handleCheckout('basic')} />
         </div>
 
