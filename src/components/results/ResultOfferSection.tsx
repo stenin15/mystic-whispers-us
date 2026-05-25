@@ -175,8 +175,8 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
         {/* ══════════════════════ DESKTOP ══════════════════════ */}
 
         {/* CTA — UNLOCK BASIC READING
-            Desktop image 1672×941 — Basic card bottom: ~33-41% rows, cols 7-41% */}
-        <div className="hidden md:block absolute" style={{ left: '7%', top: '33%', width: '35%', height: '8%', zIndex: 10 }}>
+            Desktop: basic card button — same band as gold (~45%) */}
+        <div className="hidden md:block absolute" style={{ left: '7%', top: '45%', width: '33%', height: '7%', zIndex: 10 }}>
           <GlowButton onClick={() => handleCheckout('basic')} />
         </div>
 
