@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// ── dataLayer ─────────────────────────────────────────────────────────────────
 type DLEvent = { event: string; [k: string]: unknown };
 const pushDL = (payload: DLEvent) => {
   const w = window as unknown as { dataLayer?: DLEvent[] };
@@ -46,7 +45,6 @@ const VideoModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
     v.play().catch(() => {});
     return () => { v.pause(); };
   }, []);
-
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -63,16 +61,18 @@ const VideoModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
   );
 };
 
-// ── UGC Video card — fills parent, autoplay muted, click opens modal ──────────
-const VideoCard = ({
-  src, quote, onClick, delay = 0,
-}: { src: string; quote: string; onClick: () => void; delay?: number }) => {
+// ── Single video cell inside the strip ───────────────────────────────────────
+const StripCell = ({
+  src, quote, onClick, delay = 0, rounded = '',
+}: {
+  src: string; quote: string; onClick: () => void; delay?: number; rounded?: string;
+}) => {
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    const attempt = () => v.play().catch(() => setTimeout(() => v.play().catch(() => {}), 1000));
+    const attempt = () => v.play().catch(() => setTimeout(() => v.play().catch(() => {}), 900));
     if (v.readyState >= 3) attempt();
     else v.addEventListener('canplay', attempt, { once: true });
   }, [src]);
@@ -80,20 +80,18 @@ const VideoCard = ({
   return (
     <motion.div
       onClick={onClick}
-      initial={{ opacity: 0, y: 14, scale: 0.97 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: '-30px' }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay }}
-      whileHover={{ scale: 1.025 }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, margin: '-20px' }}
+      transition={{ duration: 0.55, delay }}
+      whileHover={{ brightness: 1.08 } as never}
       style={{
-        width: '100%', height: '100%',
-        borderRadius: 12,
+        flex: 1,
+        position: 'relative',
         overflow: 'hidden',
         cursor: 'pointer',
-        background: 'rgba(10,10,20,0.25)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 0 16px rgba(139,62,218,0.15), 0 8px 32px rgba(0,0,0,0.5)',
+        minWidth: 0,
+        borderRadius: rounded ? (rounded === 'left' ? '10px 0 0 10px' : '0 10px 10px 0') : 0,
       }}
     >
       <video
@@ -102,21 +100,21 @@ const VideoCard = ({
         muted autoPlay loop playsInline preload="auto"
         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
       />
-      {/* Gradient overlay */}
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.08) 45%, transparent 100%)', pointerEvents: 'none' }} />
+      {/* Bottom gradient */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '45%', background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%)', pointerEvents: 'none' }} />
       {/* Play hint */}
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-60%)', width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', border: '1.5px solid rgba(255,255,255,0.32)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-        <Play style={{ width: 12, height: 12, color: 'white', marginLeft: 2 }} />
+      <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%,-50%)', width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.14)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+        <Play style={{ width: 10, height: 10, color: 'white', marginLeft: 2 }} />
       </div>
       {/* Quote */}
-      <p style={{ position: 'absolute', bottom: 8, left: 6, right: 6, color: 'white', fontSize: 10, fontWeight: 700, textAlign: 'center', lineHeight: 1.25, textShadow: '0 1px 6px rgba(0,0,0,0.95)', pointerEvents: 'none' }}>
+      <p style={{ position: 'absolute', bottom: 5, left: 4, right: 4, color: 'white', fontSize: 8.5, fontWeight: 700, textAlign: 'center', lineHeight: 1.3, textShadow: '0 1px 6px rgba(0,0,0,0.95)', pointerEvents: 'none' }}>
         {quote}
       </p>
     </motion.div>
   );
 };
 
-// ── Mobile carousel — 1 large edge-to-edge card ───────────────────────────────
+// ── Mobile carousel — one large card ─────────────────────────────────────────
 const MobileCarousel = ({ onOpen }: { onOpen: (src: string) => void }) => {
   const [idx, setIdx] = useState(0);
   const total = VIDEOS.length;
@@ -124,18 +122,25 @@ const MobileCarousel = ({ onOpen }: { onOpen: (src: string) => void }) => {
   const next = useCallback(() => setIdx(i => (i + 1) % total), [total]);
 
   useEffect(() => {
-    const id = setInterval(next, 7000);
+    const id = setInterval(next, 6000);
     return () => clearInterval(id);
   }, [next]);
 
   return (
     <>
-      <VideoCard src={VIDEOS[idx].src} quote={VIDEOS[idx].quote} onClick={() => onOpen(VIDEOS[idx].src)} />
-      <button onClick={prev} style={{ position: 'absolute', left: -24, top: '50%', transform: 'translateY(-50%)', width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', color: 'white', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 7 }}>‹</button>
-      <button onClick={next} style={{ position: 'absolute', right: -24, top: '50%', transform: 'translateY(-50%)', width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', color: 'white', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 7 }}>›</button>
-      <div style={{ position: 'absolute', bottom: -14, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 4 }}>
+      <StripCell
+        src={VIDEOS[idx].src}
+        quote={VIDEOS[idx].quote}
+        onClick={() => onOpen(VIDEOS[idx].src)}
+        rounded="left"
+      />
+      {/* Arrows */}
+      <button onClick={prev} style={{ position: 'absolute', left: -20, top: '50%', transform: 'translateY(-50%)', width: 20, height: 20, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', color: 'white', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 7 }}>‹</button>
+      <button onClick={next} style={{ position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)', width: 20, height: 20, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', color: 'white', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 7 }}>›</button>
+      {/* Dots */}
+      <div style={{ position: 'absolute', bottom: -12, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 3 }}>
         {VIDEOS.map((_, i) => (
-          <button key={i} onClick={() => setIdx(i)} style={{ width: i === idx ? 12 : 4, height: 4, borderRadius: 2, background: i === idx ? 'rgba(255,200,60,0.9)' : 'rgba(255,255,255,0.25)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }} />
+          <button key={i} onClick={() => setIdx(i)} style={{ width: i === idx ? 10 : 4, height: 4, borderRadius: 2, background: i === idx ? 'rgba(255,200,60,0.9)' : 'rgba(255,255,255,0.25)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }} />
         ))}
       </div>
     </>
@@ -159,59 +164,88 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
     window.location.href = url;
   };
 
-  // Desktop: 3 fixed video cards — coordinates measured from actual image pixels
-  // Image 1672×941 | face brightspots at x≈340-460, 700-860, 1040-1160 | y≈658-780
-  // Cards expanded ~27% wide to include dark frame
-  const desktopCards = [
-    { video: VIDEOS[0], left: '4%',    delay: 0 },
-    { video: VIDEOS[1], left: '36.5%', delay: 0.12 },
-    { video: VIDEOS[2], left: '69%',   delay: 0.24 },
-  ];
-
   return (
     <>
       <section id="offer-section" style={{ position: 'relative', width: '100%', lineHeight: 0 }}>
 
-        {/* Background images */}
+        {/* Background images — define container height */}
         <img src="/results/result-offers-desktop.png" alt="" aria-hidden className="hidden md:block w-full h-auto" draggable={false} />
         <img src="/results/result-offers-mobile.png"  alt="" aria-hidden className="block md:hidden w-full h-auto" draggable={false} />
 
-        {/* ── DESKTOP: checkout buttons ── */}
-        <div className="hidden md:block absolute" style={{ left: '9%', top: '43%', width: '33%', height: '7%', zIndex: 10 }}>
+        {/* ══════════════════════ DESKTOP ══════════════════════ */}
+
+        {/* CTA — UNLOCK BASIC READING
+            Desktop image 1672×941 — Basic card bottom: ~33-41% rows, cols 7-41% */}
+        <div className="hidden md:block absolute" style={{ left: '7%', top: '33%', width: '35%', height: '8%', zIndex: 10 }}>
           <GlowButton onClick={() => handleCheckout('basic')} />
         </div>
-        <div className="hidden md:block absolute" style={{ left: '47%', top: '43%', width: '39%', height: '7%', zIndex: 10 }}>
+
+        {/* CTA — GET COMPLETE KIT
+            Gold pixels peak at rows 500-531 (50.7%-79.4% cols) */}
+        <div className="hidden md:block absolute" style={{ left: '49%', top: '49%', width: '31%', height: '8%', zIndex: 10 }}>
           <GlowButton gold onClick={() => handleCheckout('complete')} />
         </div>
 
-        {/* ── DESKTOP: 3 UGC video overlay cards ── */}
-        {desktopCards.map(({ video, left, delay }) => (
-          <div
-            key={video.src}
-            className="hidden md:block absolute"
-            style={{ left, top: '68%', width: '27%', height: '15.5%', zIndex: 6 }}
-          >
-            <VideoCard
-              src={video.src}
-              quote={video.quote}
-              onClick={() => setModalSrc(video.src)}
-              delay={delay}
+        {/* Dark kill layer — covers fake thumbnails, stars, text (rows 57-84%) */}
+        <div
+          className="hidden md:block absolute"
+          style={{
+            left: 0, right: 0, top: '57%', height: '27%', zIndex: 3,
+            background: 'rgba(4,2,14,0.97)',
+            backdropFilter: 'blur(14px)',
+          }}
+        />
+
+        {/* 5-video horizontal strip — full width, covers fake area */}
+        <div
+          className="hidden md:block absolute"
+          style={{
+            left: 0, right: 0, top: '58%', height: '24%', zIndex: 5,
+            display: 'flex',
+            gap: 3,
+            overflow: 'hidden',
+          }}
+        >
+          {VIDEOS.map(({ src, quote }, i) => (
+            <StripCell
+              key={src}
+              src={src}
+              quote={quote}
+              onClick={() => setModalSrc(src)}
+              delay={i * 0.07}
+              rounded={i === 0 ? 'left' : i === VIDEOS.length - 1 ? 'right' : ''}
             />
-          </div>
-        ))}
+          ))}
+        </div>
 
-        {/* ── MOBILE: checkout buttons ── */}
-        <div className="block md:hidden absolute" style={{ left: '10%', top: '36%', width: '80%', height: '5%', zIndex: 10 }}>
+        {/* ══════════════════════ MOBILE ══════════════════════ */}
+
+        {/* CTA — UNLOCK BASIC READING
+            Mobile: purple button at rows ~31-36%, cols 14-85% */}
+        <div className="block md:hidden absolute" style={{ left: '12%', top: '30%', width: '75%', height: '6%', zIndex: 10 }}>
           <GlowButton onClick={() => handleCheckout('basic')} />
         </div>
-        <div className="block md:hidden absolute" style={{ left: '10%', top: '62%', width: '80%', height: '5%', zIndex: 10 }}>
+
+        {/* CTA — GET COMPLETE KIT
+            Mobile: gold button at rows ~56-62%, cols 9-90% */}
+        <div className="block md:hidden absolute" style={{ left: '9%', top: '55%', width: '82%', height: '7%', zIndex: 10 }}>
           <GlowButton gold onClick={() => handleCheckout('complete')} />
         </div>
 
-        {/* ── MOBILE: edge-to-edge carousel ── */}
+        {/* Dark kill layer — mobile (covers 62-82%) */}
         <div
           className="block md:hidden absolute"
-          style={{ left: '5%', top: '72%', width: '90%', height: '13%', zIndex: 6 }}
+          style={{
+            left: 0, right: 0, top: '62%', height: '20%', zIndex: 3,
+            background: 'rgba(4,2,14,0.97)',
+            backdropFilter: 'blur(14px)',
+          }}
+        />
+
+        {/* Mobile carousel — edge-to-edge, covers fake mobile thumbnails */}
+        <div
+          className="block md:hidden absolute"
+          style={{ left: '4%', right: '4%', top: '63%', height: '17%', zIndex: 5 }}
         >
           <MobileCarousel onOpen={setModalSrc} />
         </div>
