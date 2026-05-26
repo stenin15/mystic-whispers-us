@@ -7,7 +7,7 @@ import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Footer } from "@/components/layout/Footer";
 import { getEntitlement } from "@/lib/entitlement";
 import { PRICE_MAP } from "@/lib/pricing";
-import { track } from "@/lib/tracking";
+import { track, getAdIds } from "@/lib/tracking";
 import { getAttributionParams, getStoredAngle, getStoredFocus } from "@/lib/marketing";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -116,6 +116,24 @@ const Sucesso = () => {
               focus: getStoredFocus(),
               ...getAttributionParams(),
             });
+
+            // Server-side Purchase — Meta CAPI + UTMify (bypasses ad blockers, melhora match quality)
+            const { fbp, fbc, ttclid } = getAdIds();
+            supabase.functions.invoke("track-event", {
+              body: {
+                event_name: "Purchase",
+                event_id,
+                session_id: sessionId,
+                product_code: primary,
+                value: PRICE_MAP[primary].amountUsd,
+                currency: "USD",
+                page_url: window.location.href,
+                user: { email: email || undefined },
+                meta: { fbp, fbc },
+                tiktok: ttclid ? { ttclid } : undefined,
+                utm: getAttributionParams(),
+              },
+            }).catch(() => { /* best-effort */ });
 
             console.log("[SUCCESS_PAGE] purchase tracked flag saved", {
               key: purchaseTrackedKey,

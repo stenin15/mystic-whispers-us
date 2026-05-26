@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { UpsellModal } from './UpsellModal';
 
 type DLEvent = { event: string; [k: string]: unknown };
 const pushDL = (payload: DLEvent) => {
@@ -151,6 +152,7 @@ const MobileCarousel = ({ onOpen }: { onOpen: (src: string) => void }) => {
 export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
   const { toast } = useToast();
   const [modalSrc, setModalSrc] = useState<string | null>(null);
+  const [upsellOpen, setUpsellOpen] = useState(false);
 
   const handleCheckout = (type: 'basic' | 'complete') => {
     pushDL({ event: 'CheckoutOfferClicked', plan: type });
@@ -177,7 +179,7 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
         {/* CTA — UNLOCK BASIC READING
             Pixel analysis: purple cols 436-764 (26.1-45.7%), rows 481-513 (51-54%) */}
         <div className="hidden md:block absolute" style={{ left: '26%', top: '49%', width: '20%', height: '8%', zIndex: 10 }}>
-          <GlowButton onClick={() => handleCheckout('basic')} />
+          <GlowButton onClick={() => setUpsellOpen(true)} />
         </div>
 
         {/* CTA — GET COMPLETE KIT
@@ -223,7 +225,7 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
         {/* CTA — UNLOCK BASIC READING
             Mobile: purple button at rows ~31-36%, cols 14-85% */}
         <div className="block md:hidden absolute" style={{ left: '12%', top: '30%', width: '75%', height: '6%', zIndex: 10 }}>
-          <GlowButton onClick={() => handleCheckout('basic')} />
+          <GlowButton onClick={() => setUpsellOpen(true)} />
         </div>
 
         {/* CTA — GET COMPLETE KIT
@@ -255,6 +257,12 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
       <AnimatePresence>
         {modalSrc && <VideoModal src={modalSrc} onClose={() => setModalSrc(null)} />}
       </AnimatePresence>
+
+      <UpsellModal
+        open={upsellOpen}
+        onUpgrade={() => { setUpsellOpen(false); handleCheckout('complete'); }}
+        onDecline={() => { setUpsellOpen(false); handleCheckout('basic'); }}
+      />
     </>
   );
 };

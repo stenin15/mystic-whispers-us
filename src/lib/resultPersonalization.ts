@@ -1,4 +1,5 @@
 import { useHandReadingStore } from '@/store/useHandReadingStore';
+import { track } from './tracking';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -110,8 +111,17 @@ export function handleCheckout(
   source: string,
   fallback?: () => void,
 ) {
-  pushDL({ event: 'CheckoutOfferClicked', plan: type, price: type === 'basic' ? '9.90' : '29.90', page: 'result', section: source });
+  const value = type === 'basic' ? 9.90 : 29.90;
+  pushDL({ event: 'CheckoutOfferClicked', plan: type, price: String(value), page: 'result', section: source });
   pushDL({ event: type === 'basic' ? 'UnlockBasicClicked' : 'UnlockCompleteClicked' });
+
+  track('InitiateCheckout', {
+    value,
+    currency: 'USD',
+    content_name: type === 'basic' ? 'Basic Palm Reading' : 'Complete Palm Reading',
+    content_ids: [type],
+    source,
+  });
 
   const url = (type === 'basic'
     ? import.meta.env.VITE_STRIPE_CHECKOUT_BASIC_URL

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ResultOfferSection } from '@/components/results/ResultOfferSection';
 import { ResultHeroSection } from '@/components/results/ResultHeroSection';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
-import { handleCheckout, pushDL } from '@/lib/resultPersonalization';
+import { handleCheckout } from '@/lib/resultPersonalization';
 import type { AnalysisResult } from '@/store/useHandReadingStore';
 
 const scrollToOffer = () => {
@@ -13,14 +13,9 @@ const scrollToOffer = () => {
 
 // Fire full tracking + go to Stripe Complete Kit
 const fireMainCTA = (source: string) => {
-  // dataLayer
-  pushDL({ event: 'InitiateCheckout', plan: 'complete', price: '29.90', section: source });
-  // Meta Pixel
-  const w = window as unknown as { fbq?: (...a: unknown[]) => void; gtag?: (...a: unknown[]) => void };
-  if (w.fbq) w.fbq('track', 'InitiateCheckout', { value: 29.90, currency: 'USD', content_name: 'Complete Palm Reading' });
-  // GA4
+  // GA4 begin_checkout (handleCheckout already fires Meta Pixel InitiateCheckout + dataLayer)
+  const w = window as unknown as { gtag?: (...a: unknown[]) => void };
   if (w.gtag) w.gtag('event', 'begin_checkout', { currency: 'USD', value: 29.90 });
-  // Navigate
   handleCheckout('complete', source);
 };
 

@@ -4,8 +4,6 @@ import type { AnalysisResult } from '@/store/useHandReadingStore';
 import { DynamicPalmPreview } from './DynamicPalmPreview';
 import { getDynamicTexts } from '@/lib/resultPersonalization';
 
-// ── Types ──────────────────────────────────────────────────────────────────────
-
 interface Props {
   name?: string;
   mainConcern?: string;
@@ -15,100 +13,131 @@ interface Props {
   isGeneratingPreview?: boolean;
 }
 
-// ── Ambient particles ──────────────────────────────────────────────────────────
+// ── Floating particles ────────────────────────────────────────────────────────
 
 const Particles = () => (
   <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
     {[
-      { x: '12%', y: '18%', size: 2, delay: 0 },
-      { x: '85%', y: '28%', size: 1.5, delay: 1.2 },
-      { x: '22%', y: '72%', size: 2.5, delay: 0.6 },
-      { x: '78%', y: '65%', size: 1.5, delay: 1.8 },
-      { x: '50%', y: '12%', size: 2, delay: 0.9 },
-      { x: '60%', y: '88%', size: 1.5, delay: 2.1 },
-      { x: '35%', y: '45%', size: 1, delay: 1.5 },
-      { x: '90%', y: '50%', size: 2, delay: 0.3 },
-    ].map(({ x, y, size, delay }, i) => (
+      { x: '8%',  y: '15%', s: 2,   d: 0 },
+      { x: '88%', y: '22%', s: 1.5, d: 1.1 },
+      { x: '18%', y: '75%', s: 2.5, d: 0.5 },
+      { x: '80%', y: '68%', s: 1.5, d: 1.7 },
+      { x: '50%', y: '8%',  s: 2,   d: 0.8 },
+      { x: '62%', y: '90%', s: 1.5, d: 2.0 },
+      { x: '33%', y: '48%', s: 1,   d: 1.4 },
+      { x: '92%', y: '48%', s: 2,   d: 0.3 },
+    ].map(({ x, y, s, d }, i) => (
       <motion.div
         key={i}
         className="absolute rounded-full"
         style={{
           left: x, top: y,
-          width: size, height: size,
-          background: i % 2 === 0 ? 'rgba(251,191,36,0.7)' : 'rgba(192,132,252,0.7)',
-          boxShadow: i % 2 === 0
-            ? '0 0 6px rgba(251,191,36,0.6)'
-            : '0 0 6px rgba(192,132,252,0.6)',
+          width: s, height: s,
+          background: i % 2 === 0 ? 'rgba(251,191,36,0.8)' : 'rgba(192,132,252,0.8)',
+          boxShadow: i % 2 === 0 ? '0 0 8px rgba(251,191,36,0.7)' : '0 0 8px rgba(192,132,252,0.7)',
         }}
-        animate={{ opacity: [0.2, 1, 0.2], y: [0, -12, 0] }}
-        transition={{ duration: 3.5 + i * 0.4, repeat: Infinity, ease: 'easeInOut', delay }}
+        animate={{ opacity: [0.15, 1, 0.15], y: [0, -14, 0] }}
+        transition={{ duration: 3.5 + i * 0.4, repeat: Infinity, ease: 'easeInOut', delay: d }}
       />
     ))}
   </div>
 );
 
-// ── Insight card ───────────────────────────────────────────────────────────────
+// ── Insight card ──────────────────────────────────────────────────────────────
 
 const InsightCard = ({
-  Icon, iconColor, iconBg, title, text, delay = 0,
+  Icon, iconColor, iconBg, border, title, text, delay = 0,
 }: {
   Icon: React.ComponentType<{ className?: string }>;
   iconColor: string;
   iconBg: string;
+  border: string;
   title: string;
   text: string;
   delay?: number;
 }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 18 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ delay, duration: 0.55 }}
-    className="flex items-start gap-3.5 rounded-2xl p-4 transition-all duration-300"
+    transition={{ delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+    className="flex items-start gap-3 rounded-2xl p-4 transition-all duration-300"
     style={{
-      background: 'rgba(255,255,255,0.04)',
-      border: '1px solid rgba(255,200,60,0.14)',
-      backdropFilter: 'blur(12px)',
+      background: 'rgba(255,255,255,0.035)',
+      border: `1px solid ${border}`,
+      backdropFilter: 'blur(14px)',
     }}
-    whileHover={{ borderColor: 'rgba(192,132,252,0.35)', background: 'rgba(255,255,255,0.06)' }}
+    whileHover={{ background: 'rgba(255,255,255,0.06)', borderColor: iconColor + '55' }}
   >
     <div
       className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
-      style={{ background: iconBg, border: `1px solid ${iconColor}30` }}
+      style={{ background: iconBg, border: `1px solid ${iconColor}40` }}
     >
-      <span style={{ color: iconColor, display: 'flex' }}>
-        <Icon className="w-4 h-4" />
-      </span>
+      <Icon className="w-4 h-4" style={{ color: iconColor }} />
     </div>
     <div>
-      <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: iconColor }}>
+      <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1" style={{ color: iconColor }}>
         {title}
       </p>
-      <p className="text-sm text-white/65 leading-relaxed">{text}</p>
+      <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.60)' }}>{text}</p>
     </div>
   </motion.div>
 );
 
-// ── Main component ─────────────────────────────────────────────────────────────
+// ── Locked item row ───────────────────────────────────────────────────────────
+
+const LockedRow = ({ label, delay }: { label: string; delay: number }) => (
+  <motion.div
+    initial={{ opacity: 0, x: 14 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ delay, duration: 0.45 }}
+    className="flex items-center gap-3 px-4 py-3 rounded-xl"
+    style={{
+      background: 'rgba(255,255,255,0.025)',
+      border: '1px solid rgba(255,255,255,0.07)',
+    }}
+  >
+    <Lock className="w-3 h-3 flex-shrink-0" style={{ color: 'rgba(251,191,36,0.45)' }} />
+    <span
+      className="text-sm flex-1 select-none"
+      style={{ color: 'rgba(255,255,255,0.28)', filter: 'blur(4.5px)' }}
+    >
+      {label}
+    </span>
+    <span
+      className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
+      style={{
+        background: 'rgba(251,191,36,0.08)',
+        border: '1px solid rgba(251,191,36,0.20)',
+        color: 'rgba(251,191,36,0.55)',
+      }}
+    >
+      Locked
+    </span>
+  </motion.div>
+);
+
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 export const ResultHeroSection = ({
   name, mainConcern, result, handPhotoData, localPreviewUrl, isGeneratingPreview,
 }: Props) => {
+  const firstName = name?.split(' ')[0] || '';
   const firstStrength = result.strengths?.[0];
-  const texts = getDynamicTexts({ firstName: name?.split(' ')[0] || 'Your', mainConcern: mainConcern || '', age: '', emotionalPattern: '', quizAnswers: [], uploadedHandUrl: null });
+  const texts = getDynamicTexts({
+    firstName: firstName || 'Your',
+    mainConcern: mainConcern || '',
+    age: '', emotionalPattern: '', quizAnswers: [], uploadedHandUrl: null,
+  });
 
   const card1Text = texts.emotionalPatternText;
   const card3Text = texts.innerStrengthText || firstStrength?.desc || 'You are learning to choose yourself without losing your softness.';
 
-  const LOCKED_ITEMS = [
-    'Compatibility insight',
-    'Timing analysis',
-    'Emotional cycle',
-    'Future pattern',
-  ];
+  const LOCKED_ITEMS = ['Compatibility insight', 'Timing window', 'Emotional cycle', 'Future pattern'];
 
   return (
-    <section className="relative min-h-screen overflow-hidden flex flex-col">
-      {/* ── Backgrounds ── */}
+    <section className="relative overflow-hidden flex flex-col" style={{ minHeight: '100svh' }}>
+
+      {/* ── Background ── */}
       <div
         aria-hidden
         className="absolute inset-0 hidden md:block"
@@ -128,33 +157,34 @@ export const ResultHeroSection = ({
         }}
       />
 
-      {/* ── Overlays ── */}
-      <div className="absolute inset-0 bg-black/55" aria-hidden />
+      {/* Overlays */}
+      <div className="absolute inset-0" style={{ background: 'rgba(4,2,14,0.62)' }} aria-hidden />
       <div
         className="absolute inset-0 pointer-events-none"
         aria-hidden
         style={{
           background:
-            'radial-gradient(ellipse 75% 55% at 50% 40%, rgba(88,28,135,0.22) 0%, transparent 65%), ' +
-            'radial-gradient(ellipse 40% 30% at 20% 80%, rgba(139,62,218,0.12) 0%, transparent 60%)',
+            'radial-gradient(ellipse 80% 55% at 50% 35%, rgba(88,28,135,0.24) 0%, transparent 65%), ' +
+            'radial-gradient(ellipse 45% 35% at 18% 80%, rgba(139,62,218,0.14) 0%, transparent 60%)',
         }}
       />
       <Particles />
 
-      {/* ════════════════════ DESKTOP LAYOUT ════════════════════ */}
+      {/* ══════════════ DESKTOP ══════════════ */}
       <div className="relative hidden md:flex items-center flex-1 px-10 py-14">
-        <div className="grid grid-cols-[1fr_420px_1fr] gap-12 max-w-7xl mx-auto w-full items-center min-h-[85vh]">
+        <div className="grid grid-cols-[1fr_400px_1fr] gap-10 max-w-7xl mx-auto w-full items-center" style={{ minHeight: '85vh' }}>
 
-          {/* ── LEFT: text + insight cards ── */}
-          <div className="flex flex-col gap-6">
-            {/* Label */}
+          {/* ── LEFT ── */}
+          <div className="flex flex-col gap-5">
+
+            {/* Brand label */}
             <motion.p
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-[10px] font-bold uppercase tracking-[0.22em]"
+              transition={{ delay: 0.08 }}
+              className="text-[10px] font-bold uppercase tracking-[0.24em]"
               style={{
-                background: 'linear-gradient(90deg, rgba(251,191,36,0.9), rgba(192,132,252,0.8))',
+                background: 'linear-gradient(90deg, rgba(251,191,36,0.95), rgba(192,132,252,0.85))',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
@@ -162,74 +192,79 @@ export const ResultHeroSection = ({
               Madam Aurora · Personalized Reading
             </motion.p>
 
-            {/* Title */}
+            {/* Headline */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.18 }}
+              transition={{ delay: 0.16, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              {name && (
-                <p className="text-white/40 text-sm font-medium mb-1">{name},</p>
+              {firstName && (
+                <p className="text-white/38 text-sm font-medium mb-1.5 tracking-wide">{firstName},</p>
               )}
-              <h1 className="font-serif font-bold text-white leading-[1.1]" style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)' }}>
+              <h1
+                className="font-serif font-bold text-white leading-[1.08]"
+                style={{ fontSize: 'clamp(2.1rem, 3.6vw, 3.1rem)' }}
+              >
                 Your reading
                 <br />
                 has{' '}
                 <span
                   style={{
-                    color: 'hsl(280 60% 78%)',
-                    textShadow: '0 0 40px hsl(280 60% 60% / 0.6)',
+                    color: 'hsl(280 62% 80%)',
+                    textShadow: '0 0 48px hsl(280 62% 62% / 0.65)',
                   }}
                 >
                   begun.
                 </span>
               </h1>
+              <p className="text-white/48 text-sm leading-relaxed mt-3 max-w-[270px]">
+                Your palm reveals emotional patterns tied to timing, attachment, and how love moves for you.
+              </p>
             </motion.div>
 
-            {/* Subtext */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.26 }}
-              className="text-white/55 text-sm leading-relaxed max-w-xs"
-            >
-              Your palm reveals emotional patterns connected to timing, attachment, and the way you experience love.
-            </motion.p>
+            {/* Divider */}
+            <div
+              className="w-12 h-px"
+              style={{ background: 'linear-gradient(90deg, rgba(251,191,36,0.5), transparent)' }}
+            />
 
-            {/* 3 insight cards */}
-            <div className="flex flex-col gap-3 mt-2">
+            {/* Insight cards */}
+            <div className="flex flex-col gap-2.5">
               <InsightCard
                 Icon={Heart}
-                iconColor="hsl(350 80% 68%)"
+                iconColor="hsl(350 80% 70%)"
                 iconBg="rgba(239,68,68,0.10)"
+                border="rgba(239,68,68,0.20)"
                 title="Emotional Pattern"
                 text={card1Text}
-                delay={0.34}
+                delay={0.30}
               />
               <InsightCard
                 Icon={Clock}
-                iconColor="hsl(45 95% 62%)"
+                iconColor="hsl(45 95% 64%)"
                 iconBg="rgba(251,191,36,0.09)"
+                border="rgba(251,191,36,0.20)"
                 title="Love Timing"
-                text="Your emotional timing tends to activate after periods of distance — not closeness."
-                delay={0.42}
+                text="Your emotional timing activates after periods of distance — not closeness."
+                delay={0.38}
               />
               <InsightCard
                 Icon={Sparkles}
-                iconColor="hsl(280 60% 72%)"
+                iconColor="hsl(280 60% 74%)"
                 iconBg="rgba(139,62,218,0.10)"
+                border="rgba(139,62,218,0.22)"
                 title="Inner Strength"
                 text={card3Text}
-                delay={0.50}
+                delay={0.46}
               />
             </div>
           </div>
 
-          {/* ── CENTER: palm preview ── */}
+          {/* ── CENTER — palm ── */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
+            initial={{ opacity: 0, scale: 0.93 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.22, duration: 0.7 }}
+            transition={{ delay: 0.20, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
           >
             <DynamicPalmPreview
               handPhotoData={handPhotoData}
@@ -238,85 +273,80 @@ export const ResultHeroSection = ({
             />
           </motion.div>
 
-          {/* ── RIGHT: teaser / locked reading ── */}
+          {/* ── RIGHT — locked ── */}
           <motion.div
-            initial={{ opacity: 0, x: 24 }}
+            initial={{ opacity: 0, x: 22 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.32, duration: 0.6 }}
-            className="flex flex-col items-start gap-5"
+            transition={{ delay: 0.28, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col gap-5"
           >
             {/* Lock icon */}
             <motion.div
-              animate={{ boxShadow: ['0 0 0px rgba(251,191,36,0)', '0 0 28px rgba(251,191,36,0.55)', '0 0 0px rgba(251,191,36,0)'] }}
+              animate={{
+                boxShadow: [
+                  '0 0 0px rgba(251,191,36,0)',
+                  '0 0 28px rgba(251,191,36,0.55)',
+                  '0 0 0px rgba(251,191,36,0)',
+                ],
+              }}
               transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-              className="w-14 h-14 rounded-2xl flex items-center justify-center"
-              style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.28)' }}
+              className="w-14 h-14 rounded-2xl flex items-center justify-center self-start"
+              style={{
+                background: 'rgba(251,191,36,0.08)',
+                border: '1px solid rgba(251,191,36,0.28)',
+              }}
             >
-              <Lock className="w-6 h-6 text-amber-400/90" />
+              <Lock className="w-6 h-6" style={{ color: 'rgba(251,191,36,0.90)' }} />
             </motion.div>
 
             {/* Heading */}
             <div>
-              <h2 className="font-serif font-bold text-white text-xl leading-tight mb-2">
+              <h2 className="font-serif font-bold text-white text-xl leading-tight mb-1.5">
                 Your full reading is ready
               </h2>
-              <p className="text-sm text-white/45 leading-relaxed max-w-[200px]">
+              <p className="text-sm leading-relaxed max-w-[200px]" style={{ color: 'rgba(255,255,255,0.42)' }}>
                 Unlock the complete emotional pattern hidden in your palm.
               </p>
             </div>
 
-            {/* Blurred preview items */}
+            {/* Locked rows */}
             <div className="flex flex-col gap-2 w-full">
               {LOCKED_ITEMS.map((label, i) => (
-                <motion.div
-                  key={label}
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + i * 0.08 }}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl"
-                  style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                  }}
-                >
-                  <Lock className="w-3 h-3 text-amber-400/50 flex-shrink-0" />
-                  <span
-                    className="text-sm text-white/30 select-none"
-                    style={{ filter: 'blur(5px)' }}
-                  >
-                    {label}
-                  </span>
-                </motion.div>
+                <LockedRow key={label} label={label} delay={0.48 + i * 0.07} />
               ))}
             </div>
 
-            {/* Animated arrow — scroll indicator, no button */}
+            {/* Scroll cue */}
             <motion.div
-              animate={{
-                y: [0, 8, 0],
-                opacity: [0.5, 1, 0.5],
-              }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="mt-2 self-start"
+              animate={{ y: [0, 8, 0], opacity: [0.45, 1, 0.45] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              className="flex items-center gap-2 mt-1"
             >
-              <ChevronDown className="w-7 h-7 text-amber-400/80" style={{ filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.6))' }} />
+              <ChevronDown
+                className="w-5 h-5"
+                style={{ color: 'rgba(251,191,36,0.75)', filter: 'drop-shadow(0 0 6px rgba(251,191,36,0.6))' }}
+              />
+              <span className="text-[10px] font-medium uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.28)' }}>
+                Scroll to unlock
+              </span>
             </motion.div>
           </motion.div>
+
         </div>
       </div>
 
-      {/* ════════════════════ MOBILE LAYOUT ════════════════════ */}
-      <div className="relative flex md:hidden flex-col flex-1 px-4 pt-12 pb-8 gap-6">
+      {/* ══════════════ MOBILE ══════════════ */}
+      <div className="relative flex md:hidden flex-col flex-1 px-5 pt-12 pb-10 gap-6">
 
-        {/* 1 — Text */}
+        {/* Label + Headline */}
         <div className="text-center">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 }}
-            className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3"
+            transition={{ delay: 0.06 }}
+            className="text-[10px] font-bold uppercase tracking-[0.22em] mb-3"
             style={{
-              background: 'linear-gradient(90deg, rgba(251,191,36,0.9), rgba(192,132,252,0.8))',
+              background: 'linear-gradient(90deg, rgba(251,191,36,0.95), rgba(192,132,252,0.85))',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}
@@ -327,29 +357,33 @@ export const ResultHeroSection = ({
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
+            transition={{ delay: 0.13, duration: 0.55 }}
           >
-            {name && (
-              <p className="text-white/40 text-xs font-medium mb-1">{name},</p>
+            {firstName && (
+              <p className="text-white/38 text-xs font-medium mb-1 tracking-wide">{firstName},</p>
             )}
-            <h1 className="font-serif font-bold text-white text-3xl leading-tight mb-3">
+            <h1
+              className="font-serif font-bold text-white leading-[1.1] mb-2.5"
+              style={{ fontSize: 'clamp(1.85rem, 8vw, 2.4rem)' }}
+            >
               Your reading has{' '}
-              <span style={{ color: 'hsl(280 60% 78%)', textShadow: '0 0 30px hsl(280 60% 60% / 0.6)' }}>
+              <span style={{ color: 'hsl(280 62% 80%)', textShadow: '0 0 36px hsl(280 62% 62% / 0.6)' }}>
                 begun.
               </span>
             </h1>
-            <p className="text-white/50 text-sm leading-relaxed mx-auto max-w-[280px]">
-              Your palm reveals patterns connected to timing, attachment, and how you experience love.
+            <p className="text-white/48 text-sm leading-relaxed max-w-[290px] mx-auto">
+              Your palm reveals patterns tied to timing, attachment, and how you experience love.
             </p>
           </motion.div>
         </div>
 
-        {/* 2 — Palm preview */}
+        {/* Palm preview */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.93 }}
+          initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.22, duration: 0.6 }}
-          className="max-w-[280px] mx-auto w-full"
+          transition={{ delay: 0.20, duration: 0.65 }}
+          className="mx-auto w-full"
+          style={{ maxWidth: 290 }}
         >
           <DynamicPalmPreview
             handPhotoData={handPhotoData}
@@ -358,53 +392,57 @@ export const ResultHeroSection = ({
           />
         </motion.div>
 
-        {/* 3 — 3 insight cards (teaser / compact) */}
+        {/* 3 insight cards */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.32 }}
+          transition={{ delay: 0.30, duration: 0.55 }}
           className="flex flex-col gap-2.5"
         >
           <InsightCard
             Icon={Heart}
-            iconColor="hsl(350 80% 68%)"
+            iconColor="hsl(350 80% 70%)"
             iconBg="rgba(239,68,68,0.10)"
+            border="rgba(239,68,68,0.20)"
             title="Emotional Pattern"
             text={card1Text}
-            delay={0.36}
+            delay={0.32}
           />
           <InsightCard
             Icon={Clock}
-            iconColor="hsl(45 95% 62%)"
+            iconColor="hsl(45 95% 64%)"
             iconBg="rgba(251,191,36,0.09)"
+            border="rgba(251,191,36,0.20)"
             title="Love Timing"
             text="Your emotional timing activates after periods of distance — not closeness."
-            delay={0.44}
+            delay={0.40}
           />
           <InsightCard
             Icon={Sparkles}
-            iconColor="hsl(280 60% 72%)"
+            iconColor="hsl(280 60% 74%)"
             iconBg="rgba(139,62,218,0.10)"
+            border="rgba(139,62,218,0.22)"
             title="Inner Strength"
             text={card3Text}
-            delay={0.52}
+            delay={0.48}
           />
         </motion.div>
 
         {/* Scroll cue */}
         <motion.div
-          animate={{ y: [0, 6, 0], opacity: [0.4, 0.9, 0.4] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          className="flex justify-center"
+          animate={{ y: [0, 7, 0], opacity: [0.35, 0.85, 0.35] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+          className="flex flex-col items-center gap-1.5"
         >
+          <span className="text-[10px] font-medium uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.28)' }}>
+            Scroll to unlock
+          </span>
           <ChevronDown
-            className="w-6 h-6"
-            style={{
-              color: 'rgba(251,191,36,0.75)',
-              filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.6))',
-            }}
+            className="w-5 h-5"
+            style={{ color: 'rgba(251,191,36,0.70)', filter: 'drop-shadow(0 0 6px rgba(251,191,36,0.55))' }}
           />
         </motion.div>
+
       </div>
     </section>
   );
