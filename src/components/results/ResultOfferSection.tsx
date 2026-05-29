@@ -3,13 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UpsellModal } from './UpsellModal';
-
-type DLEvent = { event: string; [k: string]: unknown };
-const pushDL = (payload: DLEvent) => {
-  const w = window as unknown as { dataLayer?: DLEvent[] };
-  w.dataLayer = w.dataLayer ?? [];
-  w.dataLayer.push(payload);
-};
+import { handleCheckout } from '@/lib/resultPersonalization';
 
 const VIDEOS = [
   { src: '/ugc/ugc-1.mp4', quote: 'It described me perfectly.' },
@@ -130,7 +124,7 @@ const StripCell = ({
 };
 
 // ── Mobile carousel ───────────────────────────────────────────────────────────
-// FIX: wrapper <div display:flex height:100%> em vez de fragmento <>.
+// wrapper <div display:flex height:100%> em vez de fragmento <>.
 // Isso dá ao StripCell (flex:1) um pai flex com altura definida → vídeo não colapsa.
 const MobileCarousel = ({ onOpen }: { onOpen: (src: string) => void }) => {
   const [idx, setIdx] = useState(0);
@@ -180,17 +174,8 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
   const [modalSrc, setModalSrc] = useState<string | null>(null);
   const [upsellOpen, setUpsellOpen] = useState(false);
 
-  const handleCheckout = (type: 'basic' | 'complete') => {
-    pushDL({ event: 'CheckoutOfferClicked', plan: type });
-    const url = (type === 'basic'
-      ? import.meta.env.VITE_STRIPE_CHECKOUT_BASIC_URL
-      : import.meta.env.VITE_STRIPE_CHECKOUT_COMPLETE_URL) as string | undefined;
-    if (!url) {
-      toast({ title: 'Checkout unavailable', description: 'Please try again in a moment.', variant: 'destructive' });
-      return;
-    }
-    window.location.href = url;
-  };
+  const fallback = () =>
+    toast({ title: 'Checkout unavailable', description: 'Please try again in a moment.', variant: 'destructive' });
 
   return (
     <>
@@ -208,7 +193,7 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
         </div>
         {/* Complete CTA */}
         <div className="hidden md:block absolute" style={{ left: '49%', top: '49%', width: '31%', height: '8%', zIndex: 10 }}>
-          <GlowButton gold onClick={() => handleCheckout('complete')} />
+          <GlowButton gold onClick={() => handleCheckout('complete', 'offer_section_complete', fallback)} />
         </div>
         {/* Kill layer + UGC strip */}
         <div className="hidden md:block absolute" style={{ left: 0, right: 0, top: '57%', height: '27%', zIndex: 3, background: 'rgba(4,2,14,0.97)', backdropFilter: 'blur(14px)' }} />
@@ -231,7 +216,7 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
         </div>
         {/* Complete CTA */}
         <div className="block md:hidden absolute" style={{ left: '9%', top: '55%', width: '82%', height: '7%', zIndex: 10 }}>
-          <GlowButton gold onClick={() => handleCheckout('complete')} />
+          <GlowButton gold onClick={() => handleCheckout('complete', 'offer_section_complete_mobile', fallback)} />
         </div>
         {/* Kill layer mobile */}
         <div className="block md:hidden absolute" style={{ left: 0, right: 0, top: '62%', height: '20%', zIndex: 3, background: 'rgba(4,2,14,0.97)', backdropFilter: 'blur(14px)' }} />
@@ -252,8 +237,8 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
 
       <UpsellModal
         open={upsellOpen}
-        onUpgrade={() => { setUpsellOpen(false); handleCheckout('complete'); }}
-        onDecline={() => { setUpsellOpen(false); handleCheckout('basic'); }}
+        onUpgrade={() => { setUpsellOpen(false); handleCheckout('complete', 'offer_upsell_upgrade', fallback); }}
+        onDecline={() => { setUpsellOpen(false); handleCheckout('basic', 'offer_upsell_decline', fallback); }}
       />
     </>
   );
