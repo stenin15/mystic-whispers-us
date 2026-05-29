@@ -5,6 +5,7 @@ import { ResultOfferSection } from '@/components/results/ResultOfferSection';
 import { ResultHeroSection } from '@/components/results/ResultHeroSection';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { handleCheckout } from '@/lib/resultPersonalization';
+import { track, getOrCreateEventId } from '@/lib/tracking';
 import type { AnalysisResult } from '@/store/useHandReadingStore';
 
 const scrollToOffer = () => {
@@ -60,9 +61,23 @@ const Resultado = () => {
   const handPhotoData  = useHandReadingStore(s => s.handPhotoData);
   const previewReportUrl = useHandReadingStore(s => s.previewReportUrl);
 
+  // Guard — redireciona se sem nome (usuário sem passar pelo funil)
   useEffect(() => {
     if (!name) navigate('/', { replace: true });
   }, [name, navigate]);
+
+  // ViewContent — dispara uma vez ao carregar a página de resultado
+  // Informa Meta quantas pessoas chegaram na oferta (funil: CompleteRegistration → ViewContent → InitiateCheckout)
+  useEffect(() => {
+    if (!name) return;
+    track('ViewContent', {
+      event_id: getOrCreateEventId('resultado_view'),
+      content_name: 'Resultado',
+      content_category: 'offer',
+      value: 29.90,
+      currency: 'USD',
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!name) return null;
 
