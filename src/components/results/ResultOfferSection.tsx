@@ -2,7 +2,6 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { UpsellModal } from './UpsellModal';
 import { handleCheckout } from '@/lib/resultPersonalization';
 
 const VIDEOS = [
@@ -172,7 +171,6 @@ const MobileCarousel = ({ onOpen }: { onOpen: (src: string) => void }) => {
 export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
   const { toast } = useToast();
   const [modalSrc, setModalSrc] = useState<string | null>(null);
-  const [upsellOpen, setUpsellOpen] = useState(false);
 
   const fallback = () =>
     toast({ title: 'Checkout unavailable', description: 'Please try again in a moment.', variant: 'destructive' });
@@ -189,7 +187,7 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
 
         {/* Basic CTA */}
         <div className="hidden md:block absolute" style={{ left: '26%', top: '49%', width: '20%', height: '8%', zIndex: 10 }}>
-          <GlowButton onClick={() => setUpsellOpen(true)} />
+          <GlowButton onClick={() => handleCheckout('basic', 'offer_section_basic', fallback)} />
         </div>
         {/* Complete CTA */}
         <div className="hidden md:block absolute" style={{ left: '49%', top: '49%', width: '31%', height: '8%', zIndex: 10 }}>
@@ -212,7 +210,7 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
 
         {/* Basic CTA */}
         <div className="block md:hidden absolute" style={{ left: '12%', top: '30%', width: '75%', height: '6%', zIndex: 10 }}>
-          <GlowButton onClick={() => setUpsellOpen(true)} />
+          <GlowButton onClick={() => handleCheckout('basic', 'offer_section_basic_mobile', fallback)} />
         </div>
         {/* Complete CTA */}
         <div className="block md:hidden absolute" style={{ left: '9%', top: '55%', width: '82%', height: '7%', zIndex: 10 }}>
@@ -234,12 +232,6 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
       <AnimatePresence>
         {modalSrc && <VideoModal src={modalSrc} onClose={() => setModalSrc(null)} />}
       </AnimatePresence>
-
-      <UpsellModal
-        open={upsellOpen}
-        onUpgrade={() => { setUpsellOpen(false); handleCheckout('complete', 'offer_upsell_upgrade', fallback); }}
-        onDecline={() => { setUpsellOpen(false); handleCheckout('basic', 'offer_upsell_decline', fallback); }}
-      />
     </>
   );
 };
