@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Sparkles, ArrowRight, User, Mail } from 'lucide-react';
+import { Sparkles, ArrowRight, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,7 +27,6 @@ const CONCERN_OPTIONS = [
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email'),
   age: z
     .string()
     .min(1, 'Please enter your age')
@@ -54,7 +53,6 @@ const Formulario = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      email: '',
       age: '',
     },
   });
@@ -99,23 +97,17 @@ const Formulario = () => {
           event_name: "Lead",
           event_id: leadEventId,
           page_url: window.location.href,
-          user: { email: data.email },
+          user: {},
           utm: getAttributionParams(),
           meta: { fbp, fbc },
           tiktok: { ttclid },
         },
       }).catch(() => {});
 
-      // Send welcome email (non-blocking)
-      supabase.functions.invoke('send-welcome-email', {
-        body: { name: data.name, email: data.email },
-      }).catch(() => { /* ignore */ });
-
       // Persist lead to DB (non-blocking)
       const utms = getAttributionParams();
       supabase.from('leads').insert({
         name: data.name,
-        email: data.email,
         age: parseInt(data.age, 10),
         utm_source: utms.utm_source ?? null,
         utm_medium: utms.utm_medium ?? null,
@@ -128,7 +120,7 @@ const Formulario = () => {
 
       setFormData({
         name: data.name,
-        email: data.email,
+        email: '',
         age: data.age,
         emotionalState: '',
         mainConcern,
@@ -140,7 +132,7 @@ const Formulario = () => {
       console.warn('Submit failed:', err);
       setFormData({
         name: data.name,
-        email: data.email,
+        email: '',
         age: data.age,
         emotionalState: '',
         mainConcern,
@@ -188,42 +180,19 @@ const Formulario = () => {
               Personal details
             </h2>
 
-            {/* Name + Email */}
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">First name</Label>
-                <Input
-                  id="name"
-                  placeholder="Emily"
-                  {...register('name')}
-                  autoComplete="given-name"
-                  className="bg-input/50 border-border/50 focus:border-primary"
-                />
-                {formIssues?.name && (
-                  <p className="text-sm text-destructive">{formIssues.name.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-muted-foreground" />
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@email.com"
-                  {...register('email')}
-                  autoComplete="email"
-                  className="bg-input/50 border-border/50 focus:border-primary"
-                />
-                <p className="text-xs text-muted-foreground/70">
-                  We'll send your reading here.
-                </p>
-                {formIssues?.email && (
-                  <p className="text-sm text-destructive">{formIssues.email.message}</p>
-                )}
-              </div>
+            {/* Name */}
+            <div className="space-y-2 max-w-xs">
+              <Label htmlFor="name">First name</Label>
+              <Input
+                id="name"
+                placeholder="Emily"
+                {...register('name')}
+                autoComplete="given-name"
+                className="bg-input/50 border-border/50 focus:border-primary"
+              />
+              {formIssues?.name && (
+                <p className="text-sm text-destructive">{formIssues.name.message}</p>
+              )}
             </div>
 
             {/* Age -- single field, no dropdowns */}
