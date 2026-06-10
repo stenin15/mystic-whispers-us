@@ -159,6 +159,10 @@ const Sucesso = () => {
               alreadyTracked,
             });
           }
+
+          // Auto-redirect after 3s — user shouldn't need to click manually
+          const dest = paidProducts.includes("complete") ? "/entrega/completa" : paidProducts.includes("guide") ? "/entrega/guia" : "/entrega/leitura";
+          pollingRef.current = window.setTimeout(() => navigate(dest), 3000);
           return;
         }
 

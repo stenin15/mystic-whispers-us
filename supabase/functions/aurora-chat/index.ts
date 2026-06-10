@@ -32,10 +32,10 @@ const corsHeaders = (origin: string | null) => ({
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
-const MAX_USER_MESSAGES = 8;
-const MAX_AURORA_MESSAGES = 8;
+const MAX_USER_MESSAGES = 12;
+const MAX_AURORA_MESSAGES = 12;
 const MAX_RESPONSE_CHARS = 450;
-const SESSION_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+const SESSION_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes — matches client + marketing
 
 // ---------------------------------------------------------------------------
 // Types
