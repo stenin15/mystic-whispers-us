@@ -132,8 +132,8 @@ serve(async (req) => {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: successUrl,
       cancel_url: cancelUrl,
-      billing_address_collection: "required",
-      phone_number_collection: { enabled: true },
+      automatic_payment_methods: { enabled: true },
+      billing_address_collection: "auto",
       metadata: {
         product_code: productCode,
         app: "mystic-whispers-us",
