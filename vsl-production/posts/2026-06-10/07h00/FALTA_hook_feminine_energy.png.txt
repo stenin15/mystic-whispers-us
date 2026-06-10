@@ -1,0 +1,3 @@
+Falta a imagem: hook_feminine_energy.png
+Gere com aurora_overlay.py ou GPT Image 2
+Hook: which feminine energy are you blocking?

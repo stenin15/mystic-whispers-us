@@ -1,0 +1,3 @@
+Falta a imagem: hook_stop_waiting.png
+Gere com aurora_overlay.py ou GPT Image 2
+Hook: stop waiting for him to choose you

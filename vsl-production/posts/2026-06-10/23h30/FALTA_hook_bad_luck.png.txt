@@ -1,0 +1,3 @@
+Falta a imagem: hook_bad_luck.png
+Gere com aurora_overlay.py ou GPT Image 2
+Hook: you don't have bad luck in love

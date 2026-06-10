@@ -1,0 +1,3 @@
+Falta a imagem: hook_heart_line.png
+Gere com aurora_overlay.py ou GPT Image 2
+Hook: your heart line reveals everything about you in love

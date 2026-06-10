@@ -1,0 +1,3 @@
+Falta a imagem: hook_i_can_see.png
+Gere com aurora_overlay.py ou GPT Image 2
+Hook: I can see your pattern. can you?

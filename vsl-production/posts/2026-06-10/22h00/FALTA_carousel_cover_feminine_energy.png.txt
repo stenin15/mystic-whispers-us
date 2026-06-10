@@ -1,0 +1,3 @@
+Falta a imagem: carousel_cover_feminine_energy.png
+Gere com aurora_overlay.py ou GPT Image 2
+Hook: Which feminine energy archetype are you?

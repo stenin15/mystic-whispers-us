@@ -1,0 +1,3 @@
+Falta a imagem: hook_too_much.png
+Gere com aurora_overlay.py ou GPT Image 2
+Hook: you're not too much

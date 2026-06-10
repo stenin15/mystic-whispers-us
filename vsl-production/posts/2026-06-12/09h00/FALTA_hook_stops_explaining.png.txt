@@ -1,0 +1,3 @@
+Falta a imagem: hook_stops_explaining.png
+Gere com aurora_overlay.py ou GPT Image 2
+Hook: the woman who stops explaining herself starts receiving
