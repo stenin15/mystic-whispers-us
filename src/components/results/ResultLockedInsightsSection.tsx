@@ -83,6 +83,15 @@ export const ResultLockedInsightsSection = ({ firstName, mainConcern, result }: 
 
           {/* Header */}
           <motion.div {...fadeUp(0)} className="text-center mb-10">
+            {/* Rarity signal — increases perceived value before paywall */}
+            <motion.div
+              {...fadeUp(0)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.18em] mb-4"
+              style={{ background: 'rgba(139,62,218,0.12)', border: '1px solid rgba(139,62,218,0.28)', color: 'hsl(280 60% 75%)' }}
+            >
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: 'hsl(280 60% 65%)', boxShadow: '0 0 6px hsl(280 60% 65%)' }} />
+              Rare pattern detected in your reading
+            </motion.div>
             <span
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.22em] mb-6"
               style={{ background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.25)', color: 'hsl(45 95% 65%)' }}
@@ -208,6 +217,9 @@ export const ResultLockedInsightsSection = ({ firstName, mainConcern, result }: 
               <ArrowRight className="w-5 h-5" />
             </motion.button>
             <p className="text-[11px] text-white/25 mt-3">from $9.90 · instant access · 7-day refund</p>
+            <p className="text-[10px] mt-2" style={{ color: 'rgba(251,191,36,0.35)' }}>
+              Your personalized reading is held for 24 hours.
+            </p>
             <p className="text-[9px] text-white/15 mt-1">For entertainment and self-reflection purposes.</p>
           </motion.div>
 

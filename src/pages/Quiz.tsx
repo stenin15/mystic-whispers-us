@@ -40,7 +40,7 @@ const CONCERN_OPTIONS = [
   { value: "Fear of ending up alone",   label: "I'm afraid I'll end up alone" },
 ] as const;
 
-type QuizPhase = 'intro-name' | 'intro-concern' | 'questions';
+type QuizPhase = 'intro-name' | 'intro-concern' | 'questions' | 'email-gate';
 
 const Quiz = () => {
   const navigate = useNavigate();
@@ -59,6 +59,8 @@ const Quiz = () => {
   const [nameInput, setNameInput] = useState(name || '');
   const [nameError, setNameError] = useState('');
   const [selectedConcern, setSelectedConcern] = useState('');
+  const [emailInput, setEmailInput] = useState(email || '');
+  const [emailSkipped, setEmailSkipped] = useState(false);
 
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
@@ -226,31 +228,7 @@ const Quiz = () => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Quiz completed — fire CompleteRegistration before navigating
-      const crEventId = getOrCreateEventId("quiz_complete");
-      track("CompleteRegistration", {
-        event_id: crEventId,
-        page_path: "/quiz",
-        angle: getStoredAngle(),
-        focus: getStoredFocus(),
-        ...getAttributionParams(),
-      });
-
-      // Server-side CompleteRegistration (ad blocker bypass)
-      const { fbp, fbc, ttclid } = getAdIds();
-      supabase.functions.invoke('track-event', {
-        body: {
-          event_name: "CompleteRegistration",
-          event_id: crEventId,
-          page_url: window.location.href,
-          user: { email: email || undefined },
-          utm: getAttributionParams(),
-          meta: { fbp, fbc },
-          tiktok: { ttclid },
-        },
-      }).catch(() => {});
-
-      navigate('/analise');
+      setPhase('email-gate');
     }
   };
 
@@ -377,6 +355,97 @@ const Quiz = () => {
             <Sparkles className="w-4 h-4 mr-2" />
             Begin My Reading
           </Button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ── Email gate (after questions, before analysis) ──────────────────────────
+  const proceedToAnalysis = (capturedEmail?: string) => {
+    if (capturedEmail) setFormData({ email: capturedEmail });
+    const crEventId = getOrCreateEventId("quiz_complete");
+    track("CompleteRegistration", {
+      event_id: crEventId,
+      page_path: "/quiz",
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+    const { fbp, fbc, ttclid } = getAdIds();
+    supabase.functions.invoke('track-event', {
+      body: {
+        event_name: "CompleteRegistration",
+        event_id: crEventId,
+        page_url: window.location.href,
+        user: { email: capturedEmail || undefined },
+        utm: getAttributionParams(),
+        meta: { fbp, fbc },
+        tiktok: { ttclid },
+      },
+    }).catch(() => {});
+    navigate('/analise');
+  };
+
+  if (phase === 'email-gate') {
+    const firstName = (name || '').split(' ')[0] || 'Your';
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.trim());
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md text-center"
+        >
+          <motion.div
+            animate={{ scale: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+            className="text-4xl mb-5"
+          >
+            ✨
+          </motion.div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] mb-3" style={{ color: 'rgba(251,191,36,0.6)' }}>
+            {firstName}, your reading is ready
+          </p>
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">
+            Where should Aurora send your insights?
+          </h2>
+          <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.40)' }}>
+            Your reading is being prepared. Enter your email to receive it — and to access your reading again anytime.
+          </p>
+          <div className="space-y-3 text-left">
+            <Input
+              autoFocus
+              type="email"
+              inputMode="email"
+              value={emailInput}
+              onChange={e => setEmailInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && isValidEmail) proceedToAnalysis(emailInput.trim()); }}
+              placeholder="your@email.com"
+              className="py-5 bg-white/5 border-white/15 focus:border-amber-400/50 text-white placeholder:text-white/30 rounded-xl text-base"
+            />
+            <Button
+              onClick={() => proceedToAnalysis(emailInput.trim())}
+              disabled={!isValidEmail}
+              className="w-full py-6 text-base rounded-xl font-bold"
+              style={isValidEmail ? { background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))', color: '#08080f', border: 'none' } : {}}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              See My Reading
+            </Button>
+          </div>
+          <button
+            onClick={() => { setEmailSkipped(true); proceedToAnalysis(); }}
+            className="mt-4 text-xs transition-colors"
+            style={{ color: 'rgba(255,255,255,0.22)' }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.50)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.22)')}
+          >
+            Continue without email
+          </button>
+          <p className="text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.15)' }}>
+            No spam. Unsubscribe anytime.
+          </p>
         </motion.div>
       </div>
     );
