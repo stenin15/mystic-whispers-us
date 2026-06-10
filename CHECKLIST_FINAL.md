@@ -11,8 +11,9 @@ VITE_SUPABASE_URL=https://uwoaqvviyfbbovfebmns.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 VITE_SUPABASE_PROJECT_ID=uwoaqvviyfbbovfebmns
-VITE_CARTPANDA_CHECKOUT_BASIC_URL=
-VITE_CARTPANDA_CHECKOUT_COMPLETE_URL=
+# Opcional — fallback estático caso a Edge Function de checkout falhe:
+VITE_STRIPE_CHECKOUT_BASIC_URL=
+VITE_STRIPE_CHECKOUT_COMPLETE_URL=
 ```
 
 ### 2. ⚙️ Configurações do Supabase
@@ -27,10 +28,12 @@ VITE_CARTPANDA_CHECKOUT_COMPLETE_URL=
 - `RESEND_API_KEY` - Para envio de emails
 - `ALLOWED_ORIGINS` - (Opcional) Domínios permitidos
 
-### 3. 🛒 CartPanda Checkout
-**AÇÃO NECESSÁRIA:** Criar os checkouts no CartPanda e adicionar as URLs no `.env.local`:
-- `VITE_CARTPANDA_CHECKOUT_BASIC_URL` - Checkout do plano básico (R$ 9,90)
-- `VITE_CARTPANDA_CHECKOUT_COMPLETE_URL` - Checkout do plano completo (R$ 49,90)
+### 3. 🛒 Stripe Checkout (via Supabase Edge Functions)
+O checkout é criado dinamicamente pela Edge Function `create-checkout-session`.
+Secrets necessários no Supabase (Dashboard → Edge Functions → Secrets):
+- `STRIPE_SECRET_KEY` e `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRICE_BASIC` ($9.90) / `STRIPE_PRICE_COMPLETE` ($29.90) / `STRIPE_PRICE_GUIDE` ($27) / `STRIPE_PRICE_UPSELL`
+- `SITE_URL` (redirects para /sucesso e /cancelado)
 
 ---
 
@@ -70,10 +73,10 @@ VITE_CARTPANDA_CHECKOUT_COMPLETE_URL=
 2. **Configurar variáveis no Supabase:**
    - Dashboard → Project Settings → Edge Functions → Secrets
    - Adicionar: `OPENAI_API_KEY` e `RESEND_API_KEY`
-3. **Criar checkouts no CartPanda:**
-   - Plano Básico: R$ 9,90
-   - Plano Completo: R$ 49,90
-   - Adicionar URLs no `.env.local`
+3. **Configurar Stripe no Supabase:**
+   - Criar os Prices no Stripe Dashboard (basic/complete/guide/upsell)
+   - Adicionar os Price IDs como secrets `STRIPE_PRICE_*` no Supabase
+   - Configurar o webhook `stripe-webhook` (checkout.session.completed)
 4. **Testar o fluxo completo:**
    ```bash
    npm run dev
@@ -102,8 +105,9 @@ VITE_CARTPANDA_CHECKOUT_COMPLETE_URL=
 - O sistema continua funcionando mesmo se email falhar
 
 ### Checkout não funciona
-- Verificar URLs do CartPanda no `.env.local`
-- Verificar se os checkouts estão ativos no CartPanda
+- Verificar secrets `STRIPE_PRICE_*`, `STRIPE_SECRET_KEY` e `SITE_URL` no Supabase
+- Verificar logs da Edge Function `create-checkout-session`
+- Verificar se o webhook `stripe-webhook` está ativo no Stripe Dashboard
 
 ---
 

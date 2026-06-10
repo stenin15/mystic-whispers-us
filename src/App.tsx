@@ -5,36 +5,46 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { HelmetProvider } from "react-helmet-async";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { track } from "@/lib/tracking";
 import { getAttributionParams, getStoredAngle, getStoredFocus } from "@/lib/marketing";
 
-// Pages
-import Index from "./pages/Index";
+// Pages — VSL fica eager (landing principal, LCP). O resto é lazy para
+// reduzir o bundle inicial; cada rota vira um chunk próprio.
 import VSL from "./pages/VSL";
-import Conexao from "./pages/Conexao";
-import Formulario from "./pages/Formulario";
-import Quiz from "./pages/Quiz";
-import Analise from "./pages/Analise";
-import Checkout from "./pages/Checkout";
-import Resultado from "./pages/Resultado";
-import Upsell from "./pages/Upsell";
-import Sucesso from "./pages/Sucesso";
-import Cancelado from "./pages/Cancelado";
-import NotFound from "./pages/NotFound";
-import EntregaLeitura from "./pages/EntregaLeitura";
-import EntregaCombo from "./pages/EntregaCombo";
-import EntregaGuia from "./pages/EntregaGuia";
-import OfertaGuiaExclusivo from "./pages/OfertaGuiaExclusivo";
-import EntradaFoto from "./pages/EntradaFoto";
-import Foto from "./pages/Foto";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import Refund from "./pages/Refund";
-import Contact from "./pages/Contact";
 import { VslGate } from "./components/shared/VslGate";
-import SessaoAurora from "./pages/SessaoAurora";
+
+const Index = lazy(() => import("./pages/Index"));
+const Conexao = lazy(() => import("./pages/Conexao"));
+const Formulario = lazy(() => import("./pages/Formulario"));
+const Quiz = lazy(() => import("./pages/Quiz"));
+const Analise = lazy(() => import("./pages/Analise"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Resultado = lazy(() => import("./pages/Resultado"));
+const Upsell = lazy(() => import("./pages/Upsell"));
+const Sucesso = lazy(() => import("./pages/Sucesso"));
+const Cancelado = lazy(() => import("./pages/Cancelado"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const EntregaLeitura = lazy(() => import("./pages/EntregaLeitura"));
+const EntregaCombo = lazy(() => import("./pages/EntregaCombo"));
+const EntregaGuia = lazy(() => import("./pages/EntregaGuia"));
+const OfertaGuiaExclusivo = lazy(() => import("./pages/OfertaGuiaExclusivo"));
+const EntradaFoto = lazy(() => import("./pages/EntradaFoto"));
+const Foto = lazy(() => import("./pages/Foto"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Refund = lazy(() => import("./pages/Refund"));
+const Contact = lazy(() => import("./pages/Contact"));
+const SessaoAurora = lazy(() => import("./pages/SessaoAurora"));
+
+// Fallback discreto no mesmo dark background do funil (evita flash branco)
+const RouteFallback = () => (
+  <div
+    className="min-h-screen"
+    style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}
+  />
+);
 
 const queryClient = new QueryClient();
 
@@ -86,6 +96,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <RouteTracker />
+          <Suspense fallback={<RouteFallback />}>
           <Routes>
             {/* Main entry for funnel */}
             <Route path="/" element={<VSL />} />
@@ -144,6 +155,7 @@ const App = () => (
           <Route path="/sessao-aurora" element={<SessaoAurora />} />
           <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
           <Analytics />
         </BrowserRouter>
       </TooltipProvider>

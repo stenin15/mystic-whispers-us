@@ -106,7 +106,8 @@
         s.parentNode.insertBefore(t,s)
       }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
       fbq('init','2164555847647961');
-      fbq('track','PageView');
+      // PageView is fired by RouteTracker (src/App.tsx) on every route,
+      // including the initial load — firing here too would double-count.
     </script>
 
     <!-- Google tag (gtag.js) -->

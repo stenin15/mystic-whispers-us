@@ -12,10 +12,22 @@ VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3b2FxdnZpeWZiYm92ZmVibW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4OTk3NzUsImV4cCI6MjA4MDQ3NTc3NX0.DuTTcCpml0LkN6nHcBBQBrGUaGPzrGszc2BaRpgZPgo
 VITE_SUPABASE_PROJECT_ID=uwoaqvviyfbbovfebmns
 
-# CartPanda Checkout URLs (configure depois quando criar os checkouts)
-VITE_CARTPANDA_CHECKOUT_BASIC_URL=
-VITE_CARTPANDA_CHECKOUT_COMPLETE_URL=
+# (Opcional) Payment links estáticos do Stripe — usados apenas como fallback
+# se a Edge Function create-checkout-session estiver indisponível.
+# O checkout normal NÃO depende deles (a sessão é criada dinamicamente no server).
+VITE_STRIPE_CHECKOUT_BASIC_URL=
+VITE_STRIPE_CHECKOUT_COMPLETE_URL=
 ```
+
+## 💳 Stripe (configurado no Supabase, não no .env.local)
+
+O checkout é 100% Stripe via Edge Function `create-checkout-session`.
+Secrets necessários no Supabase (Dashboard → Edge Functions → Secrets):
+
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRICE_BASIC` / `STRIPE_PRICE_COMPLETE` / `STRIPE_PRICE_GUIDE` / `STRIPE_PRICE_UPSELL` (Price IDs do Stripe Dashboard)
+- `SITE_URL` (ex: https://madam-aurora.co — usado nos redirects de sucesso/cancelamento)
 
 ## ✅ Depois de criar, reinicie o servidor:
 ```bash
