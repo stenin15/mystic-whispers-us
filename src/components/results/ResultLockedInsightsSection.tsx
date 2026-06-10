@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
-import { Lock, ArrowRight } from 'lucide-react';
+import { Lock, Unlock, ArrowRight } from 'lucide-react';
 import { getDynamicTexts, handleCheckout, pushDL } from '@/lib/resultPersonalization';
+import type { AnalysisResult } from '@/store/useHandReadingStore';
 
 interface Props {
   firstName?: string;
   mainConcern?: string;
+  result?: AnalysisResult | null;
 }
 
 const CARDS = [
@@ -41,8 +43,18 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay },
 });
 
-export const ResultLockedInsightsSection = ({ firstName, mainConcern }: Props) => {
+export const ResultLockedInsightsSection = ({ firstName, mainConcern, result }: Props) => {
   const texts = getDynamicTexts({ firstName: firstName || 'Your', mainConcern: mainConcern || '', age: '', emotionalPattern: '', quizAnswers: [], uploadedHandUrl: null });
+
+  // Desbloqueio parcial: o primeiro block da análise real da IA é revelado
+  // por inteiro — prova de valor concreta antes do paywall ("já reconheço
+  // isso, quero o resto"). Os demais cards continuam borrados.
+  const revealedBlock = result?.blocks?.[0];
+  const revealedTitle = revealedBlock?.title || 'Emotional Pattern';
+  const revealedText =
+    revealedBlock?.desc ||
+    result?.spiritualMessage ||
+    texts.previewInsightText;
 
   const onUnlock = () => {
     pushDL({ event: 'LockedInsightsUnlockClicked' });
@@ -84,6 +96,54 @@ export const ResultLockedInsightsSection = ({ firstName, mainConcern }: Props) =
             <p className="text-white/45 text-sm md:text-base max-w-md mx-auto leading-relaxed">
               Unlock your full reading to see the complete patterns, their origins, and what they suggest about your emotional path forward.
             </p>
+          </motion.div>
+
+          {/* Revealed insight — conteúdo real da análise, desbloqueado */}
+          <motion.div
+            {...fadeUp(0.05)}
+            className="rounded-2xl overflow-hidden mb-4"
+            style={{
+              background: 'rgba(4,2,14,0.80)',
+              border: '1px solid rgba(52,211,153,0.30)',
+              backdropFilter: 'blur(16px)',
+              boxShadow: '0 0 32px rgba(52,211,153,0.08)',
+            }}
+          >
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.30)' }}
+                  >
+                    <Unlock className="w-3.5 h-3.5" style={{ color: 'hsl(160 65% 60%)' }} />
+                  </div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'hsl(160 65% 60%)' }}>
+                    {revealedTitle}
+                  </p>
+                </div>
+                <span
+                  className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
+                  style={{
+                    background: 'rgba(52,211,153,0.10)',
+                    border: '1px solid rgba(52,211,153,0.25)',
+                    color: 'hsl(160 65% 60%)',
+                  }}
+                >
+                  Revealed free
+                </span>
+              </div>
+              <p className="text-sm text-white/75 leading-relaxed">{revealedText}</p>
+              {result?.palmObservations && (
+                <p className="text-xs text-white/45 leading-relaxed mt-3 italic">
+                  From your palm photo: {result.palmObservations}
+                </p>
+              )}
+              <p className="text-[11px] text-white/35 mt-3">
+                This is one of the patterns your reading uncovered. The complete reading explains
+                where it comes from — and the patterns still locked below.
+              </p>
+            </div>
           </motion.div>
 
           {/* Cards */}

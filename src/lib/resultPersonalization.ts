@@ -116,6 +116,8 @@ export async function handleCheckout(
 ) {
   const value = type === 'basic' ? 9.90 : 29.90;
   const contentName = type === 'basic' ? 'Basic Palm Reading' : 'Complete Palm Reading';
+  const w = window as unknown as { gtag?: (...a: unknown[]) => void };
+  if (w.gtag) w.gtag('event', 'begin_checkout', { currency: 'USD', value });
   pushDL({ event: 'CheckoutOfferClicked', plan: type, price: String(value), page: 'result', section: source });
   pushDL({ event: type === 'basic' ? 'UnlockBasicClicked' : 'UnlockCompleteClicked' });
 
