@@ -3,11 +3,16 @@ Madam Aurora — Instagram Profile Setup
 - Define foto de perfil
 - Define bio
 """
+import os
+import sys
 from instagrapi import Client
 from pathlib import Path
 
-USERNAME = 'madamauroraofficial'
-PASSWORD = 'Bitcoin14@'
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+
+USERNAME = require_env("IG_USERNAME")
+PASSWORD = require_env("IG_PASSWORD")
 
 PROFILE_PHOTO = Path('C:/Users/Stenio/Documents/mystic-whispers-us/vsl-production/instagram/images/00_profile.png')
 

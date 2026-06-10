@@ -3,11 +3,16 @@ Madam Aurora — Instagram Auto-Poster (solucao definitiva v3)
 Usa expect_file_chooser para capturar o dialog de upload antes de virar nativo.
 """
 import asyncio
+import os
+import sys
 from pathlib import Path
 from playwright.async_api import async_playwright
 
-USERNAME = 'madamauroraofficial'
-PASSWORD = 'w89u.?kEWuGizhz'
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+
+USERNAME = require_env("IG_USERNAME")
+PASSWORD = require_env("IG_PASSWORD")
 BASE     = Path('C:/Users/Stenio/Documents/mystic-whispers-us/vsl-production/instagram')
 IMAGES   = BASE / 'images'
 

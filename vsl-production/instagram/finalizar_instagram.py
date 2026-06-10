@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
-import asyncio, sys
+import asyncio, os, sys
 from pathlib import Path
 from playwright.async_api import async_playwright
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-USERNAME = 'madamauroraofficial'
-PASSWORD = 'w89u.?kEWuGizhz'
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+
+USERNAME = require_env("IG_USERNAME")
+PASSWORD = require_env("IG_PASSWORD")
 BASE     = Path('C:/Users/Stenio/Documents/mystic-whispers-us/vsl-production/instagram')
 IMAGES   = BASE / 'images'
 STORIES_DIR = BASE / 'stories'
 
-PROFILE = "https://www.instagram.com/madamauroraofficial/"
+PROFILE = f"https://www.instagram.com/{USERNAME}/"
 
 HIGHLIGHTS = [
     ("Free Read",    ["fr01_cta_link.png","fr02_how_it_works.png","fr03_what_you_get.png"]),

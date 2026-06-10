@@ -5,14 +5,17 @@ Flow por highlight:
   1. Posta cada imagem como story
   2. Imediatamente apos o ultimo story do grupo → Add to Highlight
 """
-import asyncio, sys
+import asyncio, os, sys
 from pathlib import Path
 from playwright.async_api import async_playwright
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-USERNAME = 'madamauroraofficial'
-PASSWORD = 'w89u.?kEWuGizhz'
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+
+USERNAME = require_env("IG_USERNAME")
+PASSWORD = require_env("IG_PASSWORD")
 BASE     = Path('C:/Users/Stenio/Documents/mystic-whispers-us/vsl-production/instagram')
 STORIES  = BASE / 'stories'
 
@@ -195,7 +198,7 @@ async def create_highlight_from_archive(page, name):
     Pressupoe que as stories ja foram postadas e estao no arquivo.
     """
     print(f'  Criando highlight: {name}')
-    await page.goto('https://www.instagram.com/madamauroraofficial/', wait_until='domcontentloaded')
+    await page.goto(f'https://www.instagram.com/{USERNAME}/', wait_until='domcontentloaded')
     await asyncio.sleep(5)
     await dismiss(page)
 

@@ -3,11 +3,14 @@ Madam Aurora — Stories Generator para Highlights
 Gera 18 stories 9:16 (1080x1920) para os 5 highlights
 Modelo: Seedream 4.5 via OpenRouter
 """
-import httpx, base64, io, os, time
+import httpx, base64, io, os, sys, time
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-KEY   = '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'
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+
+KEY   = require_env("OPENROUTER_API_KEY")
 MODEL = 'bytedance-seed/seedream-4.5'
 OUT   = Path('C:/Users/Stenio/Documents/mystic-whispers-us/vsl-production/instagram/stories')
 OUT.mkdir(parents=True, exist_ok=True)

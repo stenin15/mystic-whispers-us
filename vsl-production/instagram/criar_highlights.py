@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 """Cria os 5 highlights no @madamauroraofficial"""
-import asyncio, sys
+import asyncio, os, sys
 from pathlib import Path
 from playwright.async_api import async_playwright
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-USERNAME = 'madamauroraofficial'
-PASSWORD = 'w89u.?kEWuGizhz'
-PROFILE  = "https://www.instagram.com/madamauroraofficial/"
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+
+USERNAME = require_env("IG_USERNAME")
+PASSWORD = require_env("IG_PASSWORD")
+PROFILE  = f"https://www.instagram.com/{USERNAME}/"
 
 HIGHLIGHTS = [
     ("Free Read",    3),

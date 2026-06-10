@@ -1,5 +1,13 @@
 import asyncio
+import os
+import sys
 from playwright.async_api import async_playwright
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+
+USERNAME = require_env("IG_USERNAME")
+PASSWORD = require_env("IG_PASSWORD")
 
 async def main():
     async with async_playwright() as p:
@@ -14,9 +22,9 @@ async def main():
         # Login
         await page.goto('https://www.instagram.com/accounts/login/', wait_until='domcontentloaded')
         await asyncio.sleep(5)
-        await page.fill('input[name="email"]', 'madamauroraofficial')
+        await page.fill('input[name="email"]', USERNAME)
         await asyncio.sleep(1)
-        await page.fill('input[name="pass"]', 'w89u.?kEWuGizhz')
+        await page.fill('input[name="pass"]', PASSWORD)
         await asyncio.sleep(1)
         btn = page.locator('div[role="button"]').filter(has_text='Log In').first
         await btn.click(force=True)

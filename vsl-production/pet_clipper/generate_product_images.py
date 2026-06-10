@@ -4,12 +4,16 @@ Cortador de Unhas LED — Assets Premium em Portugues
 Gera fotos de produto (Seedream 4.5) + cards infograficos (Pillow)
 Design: dark premium, acento laranja, tipografia moderna
 """
-import replicate, requests, os, time
+import replicate, requests, os, sys, time
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import io, textwrap
 
-os.environ["REPLICATE_API_TOKEN"] = "r8_e91AziASL3aYSIB7GvolHWLmWRZcKnj05zwGi"
+# REPLICATE_API_TOKEN deve vir do ambiente (ou de vsl-production/.env).
+# A lib replicate le os.environ["REPLICATE_API_TOKEN"] automaticamente.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+require_env("REPLICATE_API_TOKEN")
 
 OUT = Path("C:/Users/Stenio/Documents/mystic-whispers-us/vsl-production/pet_clipper/product_images")
 OUT.mkdir(parents=True, exist_ok=True)

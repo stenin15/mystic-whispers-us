@@ -3,14 +3,17 @@
 Posta stories + cria highlights via instagrapi (API mobile nativa).
 Muito mais confiavel que Playwright para esta tarefa.
 """
-import sys, time
+import os, sys, time
 from pathlib import Path
 from instagrapi import Client
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-USERNAME = 'madamauroraofficial'
-PASSWORD = 'w89u.?kEWuGizhz'
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+
+USERNAME = require_env("IG_USERNAME")
+PASSWORD = require_env("IG_PASSWORD")
 BASE     = Path('C:/Users/Stenio/Documents/mystic-whispers-us/vsl-production/instagram')
 STORIES  = BASE / 'stories'
 
