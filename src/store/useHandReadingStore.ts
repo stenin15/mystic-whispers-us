@@ -220,14 +220,11 @@ export const useHandReadingStore = create<HandReadingState>()(
 
       reset: () => set(initialState),
 
-      canAccessQuiz: () => {
-        const state = get();
-        return !!(state.name && state.age);
-      },
+      canAccessQuiz: () => true,
 
       canAccessAnalysis: () => {
         const state = get();
-        return state.canAccessQuiz() && state.quizAnswers.length >= 5 && state.hasHandPhoto;
+        return !!state.name && state.quizAnswers.length >= 5;
       },
 
       canAccessResult: () => {

@@ -16,8 +16,6 @@ import VSL from "./pages/VSL";
 import { VslGate } from "./components/shared/VslGate";
 
 const Index = lazy(() => import("./pages/Index"));
-const Conexao = lazy(() => import("./pages/Conexao"));
-const Formulario = lazy(() => import("./pages/Formulario"));
 const Quiz = lazy(() => import("./pages/Quiz"));
 const Analise = lazy(() => import("./pages/Analise"));
 const Checkout = lazy(() => import("./pages/Checkout"));
@@ -104,15 +102,8 @@ const App = () => (
           <Route path={pathReading} element={<Index />} />
           {/* Alias for older links */}
           <Route path="/vsl" element={<Navigate to="/" replace />} />
-          <Route path="/conexao" element={<Conexao />} />
-          <Route
-            path="/formulario"
-            element={
-              <VslGate>
-                <Formulario />
-              </VslGate>
-            }
-          />
+          <Route path="/conexao" element={<Navigate to="/quiz" replace />} />
+          <Route path="/formulario" element={<Navigate to="/quiz" replace />} />
           <Route
             path="/quiz"
             element={

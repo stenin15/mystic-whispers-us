@@ -2,6 +2,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles, CheckCircle, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { quizQuestions } from '@/lib/quizQuestions';
 import { cn } from '@/lib/utils';
@@ -28,6 +29,19 @@ const QUESTION_AUDIO: Record<number, string | null> = {
   9: null,
 };
 
+const CONCERN_OPTIONS = [
+  { value: "Wrong timing",              label: "Love always feels off-timing for me" },
+  { value: "Emotional confusion",       label: "I can't tell what I really feel" },
+  { value: "Fear of losing someone",    label: "I'm afraid of losing someone I love" },
+  { value: "Repeating the same patterns", label: "I keep attracting the same type" },
+  { value: "Feeling emotionally blocked", label: "Something in me blocks real connection" },
+  { value: "Moving on from someone",    label: "I can't fully let go of someone" },
+  { value: "Overthinking relationships", label: "I overthink every relationship" },
+  { value: "Fear of ending up alone",   label: "I'm afraid I'll end up alone" },
+] as const;
+
+type QuizPhase = 'intro-name' | 'intro-concern' | 'questions';
+
 const Quiz = () => {
   const navigate = useNavigate();
   const {
@@ -37,8 +51,14 @@ const Quiz = () => {
     currentQuestionIndex,
     setQuizAnswer,
     setCurrentQuestionIndex,
-    canAccessQuiz,
+    setFormData,
   } = useHandReadingStore();
+
+  // Start directly in questions phase if name is already set (returning user)
+  const [phase, setPhase] = useState<QuizPhase>(name ? 'questions' : 'intro-name');
+  const [nameInput, setNameInput] = useState(name || '');
+  const [nameError, setNameError] = useState('');
+  const [selectedConcern, setSelectedConcern] = useState('');
 
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
@@ -47,15 +67,11 @@ const Quiz = () => {
   const [quizStarted, setQuizStarted] = useState(true); // start immediately
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Redirect if coming from wrong place
-  useEffect(() => {
-    if (!canAccessQuiz()) {
-      navigate('/formulario');
-    }
-  }, [canAccessQuiz, navigate]);
-
-  const currentQuestion = quizQuestions[currentQuestionIndex];
-  const totalQuestions = quizQuestions.length;
+  // Research shows 5-7 questions is the optimal completion sweet spot.
+  // Q8 & Q9 (palm self-observation) are reserved for the post-purchase delivery experience.
+  const activeQuestions = quizQuestions.slice(0, 7);
+  const currentQuestion = activeQuestions[currentQuestionIndex];
+  const totalQuestions = activeQuestions.length;
   const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
 
   const currentAnswer = quizAnswers.find(
@@ -234,7 +250,7 @@ const Quiz = () => {
         },
       }).catch(() => {});
 
-      navigate('/foto');
+      navigate('/analise');
     }
   };
 
@@ -258,11 +274,120 @@ const Quiz = () => {
     name || undefined
   );
 
+  // ── Intro phase: name ──────────────────────────────────────────────────────
+  const handleNameSubmit = () => {
+    const trimmed = nameInput.trim();
+    if (trimmed.length < 2) { setNameError('Please enter at least 2 characters.'); return; }
+    setNameError('');
+    setFormData({ name: trimmed, age: '', email: '', emotionalState: '', mainConcern: '' });
+    setPhase('intro-concern');
+  };
+
+  // ── Intro phase: concern ────────────────────────────────────────────────────
+  const handleConcernSubmit = () => {
+    if (!selectedConcern) return;
+    setFormData({ mainConcern: selectedConcern });
+    setPhase('questions');
+  };
+
+  // ── Render intro screens ────────────────────────────────────────────────────
+  if (phase === 'intro-name') {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <p className="text-center text-[11px] font-bold uppercase tracking-[0.22em] mb-6" style={{ color: 'rgba(251,191,36,0.6)' }}>
+            Your reading begins
+          </p>
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-center text-white mb-2">
+            What should I call you?
+          </h1>
+          <p className="text-center text-sm mb-8" style={{ color: 'rgba(255,255,255,0.38)' }}>
+            Aurora will speak to you by name throughout your reading.
+          </p>
+          <div className="space-y-3">
+            <Input
+              autoFocus
+              value={nameInput}
+              onChange={e => { setNameInput(e.target.value); setNameError(''); }}
+              onKeyDown={e => { if (e.key === 'Enter') handleNameSubmit(); }}
+              placeholder="Your first name"
+              className="text-lg py-6 bg-white/5 border-white/15 focus:border-amber-400/50 text-white placeholder:text-white/30 rounded-xl"
+            />
+            {nameError && <p className="text-sm text-red-400/80">{nameError}</p>}
+            <Button
+              onClick={handleNameSubmit}
+              disabled={nameInput.trim().length < 2}
+              className="w-full py-6 text-base rounded-xl font-bold"
+              style={{ background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))', color: '#08080f', border: 'none' }}
+            >
+              Continue <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (phase === 'intro-concern') {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-lg"
+        >
+          <p className="text-center text-[11px] font-bold uppercase tracking-[0.22em] mb-6" style={{ color: 'rgba(251,191,36,0.6)' }}>
+            {nameInput.trim() ? nameInput.trim().split(' ')[0] : 'One more thing'}
+          </p>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold text-center text-white mb-2">
+            What's been weighing on you?
+          </h1>
+          <p className="text-center text-sm mb-8" style={{ color: 'rgba(255,255,255,0.38)' }}>
+            This shapes the focus of your entire reading.
+          </p>
+          <div className="grid grid-cols-2 gap-2.5 mb-6">
+            {CONCERN_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setSelectedConcern(opt.value)}
+                className={cn(
+                  'px-3 py-3.5 rounded-xl text-sm text-left transition-all duration-200 border leading-snug',
+                  selectedConcern === opt.value
+                    ? 'bg-amber-500/15 border-amber-400/50 text-amber-200 font-medium'
+                    : 'bg-white/3 border-white/10 text-white/55 hover:border-white/20 hover:text-white/80'
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <Button
+            onClick={handleConcernSubmit}
+            disabled={!selectedConcern}
+            className="w-full py-6 text-base rounded-xl font-bold"
+            style={selectedConcern ? { background: 'linear-gradient(135deg, hsl(45 85% 52%), hsl(38 80% 42%))', color: '#08080f', border: 'none' } : {}}
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Begin My Reading
+          </Button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ── Questions phase guard ───────────────────────────────────────────────────
   if (!currentQuestion) return null;
 
   return (
     <div className="min-h-screen relative overflow-hidden py-20 px-4" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
-      
+
       {/* Audio banner — não bloqueante */}
       {showAudioBanner && audioEnabled && (
         <motion.div
@@ -289,11 +414,8 @@ const Quiz = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-4">
-            <span className="text-sm text-primary">Step 2 of 2</span>
-          </div>
           <h1 className="text-2xl md:text-3xl font-serif font-bold mb-2">
-            <span className="gradient-text-mystic">Energy quiz</span>
+            <span className="gradient-text-mystic">Your energy reading</span>
           </h1>
           <p className="text-muted-foreground text-sm">
             {name?.trim() ? `${name.trim()}, answer with an open heart` : "Answer with an open heart"}

@@ -175,7 +175,7 @@ const VSL = () => {
     });
 
     setHasSeenVsl(true);
-    navigate(appendUtmToPath("/formulario", { angle, focus }));
+    navigate(appendUtmToPath("/quiz", { angle, focus }));
   };
 
   return (

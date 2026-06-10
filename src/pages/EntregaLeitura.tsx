@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Hand, Sparkles, ArrowRight, Gift, Loader2, BookOpen, Moon, Stars, Wand2, Shield, Crown, Heart, Bolt, Mic, Download, Lock } from "lucide-react";
+import { Hand, Sparkles, ArrowRight, Gift, Loader2, BookOpen, Moon, Stars, Wand2, Shield, Crown, Heart, Bolt, Mic, Download } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DeliveryFAQ from "@/components/delivery/DeliveryFAQ";
@@ -386,6 +386,33 @@ const EntregaLeitura = () => {
               </div>
             </div>
           ) : null}
+        </motion.div>
+
+        {/* Optional palm photo — deeper personalization after purchase */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.48 }}
+          className="glass rounded-2xl p-5 md:p-6 mb-8 border border-mystic-gold/15"
+          style={{ background: "rgba(251,191,36,0.03)" }}
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-mystic-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Hand className="w-5 h-5 text-mystic-gold" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-1">
+                Want a deeper reading?
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                Upload a photo of your palm to unlock personalized insights based on your actual lines.
+                Takes 30 seconds. Image deleted after analysis.
+              </p>
+              <a href="/foto" className="text-xs font-semibold text-mystic-gold/80 hover:text-mystic-gold transition-colors underline underline-offset-2">
+                Upload my palm photo →
+              </a>
+            </div>
+          </div>
         </motion.div>
 
         {/* Lifetime access */}
