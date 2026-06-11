@@ -1,3 +1,0 @@
-Falta a imagem: hook_love_deeply.png
-Gere com aurora_overlay.py ou GPT Image 2
-Hook: you love deeply and protect yourself even deeper
