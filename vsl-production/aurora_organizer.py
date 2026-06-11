@@ -21,12 +21,18 @@ IMAGES_DIR = BASE  # imagens geradas ficam na raiz de vsl-production
 
 
 def find_image(filename: str) -> Path | None:
-    """Procura a imagem em várias pastas possíveis."""
+    """Procura a imagem em várias pastas possíveis (com ou sem prefixo de base)."""
     search_dirs = [OUTPUT_DIR, IMAGES_DIR, BASE / "images"]
+    stem = Path(filename).stem  # e.g. "hook_feminine_energy"
+    suffix = Path(filename).suffix  # e.g. ".png"
     for d in search_dirs:
+        # Exact match first
         p = d / filename
         if p.exists():
             return p
+        # Prefixed match: b1_hook_feminine_energy.png, b2_..., etc.
+        for prefixed in d.glob(f"b?_{stem}{suffix}"):
+            return prefixed
     return None
 
 

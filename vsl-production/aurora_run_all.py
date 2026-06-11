@@ -17,27 +17,27 @@ BASE_DIR = Path(__file__).parent
 
 # Mapeamento: nome do arquivo da base → prefixo dos outputs
 BASE_IMAGES = {
-    "base1_palm_lateral.jpg":  "b1",
-    "base2_eye_contact.jpg":   "b2",
-    "base3_looking_down.jpg":  "b3",
-    "base4_silhouette.jpg":    "b4",
-    "base5_palm_face.jpg":     "b5",
+    "base1_palm_lateral.png":  "b1",
+    "base2_eye_contact.png":   "b2",
+    "base3_looking_down.png":  "b3",
+    "base4_silhouette.png":    "b4",
+    "base5_palm_face.png":     "b5",
 }
 
 # Qual base usar para qual hook (otimização por composição)
 BASE_ASSIGNMENT = {
-    "hook_feminine_energy":    "base2_eye_contact.jpg",    # olho direto → mais forte
-    "hook_i_can_see":          "base2_eye_contact.jpg",
-    "hook_wrong_person":       "base3_looking_down.jpg",   # introspecção → pain point
-    "hook_stop_waiting":       "base3_looking_down.jpg",
-    "hook_too_much":           "base3_looking_down.jpg",
-    "hook_she_kept_choosing":  "base3_looking_down.jpg",
-    "hook_heart_line":         "base1_palm_lateral.jpg",   # palma → educational
-    "hook_love_deeply":        "base1_palm_lateral.jpg",
-    "hook_before_text":        "base5_palm_face.jpg",      # palma+rosto → intrigante
-    "hook_3_signs":            "base5_palm_face.jpg",
-    "hook_bad_luck":           "base4_silhouette.jpg",     # silhueta → transformação
-    "hook_stops_explaining":   "base4_silhouette.jpg",
+    "hook_feminine_energy":    "base2_eye_contact.png",    # olho direto → mais forte
+    "hook_i_can_see":          "base2_eye_contact.png",
+    "hook_wrong_person":       "base3_looking_down.png",   # introspecção → pain point
+    "hook_stop_waiting":       "base3_looking_down.png",
+    "hook_too_much":           "base3_looking_down.png",
+    "hook_she_kept_choosing":  "base3_looking_down.png",
+    "hook_heart_line":         "base1_palm_lateral.png",   # palma → educational
+    "hook_love_deeply":        "base1_palm_lateral.png",
+    "hook_before_text":        "base5_palm_face.png",      # palma+rosto → intrigante
+    "hook_3_signs":            "base5_palm_face.png",
+    "hook_bad_luck":           "base4_silhouette.png",     # silhueta → transformação
+    "hook_stops_explaining":   "base4_silhouette.png",
 }
 
 
