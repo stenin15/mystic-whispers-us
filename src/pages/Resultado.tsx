@@ -99,13 +99,13 @@ const Resultado = () => {
       <ResultOfferSection />
 
       {/* Seção 3 — Preview */}
-      <img src="/results/result-preview-desktop.png" alt="" className="hidden md:block w-full h-auto" draggable={false} />
-      <img src="/results/result-preview-mobile.png"  alt="" className="block md:hidden w-full h-auto" draggable={false} />
+      <img src="/results/result-preview-desktop.webp" alt="" className="hidden md:block w-full h-auto" draggable={false} />
+      <img src="/results/result-preview-mobile.webp"  alt="" className="block md:hidden w-full h-auto" draggable={false} />
 
       {/* Seção 4 — Locked */}
       <div style={{ position: 'relative', width: '100%', lineHeight: 0 }}>
-        <img src="/results/result-locked-desktop.png" alt="" className="hidden md:block w-full h-auto" draggable={false} />
-        <img src="/results/result-locked-mobile.png"  alt="" className="block md:hidden w-full h-auto" draggable={false} />
+        <img src="/results/result-locked-desktop.webp" alt="" className="hidden md:block w-full h-auto" draggable={false} />
+        <img src="/results/result-locked-mobile.webp"  alt="" className="block md:hidden w-full h-auto" draggable={false} />
 
         {/* Desktop — "UNLOCK MY FULL READING" no banner inferior direito
             Pixel analysis: rows 829-831 (88.1%), cols 59.3-86.7% */}
@@ -126,8 +126,8 @@ const Resultado = () => {
 
       {/* Seção 5 — Final CTA */}
       <div style={{ position: 'relative', width: '100%', lineHeight: 0 }}>
-        <img src="/results/result-final-desktop.png" alt="" className="hidden md:block w-full h-auto" draggable={false} />
-        <img src="/results/result-final-mobile.png"  alt="" className="block md:hidden w-full h-auto" draggable={false} />
+        <img src="/results/result-final-desktop.webp" alt="" className="hidden md:block w-full h-auto" draggable={false} />
+        <img src="/results/result-final-mobile.webp"  alt="" className="block md:hidden w-full h-auto" draggable={false} />
 
         {/* Desktop — "UNLOCK MY FULL READING" no card central
             Pixel analysis: rows 591-604 (62.8-64.2%), cols 7.8-36.8% */}

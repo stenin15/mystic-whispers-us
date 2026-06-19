@@ -53,9 +53,9 @@ export const ResultLockedInsightsSection = ({ firstName, mainConcern }: Props) =
     <section className="relative overflow-hidden">
       {/* Background */}
       <picture>
-        <source media="(max-width: 767px)" srcSet="/results/result-locked-mobile.png" />
+        <source media="(max-width: 767px)" srcSet="/results/result-locked-mobile.webp" />
         <img
-          src="/results/result-locked-desktop.png"
+          src="/results/result-locked-desktop.webp"
           alt=""
           aria-hidden="true"
           loading="lazy"

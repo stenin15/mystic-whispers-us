@@ -46,7 +46,7 @@ export const ImageSection = ({
     className={className}
   >
     <picture>
-      <source media="(min-width: 768px)" srcSet={desktopSrc} type="image/png" />
+      <source media="(min-width: 768px)" srcSet={desktopSrc} type="image/webp" />
       <img
         src={mobileSrc}
         alt={alt}

@@ -75,9 +75,9 @@ export const ResultPreviewSection = ({
 
       {/* ── Background images ─────────────────────────────────────────── */}
       <picture>
-        <source media="(max-width: 767px)" srcSet="/results/result-preview-mobile.png" />
+        <source media="(max-width: 767px)" srcSet="/results/result-preview-mobile.webp" />
         <img
-          src="/results/result-preview-desktop.png"
+          src="/results/result-preview-desktop.webp"
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover"

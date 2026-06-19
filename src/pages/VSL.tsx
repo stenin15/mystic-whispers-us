@@ -80,9 +80,9 @@ const VslSection = () => (
     style={{ position: "relative", width: "100%", lineHeight: 0 }}
   >
     <picture>
-      <source media="(min-width: 768px)" srcSet="/landing/section-2-desktop.png" type="image/png" />
+      <source media="(min-width: 768px)" srcSet="/landing/section-2-desktop.webp" type="image/webp" />
       <img
-        src="/landing/section-2-mobile.png"
+        src="/landing/section-2-mobile.webp"
         alt=""
         aria-hidden
         loading="lazy"
@@ -244,8 +244,8 @@ const VSL = () => {
 
       {/* ── SECTION 1 — HERO ───────────────────────────────────────────── */}
       <ImageSection
-        desktopSrc="/landing/section-1-desktop.png"
-        mobileSrc="/landing/section-1-mobile.png"
+        desktopSrc="/landing/section-1-desktop.webp"
+        mobileSrc="/landing/section-1-mobile.webp"
         alt="Madam Aurora — palm reading for love and emotional patterns"
         loading="eager"
         ctaAreas={[
@@ -418,8 +418,8 @@ const VSL = () => {
       {/* ── SECTION 3 — PAIN PATTERNS ──────────────────────────────────── */}
       {/* Botão CTA na parte inferior da seção */}
       <ImageSection
-        desktopSrc="/landing/section-3-desktop.png"
-        mobileSrc="/landing/section-3-mobile.png"
+        desktopSrc="/landing/section-3-desktop.webp"
+        mobileSrc="/landing/section-3-mobile.webp"
         alt=""
         ctaAreas={[
           {
@@ -434,8 +434,8 @@ const VSL = () => {
 
       {/* ── SECTION 4 — EXPERIENCE / PALM READING ──────────────────────── */}
       <ImageSection
-        desktopSrc="/landing/section-4-desktop.png"
-        mobileSrc="/landing/section-4-mobile.png"
+        desktopSrc="/landing/section-4-desktop.webp"
+        mobileSrc="/landing/section-4-mobile.webp"
         alt=""
         ctaAreas={[
           {
@@ -450,8 +450,8 @@ const VSL = () => {
 
       {/* ── SECTION 5 — SOCIAL PROOF ────────────────────────────────────── */}
       <ImageSection
-        desktopSrc="/landing/section-5-desktop.png"
-        mobileSrc="/landing/section-5-mobile.png"
+        desktopSrc="/landing/section-5-desktop.webp"
+        mobileSrc="/landing/section-5-mobile.webp"
         alt=""
         ctaAreas={[
           {
@@ -466,8 +466,8 @@ const VSL = () => {
 
       {/* ── SECTION 6 — FINAL CTA ───────────────────────────────────────── */}
       <ImageSection
-        desktopSrc="/landing/section-6-desktop.png"
-        mobileSrc="/landing/section-6-mobile.png"
+        desktopSrc="/landing/section-6-desktop.webp"
+        mobileSrc="/landing/section-6-mobile.webp"
         alt=""
         ctaAreas={[
           {
