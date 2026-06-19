@@ -331,8 +331,8 @@ const VSL = () => {
                   accent: "rgba(192,132,252,0.9)",
                   iconBg: "rgba(139,62,218,0.10)",
                   iconBorder: "rgba(139,62,218,0.28)",
-                  title: "Live 15-Min Private Session with Aurora",
-                  desc: "A real one-on-one conversation. Aurora responds to your situation with insights drawn directly from your reading.",
+                  title: "Private 15-Min Voice Session with Aurora",
+                  desc: "A personal, voice-guided session — Aurora speaks to you directly, with insights drawn from your reading.",
                   badge: "Most valuable",
                 },
                 {
