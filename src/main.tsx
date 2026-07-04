@@ -2,6 +2,9 @@ import { createRoot } from "react-dom/client";
 import { Component, ReactNode } from "react";
 import App from "./App.tsx";
 import "./index.css";
+import { initTikTok } from "./lib/tiktok";
+
+initTikTok();
 
 class RootErrorBoundary extends Component<
   { children: ReactNode },

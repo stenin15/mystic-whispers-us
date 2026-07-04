@@ -59,7 +59,9 @@ function loadSession(sid: string): PersistedSession | null {
 function saveSession(sid: string, state: PersistedSession) {
   try {
     localStorage.setItem(getStorageKey(sid), JSON.stringify(state));
-  } catch {}
+  } catch {
+    // ignore
+  }
 }
 
 // ---------------------------------------------------------------------------

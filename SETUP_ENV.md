@@ -17,6 +17,12 @@ VITE_SUPABASE_PROJECT_ID=uwoaqvviyfbbovfebmns
 # O checkout normal NÃO depende deles (a sessão é criada dinamicamente no server).
 VITE_STRIPE_CHECKOUT_BASIC_URL=
 VITE_STRIPE_CHECKOUT_COMPLETE_URL=
+
+# (Opcional) TikTok Pixel — pega o ID em ads.tiktok.com → Assets → Events → Web Events.
+# Sem esse valor o pixel do TikTok fica desligado (no-op). Com ele, o site dispara
+# automaticamente: page view em toda rota, ViewContent, SubmitForm (Lead),
+# InitiateCheckout e CompletePayment (Purchase), com event_id para deduplicação.
+VITE_TIKTOK_PIXEL_ID=
 ```
 
 ## 💳 Stripe (configurado no Supabase, não no .env.local)
