@@ -211,7 +211,17 @@ serve(async (req) => {
   }
 
   const name = (rawName?.trim().split(" ")[0]) || "there";
-  const readingUrl = `${BASE}/resultado`;
+  // Deep-link to the delivery page with the Stripe session_id so the reading
+  // opens even on a different device/browser (entitlement is verified server-side).
+  // /resultado is the offer page and bounces users without local funnel state.
+  const deliveryPath = product_code === "complete"
+    ? "/entrega/completa"
+    : product_code === "guide" || product_code === "upsell"
+      ? "/entrega/guia"
+      : "/entrega/leitura";
+  const readingUrl = session_id
+    ? `${BASE}${deliveryPath}?session_id=${encodeURIComponent(session_id)}`
+    : `${BASE}${deliveryPath}`;
 
   const resend = new Resend(RESEND_API_KEY);
   const now = Date.now();

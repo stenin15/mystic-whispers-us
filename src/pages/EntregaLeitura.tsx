@@ -11,7 +11,7 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { PRICE_MAP } from "@/lib/pricing";
 import { createCheckoutSessionUrl } from "@/lib/checkout";
-import { verifyEntitlement } from "@/lib/entitlement";
+import { verifyEntitlement, getSessionId } from "@/lib/entitlement";
 
 const EntregaLeitura = () => {
   const navigate = useNavigate();
@@ -97,12 +97,8 @@ const EntregaLeitura = () => {
     if (fullReportStartedRef.current) return;
     fullReportStartedRef.current = true;
 
-    const stripeSessionId = (() => {
-      try {
-        const p = new URLSearchParams(window.location.search);
-        return p.get("session_id") || "";
-      } catch { return ""; }
-    })();
+    // URL query first, then persisted paymentToken (same resolution as entitlement checks)
+    const stripeSessionId = getSessionId();
 
     if (!stripeSessionId) return;
 

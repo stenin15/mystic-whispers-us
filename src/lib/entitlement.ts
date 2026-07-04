@@ -41,14 +41,19 @@ export function getSessionId(): string {
   }
 
   // Fallback: we persist the Stripe session_id into `paymentToken` via setEntitlements(paidProducts, sessionId).
-  try {
-    const raw = sessionStorage.getItem("mwus_funnel_v1");
-    if (!raw) return "";
-    const parsed = JSON.parse(raw) as { state?: { paymentToken?: string | null } };
-    return String(parsed?.state?.paymentToken ?? "").trim();
-  } catch {
-    return "";
+  // The zustand store persists to localStorage; keep sessionStorage as a legacy fallback.
+  for (const storage of [localStorage, sessionStorage]) {
+    try {
+      const raw = storage.getItem("mwus_funnel_v1");
+      if (!raw) continue;
+      const parsed = JSON.parse(raw) as { state?: { paymentToken?: string | null } };
+      const token = String(parsed?.state?.paymentToken ?? "").trim();
+      if (token) return token;
+    } catch {
+      // ignore
+    }
   }
+  return "";
 }
 
 export async function verifyEntitlement(required: ProductKey): Promise<{
