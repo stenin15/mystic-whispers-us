@@ -197,7 +197,7 @@ const Analise = () => {
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: 'url(/analysis/resultado-bg-mobile.png)',
+          backgroundImage: 'url(/analysis/resultado-bg-mobile.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

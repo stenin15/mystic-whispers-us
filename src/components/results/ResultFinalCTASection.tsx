@@ -37,7 +37,7 @@ export const ResultFinalCTASection = () => {
 
       {/* Desktop image */}
       <img
-        src="/results/result-final-desktop.png"
+        src="/results/result-final-desktop.webp"
         alt=""
         aria-hidden
         loading="lazy"
@@ -47,7 +47,7 @@ export const ResultFinalCTASection = () => {
 
       {/* Mobile image */}
       <img
-        src="/results/result-final-mobile.png"
+        src="/results/result-final-mobile.webp"
         alt=""
         aria-hidden
         loading="lazy"

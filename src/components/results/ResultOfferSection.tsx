@@ -180,8 +180,8 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
       <section id="offer-section" style={{ position: 'relative', width: '100%', lineHeight: 0 }}>
 
         {/* Background images — definem altura da section */}
-        <img src="/results/result-offers-desktop.png" alt="" aria-hidden className="hidden md:block w-full h-auto" draggable={false} />
-        <img src="/results/result-offers-mobile.png"  alt="" aria-hidden className="block md:hidden w-full h-auto" draggable={false} />
+        <img src="/results/result-offers-desktop.webp" alt="" aria-hidden className="hidden md:block w-full h-auto" draggable={false} />
+        <img src="/results/result-offers-mobile.webp"  alt="" aria-hidden className="block md:hidden w-full h-auto" draggable={false} />
 
         {/* ══ DESKTOP ══ */}
 

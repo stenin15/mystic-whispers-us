@@ -70,7 +70,7 @@ export const ImageHero = ({ quizRoute, onCtaClick }: ImageHeroProps) => (
       object-position: left center keeps headline + CTA visible.
     */}
     <img
-      src="/hero-love-timing-desktop.png"
+      src="/hero-love-timing-desktop.webp"
       alt="Why does the right person always arrive at the wrong time? — palm reading by Madam Aurora"
       className="absolute inset-0 w-full h-full object-cover hidden md:block hero-fade-in"
       style={{ objectPosition: 'left center' }}
@@ -85,7 +85,7 @@ export const ImageHero = ({ quizRoute, onCtaClick }: ImageHeroProps) => (
       object-position: center top keeps headline visible.
     */}
     <img
-      src="/hero-love-timing-mobile.png"
+      src="/hero-love-timing-mobile.webp"
       alt="Why does the right person always arrive at the wrong time? — palm reading by Madam Aurora"
       className="absolute inset-0 w-full h-full object-cover block md:hidden hero-fade-in"
       style={{ objectPosition: 'center top' }}

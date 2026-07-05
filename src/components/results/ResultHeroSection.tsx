@@ -142,7 +142,7 @@ export const ResultHeroSection = ({
         aria-hidden
         className="absolute inset-0 hidden md:block"
         style={{
-          backgroundImage: 'url(/results/result-hero-desktop.png)',
+          backgroundImage: 'url(/results/result-hero-desktop.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -151,7 +151,7 @@ export const ResultHeroSection = ({
         aria-hidden
         className="absolute inset-0 block md:hidden"
         style={{
-          backgroundImage: 'url(/results/result-hero-mobile.png)',
+          backgroundImage: 'url(/results/result-hero-mobile.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
         }}
