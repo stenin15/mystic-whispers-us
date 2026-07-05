@@ -8,8 +8,10 @@ import jwt as pyjwt
 import urllib3
 urllib3.disable_warnings()
 
-KLING_AK = "Aemf4d4QrGmf4GETeYaYeBT38QgbBHkb"
-KLING_SK = "rYERrBHgEhpQgCk8pHQprNGNharbRLLa"
+from env_loader import require_env
+
+KLING_AK = require_env("KLING_ACCESS_KEY")
+KLING_SK = require_env("KLING_SECRET_KEY")
 
 BASE_DIR   = Path(__file__).parent
 IMGS_SMALL = BASE_DIR / "scenes" / "images_small"

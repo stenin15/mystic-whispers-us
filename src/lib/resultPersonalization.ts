@@ -1,5 +1,8 @@
 import { useHandReadingStore } from '@/store/useHandReadingStore';
-import { track } from './tracking';
+import { getAdIds, getOrCreateEventId, track } from './tracking';
+import { getAttributionParams, getStoredAngle, getStoredFocus } from './marketing';
+import { createCheckoutSessionUrl } from './checkout';
+import { supabase } from '@/integrations/supabase/client';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -106,30 +109,83 @@ export function getDynamicTexts(data: PersonalizationData): DynamicTexts {
 
 // ── Shared checkout handler ───────────────────────────────────────────────────
 
-export function handleCheckout(
+export async function handleCheckout(
   type: 'basic' | 'complete',
   source: string,
   fallback?: () => void,
 ) {
   const value = type === 'basic' ? 9.90 : 29.90;
+  const contentName = type === 'basic' ? 'Basic Palm Reading' : 'Complete Palm Reading';
+  const w = window as unknown as { gtag?: (...a: unknown[]) => void };
+  if (w.gtag) w.gtag('event', 'begin_checkout', { currency: 'USD', value });
   pushDL({ event: 'CheckoutOfferClicked', plan: type, price: String(value), page: 'result', section: source });
   pushDL({ event: type === 'basic' ? 'UnlockBasicClicked' : 'UnlockCompleteClicked' });
 
-  track('InitiateCheckout', {
+  // AddToCart = clicou em desbloquear na página de resultado (sinal de funil antes do InitiateCheckout)
+  track('AddToCart', {
+    event_id: getOrCreateEventId(`add_to_cart:${type}`),
     value,
     currency: 'USD',
-    content_name: type === 'basic' ? 'Basic Palm Reading' : 'Complete Palm Reading',
+    content_name: contentName,
     content_ids: [type],
     source,
   });
 
-  const url = (type === 'basic'
+  const icEventId = getOrCreateEventId(`initiate_checkout:${type}`);
+  track('InitiateCheckout', {
+    event_id: icEventId,
+    value,
+    currency: 'USD',
+    content_name: contentName,
+    content_ids: [type],
+    source,
+    angle: getStoredAngle(),
+    focus: getStoredFocus(),
+    ...getAttributionParams(),
+  });
+
+  // Server-side InitiateCheckout (CAPI) — mesmo event_id para dedup
+  const store = useHandReadingStore.getState();
+  const { fbp, fbc, ttclid } = getAdIds();
+  supabase.functions.invoke('track-event', {
+    body: {
+      event_name: 'InitiateCheckout',
+      event_id: icEventId,
+      value,
+      currency: 'USD',
+      page_url: window.location.href,
+      user: { email: store.email || undefined },
+      utm: getAttributionParams(),
+      meta: { fbp, fbc },
+      tiktok: { ttclid },
+    },
+  }).catch(() => {});
+
+  // Caminho principal: sessão dinâmica via Edge Function (mesmo fluxo do /checkout).
+  try {
+    const url = await createCheckoutSessionUrl(type, {
+      email: store.email || undefined,
+      name: store.name || undefined,
+    });
+    window.location.href = url;
+    return;
+  } catch {
+    // continua para os fallbacks abaixo
+  }
+
+  // Fallback 1: payment link estático configurado por env var
+  const staticUrl = (type === 'basic'
     ? import.meta.env.VITE_STRIPE_CHECKOUT_BASIC_URL
     : import.meta.env.VITE_STRIPE_CHECKOUT_COMPLETE_URL) as string | undefined;
-
-  if (!url) {
-    if (fallback) fallback();
+  if (staticUrl) {
+    window.location.href = staticUrl;
     return;
   }
-  window.location.href = url;
+
+  // Fallback 2: página de checkout interna
+  if (fallback) {
+    fallback();
+    return;
+  }
+  window.location.href = `/checkout?plan=${type}`;
 }

@@ -126,7 +126,7 @@ const Analise = () => {
 
   // Main analysis
   useEffect(() => {
-    if (!canAccessAnalysis()) { navigate('/foto'); return; }
+    if (!canAccessAnalysis()) { navigate('/quiz'); return; }
     if (analysisStarted.current) return;
     analysisStarted.current = true;
     setIsAnalyzing(true);

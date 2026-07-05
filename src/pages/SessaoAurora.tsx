@@ -29,7 +29,7 @@ import { track } from "@/lib/tracking";
 // ---------------------------------------------------------------------------
 // Session limits
 // ---------------------------------------------------------------------------
-const MAX_USER_MESSAGES = 15;
+const MAX_USER_MESSAGES = 12; // mirrors server MAX_USER_MESSAGES in aurora-chat Edge Function
 const MAX_TTS = 10;
 const SESSION_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
@@ -59,7 +59,9 @@ function loadSession(sid: string): PersistedSession | null {
 function saveSession(sid: string, state: PersistedSession) {
   try {
     localStorage.setItem(getStorageKey(sid), JSON.stringify(state));
-  } catch {}
+  } catch {
+    // ignore
+  }
 }
 
 // ---------------------------------------------------------------------------

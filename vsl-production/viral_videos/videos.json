@@ -1,0 +1,126 @@
+{
+  "handle": "@madamauroraofficial",
+  "default_hashtags": "#palmreading #palmistry #lovereading #heartline #marriageline #spiritualwomen #loveadvice #spiritualtiktok #divinefeminine #lovelife",
+  "videos": [
+    {
+      "id": "01_heartline_meaning",
+      "pillar": "Illuminate",
+      "beats": [
+        { "image": "scenes/images_v2/07_heartline.png", "text": "Your heart line\nis not random.", "dur": 2.8, "position": "top", "size": 80 },
+        { "image": "scenes/ad_images_v2/final/01_mechanism.png", "text": "If it curves up toward your index finger…", "sub": "you're a natural giver in love.", "dur": 3.2 },
+        { "image": "scenes/images_v2/06_pattern_reveal.png", "text": "But you tend to give\nbefore you receive.", "dur": 3.0 },
+        { "image": "scenes/images_v2/02_hook_line2.png", "text": "Most people never\nlook at this line.", "sub": "You just did.", "dur": 2.8 }
+      ],
+      "cta": "Your palm already knows.\nGet your free reading.",
+      "caption": "The line that curves across the top of your palm — that's your heart line. And it's been telling your love story this whole time. 🤍\n\nComment the shape of yours below 👇"
+    },
+    {
+      "id": "02_marriage_lines",
+      "pillar": "Illuminate",
+      "beats": [
+        { "image": "scenes/images_v2/08_marriagelines.png", "text": "The 3 types of\nmarriage lines", "dur": 2.8, "position": "top", "size": 80 },
+        { "image": "scenes/ad_images_v2/final/07_curiosity.png", "text": "One clear line:", "sub": "deep, committed bond ahead", "dur": 3.0 },
+        { "image": "scenes/ad_images_v2/final/02_pattern.png", "text": "Two or more lines:", "sub": "significant connections that shape you", "dur": 3.0 },
+        { "image": "scenes/images_v2/04_problem1.png", "text": "Faint or broken lines:", "sub": "timing still unfolding — not absence", "dur": 3.0 }
+      ],
+      "cta": "Which one is on your palm?\nFind out free.",
+      "caption": "Marriage lines are the small horizontal lines under your pinky. Most people read them wrong. 💍\n\nWhich type do you have? Look now and tell me 👇"
+    },
+    {
+      "id": "03_same_type",
+      "pillar": "Relate",
+      "beats": [
+        { "image": "scenes/ad_images_v2/final/02_pattern.png", "text": "“Why do I keep attracting\nthe same type?”", "dur": 3.0, "size": 68 },
+        { "image": "scenes/images_v2/05_problem2.png", "text": "It's not bad luck.", "sub": "It's a pattern.", "dur": 2.8 },
+        { "image": "scenes/images_v2/06_pattern_reveal.png", "text": "And patterns repeat\nuntil you finally see them.", "dur": 3.2 },
+        { "image": "scenes/images_v2/07_heartline.png", "text": "Your palm has been\nshowing it all along.", "dur": 3.0 }
+      ],
+      "cta": "Name the pattern.\nFree palm reading.",
+      "caption": "If every relationship feels like a rerun… it's not the universe being cruel. It's a pattern — and your palm shows it. ✋\n\nTag someone who needs to see this."
+    },
+    {
+      "id": "04_almost_there",
+      "pillar": "Relate",
+      "beats": [
+        { "image": "scenes/images_v2/01_hook_line1.png", "text": "If love always feels\nlike it's almost there…", "dur": 3.2, "size": 68 },
+        { "image": "scenes/images_v2/04_problem1.png", "text": "almost ready.", "sub": "almost right. almost yours.", "dur": 2.8 },
+        { "image": "scenes/images_v2/09_timing_window.png", "text": "Your palm may explain\nthe “almost”.", "dur": 3.0 },
+        { "image": "scenes/images_v2/03_hook_punch.png", "text": "It's called your\nlove timing window.", "dur": 3.0 }
+      ],
+      "cta": "See your timing window.\nFree to begin.",
+      "caption": "“Almost” is the loneliest word in love. But it has an explanation — and it's written on your hand. ⏳\n\nSave this if you felt it."
+    },
+    {
+      "id": "05_pov_ai_reading",
+      "pillar": "Reveal",
+      "beats": [
+        { "image": "scenes/images_v2/12_product.png", "text": "POV: AI just\nread my palm", "dur": 2.8, "position": "top", "size": 80 },
+        { "image": "scenes/images_v2/10_proof_story.png", "text": "I uploaded one photo.", "sub": "Answered 7 questions.", "dur": 3.0 },
+        { "image": "scenes/images_v2/11_proof_result.png", "text": "And it named a pattern\nI've never said out loud.", "dur": 3.2 },
+        { "image": "scenes/images_v2/14_close.png", "text": "I wasn't ready\nfor how specific it was.", "dur": 3.0 }
+      ],
+      "cta": "Try it yourself.\nFree palm reading.",
+      "caption": "Not a horoscope. Not a generic quiz. Your actual hand, your actual lines. 🔮\n\nWould you let AI read your palm? 👇"
+    },
+    {
+      "id": "06_uploaded_photo",
+      "pillar": "Reveal",
+      "beats": [
+        { "image": "scenes/ad_images_v2/final/08_skeptic.png", "text": "I uploaded my palm photo\nand this is what happened", "dur": 3.2, "size": 62 },
+        { "image": "scenes/images_v2/07_heartline.png", "text": "It found my heart line fork.", "sub": "The one linked to pulling away early.", "dur": 3.2 },
+        { "image": "scenes/images_v2/09_timing_window.png", "text": "Then it showed my\ntiming window.", "dur": 3.0 },
+        { "image": "scenes/images_v2/13_cta.png", "text": "My friends thought it was fake.\nThen they tried it.", "dur": 3.2, "size": 58 }
+      ],
+      "cta": "Upload yours.\nSee what it finds.",
+      "caption": "I was the skeptic of the group. Now I'm the one sending this to everyone. 👀\n\nFree to start — link in bio."
+    },
+    {
+      "id": "07_blocked_loveline",
+      "pillar": "Illuminate",
+      "beats": [
+        { "image": "scenes/images_v2/05_problem2.png", "text": "3 signs your love line\nis blocked", "dur": 2.8, "position": "top", "size": 76 },
+        { "image": "scenes/images_v2/04_problem1.png", "text": "1. Connection starts strong\nthen suddenly stalls.", "dur": 3.0, "size": 58 },
+        { "image": "scenes/ad_images_v2/final/05_spiritual.png", "text": "2. You feel guarded\neven when you want closeness.", "dur": 3.0, "size": 58 },
+        { "image": "scenes/images_v2/06_pattern_reveal.png", "text": "3. The same ending\nkeeps repeating.", "dur": 3.0, "size": 58 }
+      ],
+      "cta": "A blocked line can open.\nStart with a free reading.",
+      "caption": "Blocked doesn't mean broken. It means there's something to see first. 🗝️\n\nHow many of these felt familiar? 1, 2 or 3? 👇"
+    },
+    {
+      "id": "08_women_30s",
+      "pillar": "Relate",
+      "beats": [
+        { "image": "scenes/ad_images_v2/final/10_awareness.png", "text": "The question every woman\nin her 30s is asking:", "dur": 3.2, "size": 60 },
+        { "image": "scenes/images_v2/01_hook_line1.png", "text": "“Is it me…\nor is it the timing?”", "dur": 3.0 },
+        { "image": "scenes/images_v2/09_timing_window.png", "text": "Your palm holds\nan honest answer.", "dur": 3.0 },
+        { "image": "scenes/images_v2/02_hook_line2.png", "text": "Not a prediction.\nA pattern.", "dur": 2.8 }
+      ],
+      "cta": "Stop wondering.\nGet your free reading.",
+      "caption": "It's not you vs. timing. It's a pattern that has a name — and once you name it, everything shifts. ✨\n\nShare this with a friend who's wondering too."
+    },
+    {
+      "id": "09_confused_clarity",
+      "pillar": "Transform",
+      "beats": [
+        { "image": "scenes/images_v2/10_proof_story.png", "text": "She came in confused.", "dur": 2.8, "position": "top", "size": 76 },
+        { "image": "scenes/images_v2/11_proof_result.png", "text": "She left with clarity.", "sub": "Same palm. New eyes.", "dur": 3.0 },
+        { "image": "scenes/ad_images_v2/final/04_social_proof.png", "text": "“It described my pattern\nbetter than my therapist.”", "dur": 3.2, "size": 58 },
+        { "image": "scenes/images_v2/14_close.png", "text": "500+ women have\nseen their reading.", "dur": 2.8 }
+      ],
+      "cta": "Your turn.\nFree palm reading.",
+      "caption": "Clarity doesn't change your past. It changes what you do next. 💫\n\nReady to see yours?"
+    },
+    {
+      "id": "10_timing_window_open",
+      "pillar": "Transform",
+      "beats": [
+        { "image": "scenes/ad_images_v2/final/06_timing_window.png", "text": "Your love timing window\nmay be open right now.", "dur": 3.2, "size": 62 },
+        { "image": "scenes/images_v2/09_timing_window.png", "text": "Most women miss it\nwithout ever knowing.", "dur": 3.0 },
+        { "image": "scenes/images_v2/13_cta.png", "text": "One photo.\n7 questions.\nYour reading in minutes.", "dur": 3.2, "size": 58 },
+        { "image": "scenes/images_v2/12_product.png", "text": "Free to begin.", "dur": 2.6 }
+      ],
+      "cta": "Don't let the window close.\nLink in bio.",
+      "caption": "Windows open. Windows close. The difference is whether you're looking. ⏳\n\nFree to start — link in bio."
+    }
+  ]
+}

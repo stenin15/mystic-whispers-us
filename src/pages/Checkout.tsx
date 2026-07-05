@@ -17,7 +17,6 @@ import { Button } from '@/components/ui/button';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
 import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
-import CountdownTimer from '@/components/delivery/CountdownTimer';
 import { toast } from 'sonner';
 import { PRICE_MAP } from '@/lib/pricing';
 import { createCheckoutSessionUrl } from '@/lib/checkout';
@@ -37,6 +36,18 @@ const Checkout = () => {
       navigate('/formulario');
     }
   }, [canAccessResult, navigate]);
+
+  // Meta enxerga o step "viu os planos" (antes do clique de InitiateCheckout)
+  useEffect(() => {
+    if (!canAccessResult()) return;
+    track('ViewCheckout', {
+      event_id: getOrCreateEventId('view_checkout'),
+      page_path: '/checkout',
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCheckoutClick = async (key: "basic" | "complete") => {
     if (checkoutLoading) return;
@@ -84,9 +95,6 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-background">
-      {/* Countdown Timer */}
-      <CountdownTimer minutes={15} />
-
       {/* Background layers */}
       <div className="fixed inset-0 pointer-events-none -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_0%,hsl(280_60%_20%_/_0.3)_0%,transparent_60%)]" />

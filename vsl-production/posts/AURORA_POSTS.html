@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madam Aurora — Posts da Semana</title>
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c96d;
+    --purple-dark: #0d0a1a;
+    --purple-mid: #1a1030;
+    --purple-card: #1f1535;
+    --purple-border: #2e1f50;
+    --text: #e8e0f0;
+    --text-dim: #9080b0;
+    --tiktok: #ff0050;
+    --instagram: #e1306c;
+    --feed: #833ab4;
+    --reel-color: #fd1d1d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--purple-dark);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, #0d0a1a 0%, #1a0a2e 50%, #0d0a1a 100%);
+    border-bottom: 1px solid var(--purple-border);
+    padding: 24px 20px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  header p { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1px solid var(--purple-border);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .tab:hover { border-color: var(--gold); color: var(--gold); }
+  .tab.active { background: var(--gold); color: #0d0a1a; border-color: var(--gold); font-weight: 700; }
+
+  .day-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+  }
+
+  .day-section.hidden { display: none; }
+
+  .day-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 28px 0 16px;
+    border-bottom: 1px solid var(--purple-border);
+    margin-bottom: 20px;
+  }
+
+  .day-date {
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .day-theme {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .day-count {
+    margin-left: auto;
+    background: var(--purple-border);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  @media (max-width: 600px) {
+    .posts-grid { grid-template-columns: 1fr; }
+  }
+
+  .post-card {
+    background: var(--purple-card);
+    border: 1px solid var(--purple-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(201, 168, 76, 0.15);
+    border-color: var(--gold);
+  }
+
+  .post-image-wrap {
+    position: relative;
+    width: 100%;
+    padding-top: 177%;
+    background: #0a0815;
+    overflow: hidden;
+  }
+
+  .post-image-wrap img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .post-image-wrap .no-img {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  .post-image-wrap .no-img span { font-size: 40px; display: block; margin-bottom: 8px; }
+
+  .platform-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .platform-TikTok { background: rgba(0,0,0,0.75); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+  .platform-TikTok::before { content: "🎵 "; }
+  .platform-Instagram-Reels { background: rgba(225,48,108,0.8); color: #fff; }
+  .platform-Instagram-Reels::before { content: "▶ "; }
+  .platform-Instagram-Feed { background: rgba(131,58,180,0.85); color: #fff; }
+  .platform-Instagram-Feed::before { content: "◼ "; }
+
+  .time-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    color: var(--gold);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid rgba(201,168,76,0.3);
+  }
+
+  .post-body {
+    padding: 14px;
+  }
+
+  .post-hook {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .post-caption {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    max-height: 120px;
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.3s;
+  }
+
+  .post-caption.expanded { max-height: 1000px; }
+
+  .post-caption::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, var(--purple-card));
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .post-caption.expanded::after { opacity: 0; }
+
+  .post-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-copy {
+    background: var(--gold);
+    color: #0d0a1a;
+  }
+
+  .btn-copy:hover { background: var(--gold-light); }
+  .btn-copy.copied { background: #2d6a4f; color: #fff; }
+
+  .btn-expand {
+    background: var(--purple-border);
+    color: var(--text-dim);
+  }
+
+  .btn-expand:hover { background: #3a2860; color: var(--text); }
+
+  .post-notes {
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: rgba(201, 168, 76, 0.06);
+    border-left: 2px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--purple-mid);
+    border-bottom: 1px solid var(--purple-border);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .stat { text-align: center; }
+  .stat-val { font-size: 20px; font-weight: 800; color: var(--gold); }
+  .stat-lbl { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .tips-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 16px 60px;
+  }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 600px) { .tips-grid { grid-template-columns: 1fr; } }
+
+  .tips-card {
+    background: var(--purple-card);
+    border: 1px solid var(--purple-border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .tips-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .tips-card.do h4 { color: #52b788; }
+  .tips-card.dont h4 { color: #e76f51; }
+  .tips-card.ad h4 { color: var(--gold); }
+
+  .tips-card li {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .tips-card.do li::before { content: "✓"; position: absolute; left: 0; color: #52b788; }
+  .tips-card.dont li::before { content: "✗"; position: absolute; left: 0; color: #e76f51; }
+  .tips-card.ad li::before { content: "→"; position: absolute; left: 0; color: var(--gold); }
+
+  .section-title {
+    font-size: 14px;
+    color: var(--gold);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 28px 0 0;
+    margin-bottom: 4px;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #2d6a4f;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: transform 0.3s;
+    z-index: 999;
+    pointer-events: none;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔮 Madam Aurora</h1>
+  <p>Calendário de Posts — Semana 1 · 30 posts · EST</p>
+  <div class="tabs">
+    <button class="tab active" onclick="showDay('all')">Todos</button>
+    <button class="tab" onclick="showDay('2026-06-10')">Jun 10 · Pain Point</button>
+    <button class="tab" onclick="showDay('2026-06-11')">Jun 11 · Authority</button>
+    <button class="tab" onclick="showDay('2026-06-12')">Jun 12 · Proof</button>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-val">30</div><div class="stat-lbl">Posts</div></div>
+  <div class="stat"><div class="stat-val">10</div><div class="stat-lbl">Por dia</div></div>
+  <div class="stat"><div class="stat-val">3</div><div class="stat-lbl">Plataformas</div></div>
+  <div class="stat"><div class="stat-val">$9</div><div class="stat-lbl">Preço leitura</div></div>
+</div>
+
+<div id="all-days">
+
+<!-- DAY 1 -->
+<div class="day-section" data-day="2026-06-10">
+  <div style="max-width:900px;margin:0 auto;padding:0 16px">
+    <div class="day-header">
+      <div>
+        <div class="day-date">2026-06-10 · Quarta</div>
+        <div class="day-theme">Pain Point + Reveal</div>
+      </div>
+      <div class="day-count">10 posts</div>
+    </div>
+  </div>
+  <div class="day-section" style="padding-top:0">
+    <div class="posts-grid">
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-10/07h00/hook_feminine_energy.png" alt="which feminine energy are you blocking?" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🔮</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">07h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">which feminine energy are you blocking?</div>
+          <div class="post-caption" id="cap-0">which feminine energy are you blocking? 🔮
+
+your palm already knows.
+
+the lines in your hand reveal which energy pattern is dominant — and which one you've been suppressing without realizing it.
+
+get your free reading → link in bio
+
+#palmreading #femininenenergy #darkfeminineenergy #divinefeminine #spiritualtiktok #palmistry #attachmentstyle</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-0', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-0', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">PRIMEIRA POST DO DIA — maior alcance matinal. Não adicionar CTA agressivo. Deixar a curiosidade trabalhar.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-10/09h00/hook_wrong_person.png" alt="The reason you keep attracting the wrong person" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>💔</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Reels">Instagram Reels</span>
+          <span class="time-badge">09h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">The reason you keep attracting the wrong person</div>
+          <div class="post-caption" id="cap-1">the reason you keep attracting the wrong person has nothing to do with luck. 💔
+
+it's a pattern. and it's written in your hand.
+
+your heart line reveals the emotional wiring behind every relationship you've had — the ones that felt almost right, the ones that ended the same way, the ones you're still thinking about.
+
+understanding your pattern doesn't change your past. it changes what you do next.
+
+get your reading → link in bio ($9 · 3 min)
+
+#palmreading #relationshippatterns #attachmentstyle #healingjourney #divinefeminine #spiritualtiktok #palmistry</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-1', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-1', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Repost no Reels depois do TikTok. Mesma imagem, pode mudar a legenda levemente.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-10/12h00/carousel_cover_3signs.png" alt="3 signs your love pattern is keeping you stuck" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🧵</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Feed">Instagram Feed</span>
+          <span class="time-badge">12h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">3 signs your love pattern is keeping you stuck</div>
+          <div class="post-caption" id="cap-2">3 signs your love pattern is keeping you stuck 🧵
+
+swipe to see if you recognize yourself →
+
+#palmreading #lovepatterns #relationshiphealing #feminineenergy #darkfeminineenergy #attachmentstyle #spiritualawakening</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-2', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-2', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Carrossel do CAROUSEL_SCRIPTS.md — Carrossel 1. Usar fundo cósmico gerado + slides com texto.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-10/15h00/hook_stop_waiting.png" alt="stop waiting for him to choose you" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🕯️</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">15h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">stop waiting for him to choose you</div>
+          <div class="post-caption" id="cap-3">stop waiting for him to choose you. 🕯️
+
+your palm explains why you keep waiting.
+
+the fate line in your hand shows the timing pattern that's been running your love life — and why available, present love has always felt less exciting than the almost.
+
+you're not broken. you have a pattern. and patterns can change.
+
+reading → link in bio
+
+#darkfeminineenergy #femininewounding #palmreading #loveadvice #healyourself #spiritualtiktok</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-3', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-3', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Horário de almoço/tarde — alto engajamento.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-10/18h00/hook_i_can_see.png" alt="I can see your pattern. can you?" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>👁️</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">18h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">I can see your pattern. can you?</div>
+          <div class="post-caption" id="cap-4">I can see your pattern.
+
+can you? 👁️
+
+#palmreading #palmistry #spiritualtiktok #darkfeminineenergy #lovepatterns #fyp</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-4', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-4', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Legenda CURTA. Deixar a imagem e o hook fazer o trabalho. Prime time = mais alcance.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-10/20h00/hook_heart_line.png" alt="your heart line reveals everything about you in love" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>💛</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Reels">Instagram Reels</span>
+          <span class="time-badge">20h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">your heart line reveals everything about you in love</div>
+          <div class="post-caption" id="cap-5">your heart line reveals everything about you in love — and most people never find out. 💛
+
+the curve, the depth, the forks — each one tells a different story about how you give love, receive love, and protect yourself from it.
+
+what does yours say?
+
+personalized reading → link in bio
+
+#heartline #palmreading #palmistry #lovepatterns #relationshipadvice #spiritualhealing</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-5', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-5', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Educational angle — bom para saves.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-10/21h00/hook_she_kept_choosing.png" alt="she kept choosing men who weren't ready for her" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🔮</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">21h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">she kept choosing men who weren't ready for her</div>
+          <div class="post-caption" id="cap-6">she kept choosing men who weren't ready for her.
+
+her palm showed exactly why. 🔮
+
+it wasn't bad luck. it wasn't her fault. it was a specific pattern — formed early, running on autopilot.
+
+when she finally saw it, she stopped blaming herself. and she stopped repeating it.
+
+your reading → link in bio
+
+#lovepatterns #attachmentstyle #palmreading #femininewounding #healingjourney #darkfeminineenergy</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-6', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-6', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Testemunho em 3ª pessoa — alta identificação.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-10/22h00/carousel_cover_feminine_energy.png" alt="Which feminine energy archetype are you?" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🌙</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Feed">Instagram Feed</span>
+          <span class="time-badge">22h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">Which feminine energy archetype are you?</div>
+          <div class="post-caption" id="cap-7">which feminine energy archetype are you? 🌙
+
+swipe to find yours →
+
+your palm line reveals which one is dominant right now — and which one you've been blocking.
+
+#femininenenergy #darkfeminineenergy #divinefeminine #femininearchetypes #spiritualawakening #palmreading</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-7', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-7', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Carrossel 2 do CAROUSEL_SCRIPTS.md. Alto engajamento no Instagram noturno.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-10/23h00/hook_love_deeply.png" alt="this line means you love deeply and protect yourself even deeper" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🌙</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">23h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">this line means you love deeply and protect yourself even deeper</div>
+          <div class="post-caption" id="cap-8">this line on your palm means you love deeply.
+
+and protect yourself even deeper. 🌙
+
+#palmreading #lovepatterns #darkfeminineenergy #fyp</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-8', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-8', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Post noturno — legenda curta, alcance pré-sono.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-10/23h30/hook_bad_luck.png" alt="you don't have bad luck in love" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🔮</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">23h30</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">you don't have bad luck in love</div>
+          <div class="post-caption" id="cap-9">you don't have bad luck in love.
+
+you have an unread pattern. 🔮
+
+reading → link in bio
+
+#palmreading #loveadvice #spiritualtiktok #fyp</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-9', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-9', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">10º post do dia — mínimo esforço, máximo alcance noturno.</div>
+        </div>
+      </div>
+
+    </div><!-- /posts-grid day1 -->
+  </div>
+</div>
+
+<!-- DAY 2 -->
+<div class="day-section" data-day="2026-06-11">
+  <div style="max-width:900px;margin:0 auto;padding:0 16px">
+    <div class="day-header">
+      <div>
+        <div class="day-date">2026-06-11 · Quinta</div>
+        <div class="day-theme">Educational + Authority</div>
+      </div>
+      <div class="day-count">10 posts</div>
+    </div>
+  </div>
+  <div class="day-section" style="padding-top:0">
+    <div class="posts-grid">
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-11/07h00/hook_3_signs.png" alt="3 signs your love pattern" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🧵</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">07h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">3 signs your love pattern is keeping you stuck</div>
+          <div class="post-caption" id="cap-10">3 signs your love pattern is keeping you stuck — and number 2 will hit different. 🧵
+
+comment which one you recognize most 👇
+
+#palmreading #lovepatterns #spiritualtiktok #attachmentstyle #darkfeminineenergy</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-10', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-10', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Engagement bait — pergunta no final = comentários = alcance.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-11/09h00/palm_closeup.png" alt="The 3 palm lines" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>📖</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Reels">Instagram Reels</span>
+          <span class="time-badge">09h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">The 3 palm lines that reveal your love story</div>
+          <div class="post-caption" id="cap-11">the 3 palm lines that reveal your love story 📖
+
+the heart line, the head line, the fate line — together they tell a specific story about how you've been showing up in love.
+
+most people only know about one. your personalized reading analyzes all three.
+
+link in bio → 3 min
+
+#palmistry #palmreading #heartline #fateline #headline #spiritualtiktok</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-11', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-11', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Educational — alto save rate.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-11/12h00/carousel_cover_3lines.png" alt="The 3 most important palm lines" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🔮</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Feed">Instagram Feed</span>
+          <span class="time-badge">12h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">The 3 most important palm lines for love</div>
+          <div class="post-caption" id="cap-12">the 3 most important palm lines for love 🔮
+
+swipe to learn yours →
+
+#palmreading #palmistry #heartline #lovepatterns #spiritualawakening</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-12', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-12', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Carrossel 8 do CAROUSEL_SCRIPTS.md.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-11/15h00/hook_too_much.png" alt="why do you always feel like you're too much?" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>💔</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">15h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">why do you always feel like you're too much?</div>
+          <div class="post-caption" id="cap-13">why do you always feel like you're too much?
+
+your pattern has a name. 💔
+
+and it's not who you are — it's what you learned.
+
+#femininewounding #darkfeminineenergy #lovepatterns #healingjourney #palmreading</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-13', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-13', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Sem CTA — puro pain point. Objetivo: saves e comentários de identificação.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-11/18h00/hook_feminine_energy.png" alt="which feminine energy are you blocking?" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🌙</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">18h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">which feminine energy are you blocking?</div>
+          <div class="post-caption" id="cap-14">which feminine energy are you blocking? 🌙
+
+the nurturer. the protector. the seeker. the receiver.
+
+one is dominant. one is blocked. your palm reveals both.
+
+find yours → link in bio
+
+#femininenenergy #darkfeminineenergy #divinefeminine #spiritualtiktok #palmreading</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-14', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-14', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Repost do melhor hook do dia 1 com legenda diferente.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-11/20h00/hook_before_text.png" alt="before you text him back" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>📱</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Reels">Instagram Reels</span>
+          <span class="time-badge">20h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">before you text him back — read this first</div>
+          <div class="post-caption" id="cap-15">before you text him back.
+
+read this first. 📱
+
+your palm knows what your heart hides from you right now.
+
+reading → link in bio
+
+#loveadvice #palmreading #darkfeminineenergy #spiritualtiktok #shoulditexthim</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-15', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-15', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Hook de urgência — timing perfeito.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-11/21h00/hook_i_can_see.png" alt="I can see your pattern" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🔮</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">21h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">I can see your pattern. can you?</div>
+          <div class="post-caption" id="cap-16">I can see your pattern.
+
+can you? 🔮
+
+most women spend years in the same cycle — different person, same feeling.
+
+your palm reading reveals exactly what that cycle is. and where it started.
+
+$9. 3 minutes. link in bio.
+
+#palmreading #lovepatterns #spiritualtiktok #darkfeminineenergy #fyp</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-16', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-16', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Segunda aparição da imagem mais forte — legenda com CTA desta vez.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-11/22h00/carousel_cover_before_after.png" alt="What changes when you finally understand" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🌙</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Feed">Instagram Feed</span>
+          <span class="time-badge">22h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">What changes when you finally understand your love pattern</div>
+          <div class="post-caption" id="cap-17">what changes when you finally understand your love pattern 🌙
+
+before and after — swipe →
+
+#palmreading #lovepatterns #healingjourney #darkfeminineenergy #spiritualawakening</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-17', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-17', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Carrossel 6 do CAROUSEL_SCRIPTS.md — alto save rate.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-11/23h00/hook_stop_waiting.png" alt="stop waiting for him to choose you" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🕯️</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">23h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">stop waiting for him to choose you</div>
+          <div class="post-caption" id="cap-18">stop waiting for him to choose you. 🕯️
+
+your palm explains why you keep waiting.
+
+#darkfeminineenergy #palmreading #loveadvice #fyp</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-18', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-18', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Versão curta da legenda para post noturno.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-11/23h30/hook_wrong_person.png" alt="The reason you keep attracting the wrong person" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🔮</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">23h30</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">The reason you keep attracting the wrong person</div>
+          <div class="post-caption" id="cap-19">the reason you keep attracting the wrong person has nothing to do with luck.
+
+it's a pattern.
+
+and it's readable. 🔮
+
+#palmreading #spiritualtiktok #lovepatterns #fyp</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-19', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-19', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Curto. Noturno.</div>
+        </div>
+      </div>
+
+    </div><!-- /posts-grid day2 -->
+  </div>
+</div>
+
+<!-- DAY 3 -->
+<div class="day-section" data-day="2026-06-12">
+  <div style="max-width:900px;margin:0 auto;padding:0 16px">
+    <div class="day-header">
+      <div>
+        <div class="day-date">2026-06-12 · Sexta</div>
+        <div class="day-theme">Social Proof + Transformation</div>
+      </div>
+      <div class="day-count">10 posts</div>
+    </div>
+  </div>
+  <div class="day-section" style="padding-top:0">
+    <div class="posts-grid">
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-12/07h00/hook_she_kept_choosing.png" alt="Story: she kept choosing men" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>💔</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">07h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">Story: she kept choosing men who weren't ready</div>
+          <div class="post-caption" id="cap-20">she came to me after her 3rd relationship ended the same way.
+
+different man. same ending. 💔
+
+her palm showed a forked heart line — it appears in women who learned early that love comes with conditions.
+
+so she kept proving herself before anyone asked her to.
+
+when she understood the pattern, she stopped.
+
+your reading → link in bio
+
+#palmreading #lovepatterns #attachmentstyle #healingjourney #darkfeminineenergy</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-20', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-20', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Story format — maior retenção.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-12/09h00/hook_stops_explaining.png" alt="the woman who stops explaining herself" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>✨</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Reels">Instagram Reels</span>
+          <span class="time-badge">09h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">the woman who stops explaining herself starts receiving</div>
+          <div class="post-caption" id="cap-21">the woman who stops explaining herself starts receiving. ✨
+
+your palm shows where you are right now — and what's been blocking the shift.
+
+#darkfeminineenergy #divinefeminine #femininenenergy #palmreading #spiritualawakening</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-21', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-21', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Dark feminine energy angle — alto engajamento.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-12/12h00/carousel_cover_timing.png" alt="What your palm says about your timing in love" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🌙</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Feed">Instagram Feed</span>
+          <span class="time-badge">12h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">What your palm says about your timing in love</div>
+          <div class="post-caption" id="cap-22">what your palm reveals about your love timing 🌙
+
+not everyone's ready at the same time — and your hand shows when yours opens.
+
+swipe →
+
+#palmreading #lovetiming #spiritualawakening #divinefeminine</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-22', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-22', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Carrossel 4 do CAROUSEL_SCRIPTS.md.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-12/15h00/hook_love_deeply.png" alt="you love deeply and protect yourself even deeper" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>💛</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">15h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">you love deeply and protect yourself even deeper</div>
+          <div class="post-caption" id="cap-23">you love deeply.
+
+and you protect yourself even deeper. 💛
+
+that's not a flaw. that's a pattern formed early.
+
+and patterns can be understood.
+
+reading → link in bio
+
+#palmreading #attachmentstyle #lovepatterns #healingjourney #darkfeminineenergy</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-23', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-23', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Reframe — de dor para padrão.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-12/18h00/palm_closeup.png" alt="This line means you're most available for love when conditions feel unstable" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🔮</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">18h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">This line means you're most available for love when conditions feel unstable</div>
+          <div class="post-caption" id="cap-24">this line on your palm means you're most open to love precisely when things feel unstable.
+
+not because you're chaotic.
+
+because that's when your nervous system was first taught to feel love. 🔮
+
+understanding this changes everything.
+
+reading → link in bio
+
+#palmreading #nervousystem #attachmentstyle #lovepatterns #spiritualtiktok</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-24', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-24', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Psychology angle — alto engajamento com audience consciente.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-12/20h00/hook_too_much.png" alt="you're not too much" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>💔</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Reels">Instagram Reels</span>
+          <span class="time-badge">20h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">you're not too much</div>
+          <div class="post-caption" id="cap-25">you're not too much.
+
+you're not too emotional.
+
+you're not asking for too much. 💔
+
+you have a pattern that was formed before you had a choice about it.
+
+naming it is the first step to changing it.
+
+#femininewounding #lovepatterns #healingjourney #darkfeminineenergy #selfcompassion</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-25', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-25', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Validação pura — alto save rate, comentários de gratidão.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-12/21h00/hook_3_signs.png" alt="3 signs engagement bait" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🧵</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">21h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">3 signs — engagement bait</div>
+          <div class="post-caption" id="cap-26">3 signs your love pattern is keeping you stuck:
+
+1. you feel most alive when there's uncertainty
+2. available love feels boring
+3. you give more than you receive — and wonder if you're asking too much
+
+if any of these hit, comment below 👇
+
+#palmreading #lovepatterns #attachmentstyle #darkfeminineenergy #spiritualtiktok</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-26', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-26', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Engagement bait com lista — alto CTR.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-12/22h00/carousel_cover_madam_answers.png" alt="Madam Aurora answers the questions" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🔮</span>imagem não encontrada</div>
+          <span class="platform-badge platform-Instagram-Feed">Instagram Feed</span>
+          <span class="time-badge">22h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">Madam Aurora answers the questions you're afraid to ask</div>
+          <div class="post-caption" id="cap-27">answering the questions you're afraid to ask out loud 🔮
+
+swipe →
+
+#palmreading #loveadvice #spiritualawakening #darkfeminineenergy #palmistry</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-27', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-27', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Carrossel 9 do CAROUSEL_SCRIPTS.md.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-12/23h00/hook_before_text.png" alt="before you text him" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>🕯️</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">23h00</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">before you text him</div>
+          <div class="post-caption" id="cap-28">before you text him.
+
+just — wait. 🕯️
+
+#darkfeminineenergy #loveadvice #palmreading #fyp</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-28', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-28', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Ultra curto. Noturno.</div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-image-wrap">
+          <img src="2026-06-12/23h30/hook_i_can_see.png" alt="I can see your pattern" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="no-img" style="display:none"><span>👁️</span>imagem não encontrada</div>
+          <span class="platform-badge platform-TikTok">TikTok</span>
+          <span class="time-badge">23h30</span>
+        </div>
+        <div class="post-body">
+          <div class="post-hook">I can see your pattern</div>
+          <div class="post-caption" id="cap-29">I can see your pattern.
+
+can you? 👁️
+
+link in bio → $9
+
+#palmreading #fyp</div>
+          <div class="post-actions">
+            <button class="btn btn-expand" onclick="toggleExpand('cap-29', this)">Ver mais</button>
+            <button class="btn btn-copy" onclick="copyCaption('cap-29', this)">Copiar legenda</button>
+          </div>
+          <div class="post-notes">Mínimo. CTA direto.</div>
+        </div>
+      </div>
+
+    </div><!-- /posts-grid day3 -->
+  </div>
+</div>
+
+</div><!-- /all-days -->
+
+<!-- TIPS -->
+<div class="tips-section">
+  <div class="section-title">Regras do Algoritmo</div>
+  <div class="tips-grid">
+    <div class="tips-card do">
+      <h4>✓ Sempre fazer</h4>
+      <ul>
+        <li>Postar TikTok e Reels no mesmo dia, espaçar 2h entre eles</li>
+        <li>Responder TODOS os comentários nas primeiras 2h</li>
+        <li>Adicionar 3-5 hashtags no 1º comentário no TikTok (não na legenda)</li>
+        <li>Closed captions/legendas no vídeo — aumenta retenção 40%</li>
+      </ul>
+    </div>
+    <div class="tips-card dont">
+      <h4>✗ Nunca fazer</h4>
+      <ul>
+        <li>Deletar um post nas primeiras 24h (mata o algoritmo)</li>
+        <li>Postar links na legenda do TikTok (shadow ban)</li>
+        <li>Usar os mesmos 30 hashtags em todos os posts</li>
+        <li>Postar mais de 3 por hora na mesma plataforma</li>
+      </ul>
+    </div>
+    <div class="tips-card ad" style="grid-column: 1 / -1">
+      <h4>→ Quando escalar para Ad pago</h4>
+      <ul>
+        <li>Save rate &gt; 5% → Criar Spark Ad com $5/dia</li>
+        <li>10k+ views em 24h → Duplicar como dark post no Meta</li>
+        <li>Comments &gt; 50 com dor real → Responder todos + boost $10</li>
+        <li>CTR &gt; 2% em ad rodando → Aumentar budget 20%</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Legenda copiada!</div>
+
+<script>
+  function showDay(day) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+
+    document.querySelectorAll('[data-day]').forEach(s => {
+      if (day === 'all' || s.dataset.day === day) {
+        s.classList.remove('hidden');
+      } else {
+        s.classList.add('hidden');
+      }
+    });
+  }
+
+  function toggleExpand(id, btn) {
+    const el = document.getElementById(id);
+    el.classList.toggle('expanded');
+    btn.textContent = el.classList.contains('expanded') ? 'Ver menos' : 'Ver mais';
+  }
+
+  function copyCaption(id, btn) {
+    const text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copiado!';
+      btn.classList.add('copied');
+      showToast();
+      setTimeout(() => {
+        btn.textContent = 'Copiar legenda';
+        btn.classList.remove('copied');
+      }, 2500);
+    });
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+</script>
+</body>
+</html>

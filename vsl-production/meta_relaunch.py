@@ -1,7 +1,9 @@
 import httpx, base64, json, time
 from pathlib import Path
 
-TOKEN = 'EAASYamalEPMBRA9QDOCfdXVf48orV20qSMsYcHWqXVOBpfie9ZAY6hJRfgXp1yk9ZCwhOoAx3o6dqBKHfH92s329j1XNeLSz14hUNgEVfD8qR0cg9yVZAVKIzdmGtXQS3fhsBCHZBUGG9vfkBR3uhAMDZAqcJLiOXDgljMnd4fvejcujimLPMGVlwyaM35FQQVCuhhcICbaE87EqZCnLR9FDQbKNxyGT5UiyPF8nRSSpBdfa2o7rxZCtO1DY0GdQ0GOjSHBoGUDkKNXxiUIUeQZBzDjmDwovUoI9UWZAYZBeZC7tFtqXYBO8ZAZAxJ62jyj5XGPOra2SV2J6dEbA2RGgoPqLFlgZDZD'
+from env_loader import require_env
+
+TOKEN = require_env("META_ACCESS_TOKEN")
 API     = 'https://graph.facebook.com/v20.0'
 ACCOUNT = 'act_1597807197993217'
 PAGE_ID = '1003865519465291'

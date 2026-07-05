@@ -2,7 +2,9 @@ import httpx, base64, io, os, time, sys
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-KEY = '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'
+from env_loader import require_env
+
+KEY = require_env("OPENROUTER_API_KEY")
 MODEL_NAME = sys.argv[1]
 MODEL_ID = {
     'seedream':   'bytedance-seed/seedream-4.5',

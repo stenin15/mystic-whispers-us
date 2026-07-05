@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { getAttributionParams, getStoredAngle, getStoredFocus } from "@/lib/marketing";
 
 export type CheckoutKey = "basic" | "complete" | "guide" | "upsell";
 
@@ -11,6 +12,12 @@ export async function createCheckoutSessionUrl(
       productCode: key,
       email: opts.email,
       name: opts.name,
+      // Atribuição vai como metadata da sessão Stripe (visível no webhook/UTMify)
+      attribution: {
+        ...getAttributionParams(),
+        angle: getStoredAngle(),
+        focus: getStoredFocus(),
+      },
     },
   });
 
@@ -29,5 +36,3 @@ export async function createCheckoutSessionUrl(
 
   return url;
 }
-
-

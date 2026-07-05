@@ -2,14 +2,18 @@
 """
 Debug: captura screenshots em cada etapa do fluxo de upload
 """
+import os
 import sys
 import asyncio
 sys.stdout.reconfigure(encoding='utf-8')
 from pathlib import Path
 from playwright.async_api import async_playwright
 
-USERNAME = 'madamauroraofficial'
-PASSWORD = 'w89u.?kEWuGizhz'
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+
+USERNAME = require_env("IG_USERNAME")
+PASSWORD = require_env("IG_PASSWORD")
 BASE  = Path('C:/Users/Stenio/Documents/mystic-whispers-us/vsl-production/instagram')
 IMG   = BASE / 'images' / 'g09_final_cta.png'
 

@@ -1,3 +1,5 @@
+import { ttqTrack } from "./tiktok";
+
 type AnyRecord = Record<string, unknown>;
 
 declare global {
@@ -56,6 +58,12 @@ export function track(event: string, params: AnyRecord = {}) {
     } else {
       window.fbq("trackCustom", event, params);
     }
+  } catch {
+    // ignore
+  }
+
+  try {
+    ttqTrack(event, params, getOrCreateEventId(event));
   } catch {
     // ignore
   }

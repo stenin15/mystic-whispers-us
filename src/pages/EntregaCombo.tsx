@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Package, Sparkles, Star, Shield, Crown, Heart, Bolt, BookOpen, Mic } from "lucide-react";
+import { Package, Sparkles, Star, Shield, Crown, Heart, Bolt, BookOpen, Mic, Hand } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import DeliveryFAQ from "@/components/delivery/DeliveryFAQ";
@@ -194,6 +194,35 @@ const EntregaCombo = () => {
               Open my complete reading (text)
             </Button>
           </Link>
+        </motion.div>
+
+        {/* Optional palm photo — deeper personalization after purchase */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="glass rounded-2xl p-5 md:p-6 mb-8 border border-mystic-gold/15"
+          style={{ background: "rgba(251,191,36,0.03)" }}
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-mystic-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Hand className="w-5 h-5 text-mystic-gold" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-1">
+                Deepen your reading with your palm photo
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                Optional — but it makes Aurora's analysis significantly more personal.
+                Your image is processed privately and deleted after analysis.
+              </p>
+              <Link to="/foto">
+                <button className="text-xs font-semibold text-mystic-gold/80 hover:text-mystic-gold transition-colors underline underline-offset-2">
+                  Upload my palm photo →
+                </button>
+              </Link>
+            </div>
+          </div>
         </motion.div>
 
         {/* Integration bridge */}

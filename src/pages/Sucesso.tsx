@@ -159,6 +159,15 @@ const Sucesso = () => {
               alreadyTracked,
             });
           }
+
+          // Auto-redirect after 3s — user shouldn't need to click manually.
+          // Carry session_id so delivery pages can verify entitlement even if
+          // local storage was lost (new tab, new device, cleared storage).
+          const dest = paidProducts.includes("complete") ? "/entrega/completa" : paidProducts.includes("guide") ? "/entrega/guia" : "/entrega/leitura";
+          pollingRef.current = window.setTimeout(
+            () => navigate(`${dest}?session_id=${encodeURIComponent(sessionId)}`),
+            3000,
+          );
           return;
         }
 
@@ -200,8 +209,9 @@ const Sucesso = () => {
     };
   }, [sessionId, setEntitlements, manualRetry]);
 
-  const destination =
-    purchases.complete ? "/entrega/completa" : purchases.guide ? "/entrega/guia" : "/entrega/leitura";
+  const destination = `${
+    purchases.complete ? "/entrega/completa" : purchases.guide ? "/entrega/guia" : "/entrega/leitura"
+  }${sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : ""}`;
 
   const buttonLabel =
     purchases.complete ? "Open my complete delivery" : purchases.guide ? "Open my guide" : "Open my reading";

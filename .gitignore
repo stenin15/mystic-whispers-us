@@ -41,3 +41,7 @@ vsl-production/pet_clipper/videos/
 vsl-production/pet_clipper/product_images/
 
 .env*.local
+
+# Claude Code local settings (pode conter comandos com tokens)
+.claude/settings.local.json
+vsl-production/__pycache__/

@@ -7,10 +7,15 @@ Modelo: Veo 3.1 (Google) via Replicate — maximo realismo + audio
 import replicate
 import requests
 import os
+import sys
 import time
 from pathlib import Path
 
-os.environ["REPLICATE_API_TOKEN"] = "r8_e91AziASL3aYSIB7GvolHWLmWRZcKnj05zwGi"
+# REPLICATE_API_TOKEN deve vir do ambiente (ou de vsl-production/.env).
+# A lib replicate le os.environ["REPLICATE_API_TOKEN"] automaticamente.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from env_loader import require_env
+require_env("REPLICATE_API_TOKEN")
 
 OUT = Path("C:/Users/Stenio/Documents/mystic-whispers-us/vsl-production/pet_clipper/videos")
 OUT.mkdir(parents=True, exist_ok=True)

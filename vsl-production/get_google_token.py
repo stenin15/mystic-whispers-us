@@ -4,8 +4,10 @@ Gera refresh_token do Google Ads OAuth2
 from google_auth_oauthlib.flow import InstalledAppFlow
 import socket
 
-CLIENT_ID = "801114172685-evljiisrm6o0cqlqm3ogcqnde13f9jf9.apps.googleusercontent.com"
-CLIENT_SECRET = "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"
+from env_loader import require_env
+
+CLIENT_ID = require_env("GOOGLE_ADS_CLIENT_ID")
+CLIENT_SECRET = require_env("GOOGLE_ADS_CLIENT_SECRET")
 
 client_config = {
     "installed": {

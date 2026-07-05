@@ -36,7 +36,33 @@ interface CreateCheckoutSessionInput {
   productCode: ProductCode;
   email?: string;
   name?: string;
+  attribution?: Record<string, unknown>;
 }
+
+// Stripe metadata: chaves <= 40 chars, valores <= 500 chars. Só aceitamos chaves conhecidas.
+const ATTRIBUTION_KEYS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+  "src",
+  "sck",
+  "angle",
+  "focus",
+] as const;
+
+const sanitizeAttribution = (raw: unknown): Record<string, string> => {
+  if (!raw || typeof raw !== "object") return {};
+  const out: Record<string, string> = {};
+  for (const key of ATTRIBUTION_KEYS) {
+    const value = (raw as Record<string, unknown>)[key];
+    if (typeof value === "string" && value.trim()) {
+      out[key] = value.trim().substring(0, 500);
+    }
+  }
+  return out;
+};
 
 const isProductCode = (v: unknown): v is ProductCode =>
   v === "basic" || v === "complete" || v === "guide" || v === "upsell";
@@ -104,6 +130,7 @@ serve(async (req) => {
     const productCode = body.productCode;
     const email = body.email;
     const name = typeof body.name === "string" ? body.name.replace(/[<>{}]/g, "").trim().substring(0, 100) : undefined;
+    const attribution = sanitizeAttribution(body.attribution);
 
     if (!isProductCode(productCode)) {
       return new Response(JSON.stringify({ error: "Invalid product code" }), {
@@ -138,6 +165,7 @@ serve(async (req) => {
         product_code: productCode,
         app: "mystic-whispers-us",
         ...(name ? { customer_name: name } : {}),
+        ...attribution,
       },
       ...(isValidEmail(email) ? { customer_email: email } : {}),
     });

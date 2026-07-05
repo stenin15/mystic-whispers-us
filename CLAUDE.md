@@ -1,53 +1,46 @@
-# Protocolo MJX — Claude Code Config
+# Mystic Whispers US — Madam Aurora — Claude Code Config
 
 ## Projeto
-Funil de quiz para suplemento Protocolo MJX (gotas emagrecimento).
-Stack: Next.js 14, TypeScript, Tailwind, Supabase, Vercel.
-Dev server: `npm run dev` → http://localhost:3000
+Funil de leitura de mão mística com a persona "Madam Aurora".
+Fluxo: VSL → Conexão → Formulário → Quiz → Foto da mão → Análise (IA) → Resultado → Checkout → Upsell → Entrega.
+Stack: React 18 + Vite, TypeScript, Tailwind, shadcn/ui, Supabase, Three.js, Framer Motion, Vercel.
+Dev server: `npm run dev`
+Checks: `npm run type-check` e `npm run lint`
+
+## Rotas principais (src/App.tsx)
+- `/` — VSL (landing principal)
+- `/conexao` → `/formulario` → `/quiz` → `/enviar-foto` / `/foto` → `/analise`
+- `/resultado` — página de resultado com oferta (principal para conversão)
+- `/checkout`, `/upsell`, `/cancelado`
+- `/entrega/combo`, `/entrega/completa`, `/entrega/guia` — páginas de entrega
+- `/oferta/guia-exclusivo`, `/sessao-aurora`
+- `/privacy`, `/terms`, `/refund`, `/contact`
 
 ## Arquivos críticos
-- `components/QuizResultClient.tsx` — página de resultado (principal)
-- `components/quiz/QuizFlow.tsx` — quiz (7 perguntas)
-- `lib/profiles.ts` — 4 perfis metabólicos + copy por perfil
-- `lib/pixel.ts` — Meta Pixel + Google Ads tracking
-- `app/quiz-resultado/page.tsx` — route do resultado
-- `tailwind.config.js` — tokens de design
-- `app/globals.css` — animações e estilos globais
-
-## Design tokens
-- Brand: `#FF6A1A` (laranja principal)
-- Background: `#0D0D0D`
-- Surface: `#161616`
-- Card: `#1B1B1B`
-- Border: `#2A2A2A`
-- Text primário: `#F5F5F5`
-- Text secundário: `#B8B8B8`
-
-## 4 Perfis do quiz
-1. **Metabolismo em Platô** — metabolismo adaptou, não responde mais
-2. **Resistência Hormonal** — hormônios sabotando o processo
-3. **Compulsão Metabólica** — fome e compulsão fora de controle
-4. **Inflamação Crônica** — inchaço, retenção, inflamação sistêmica
+- `src/pages/Resultado.tsx` + `src/components/results/*` — página de resultado/oferta
+- `src/pages/Quiz.tsx` — quiz
+- `src/lib/tracking.ts` — tracking via dataLayer (GTM → Meta/GA4/TikTok) + fbq
+- `src/lib/marketing.ts` — atribuição, angle/focus
+- `src/lib/api.ts` — chamada à análise de IA (timeout 25s + fallback mock)
+- `supabase/functions/palm-analysis/` — Edge Function com GPT-4o-mini (key no server)
+- `supabase/functions/text-to-speech/` — voz da Madam Aurora (OpenAI TTS)
+- `supabase/functions/send-welcome-email/` — email via Resend
 
 ## Tracking
-- Meta Pixel ID: `1668583754590121`
-- Eventos: PageView, ViewContent, Lead, CompleteRegistration, InitiateCheckout, Contact
+- Eventos: PageView (todas as rotas), ViewContent (VSL e /resultado), InitiateCheckout (botões de checkout)
+- `getOrCreateEventId` para deduplicação por sessão (prefixo `mwus_event_id:`)
 
-## URLs
-- Local: http://localhost:3000
-- Produção: https://mounjax-phi.vercel.app
-- Quiz: /quiz
-- Resultado: /quiz-resultado?resultado=[perfil]&objetivo=[texto]
-- Checkout: Braip (externo, UTM passthrough)
+## Checkout
+- Stripe: `VITE_STRIPE_CHECKOUT_BASIC_URL` (basic vai direto pro checkout, sem upsell modal)
+- Planos: basic e complete/gold
 
-## Imagens do produto (public/)
-- `Mounjax-1.jpg` — foto principal
-- `Mounjax-2.jpg` — benefícios (fundo azul escuro)
-- `Mounjax-3.png` — "onde o emagrecimento encontra seu metabolismo"
-- `Mounjax-4.jpg` — benefícios com modelo (fundo roxo)
+## Env vars (ver SETUP_ENV.md)
+- `VITE_VSL_VIDEO_URL` — vídeo da VSL (Bunny CDN)
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SUPABASE_PROJECT_ID` (auripzdrmlwiudbyzlya)
+- No Supabase: `OPENAI_API_KEY`, `RESEND_API_KEY`, `ALLOWED_ORIGINS`
 
-## Pendências críticas
-1. Deploy Vercel com env vars completas
-2. Aplicar schema.sql no Supabase Dashboard
-3. Criar Facebook Page "Protocolo MJX"
-4. Conectar pixel ao ad set 120240981202760780
+## Docs do projeto (raiz)
+- `RESUMO_AUDITORIA.md`, `AUDITORIA_RESULTADO.md`, `AUDIT_FLOW.md` — auditorias
+- `CHECKLIST_FINAL.md` — pendências de configuração
+- `MADAM-AURORA-SKILL.md` — persona/copy da Madam Aurora
+- `SETUP_ENV.md` — setup de ambiente

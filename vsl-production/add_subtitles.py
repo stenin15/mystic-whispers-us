@@ -12,7 +12,9 @@ AUDIO    = BASE_DIR / "audio" / "narration.mp3"
 VIDEO_IN = BASE_DIR / "output" / "vsl_final_9x16.mp4"
 OUT_DIR  = BASE_DIR / "output"
 
-OPENAI_KEY = "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"
+from env_loader import require_env
+
+OPENAI_KEY = require_env("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_KEY)
 
 def transcribe():

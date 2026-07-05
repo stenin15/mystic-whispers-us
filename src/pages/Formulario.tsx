@@ -14,15 +14,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { getAdIds, getOrCreateEventId, track } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 
+// `value` é a chave interna usada pelos mapas de personalização (resultPersonalization.ts)
+// e pela análise de IA — não alterar. `label` é a linguagem de dor exibida (persona Madam Aurora).
 const CONCERN_OPTIONS = [
-  "Wrong timing",
-  "Emotional confusion",
-  "Fear of losing someone",
-  "Repeating the same patterns",
-  "Feeling emotionally blocked",
-  "Moving on from someone",
-  "Overthinking relationships",
-  "Fear of ending up alone",
+  { value: "Wrong timing", label: "Love always feels off-timing for me" },
+  { value: "Emotional confusion", label: "I can't tell what I really feel" },
+  { value: "Fear of losing someone", label: "I'm afraid of losing someone I love" },
+  { value: "Repeating the same patterns", label: "I keep attracting the same type" },
+  { value: "Feeling emotionally blocked", label: "Something in me blocks real connection" },
+  { value: "Moving on from someone", label: "I can't fully let go of someone" },
+  { value: "Overthinking relationships", label: "I overthink every relationship" },
+  { value: "Fear of ending up alone", label: "I'm afraid I'll end up alone" },
 ] as const;
 
 const formSchema = z.object({
@@ -222,17 +224,17 @@ const Formulario = () => {
             <div className="grid grid-cols-2 gap-2">
               {CONCERN_OPTIONS.map((option) => (
                 <button
-                  key={option}
+                  key={option.value}
                   type="button"
-                  onClick={() => { setMainConcern(option); setConcernError(false); }}
+                  onClick={() => { setMainConcern(option.value); setConcernError(false); }}
                   className={cn(
                     "px-3 py-3 rounded-xl text-sm text-left transition-all duration-200 border",
-                    mainConcern === option
+                    mainConcern === option.value
                       ? "bg-amber-500/15 border-amber-400/50 text-amber-300 font-medium"
                       : "bg-white/3 border-white/10 text-muted-foreground hover:border-white/20 hover:text-foreground"
                   )}
                 >
-                  {option}
+                  {option.label}
                 </button>
               ))}
             </div>

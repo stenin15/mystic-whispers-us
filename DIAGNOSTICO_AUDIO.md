@@ -92,7 +92,7 @@ Alguns navegadores bloqueiam autoplay de áudio até que o usuário interaja com
 3. Execute este código:
 ```javascript
 // Teste se a função está acessível
-fetch('https://uwoaqvviyfbbovfebmns.supabase.co/functions/v1/text-to-speech', {
+fetch('https://auripzdrmlwiudbyzlya.supabase.co/functions/v1/text-to-speech', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

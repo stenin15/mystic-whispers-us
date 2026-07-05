@@ -4,6 +4,8 @@ import { Sparkles, Heart, ArrowRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { useEffect } from 'react';
+import { getOrCreateEventId, track } from '@/lib/tracking';
+import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 
 const Conexao = () => {
   const navigate = useNavigate();
@@ -13,6 +15,16 @@ const Conexao = () => {
     // Reset store when starting fresh
     reset();
   }, [reset]);
+
+  useEffect(() => {
+    track('ConexaoViewed', {
+      event_id: getOrCreateEventId('conexao_view'),
+      page_path: '/conexao',
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+  }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-20" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>

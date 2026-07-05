@@ -7,9 +7,11 @@ import os, sys, json, time, base64, argparse, requests, subprocess, math
 from pathlib import Path
 import jwt as pyjwt
 
-OPENAI_KEY  = "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"
-KLING_AK    = "Aemf4d4QrGmf4GETeYaYeBT38QgbBHkb"
-KLING_SK    = "rYERrBHgEhpQgCk8pHQprNGNharbRLLa"
+from env_loader import require_env
+
+OPENAI_KEY  = require_env("OPENAI_API_KEY")
+KLING_AK    = require_env("KLING_ACCESS_KEY")
+KLING_SK    = require_env("KLING_SECRET_KEY")
 FFMPEG_PATH = "C:/Users/Stenio/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-8.1-full_build/bin/ffmpeg.exe"
 FFPROBE_PATH = FFMPEG_PATH.replace("ffmpeg.exe", "ffprobe.exe")
 
