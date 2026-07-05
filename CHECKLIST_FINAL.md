@@ -7,10 +7,10 @@
 
 ```env
 VITE_VSL_VIDEO_URL=https://vsl-lovable.b-cdn.net/IMG_2694.mp4
-VITE_SUPABASE_URL=https://uwoaqvviyfbbovfebmns.supabase.co
+VITE_SUPABASE_URL=https://auripzdrmlwiudbyzlya.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-VITE_SUPABASE_PROJECT_ID=uwoaqvviyfbbovfebmns
+VITE_SUPABASE_PROJECT_ID=auripzdrmlwiudbyzlya
 # Opcional — fallback estático caso a Edge Function de checkout falhe:
 VITE_STRIPE_CHECKOUT_BASIC_URL=
 VITE_STRIPE_CHECKOUT_COMPLETE_URL=

@@ -36,7 +36,7 @@ Checks: `npm run type-check` e `npm run lint`
 
 ## Env vars (ver SETUP_ENV.md)
 - `VITE_VSL_VIDEO_URL` — vídeo da VSL (Bunny CDN)
-- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SUPABASE_PROJECT_ID` (uwoaqvviyfbbovfebmns)
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SUPABASE_PROJECT_ID` (auripzdrmlwiudbyzlya)
 - No Supabase: `OPENAI_API_KEY`, `RESEND_API_KEY`, `ALLOWED_ORIGINS`
 
 ## Docs do projeto (raiz)
