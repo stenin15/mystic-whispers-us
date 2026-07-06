@@ -383,7 +383,9 @@ const Quiz = () => {
         tiktok: { ttclid },
       },
     }).catch(() => {});
-    navigate('/analise');
+    // Photo step is optional (skippable in /foto) — adds the palm-scan proof
+    // for those willing, without gating the funnel on it.
+    navigate('/foto');
   };
 
   if (phase === 'email-gate') {
@@ -682,6 +684,25 @@ const Quiz = () => {
           <Link to="/formulario" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             ← Back to details
           </Link>
+        </div>
+
+        {/* Legal footer — required on ad landing destinations (TikTok reviews the full page) */}
+        <div className="text-center pb-6">
+          <div className="flex items-center justify-center gap-3 flex-wrap mb-2">
+            {[
+              { label: "Privacy", to: "/privacy" },
+              { label: "Terms", to: "/terms" },
+              { label: "Refund", to: "/refund" },
+              { label: "Contact", to: "/contact" },
+            ].map((l) => (
+              <Link key={l.to} to={l.to} className="text-[11px] text-muted-foreground/40 hover:text-muted-foreground underline underline-offset-2 transition-colors">
+                {l.label}
+              </Link>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground/30">
+            For entertainment and self-reflection purposes only.
+          </p>
         </div>
       </div>
 

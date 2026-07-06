@@ -29,6 +29,7 @@ const Checkout = () => {
   const [searchParams] = useSearchParams();
   const { name, email, analysisResult, canAccessResult, setPendingPurchase, setSelectedPlan } = useHandReadingStore();
   const [checkoutLoading, setCheckoutLoading] = useState<"basic" | "complete" | null>(null);
+  const [checkoutError, setCheckoutError] = useState<"basic" | "complete" | null>(null);
   const preselectedPlan = searchParams.get('plan') as "basic" | "complete" | null;
 
   useEffect(() => {
@@ -83,12 +84,23 @@ const Checkout = () => {
       },
     }).catch(() => {});
 
+    setCheckoutError(null);
     try {
       const url = await createCheckoutSessionUrl(key, { email, name });
       window.location.href = url;
     } catch (err) {
       console.error("Checkout session creation failed:", key, err);
+      // Fallback: static Stripe payment link, if configured (mirrors resultPersonalization)
+      const staticUrl = (key === "basic"
+        ? import.meta.env.VITE_STRIPE_CHECKOUT_BASIC_URL
+        : import.meta.env.VITE_STRIPE_CHECKOUT_COMPLETE_URL) as string | undefined;
+      if (staticUrl) {
+        window.location.href = staticUrl;
+        return;
+      }
       setCheckoutLoading(null);
+      // Persistent inline error (a fading toast dies before the user reads it)
+      setCheckoutError(key);
       toast("Checkout isn't available right now. Please try again in a moment.");
     }
   };
@@ -220,7 +232,7 @@ const Checkout = () => {
                 <span className="text-xl flex-shrink-0 mt-0.5">🎙️</span>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="text-sm font-bold text-foreground">Live voice session with Madam Aurora</span>
+                    <span className="text-sm font-bold text-foreground">Private audio session — Aurora speaks your reading</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
                       style={{ background: 'hsl(45 95% 55% / 0.2)', color: 'hsl(45 95% 70%)', border: '1px solid hsl(45 95% 55% / 0.3)' }}>
                       $97 value
@@ -284,15 +296,29 @@ const Checkout = () => {
                 ))}
               </div>
               <p className="text-xs text-muted-foreground/80">
-                <span className="text-foreground/90 font-medium">12,000+ women</span> already heard Aurora speak to them
+                <span className="text-foreground/90 font-medium">Women across the US</span> have already heard Aurora speak to them
               </p>
             </div>
+
+            {checkoutError && (
+              <div className="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 p-4 text-center">
+                <p className="text-sm text-red-300 mb-2">
+                  We couldn't open the secure checkout. Your card was <strong>not</strong> charged.
+                </p>
+                <button
+                  onClick={() => handleCheckoutClick(checkoutError)}
+                  className="text-sm font-semibold text-red-200 underline underline-offset-4 hover:text-white transition-colors"
+                >
+                  Try again now →
+                </button>
+              </div>
+            )}
 
             <Button
               onClick={() => handleCheckoutClick("complete")}
               disabled={!!checkoutLoading}
               size="lg"
-              className="w-full gradient-gold text-gray-900 hover:opacity-90 py-7 text-base font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-yellow-400/10 rounded-2xl"
+              className="w-full gradient-gold text-gray-900 hover:opacity-90 py-7 text-sm sm:text-base font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-yellow-400/10 rounded-2xl"
             >
               {checkoutLoading === "complete" ? (
                 <span className="flex items-center gap-2">
@@ -304,9 +330,9 @@ const Checkout = () => {
                 </span>
               ) : (
                 <>
-                  <Mic2 className="w-4 h-4 mr-2" />
-                  Unlock My Reading + Hear Aurora
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <Mic2 className="w-4 h-4 mr-2 flex-shrink-0" />
+                  Unlock My Reading
+                  <ArrowRight className="w-4 h-4 ml-2 flex-shrink-0" />
                 </>
               )}
             </Button>

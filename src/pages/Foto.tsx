@@ -54,6 +54,17 @@ const Foto = () => {
     navigate('/analise');
   };
 
+  const handleSkip = () => {
+    track('PhotoSkipped', {
+      event_id: getOrCreateEventId('photo_skipped'),
+      page_path: '/foto',
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+    navigate('/analise');
+  };
+
   const firstName = name?.trim().split(' ')[0] || 'there';
 
   return (
@@ -104,7 +115,7 @@ const Foto = () => {
           )}
 
           <p className="text-xs text-muted-foreground/50 text-center">
-            Your photo is processed privately and is never stored or shared.
+            Your photo is processed privately and used only to create your reading — never shared or sold.
           </p>
         </motion.div>
 
@@ -127,6 +138,13 @@ const Foto = () => {
             Start my reading
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
+
+          <button
+            onClick={handleSkip}
+            className="block mx-auto mt-5 text-sm text-muted-foreground/50 hover:text-muted-foreground underline underline-offset-4 transition-colors"
+          >
+            Skip for now — continue without a photo →
+          </button>
         </motion.div>
       </div>
     </div>

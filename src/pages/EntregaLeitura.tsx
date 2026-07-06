@@ -451,12 +451,12 @@ const EntregaLeitura = () => {
             </h3>
 
             <p className="text-muted-foreground mb-5 text-base md:text-lg leading-relaxed">
-              The complete plan unlocks a private live session: Aurora speaks to you directly, using your reading as the foundation. Voice-guided, personalized, and ready now.
+              The complete plan unlocks a private audio session: Aurora speaks your reading aloud, in her own voice, using everything she found in your palm. Personalized, and ready now.
             </p>
 
             <ul className="space-y-2 mb-6">
               {[
-                "Private voice conversation with Aurora",
+                "Private audio conversation with Aurora",
                 "Deeper analysis of your recurring patterns",
                 "Practical direction for your next step",
               ].map((item) => (
