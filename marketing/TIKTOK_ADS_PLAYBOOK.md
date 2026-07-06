@@ -79,10 +79,15 @@ Quando chegar a ~5 vendas/dia, troca para CompletePayment.
 
 ## 3. SETUP DA CAMPANHA (passo a passo)
 
+**URL de destino dos anúncios: `https://madam-aurora.co/quiz`** (NÃO a home/VSL).
+O anúncio já é a VSL — landing quiz-first ≈ 2x quiz starts por dólar (padrão Nebula/Hint).
+A home continua existindo para orgânico/retargeting. O /quiz tem footer legal (exigência de review).
+
 ```
 Campanha: Website Conversions · budget "No limit"
 └── 1 ad group (ABO): $30-40/dia · 10 dias
     ├── Otimização: InitiateCheckout
+    ├── Destino: madam-aurora.co/quiz
     ├── Targeting: EUA · 22-55 · todos os gêneros (criativo já auto-seleciona) · placement só TikTok
     ├── Sem camada de interesse OU no máx. 1 ampla (Astrology/Spirituality) — broad é o default 2026
     ├── Bid: Lowest Cost (se quiser proteção: Cost Cap no CPA breakeven)

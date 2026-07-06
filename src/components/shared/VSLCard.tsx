@@ -66,7 +66,7 @@ export const VSLCard = ({
           className="w-full gradient-mystic text-primary-foreground hover:opacity-90"
         >
           <Volume2 className="w-4 h-4 mr-2" />
-          Assistir Agora
+          Watch Now
         </Button>
       </div>
     </motion.div>

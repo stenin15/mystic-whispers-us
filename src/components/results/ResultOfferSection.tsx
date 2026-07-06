@@ -208,8 +208,8 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
 
         {/* ══ MOBILE ══ */}
 
-        {/* Basic CTA */}
-        <div className="block md:hidden absolute" style={{ left: '12%', top: '30%', width: '75%', height: '6%', zIndex: 10 }}>
+        {/* Basic CTA — tight to the painted "UNLOCK BASIC READING" button to avoid mis-taps */}
+        <div className="block md:hidden absolute" style={{ left: '14%', top: '31.5%', width: '72%', height: '4%', zIndex: 10 }}>
           <GlowButton onClick={() => handleCheckout('basic', 'offer_section_basic_mobile', fallback)} />
         </div>
         {/* Complete CTA */}
