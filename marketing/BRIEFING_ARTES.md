@@ -1,5 +1,26 @@
 # Briefing das artes pendentes — Madam Aurora US
 
+## 🚫 O QUE A IA NÃO PODE INVENTAR
+
+Uma geração anterior ignorou o briefing e criou **três planos** com preços
+inventados ($29.90 / $59.90 / $89.90). Isso é inutilizável: o Stripe cobra
+**$9.90 e $29.90**, então a página anunciaria um valor e o cartão seria debitado
+com outro — chargeback garantido e risco de suspensão da conta Stripe. Além
+disso só existem dois links de checkout: um terceiro botão não teria destino.
+
+**Cole este bloco junto com qualquer prompt de arte de preço:**
+
+```
+ABSOLUTE RULES — do not deviate:
+- EXACTLY TWO pricing cards. Never three. Never add extra tiers.
+- The prices are EXACTLY "$9.90" and "$29.90". Do not change them.
+- NO crossed-out / compare-at / "was $X" prices anywhere.
+- NO percentage discounts, no countdown timers, no fake scarcity.
+- Card names are EXACTLY "BASIC READING" and "COMPLETE KIT".
+```
+
+---
+
 ⚠️ **REGRA CRÍTICA:** os botões dourados/roxos dessas artes têm áreas clicáveis
 invisíveis posicionadas por porcentagem no código. Se o botão sair do lugar na
 arte nova, o clique cai fora e a venda se perde. As posições estão marcadas em
@@ -128,6 +149,13 @@ Todo o resto — preços, demais bullets, "BEST VALUE", garantia de 7 dias — p
 ### Prompt — DESKTOP (1600x900)
 
 ```
+ABSOLUTE RULES — do not deviate:
+- EXACTLY TWO pricing cards. Never three. Never add extra tiers.
+- The prices are EXACTLY "$9.90" and "$29.90". Do not change them.
+- NO crossed-out / compare-at / "was $X" prices anywhere.
+- NO percentage discounts, no countdown timers, no fake scarcity.
+- Card names are EXACTLY "BASIC READING" and "COMPLETE KIT".
+
 Dark mystic pricing page banner, 1600x900px, luxury occult aesthetic, deep
 black-purple starfield background with gold sparkles and a purple nebula.
 
@@ -185,6 +213,13 @@ Use straight double quotes consistently. No spelling errors.
 ### Prompt — MOBILE (800x1421)
 
 ```
+ABSOLUTE RULES — do not deviate:
+- EXACTLY TWO pricing cards. Never three. Never add extra tiers.
+- The prices are EXACTLY "$9.90" and "$29.90". Do not change them.
+- NO crossed-out / compare-at / "was $X" prices anywhere.
+- NO percentage discounts, no countdown timers, no fake scarcity.
+- Card names are EXACTLY "BASIC READING" and "COMPLETE KIT".
+
 Vertical mobile pricing page, 800x1421px, same dark mystic aesthetic: deep
 black-purple starfield, gold sparkles, purple nebula edges.
 
