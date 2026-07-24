@@ -55,7 +55,10 @@ const Upsell = () => {
     }
   };
 
-  if (!analysisResult) return null;
+  // Guard tem de cobrir os campos usados abaixo, nao so o objeto: uma analise
+  // parcial (IA em timeout / JSON incompleto) chegava aqui e quebrava a pagina
+  // de upsell de quem acabou de pagar.
+  if (!analysisResult?.blocks?.length) return null;
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
@@ -249,18 +252,20 @@ const Upsell = () => {
       <section className="py-16 px-4">
         <div className="container max-w-4xl mx-auto">
           <h2 className="text-2xl font-serif font-bold text-center mb-10 gradient-text">
-            Real experiences
+            What&apos;s included
           </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
             {[
+              // Depoimentos inventados removidos (16 CFR 465) — trocados por
+              // descricao do que o upsell entrega.
               {
-                name: "Lauren M.",
-                text: "It helped me slow down and see what I'd been avoiding. The steps felt doable, not overwhelming.",
+                name: "A daily practice",
+                text: "A short grounding ritual built around the patterns your reading surfaced — designed to take a few minutes, not rearrange your day.",
               },
               {
-                name: "Daniel R.",
-                text: "I didn't expect it to feel this personal. The ritual gave me clarity and a calmer way to move forward.",
+                name: "Written for your reading",
+                text: "The steps reference what came up in your own analysis, so it reads as a continuation of it rather than generic advice.",
               },
             ].map((testimonial, index) => (
               <motion.div
@@ -270,13 +275,8 @@ const Upsell = () => {
                 transition={{ delay: 1.1 + index * 0.1 }}
                 className="p-6 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20"
               >
-                <div className="flex gap-1 mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-mystic-gold text-mystic-gold" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground italic mb-4">"{testimonial.text}"</p>
-                <p className="text-foreground font-medium">{testimonial.name}</p>
+                <p className="text-foreground font-medium mb-2">{testimonial.name}</p>
+                <p className="text-muted-foreground">{testimonial.text}</p>
               </motion.div>
             ))}
           </div>

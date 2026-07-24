@@ -7,7 +7,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/layout/Footer';
 import { StickyCTA } from '@/components/landing/StickyCTA';
-import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 import { Card3D } from '@/components/shared/Card3D';
 import { ImageHero } from '@/components/landing/ImageHero';
 
@@ -75,10 +74,13 @@ const STEPS = [
   { n: '03', title: 'Receive your reading', desc: 'Personalized insights from Madam Aurora. Delivered in under 60 seconds.' },
 ];
 
-const TESTIMONIALS = [
-  { quote: "She named something I had never spoken out loud. I still don't know how.", name: 'Emily R.', stars: 5 },
-  { quote: "I went in skeptical. I came out with the most clarity I've had in years.", name: 'Sarah M.', stars: 5 },
-  { quote: "The reading about my timing was so precise it gave me chills.", name: 'Jessica L.', stars: 5 },
+// Depoimentos de clientes inventados foram removidos daqui (16 CFR 465). Enquanto
+// nao houver leituras reais para citar, a secao descreve o que a leitura aborda —
+// afirmacao sobre o produto, nao endosso de consumidor.
+const READING_COVERS = [
+  { title: 'The pattern you repeat', desc: 'What your lines suggest about how you approach closeness, and where you tend to hold back.' },
+  { title: 'Your timing', desc: 'How your heart line reads in terms of phases — what the current one appears to be about.' },
+  { title: 'The next step', desc: 'One concrete thing to sit with, written for your reading specifically.' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -98,13 +100,6 @@ const Index = () => (
           HERO — full-bleed image
       ═══════════════════════════════════════ */}
       <ImageHero quizRoute={QUIZ_ROUTE} />
-
-      {/* ═══════════════════════════════════════
-          SOCIAL PROOF STRIP
-      ═══════════════════════════════════════ */}
-      <div className="relative z-10">
-        <SocialProofCarousel />
-      </div>
 
       {/* ═══════════════════════════════════════
           FEATURES
@@ -220,12 +215,12 @@ const Index = () => (
             viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-400/70 mb-4">Testimonials</p>
-            <h2 className="text-3xl md:text-5xl font-serif font-bold text-white">What people feel after a reading</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-400/70 mb-4">Your reading</p>
+            <h2 className="text-3xl md:text-5xl font-serif font-bold text-white">What your reading covers</h2>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t, i) => (
+            {READING_COVERS.map((t, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 24 }}
@@ -237,13 +232,8 @@ const Index = () => (
                   <div className="rounded-2xl p-7 border border-white/[0.07] h-full flex flex-col gap-5"
                     style={{ background: 'rgba(255,255,255,0.025)', backdropFilter: 'blur(20px)' }}
                   >
-                    <div className="flex gap-1">
-                      {Array.from({ length: t.stars }).map((_, j) => (
-                        <Star key={j} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
-                    <p className="text-white/75 text-sm leading-relaxed flex-1 italic">"{t.quote}"</p>
-                    <p className="text-xs text-white/30 font-medium tracking-wide">{t.name}</p>
+                    <p className="text-sm font-semibold text-white">{t.title}</p>
+                    <p className="text-white/70 text-sm leading-relaxed flex-1">{t.desc}</p>
                   </div>
                 </Card3D>
               </motion.div>

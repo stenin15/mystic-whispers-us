@@ -16,7 +16,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
 import { Footer } from '@/components/layout/Footer';
-import { SocialProofCarousel } from '@/components/shared/SocialProofCarousel';
 import { toast } from 'sonner';
 import { PRICE_MAP } from '@/lib/pricing';
 import { createCheckoutSessionUrl } from '@/lib/checkout';
@@ -156,7 +155,10 @@ const Checkout = () => {
               </h3>
             </div>
             <ul className="space-y-3 mb-5">
-              {(analysisResult
+              {/* energyType pode vir ausente se a analise voltar parcial (timeout da IA,
+                  JSON incompleto). Sem o optional chaining a pagina quebra em branco
+                  para alguem que ja esta com o cartao na mao. */}
+              {(analysisResult?.energyType?.name
                 ? [
                     `Your dominant energy: ${analysisResult.energyType.name}.`,
                     analysisResult.palmObservations
@@ -395,67 +397,53 @@ const Checkout = () => {
         </div>
       </section>
 
-      {/* ========== FEATURED TESTIMONIALS ========== */}
+      {/* ========== O QUE ACONTECE DEPOIS DE PAGAR ==========
+          Aqui havia depoimentos de clientes inventados (nome, cidade, foto). Alem de
+          proibido — 16 CFR 465, em vigor desde out/2024 — era a alavanca errada para
+          esta pagina: quem chega ao checkout ja decidiu que quer, e trava por medo,
+          nao por duvida. Medo se responde com clareza de entrega e garantia. Quando
+          houver clientes de verdade, o lugar dos depoimentos reais e a pagina de
+          oferta, nao aqui. */}
       <section className="py-8 px-4">
         <div className="container max-w-4xl mx-auto">
           <p className="text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground/50 mb-6">
-            What others are saying
+            What happens next
           </p>
           <div className="grid md:grid-cols-3 gap-4">
             {[
               {
-                name: "Rachel M.",
-                city: "Denver, CO",
-                text: "I got the complete package. I used the daily ritual for 3 weeks. I don't know what shifted, but something did. I stopped waiting for him to decide.",
-                initial: "R",
-                gradient: "from-purple-500 to-pink-500",
+                icon: Shield,
+                title: 'Secure payment',
+                text: 'Your card is processed by Stripe. We never see or store your card details.',
               },
               {
-                name: "Jamie L.",
-                city: "Nashville, TN",
-                text: "I almost didn't do it — thought it was going to be generic. It wasn't. It described a pattern I'd never talked about out loud. That was enough.",
-                initial: "J",
-                gradient: "from-pink-500 to-rose-400",
+                icon: Zap,
+                title: 'Instant access',
+                text: 'Your full reading unlocks the moment payment clears \u2014 no waiting, no shipping.',
               },
               {
-                name: "Morgan K.",
-                city: "Portland, OR",
-                text: "The reading called out the exact block I had around commitment. It didn't judge it — just named it clearly. First time I understood why.",
-                initial: "M",
-                gradient: "from-violet-500 to-purple-400",
+                icon: CheckCircle2,
+                title: '7-day guarantee',
+                text: "If it doesn't resonate, email us within 7 days for a full refund. No questions asked.",
               },
-            ].map((t, i) => (
+            ].map((item, i) => (
               <motion.div
-                key={t.name}
+                key={item.title}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 className="glass-card rounded-2xl p-5 border border-border/15 hover-glow-border"
               >
-                <div className="flex gap-0.5 mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground/85 mb-4 italic leading-relaxed">"{t.text}"</p>
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${t.gradient} flex items-center justify-center`}>
-                    <span className="text-[9px] font-bold text-white">{t.initial}</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground/60">{t.city}</p>
-                  </div>
-                </div>
+                <item.icon className="w-5 h-5 text-amber-400 mb-3" />
+                <p className="text-sm font-semibold text-foreground mb-1.5">{item.title}</p>
+                <p className="text-sm text-muted-foreground/85 leading-relaxed">{item.text}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Social Proof Carousel */}
-      <SocialProofCarousel />
 
       {/* US market: no chat CTA */}
 
