@@ -205,7 +205,7 @@ const EntregaLeitura = () => {
                   </a>
                 </div>
                 <p className="text-center text-xs text-muted-foreground pb-5">
-                  Private · Encrypted · Photo deleted after analysis
+                  Private · Encrypted · Never shared or sold
                 </p>
               </div>
             )}
@@ -402,7 +402,7 @@ const EntregaLeitura = () => {
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed mb-3">
                 Upload a photo of your palm to unlock personalized insights based on your actual lines.
-                Takes 30 seconds. Image deleted after analysis.
+                Takes 30 seconds. Your image is never shared or sold.
               </p>
               <a href="/foto" className="text-xs font-semibold text-mystic-gold/80 hover:text-mystic-gold transition-colors underline underline-offset-2">
                 Upload my palm photo →

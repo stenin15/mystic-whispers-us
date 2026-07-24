@@ -448,20 +448,13 @@ const VSL = () => {
         onCtaClick={handleCTA}
       />
 
-      {/* ── SECTION 5 — SOCIAL PROOF ────────────────────────────────────── */}
+      {/* ── SECTION 5 — SOCIAL PROOF ──────────────────────────────────────
+          No CTA hotspot here: the artwork's bottom strip is the legal
+          disclaimer, not a button. The final CTA lives in section 6. */}
       <ImageSection
         desktopSrc="/landing/section-5-desktop.webp"
         mobileSrc="/landing/section-5-mobile.webp"
-        alt=""
-        ctaAreas={[
-          {
-            section: "proof",
-            desktopStyle: { left: "72%", top: "92%", width: "24%", height: "8%" },
-            mobileStyle: { left: "8%", top: "91%", width: "84%", height: "6%" },
-            label: "Discover Yours",
-          },
-        ]}
-        onCtaClick={handleCTA}
+        alt="Reactions from people who explored their palm reading"
       />
 
       {/* ── SECTION 6 — FINAL CTA ───────────────────────────────────────── */}
@@ -546,7 +539,7 @@ const VSL = () => {
         </p>
         <p className="text-[10px] text-white/14 max-w-sm mx-auto leading-relaxed">
           For entertainment and self-reflection purposes only. Not a substitute for professional advice.
-          Photo deleted after analysis. Private &amp; Secure.
+          Your photo is used only for your reading. Private &amp; Secure.
         </p>
       </footer>
 
@@ -571,7 +564,7 @@ const VSL = () => {
               Begin My Reading <ArrowRight className="w-5 h-5" />
             </CTAButton>
             <p className="text-center text-[10px] text-white/24 mt-1.5">
-              Private · Secure · Photo deleted after analysis
+              Private · Secure · Your photo is never shared or sold
             </p>
           </motion.div>
         )}
