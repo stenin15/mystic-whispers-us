@@ -214,7 +214,7 @@ const EntregaCombo = () => {
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed mb-3">
                 Optional — but it makes Aurora's analysis significantly more personal.
-                Your image is processed privately and deleted after analysis.
+                Your image is processed privately and is never shared or sold.
               </p>
               <Link to="/foto">
                 <button className="text-xs font-semibold text-mystic-gold/80 hover:text-mystic-gold transition-colors underline underline-offset-2">
