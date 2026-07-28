@@ -171,16 +171,16 @@ export async function handleCheckout(
     // continua para os fallbacks abaixo
   }
 
-  // Fallback 1: payment link estático configurado por env var
-  const staticUrl = (type === 'basic'
-    ? import.meta.env.VITE_STRIPE_CHECKOUT_BASIC_URL
-    : import.meta.env.VITE_STRIPE_CHECKOUT_COMPLETE_URL) as string | undefined;
-  if (staticUrl) {
-    window.location.href = staticUrl;
-    return;
-  }
-
-  // Fallback 2: página de checkout interna
+  // O payment link estático (VITE_STRIPE_CHECKOUT_*) foi retirado daqui de
+  // propósito. Ele parecia uma rede de segurança e era o contrário: quando a
+  // Edge Function falhava, o comprador ia para um buy.stripe.com que cobra mas
+  // não devolve para /sucesso, não grava a compra e não dispara a entrega — o
+  // cliente paga e não recebe nada, sem erro nenhum aparecer. Foi exatamente o
+  // que aconteceu em 28/07 com duas cobranças reais.
+  //
+  // Falhar de forma visível é melhor que cobrar sem entregar. A página interna
+  // mostra o erro e oferece nova tentativa. Só reative um link estático depois
+  // de configurar nele o redirect para /sucesso e o webhook de entrega.
   if (fallback) {
     fallback();
     return;

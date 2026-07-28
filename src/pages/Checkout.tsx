@@ -89,14 +89,9 @@ const Checkout = () => {
       window.location.href = url;
     } catch (err) {
       console.error("Checkout session creation failed:", key, err);
-      // Fallback: static Stripe payment link, if configured (mirrors resultPersonalization)
-      const staticUrl = (key === "basic"
-        ? import.meta.env.VITE_STRIPE_CHECKOUT_BASIC_URL
-        : import.meta.env.VITE_STRIPE_CHECKOUT_COMPLETE_URL) as string | undefined;
-      if (staticUrl) {
-        window.location.href = staticUrl;
-        return;
-      }
+      // No static payment-link fallback here either — see the note in
+      // resultPersonalization.ts. Sending a buyer to a link that charges but
+      // never delivers is worse than telling them to try again.
       setCheckoutLoading(null);
       // Persistent inline error (a fading toast dies before the user reads it)
       setCheckoutError(key);
