@@ -104,14 +104,9 @@ const App = () => (
           <Route path="/vsl" element={<Navigate to="/" replace />} />
           <Route path="/conexao" element={<Navigate to="/quiz" replace />} />
           <Route path="/formulario" element={<Navigate to="/quiz" replace />} />
-          <Route
-            path="/quiz"
-            element={
-              <VslGate>
-                <Quiz />
-              </VslGate>
-            }
-          />
+          {/* Valid direct entry point: ads and organic links land here.
+              Quiz marks the funnel as entered, which unlocks the gated steps below. */}
+          <Route path="/quiz" element={<Quiz />} />
           <Route
             path="/analise"
             element={

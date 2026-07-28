@@ -52,6 +52,7 @@ const Quiz = () => {
     setQuizAnswer,
     setCurrentQuestionIndex,
     setFormData,
+    setHasSeenVsl,
   } = useHandReadingStore();
 
   // Start directly in questions phase if name is already set (returning user)
@@ -193,6 +194,13 @@ const Quiz = () => {
     }
     setAudioEnabled(!audioEnabled);
   };
+
+  // Reaching the quiz counts as entering the funnel — whether the user came from
+  // the VSL CTA or landed straight on /quiz from an ad. Without this, the gated
+  // steps that follow (/foto, /analise, /checkout) would bounce direct arrivals home.
+  useEffect(() => {
+    setHasSeenVsl(true);
+  }, [setHasSeenVsl]);
 
   // Track quiz start on mount
   useEffect(() => {
