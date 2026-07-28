@@ -8,7 +8,11 @@ import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/mark
 import { supabase } from '@/integrations/supabase/client';
 
 // ── Constants ────────────────────────────────────────────────────────────────
-const MIN_DISPLAY_MS = 6000; // minimum time on this screen
+// Minimum time on this screen. Six STEPS share it, so this is also the pace of
+// the scan: 6s gave each step one second — too fast to read, and the whole
+// analysis felt like a canned animation rather than real work. Two seconds a
+// step lets each line land. The hard ceiling below is still 22s.
+const MIN_DISPLAY_MS = 12000;
 const THUMB_KEY = 'mwus_palm_thumb';
 
 // ── Upload helper ────────────────────────────────────────────────────────────
