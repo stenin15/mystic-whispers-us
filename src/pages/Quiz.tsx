@@ -42,6 +42,27 @@ const CONCERN_OPTIONS = [
 
 type QuizPhase = 'intro-name' | 'intro-concern' | 'questions' | 'email-gate';
 
+// Marks that this browser session has already been through the quiz opening.
+// sessionStorage, not localStorage: it must survive a refresh but not outlive
+// the tab, so a later visit restarts instead of resuming.
+const SESSION_KEY = 'mwus_quiz_session';
+
+const isSameSessionVisit = (): boolean => {
+  try {
+    return sessionStorage.getItem(SESSION_KEY) === '1';
+  } catch {
+    return false; // private mode / storage blocked — treat as a fresh visit
+  }
+};
+
+const markSessionVisit = (): void => {
+  try {
+    sessionStorage.setItem(SESSION_KEY, '1');
+  } catch {
+    // ignore
+  }
+};
+
 const Quiz = () => {
   const navigate = useNavigate();
   const {
@@ -55,8 +76,17 @@ const Quiz = () => {
     setHasSeenVsl,
   } = useHandReadingStore();
 
-  // Start directly in questions phase if name is already set (returning user)
-  const [phase, setPhase] = useState<QuizPhase>(name ? 'questions' : 'intro-name');
+  // Resume only within the same browser session — a refresh, or a step back and
+  // forward. A fresh arrival starts from the top.
+  //
+  // name and currentQuestionIndex are persisted to localStorage, so resuming on
+  // name alone dropped anyone who had taken the quiz before straight onto
+  // "Question 7 of 7" with the progress bar at 100% and no idea why. Someone
+  // clicking the ad a second time would never see the opening screens at all.
+  // sessionStorage draws the line: it survives a refresh and dies with the tab.
+  const [phase, setPhase] = useState<QuizPhase>(() =>
+    name && isSameSessionVisit() ? 'questions' : 'intro-name',
+  );
   const [nameInput, setNameInput] = useState(name || '');
   const [nameError, setNameError] = useState('');
   const [selectedConcern, setSelectedConcern] = useState('');
@@ -205,6 +235,15 @@ const Quiz = () => {
   useEffect(() => {
     setHasSeenVsl(true);
   }, [setHasSeenVsl]);
+
+  // Fresh visit: rewind the saved question index so the restart is real. The
+  // phase above has already read this flag, so setting it here is safe.
+  useEffect(() => {
+    if (!isSameSessionVisit()) {
+      setCurrentQuestionIndex(0);
+      markSessionVisit();
+    }
+  }, [setCurrentQuestionIndex]);
 
   // Track quiz start on mount
   useEffect(() => {
