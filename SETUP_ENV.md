@@ -18,12 +18,18 @@ VITE_SUPABASE_PROJECT_ID=auripzdrmlwiudbyzlya
 VITE_STRIPE_CHECKOUT_BASIC_URL=
 VITE_STRIPE_CHECKOUT_COMPLETE_URL=
 
-# (Opcional) TikTok Pixel — pega o ID em ads.tiktok.com → Assets → Events → Web Events.
-# Sem esse valor o pixel do TikTok fica desligado (no-op). Com ele, o site dispara
-# automaticamente: page view em toda rota, ViewContent, SubmitForm (Lead),
-# InitiateCheckout e CompletePayment (Purchase), com event_id para deduplicação.
+# TikTok Pixel — OBRIGATÓRIO. Desde a remoção do Google Ads/GTM, este é o único
+# canal de conversão do site (o Meta Pixel segue ativo, mas só para remarketing).
+# Sem esse valor o pixel fica desligado (no-op) e você roda anúncio às cegas.
+# Onde pegar: ads.tiktok.com → Tools → Events → Web Events → Manage.
+# Dispara automaticamente: PageView em toda rota, ViewContent, SubmitForm (Lead),
+# CompleteRegistration, InitiateCheckout e CompletePayment (Purchase),
+# todos com event_id para deduplicação com o Events API.
 VITE_TIKTOK_PIXEL_ID=
 ```
+
+> ⚠️ `VITE_*` é gravada no bundle **durante o build**. Alterar na Vercel sem
+> refazer o deploy não muda nada no site — sempre redeploy sem cache de build.
 
 ## 💳 Stripe (configurado no Supabase, não no .env.local)
 
@@ -34,6 +40,24 @@ Secrets necessários no Supabase (Dashboard → Edge Functions → Secrets):
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_PRICE_BASIC` / `STRIPE_PRICE_COMPLETE` / `STRIPE_PRICE_GUIDE` / `STRIPE_PRICE_UPSELL` (Price IDs do Stripe Dashboard)
 - `SITE_URL` (ex: https://madam-aurora.co — usado nos redirects de sucesso/cancelamento)
+
+## 📊 Tracking server-side (Supabase → Edge Functions → Secrets)
+
+A função `track-event` reenvia as conversões pelo servidor, recuperando o que
+bloqueador de anúncio e iOS derrubam no navegador. O `event_id` é o mesmo do
+pixel, então navegador e servidor são deduplicados — não conta em dobro.
+
+- `TIKTOK_ACCESS_TOKEN` — TikTok Ads → pixel → Settings → Events API → Generate Access Token
+- `TIKTOK_PIXEL_CODE` — o mesmo Pixel ID de `VITE_TIKTOK_PIXEL_ID`
+- `META_PIXEL_ID` / `META_ACCESS_TOKEN` — opcionais, para a CAPI da Meta
+
+Sem esses secrets a função ainda responde 200 e o funil não quebra: ela apenas
+não reenvia nada.
+
+## 🚫 Google Ads / GTM
+
+Removidos do projeto. `VITE_GTM_ID` não é mais lida em lugar nenhum — se ela
+ainda existir na Vercel, pode apagar.
 
 ## ✅ Depois de criar, reinicie o servidor:
 ```bash
