@@ -31,7 +31,7 @@ const Privacy = () => {
 
         <h2 className="text-xl font-serif font-semibold mt-10 mb-3">Contact</h2>
         <p className="text-muted-foreground">
-          Email: <strong>support@madam-aurora.co</strong> (replace with your real support email)
+          Email: <strong>support@madam-aurora.co</strong>
         </p>
       </main>
       <Footer />

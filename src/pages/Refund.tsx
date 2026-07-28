@@ -12,7 +12,7 @@ const Refund = () => {
 
         <h2 className="text-xl font-serif font-semibold mt-10 mb-3">How to request a refund</h2>
         <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-          <li>Email <strong>support@madam-aurora.co</strong> (replace with your real support email).</li>
+          <li>Email <strong>support@madam-aurora.co</strong>.</li>
           <li>Include the email used at checkout and the approximate purchase time.</li>
           <li>We typically respond within 1–2 business days.</li>
         </ul>

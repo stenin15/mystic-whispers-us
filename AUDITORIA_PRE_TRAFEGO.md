@@ -52,8 +52,12 @@ Com o Pixel Helper aberto, percorra o funil e confirme cada evento **na ordem**.
 | Qualquer página | `Pageview` | — |
 | Home `/` e `/resultado` | `ViewContent` | `event_id`, `contents[0].content_id` |
 | E-mail preenchido | `SubmitForm` | `event_id` |
+| Fim do quiz | `CompleteRegistration` | `event_id` |
 | Clique em desbloquear | `InitiateCheckout` | `event_id`, `value`, `currency: USD` |
 | Após pagar | `CompletePayment` | `event_id`, `value`, `currency: USD` |
+
+> `CompleteRegistration` dispara ao concluir o quiz (`Quiz.tsx:418`) e **é
+> intencional** — é o sinal de lead qualificado. Não reporte como defeito.
 
 ### Verificações críticas
 
@@ -136,12 +140,21 @@ Com o Pixel Helper aberto, percorra o funil e confirme cada evento **na ordem**.
 | 6.2 | O conteúdo cita seu nome | Sim |
 | 6.3 | Preço do plano completo | **$29.90** |
 | 6.4 | Preço do plano básico | **$9.90** |
+| 6.4b | **Toque no botão do plano básico pintado na arte** | Vai ao Stripe cobrando **$9.90**, não $29.90 |
 | 6.5 | Clique em desbloquear | Dispara `InitiateCheckout` e vai ao Stripe |
 | 6.6 | Página do Stripe | Abre, com o valor correto e cadeado de HTTPS |
 | 6.7 | Volte no navegador sem pagar | Volta ao site sem quebrar |
 
 > Os preços exibidos **precisam** bater com o que o Stripe cobra. Anunciar um
 > valor e debitar outro gera chargeback e reprovação do anúncio.
+
+> **6.4b exige olho humano.** A seção de oferta é uma imagem com botões
+> *invisíveis* posicionados por cima dos botões pintados
+> (`ResultOfferSection.tsx:190-208`). No DOM eles aparecem como `<button>` sem
+> texto e sem fundo, então inspecionar o HTML não diz nada — só tocar no botão
+> pintado prova que o alvo está alinhado. Se a arte for trocada sem remedir as
+> coordenadas, o botão do plano básico vira uma área morta e você perde essas
+> vendas sem nenhum erro no console.
 
 ---
 

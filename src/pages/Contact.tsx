@@ -11,7 +11,7 @@ const Contact = () => {
 
         <div className="rounded-2xl border border-border/30 p-6 bg-card/20">
           <p className="text-muted-foreground">
-            Support email: <strong>support@madam-aurora.co</strong> (replace with your real support email)
+            Support email: <strong>support@madam-aurora.co</strong>
           </p>
           <p className="text-muted-foreground mt-3">
             Typical response time: <strong>1–2 business days</strong>
