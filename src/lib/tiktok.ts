@@ -77,6 +77,24 @@ const EVENT_MAP: Record<string, string> = {
   Purchase: "CompletePayment",
 };
 
+// Call sites describe products in Meta's vocabulary (content_ids/content_name).
+// TikTok wants a `contents` array carrying content_id, and warns in the console
+// when it is missing. Translate here, where event names are already mapped.
+const toTikTokParams = (event: string, params: AnyRecord): AnyRecord => {
+  const ids = Array.isArray(params.content_ids) ? (params.content_ids as unknown[]) : undefined;
+  const contentId = String(ids?.[0] ?? params.content_id ?? params.content_name ?? event);
+  const out: AnyRecord = { ...params };
+  delete out.content_ids;
+  out.contents = [
+    {
+      content_id: contentId,
+      content_type: "product",
+      content_name: params.content_name ?? contentId,
+    },
+  ];
+  return out;
+};
+
 export function ttqTrack(event: string, params: AnyRecord = {}, eventId?: string): void {
   if (!PIXEL_ID) return;
   try {
@@ -88,7 +106,7 @@ export function ttqTrack(event: string, params: AnyRecord = {}, eventId?: string
     }
     const mapped = EVENT_MAP[event];
     if (!mapped) return; // only forward standard, optimizable events
-    ttq.track(mapped, params, eventId ? { event_id: eventId } : undefined);
+    ttq.track(mapped, toTikTokParams(event, params), eventId ? { event_id: eventId } : undefined);
   } catch {
     // ignore
   }

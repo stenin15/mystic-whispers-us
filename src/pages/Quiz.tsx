@@ -162,12 +162,16 @@ const Quiz = () => {
     }
   }, [currentQuestionIndex, audioEnabled, preloadAudio]);
 
-  // Play current question audio immediately (only after quiz started) - ZERO DELAY
+  // Play the current question's audio as soon as it is on screen.
+  // Gated on the questions phase: currentQuestion points at question 1 from mount,
+  // so without this Aurora starts reading it aloud over the name and concern
+  // screens, before the visitor has seen a single question.
   useEffect(() => {
+    if (phase !== 'questions') return;
     if (currentQuestion && audioEnabled && quizStarted) {
       playQuestionAudio(currentQuestion.id);
     }
-  }, [currentQuestionIndex, audioEnabled, quizStarted, playQuestionAudio]);
+  }, [phase, currentQuestionIndex, audioEnabled, quizStarted, playQuestionAudio]);
 
   // Preload first question's audio on mount
   useEffect(() => {
