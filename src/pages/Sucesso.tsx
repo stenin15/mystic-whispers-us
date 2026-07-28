@@ -139,19 +139,6 @@ const Sucesso = () => {
               key: purchaseTrackedKey,
             });
 
-            // Google Ads conversion (only after paid is confirmed).
-            try {
-              const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
-              gtag?.("event", "conversion", {
-                send_to: "AW-17913229333/5q52CPury-4bEJXg2N1C",
-                value: PRICE_MAP[primary].amountUsd,
-                currency: "USD",
-                transaction_id: sessionId,
-              });
-            } catch {
-              // ignore (do not block UX)
-            }
-
           } else {
             console.log("[SUCCESS_PAGE] purchase already tracked — skipping", {
               sessionId,
