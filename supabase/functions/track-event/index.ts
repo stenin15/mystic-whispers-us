@@ -236,6 +236,13 @@ serve(async (req) => {
 
     const tiktokResult: { ok: boolean; status?: number; skipped?: boolean } = { ok: false, skipped: true };
     if (TIKTOK_ACCESS_TOKEN && TIKTOK_PIXEL_CODE) {
+      // Same SHA-256 identifiers we already send to Meta. Without them TikTok can
+      // only match on ttclid/IP/user-agent, which loses most view-through and
+      // cross-device conversions.
+      const tiktokUser: Record<string, unknown> = {};
+      if (email) tiktokUser.email = await sha256Hex(email);
+      if (phone) tiktokUser.phone_number = await sha256Hex(phone);
+
       const payload = {
         pixel_code: TIKTOK_PIXEL_CODE,
         event: event_name,
@@ -246,6 +253,7 @@ serve(async (req) => {
           user_agent: ua,
           page: { url: page_url },
           ad: ttclid ? { callback: ttclid } : undefined,
+          user: Object.keys(tiktokUser).length ? tiktokUser : undefined,
         },
         properties: {
           currency,

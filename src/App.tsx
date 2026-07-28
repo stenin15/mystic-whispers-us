@@ -68,15 +68,8 @@ const RouteTracker = () => {
       focus: getStoredFocus(),
       ...getAttributionParams(),
     });
-    if (pathname === "/") {
-      track("ViewContent", {
-        content_name: "VSL",
-        page_path: pathname,
-        angle: getStoredAngle(),
-        focus: getStoredFocus(),
-        ...getAttributionParams(),
-      });
-    }
+    // ViewContent for "/" is fired by VSL.tsx, which carries an event_id for
+    // server-side deduplication. Firing it here as well double-counted it.
   }, [pathname, search]);
   return null;
 };

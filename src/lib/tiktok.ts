@@ -1,6 +1,8 @@
 // TikTok Pixel loader + event bridge.
-// Activated only when VITE_TIKTOK_PIXEL_ID is set (Vercel env var),
-// so it is a no-op until the TikTok Ads account/pixel exists.
+// The pixel id ships in the client bundle either way, so it is baked in here
+// like the Meta and Clarity ids in index.html — the site then tracks correctly
+// on a plain build, with no env var to forget. VITE_TIKTOK_PIXEL_ID still wins
+// when set, so a staging deploy can point at a different pixel.
 
 type AnyRecord = Record<string, unknown>;
 
@@ -19,7 +21,11 @@ declare global {
   }
 }
 
-const PIXEL_ID = (import.meta.env.VITE_TIKTOK_PIXEL_ID as string | undefined)?.trim() || "";
+// MadamAurora_Web_US, owned by the Business Center so it survives an ad-account ban.
+const DEFAULT_PIXEL_ID = "D9KAQ53C77UD7F80GIT0";
+
+const PIXEL_ID =
+  (import.meta.env.VITE_TIKTOK_PIXEL_ID as string | undefined)?.trim() || DEFAULT_PIXEL_ID;
 
 export function isTikTokEnabled(): boolean {
   return Boolean(PIXEL_ID);
@@ -53,7 +59,9 @@ export function initTikTok(): void {
     document.head.appendChild(script);
 
     (w.ttq as TtqInstance).load?.(PIXEL_ID);
-    (w.ttq as TtqInstance).page?.();
+    // No page() here: RouteTracker (src/App.tsx) fires PageView on every route,
+    // the initial load included. Calling it here too would double-count, the same
+    // reason the Meta snippet in index.html skips its own fbq('track','PageView').
   } catch {
     // ignore
   }
