@@ -118,7 +118,13 @@ const Formulario = () => {
         utm_term: utms.utm_term ?? null,
         angle: getStoredAngle() ?? null,
         focus: getStoredFocus() ?? null,
-      }).catch(() => {});
+      })
+        // O insert resolve com { error } em vez de rejeitar, então uma falha aqui
+        // (constraint, RLS) passa despercebida se olharmos só o .catch.
+        .then(({ error }) => {
+          if (error) console.error('leads insert failed', error);
+        })
+        .catch((err) => console.error('leads insert threw', err));
 
       setFormData({
         name: data.name,
