@@ -159,7 +159,10 @@ serve(async (req) => {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: successUrl,
       cancel_url: cancelUrl,
-      automatic_payment_methods: { enabled: true },
+      // Não passe `automatic_payment_methods` aqui: é parâmetro de PaymentIntent/SetupIntent,
+      // não de Checkout Session, e o Stripe rejeita a chamada com "unknown parameter".
+      // Omitir `payment_method_types` já faz o Checkout exibir os métodos habilitados no
+      // Dashboard, incluindo Apple Pay e Google Pay.
       billing_address_collection: "auto",
       metadata: {
         product_code: productCode,
@@ -192,11 +195,36 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error("create-checkout-session failed:", err);
-    return new Response(JSON.stringify({ error: "Failed to create checkout session" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // Erros do Stripe trazem type/code/param/message. Registre tudo: sem isso, uma chamada
+    // recusada pelo Stripe vira um 500 opaco e o diagnóstico leva dias.
+    const e = err as {
+      type?: string;
+      code?: string;
+      param?: string;
+      statusCode?: number;
+      message?: string;
+      requestId?: string;
+    };
+    console.error("create-checkout-session failed:", {
+      type: e?.type,
+      code: e?.code,
+      param: e?.param,
+      statusCode: e?.statusCode,
+      requestId: e?.requestId,
+      message: e?.message,
     });
+
+    // O corpo é público: devolva o suficiente para identificar a falha, sem detalhes internos.
+    return new Response(
+      JSON.stringify({
+        error: "Failed to create checkout session",
+        code: e?.code ?? e?.type ?? "unknown_error",
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 });
 
