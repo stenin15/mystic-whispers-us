@@ -71,7 +71,7 @@ async function analyzePalmFeatures(
   return (data.choices?.[0]?.message?.content as string | undefined) ?? "";
 }
 
-// ─── Step 2: Generate premium report image with gpt-image-2 ──────────────────
+// ─── Step 2: Generate premium report image with gpt-image-1 ──────────────────
 
 function buildImagePrompt(palmDescription: string): string {
   const personalNote = palmDescription
@@ -227,7 +227,7 @@ serve(async (req) => {
       console.warn("palm photo download skipped:", downloadErr);
     }
 
-    // ── Step 3: Generate report image with gpt-image-2 ────────────────────────
+    // ── Step 3: Generate report image with gpt-image-1 ────────────────────────
     const imagePrompt = buildImagePrompt(palmDescription);
 
     const genRes = await fetch("https://api.openai.com/v1/images/generations", {
@@ -237,18 +237,20 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-image-2",
+        // Mesmo modelo que generate-palm-report-full. Não envie `response_format`:
+        // os modelos gpt-image-* não aceitam esse parâmetro e recusam a requisição
+        // inteira. A resposta já vem em b64_json, e o parser abaixo aceita as duas formas.
+        model: "gpt-image-1",
         prompt: imagePrompt,
         size: "1024x1536",
         quality: "medium",
         n: 1,
-        response_format: "b64_json",
       }),
     });
 
     if (!genRes.ok) {
       const errText = await genRes.text();
-      console.error("gpt-image-2 failed:", genRes.status, errText);
+      console.error("gpt-image-1 failed:", genRes.status, errText);
       await sb.from("reading_sessions")
         .update({ report_status: "failed" })
         .eq("session_key", session_key);
