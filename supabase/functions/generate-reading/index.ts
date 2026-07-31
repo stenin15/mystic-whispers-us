@@ -348,8 +348,10 @@ Keep it ${isComplete ? "~1100–1500" : "~500–750"} words. Make it feel human 
       });
     }
 
-    const data = await response.json();
-    let reading = data.choices?.[0]?.message?.content;
+    // Não reutilize o nome `data`: ele já foi declarado neste escopo pela consulta
+    // de entitlement acima, e redeclarar quebra o boot da função inteira.
+    const completion = await response.json();
+    let reading = completion.choices?.[0]?.message?.content;
 
     if (!reading) {
       throw new Error("Empty model response");
