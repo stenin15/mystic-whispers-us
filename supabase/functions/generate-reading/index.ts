@@ -215,6 +215,10 @@ serve(async (req) => {
       .filter((c): c is ProductCode => c === "basic" || c === "complete" || c === "guide" || c === "upsell");
     const paidProducts = normalizeProducts(codes);
     const canAccessBasic = paidProducts.includes("basic") || paidProducts.includes("complete");
+    // O plano completo é vendido com dois bônus a mais (Love Timing Analysis e
+    // Next-Step Clarity Map). Eles são entregues como seções extras desta leitura —
+    // é o que diferencia o texto do completo do texto do básico.
+    const isComplete = paidProducts.includes("complete");
     if (!canAccessBasic) {
       return new Response(JSON.stringify({ error: "forbidden", request_id }), {
         status: 403,
@@ -243,11 +247,43 @@ Safety & consistency rules:
 
 Product framing (hybrid delivery):
 - This is text-first, emotionally realistic, not “AI chat”.
-- Deliver a meaningful reading AND end with an “incomplete insight” loop:
-  “This highlights what is active — but not yet how to work with it. That’s where deeper guidance becomes important.”
+${isComplete
+  ? `- She already purchased the complete plan. This reading is the full delivery: never
+  tease further paid guidance, never imply something is still missing or locked.`
+  : `- Deliver a meaningful reading AND end with an “incomplete insight” loop:
+  “This highlights what is active — but not yet how to work with it. That’s where deeper guidance becomes important.”`}
 
 Must include once (exact sentence):
 For entertainment and self-reflection purposes.`;
+
+    // Seções exclusivas do plano completo. Correspondem, uma a uma, aos bônus
+    // "Love Timing Analysis" e "Next-Step Clarity Map" anunciados no checkout.
+    const completeSections = `
+## Your love timing
+- 2–3 short paragraphs
+- Describe the emotional cycle she tends to move through: when she tends to open up,
+  when she tends to pull back, and what usually marks the shift between the two
+- Frame it as rhythm and tendency, never as dated prediction ("tends to", "often", "may")
+- Close with how to recognize an opening window while it is happening
+
+## Your next 90 days
+- A practical integration map, in three blocks: Days 1–30, Days 31–60, Days 61–90
+- For each block: one focus, and 2 concrete actions tied to the patterns above
+- Actions must be specific and doable (a conversation to have, a boundary to test,
+  something to write down, something to stop doing) — never vague advice
+`;
+
+    const closingSection = isComplete
+      ? `## A quiet next step
+- 1–2 paragraphs that tie the whole reading together
+- Include the exact disclaimer sentence once:
+For entertainment and self-reflection purposes.`
+      : `## A quiet next step
+- 1–2 paragraphs
+- Include the exact disclaimer sentence once:
+For entertainment and self-reflection purposes.
+- End with the loop line (exact):
+This highlights what is active — but not yet how to work with it. That’s where deeper guidance becomes important.`;
 
     const userPrompt = `Create a personalized reading for:
 
@@ -271,15 +307,10 @@ Write in English (EN-US) and use markdown with these sections:
 
 ## What may be getting in the way
 - Bullet list (2–3 bullets): gentle blocks/patterns, no fear tactics
+${isComplete ? completeSections : ""}
+${closingSection}
 
-## A quiet next step
-- 1–2 paragraphs
-- Include the exact disclaimer sentence once:
-For entertainment and self-reflection purposes.
-- End with the loop line (exact):
-This highlights what is active — but not yet how to work with it. That’s where deeper guidance becomes important.
-
-Keep it ~500–750 words. Make it feel human and guided, not “AI generated”.`;
+Keep it ${isComplete ? "~1100–1500" : "~500–750"} words. Make it feel human and guided, not “AI generated”.`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -294,7 +325,9 @@ Keep it ~500–750 words. Make it feel human and guided, not “AI generated”.
           { role: "user", content: userPrompt },
         ],
         temperature: 0.6,
-        max_tokens: 1400,
+        // O completo tem duas seções a mais e alvo de ~1500 palavras; 1400 tokens
+        // cortariam a leitura no meio do mapa de 90 dias.
+        max_tokens: isComplete ? 2600 : 1400,
       }),
     });
 

@@ -6,14 +6,12 @@ import DeliveryFAQ from "@/components/delivery/DeliveryFAQ";
 import LegalFooter from "@/components/delivery/LegalFooter";
 import { useHandReadingStore } from "@/store/useHandReadingStore";
 import { Button } from "@/components/ui/button";
-import { createCheckoutSessionUrl } from "@/lib/checkout";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyEntitlement } from "@/lib/entitlement";
 
 const EntregaCombo = () => {
   const navigate = useNavigate();
-  const { name, email, setPendingPurchase } = useHandReadingStore();
+  const { name } = useHandReadingStore();
   const deliveryReadingPath = ["/entrega/", "le", "itura"].join("");
   const deliveryGuidePath = ["/entrega/", "gu", "ia"].join("");
   const [guideUrl, setGuideUrl] = useState<string>("");
@@ -58,18 +56,6 @@ const EntregaCombo = () => {
     { icon: Heart, title: "Personal message", desc: "Intuitive guidance prepared for you" },
     { icon: Bolt, title: "Practical integration", desc: "A clearer sense of what to do next" },
   ];
-
-  // HYBRID AUDIO: pre-recorded, generic tracks only (no TTS).
-  const handleBuyGuide = async () => {
-    try {
-      setPendingPurchase("guide");
-      const url = await createCheckoutSessionUrl("guide", { email });
-      window.location.href = url;
-    } catch (err) {
-      console.error("Checkout session creation failed: guide", err);
-      toast("Checkout isn't available right now. Please try again in a moment.");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -238,20 +224,19 @@ const EntregaCombo = () => {
           <p className="text-muted-foreground leading-relaxed mb-5">
             You now have deeper context -- and a practical direction for your next step.
           </p>
+          {/* O guia já está incluso no plano completo. Enquanto o link assinado não
+              chega, não ofereça a compra — a pessoa pagaria de novo pelo que já tem. */}
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button onClick={handleBuyGuide} className="w-full gradient-mystic text-primary-foreground hover:opacity-90 py-6">
-              Get the Ritual & Integration Guide
-            </Button>
             {guideUrl ? (
               <a className="w-full" href={guideUrl} target="_blank" rel="noreferrer">
-                <Button variant="outline" className="w-full border-primary/30 py-6">
+                <Button className="w-full gradient-mystic text-primary-foreground hover:opacity-90 py-6">
                   Download the guide (secure link)
                 </Button>
               </a>
             ) : (
               <Link to={deliveryGuidePath} className="w-full">
                 <Button variant="outline" className="w-full border-primary/30 py-6">
-                  Already purchased? Open the guide
+                  Open my guide
                 </Button>
               </Link>
             )}

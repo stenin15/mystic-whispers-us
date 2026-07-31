@@ -22,6 +22,8 @@ const EntregaLeitura = () => {
   } = useHandReadingStore();
   const [reading, setReading] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Quem já comprou o completo não pode ver oferta de upgrade para o completo.
+  const [isComplete, setIsComplete] = useState(false);
 
   // Full visual report state
   const [localFullUrl, setLocalFullUrl] = useState<string | null>(fullReportUrl || null);
@@ -43,6 +45,7 @@ const EntregaLeitura = () => {
           return;
         }
         if (cancelled) return;
+        setIsComplete(ent.paidProducts.includes("complete"));
 
         const res = await supabase.functions.invoke('generate-reading', {
           body: {
@@ -367,16 +370,18 @@ const EntregaLeitura = () => {
                   <p className="text-muted-foreground mt-2">-- Madam Aurora</p>
                 </div>
 
-                {/* Loop opener */}
-                <div className="mt-10 p-6 rounded-2xl bg-card/30 border border-border/30 text-center">
-                  <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
-                    What this covers — and what it doesn't (yet)
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    This reading highlights what is active — but not yet how to work with it.
-                    That's where deeper guidance becomes important.
-                  </p>
-                </div>
+                {/* Loop opener — só para quem ainda não comprou o completo */}
+                {!isComplete && (
+                  <div className="mt-10 p-6 rounded-2xl bg-card/30 border border-border/30 text-center">
+                    <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground mb-2">
+                      What this covers — and what it doesn't (yet)
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      This reading highlights what is active — but not yet how to work with it.
+                      That's where deeper guidance becomes important.
+                    </p>
+                  </div>
+                )}
 
                 {/* Intentionally omit delivery audio unless real MP3 files are provided */}
               </div>
@@ -430,7 +435,8 @@ const EntregaLeitura = () => {
           </p>
         </motion.div>
 
-        {/* Natural bridge to deeper guidance */}
+        {/* Natural bridge to deeper guidance — oculto para quem já comprou o completo */}
+        {!isComplete && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -481,6 +487,7 @@ const EntregaLeitura = () => {
             </p>
           </div>
         </motion.div>
+        )}
 
         {/* FAQ */}
         <DeliveryFAQ />
