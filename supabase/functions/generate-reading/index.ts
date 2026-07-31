@@ -93,7 +93,13 @@ const looksPortuguese = (text: string): boolean => {
   return hits >= 2;
 };
 
-const translateToEnglish = async (OPENAI_API_KEY: string, text: string): Promise<string> => {
+// `maxTokens` precisa acompanhar o teto usado na geração: a leitura do plano
+// completo é bem mais longa, e traduzir com um teto menor cortaria o texto no meio.
+const translateToEnglish = async (
+  OPENAI_API_KEY: string,
+  text: string,
+  maxTokens: number,
+): Promise<string> => {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -111,7 +117,7 @@ const translateToEnglish = async (OPENAI_API_KEY: string, text: string): Promise
         { role: "user", content: String(text) },
       ],
       temperature: 0,
-      max_tokens: 1600,
+      max_tokens: maxTokens,
     }),
   });
 
@@ -285,6 +291,10 @@ For entertainment and self-reflection purposes.
 - End with the loop line (exact):
 This highlights what is active — but not yet how to work with it. That’s where deeper guidance becomes important.`;
 
+    // O completo tem duas seções a mais e alvo de ~1500 palavras; 1400 tokens
+    // cortariam a leitura no meio do mapa de 90 dias.
+    const maxOutputTokens = isComplete ? 2600 : 1400;
+
     const userPrompt = `Create a personalized reading for:
 
 Name: ${name}
@@ -325,9 +335,7 @@ Keep it ${isComplete ? "~1100–1500" : "~500–750"} words. Make it feel human 
           { role: "user", content: userPrompt },
         ],
         temperature: 0.6,
-        // O completo tem duas seções a mais e alvo de ~1500 palavras; 1400 tokens
-        // cortariam a leitura no meio do mapa de 90 dias.
-        max_tokens: isComplete ? 2600 : 1400,
+        max_tokens: maxOutputTokens,
       }),
     });
 
@@ -350,7 +358,7 @@ Keep it ${isComplete ? "~1100–1500" : "~500–750"} words. Make it feel human 
     // Hard guarantee: if it comes back in PT, translate to EN-US.
     if (looksPortuguese(String(reading))) {
       try {
-        reading = await translateToEnglish(OPENAI_API_KEY, String(reading));
+        reading = await translateToEnglish(OPENAI_API_KEY, String(reading), maxOutputTokens);
         console.log("generate_reading_translated_to_en", { chars: String(reading).length });
       } catch (e) {
         console.warn("generate_reading_translation_failed", { request_id, e });
