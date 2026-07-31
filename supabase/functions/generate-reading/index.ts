@@ -168,27 +168,6 @@ serve(async (req) => {
       });
     }
 
-    // Rate limit to prevent abuse/cost spikes.
-    const svc = createServiceClient();
-    if (!svc) {
-      return new Response(JSON.stringify({ error: "Service unavailable", request_id }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const ip = getClientIp(req);
-    const rl = await checkRateLimit({ supabase: svc, key: `${ip}:generate-reading` });
-    if (!rl.allowed) {
-      return new Response(JSON.stringify({ error: "rate_limited", request_id }), {
-        status: 429,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-          "Retry-After": String(rl.retryAfterSeconds ?? 60),
-        },
-      });
-    }
-
     // Paywall: require a Stripe session_id and verify entitlement server-side
     const sid = typeof session_id === "string" ? session_id.trim() : "";
     if (!sid) {
@@ -229,6 +208,45 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "forbidden", request_id }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // A leitura precisa ser a MESMA em toda visita: a página promete "lifetime
+    // access" e pede para a compradora salvar o link. Antes, cada refresh gerava
+    // um texto diferente (temperature 0.6) e cobrava outra chamada da OpenAI.
+    const tier = isComplete ? "complete" : "basic";
+    const { data: cached } = await supabase
+      .from("paid_readings")
+      .select("reading, product_tier")
+      .eq("stripe_session_id", sid)
+      .maybeSingle();
+
+    if (cached?.reading && cached.product_tier === tier) {
+      return new Response(JSON.stringify({ reading: cached.reading }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Rate limit só na geração de verdade — reler a própria leitura já entregue
+    // nunca pode esbarrar no limite.
+    const svc = createServiceClient();
+    if (!svc) {
+      return new Response(JSON.stringify({ error: "Service unavailable", request_id }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const ip = getClientIp(req);
+    const rl = await checkRateLimit({ supabase: svc, key: `${ip}:generate-reading` });
+    if (!rl.allowed) {
+      return new Response(JSON.stringify({ error: "rate_limited", request_id }), {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Retry-After": String(rl.retryAfterSeconds ?? 60),
+        },
       });
     }
 
@@ -365,6 +383,18 @@ Keep it ${isComplete ? "~1100–1500" : "~500–750"} words. Make it feel human 
       } catch (e) {
         console.warn("generate_reading_translation_failed", { request_id, e });
       }
+    }
+
+    // Guarda para que toda visita seguinte receba exatamente este texto.
+    // Best-effort: se falhar, a compradora ainda recebe a leitura agora.
+    const { error: saveErr } = await supabase
+      .from("paid_readings")
+      .upsert(
+        { stripe_session_id: sid, product_tier: tier, reading: String(reading) },
+        { onConflict: "stripe_session_id" },
+      );
+    if (saveErr) {
+      console.error("paid_reading_save_failed", { request_id, error: saveErr });
     }
 
     return new Response(JSON.stringify({ reading }), {
