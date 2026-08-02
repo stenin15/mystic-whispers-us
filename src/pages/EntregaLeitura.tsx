@@ -56,6 +56,9 @@ const EntregaLeitura = () => {
             quizAnswers: quizAnswers || [],
             energyType: analysisResult?.energyType || null,
             session_id: ent.sessionId,
+            // Deixa a leitura citar as linhas reais dela. Sem isso, o texto se
+            // baseia só no quiz e a função proíbe qualquer menção à mão.
+            palm_photo_path: palmPhotoPath || undefined,
           }
         });
 
@@ -90,7 +93,7 @@ const EntregaLeitura = () => {
     return () => {
       cancelled = true;
     };
-  }, [name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, navigate]);
+  }, [name, email, age, emotionalState, mainConcern, quizAnswers, analysisResult, palmPhotoPath, navigate]);
 
   // Generate full visual report
   useEffect(() => {

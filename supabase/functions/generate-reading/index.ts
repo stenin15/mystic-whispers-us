@@ -93,6 +93,50 @@ const looksPortuguese = (text: string): boolean => {
   return hits >= 2;
 };
 
+// Descreve as linhas reais da palma a partir da foto que ela enviou antes de pagar.
+// Devolve "" em qualquer falha: a leitura então não afirma nada sobre a mão.
+const describePalm = async (photoBlob: Blob, OPENAI_API_KEY: string): Promise<string> => {
+  const bytes = new Uint8Array(await photoBlob.arrayBuffer());
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  const b64 = btoa(binary);
+  const mimeType = photoBlob.type || "image/jpeg";
+
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "gpt-4o",
+      max_tokens: 220,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a palm reading expert. In 3-4 short sentences, describe only what is clearly visible in this palm: the heart line (top horizontal), the head line (middle), the life line (curving around the thumb), and any notable branching, breaks, depth or crossing marks. Be concrete and specific. Never invent a feature you cannot see. If the image is unusable, reply with exactly: UNREADABLE",
+        },
+        {
+          role: "user",
+          content: [
+            { type: "image_url", image_url: { url: `data:${mimeType};base64,${b64}`, detail: "low" } },
+            { type: "text", text: "Describe the visible palm lines." },
+          ],
+        },
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    console.error("palm vision error:", res.status, await res.text());
+    return "";
+  }
+  const json = await res.json();
+  const out = String(json.choices?.[0]?.message?.content ?? "").trim();
+  return out.toUpperCase().includes("UNREADABLE") ? "" : out;
+};
+
 // `maxTokens` precisa acompanhar o teto usado na geração: a leitura do plano
 // completo é bem mais longa, e traduzir com um teto menor cortaria o texto no meio.
 const translateToEnglish = async (
@@ -150,7 +194,8 @@ serve(async (req) => {
       });
     }
 
-    const { name, age, emotionalState, mainConcern, quizAnswers, energyType, session_id } = await req.json();
+    const { name, age, emotionalState, mainConcern, quizAnswers, energyType, session_id, palm_photo_path } =
+      await req.json();
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -250,6 +295,30 @@ serve(async (req) => {
       });
     }
 
+    // A página promete uma leitura da mão e a compradora enviou a foto antes de pagar.
+    // Analisamos essa foto aqui para que a leitura possa citar as linhas dela de verdade.
+    // Em qualquer falha — sem foto, download ruim, imagem ilegível — `palmDescription`
+    // fica vazia e o prompt volta a proibir qualquer menção à mão. A afirmação só
+    // aparece quando é verdadeira. Roda uma vez por compra: o resultado fica em cache.
+    let palmDescription = "";
+    const photoPath = typeof palm_photo_path === "string" ? palm_photo_path.trim() : "";
+    if (photoPath) {
+      try {
+        const { data: photo, error: downloadErr } = await supabase.storage
+          .from("palm-photos")
+          .download(photoPath);
+        if (downloadErr || !photo) {
+          console.warn("palm_photo_download_failed", { request_id, downloadErr });
+        } else {
+          palmDescription = await describePalm(photo, OPENAI_API_KEY);
+          console.log("palm_described", { request_id, chars: palmDescription.length });
+        }
+      } catch (e) {
+        console.warn("palm_description_skipped", { request_id, e });
+      }
+    }
+    const hasPalm = palmDescription.length > 0;
+
     // Build context from quiz answers
     const quizContext =
       quizAnswers?.map((a: { answerText: string }) => a.answerText).join(", ") || "";
@@ -264,8 +333,13 @@ Tone:
 - Short, readable paragraphs with natural rhythm
 
 Safety & consistency rules:
-- Do NOT claim you “saw the palm” or “read the lines” (the image is not analyzed in this flow).
-- Base the reading ONLY on: age, form answers, quiz answers, and the provided energy type (if present).
+${hasPalm
+  ? `- Her palm WAS analyzed. The observed features are listed below and you may refer to them.
+- Use ONLY the features listed. Never invent a line, marking or shape that is not there.
+- Open the reading by naming one specific thing seen in her palm, then interpret it.
+- Weave the palm into the reading throughout — it is the spine of the reading, not a preface.`
+  : `- Do NOT claim you “saw the palm” or “read the lines” (the image is not analyzed in this flow).`}
+- Base the reading on: age, form answers, quiz answers, the provided energy type (if present)${hasPalm ? ", and the observed palm features" : ""}.
 - Do NOT give medical, legal, or financial advice; avoid claims about guaranteed money/health/future.
 - Use language like “tends to”, “suggests”, “often”, “may”.
 
@@ -321,6 +395,7 @@ Current emotional state: ${emotionalState || "seeking clarity"}
 Main concern: ${mainConcern || "self-discovery"}
 Dominant energy: ${energyType?.name || "balanced"}
 Quiz answers (themes): ${quizContext}
+${hasPalm ? `\nObserved in her palm (from her own photo — use these, invent nothing):\n${palmDescription}\n` : ""}
 
 Write in English (EN-US) and use markdown with these sections:
 
