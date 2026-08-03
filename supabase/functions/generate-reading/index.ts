@@ -460,16 +460,24 @@ Keep it ${isComplete ? "~1100–1500" : "~500–750"} words. Make it feel human 
       }
     }
 
-    // Guarda para que toda visita seguinte receba exatamente este texto.
-    // Best-effort: se falhar, a compradora ainda recebe a leitura agora.
-    const { error: saveErr } = await supabase
-      .from("paid_readings")
-      .upsert(
-        { stripe_session_id: sid, product_tier: tier, reading: String(reading) },
-        { onConflict: "stripe_session_id" },
-      );
-    if (saveErr) {
-      console.error("paid_reading_save_failed", { request_id, error: saveErr });
+    // O perfil (nome, quiz, foto) vive no localStorage do aparelho que fez o funil.
+    // Abrir a entrega em outro navegador chega aqui sem nada, e o texto sai genérico.
+    // Nunca grave uma leitura dessas: gravada, ela vira a leitura definitiva da
+    // compradora e nem voltar no aparelho certo a recupera.
+    const hasProfile = String(name ?? "").trim().length > 0 || (quizAnswers?.length ?? 0) > 0;
+
+    if (hasProfile) {
+      const { error: saveErr } = await supabase
+        .from("paid_readings")
+        .upsert(
+          { stripe_session_id: sid, product_tier: tier, reading: String(reading) },
+          { onConflict: "stripe_session_id" },
+        );
+      if (saveErr) {
+        console.error("paid_reading_save_failed", { request_id, error: saveErr });
+      }
+    } else {
+      console.warn("paid_reading_not_cached_empty_profile", { request_id, sid });
     }
 
     return new Response(JSON.stringify({ reading }), {
