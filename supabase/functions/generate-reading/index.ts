@@ -171,8 +171,8 @@ const translateToEnglish = async (
     throw new Error("Failed to translate reading");
   }
 
-  const data = await response.json();
-  const out = data.choices?.[0]?.message?.content;
+  const payload = await response.json();
+  const out = payload.choices?.[0]?.message?.content;
   if (!out) throw new Error("Empty translation response");
   return String(out);
 };
