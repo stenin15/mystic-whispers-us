@@ -295,13 +295,43 @@ serve(async (req) => {
       });
     }
 
+    // O perfil gravado no checkout é a fonte de verdade: existe no servidor e não
+    // depende do aparelho. O que veio do navegador é só reserva — para compras
+    // feitas antes desta tabela existir.
+    const { data: profile } = await supabase
+      .from("funnel_profiles")
+      .select("name, age, emotional_state, main_concern, quiz_answers, energy_type, palm_photo_path")
+      .eq("stripe_session_id", sid)
+      .maybeSingle();
+
+    const pick = (fromDb: unknown, fromBody: unknown) =>
+      typeof fromDb === "string" && fromDb.trim() ? fromDb : fromBody;
+
+    const rName = pick(profile?.name, name);
+    const rAge = pick(profile?.age, age);
+    const rEmotionalState = pick(profile?.emotional_state, emotionalState);
+    const rMainConcern = pick(profile?.main_concern, mainConcern);
+    const rQuizAnswers = (Array.isArray(profile?.quiz_answers) && profile.quiz_answers.length
+      ? profile.quiz_answers
+      : quizAnswers) as Array<{ answerText: string }> | undefined;
+    const rEnergyType = (profile?.energy_type ?? energyType) as { name?: string } | null | undefined;
+    const rPhotoPath = String(profile?.palm_photo_path ?? palm_photo_path ?? "").trim();
+
+    console.log("profile_source", {
+      request_id,
+      from_db: !!profile,
+      has_name: !!String(rName ?? "").trim(),
+      quiz_count: rQuizAnswers?.length ?? 0,
+      has_photo: !!rPhotoPath,
+    });
+
     // A página promete uma leitura da mão e a compradora enviou a foto antes de pagar.
     // Analisamos essa foto aqui para que a leitura possa citar as linhas dela de verdade.
     // Em qualquer falha — sem foto, download ruim, imagem ilegível — `palmDescription`
     // fica vazia e o prompt volta a proibir qualquer menção à mão. A afirmação só
     // aparece quando é verdadeira. Roda uma vez por compra: o resultado fica em cache.
     let palmDescription = "";
-    const photoPath = typeof palm_photo_path === "string" ? palm_photo_path.trim() : "";
+    const photoPath = rPhotoPath;
     if (photoPath) {
       try {
         const { data: photo, error: downloadErr } = await supabase.storage
@@ -321,7 +351,7 @@ serve(async (req) => {
 
     // Build context from quiz answers
     const quizContext =
-      quizAnswers?.map((a: { answerText: string }) => a.answerText).join(", ") || "";
+      rQuizAnswers?.map((a: { answerText: string }) => a.answerText).join(", ") || "";
 
     const systemPrompt = `You are Madam Aurora, a calm, supportive, premium-feeling spiritual guide for a US audience.
 
@@ -389,11 +419,11 @@ This highlights what is active — but not yet how to work with it. That’s whe
 
     const userPrompt = `Create a personalized reading for:
 
-Name: ${name}
-Age: ${age}
-Current emotional state: ${emotionalState || "seeking clarity"}
-Main concern: ${mainConcern || "self-discovery"}
-Dominant energy: ${energyType?.name || "balanced"}
+Name: ${rName}
+Age: ${rAge}
+Current emotional state: ${rEmotionalState || "seeking clarity"}
+Main concern: ${rMainConcern || "self-discovery"}
+Dominant energy: ${rEnergyType?.name || "balanced"}
 Quiz answers (themes): ${quizContext}
 ${hasPalm ? `\nObserved in her palm (from her own photo — use these, invent nothing):\n${palmDescription}\n` : ""}
 
@@ -464,7 +494,7 @@ Keep it ${isComplete ? "~1100–1500" : "~500–750"} words. Make it feel human 
     // Abrir a entrega em outro navegador chega aqui sem nada, e o texto sai genérico.
     // Nunca grave uma leitura dessas: gravada, ela vira a leitura definitiva da
     // compradora e nem voltar no aparelho certo a recupera.
-    const hasProfile = String(name ?? "").trim().length > 0 || (quizAnswers?.length ?? 0) > 0;
+    const hasProfile = String(rName ?? "").trim().length > 0 || (rQuizAnswers?.length ?? 0) > 0;
 
     if (hasProfile) {
       const { error: saveErr } = await supabase

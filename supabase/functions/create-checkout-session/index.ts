@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@15.12.0?target=deno";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1?target=deno";
 
 const ALLOWED_ORIGINS = [
   "https://madam-aurora.co",
@@ -172,6 +173,47 @@ serve(async (req) => {
       },
       ...(isValidEmail(email) ? { customer_email: email } : {}),
     });
+
+    // Guarda o perfil do funil atrelado a esta sessão do Stripe. Sem isso, essas
+    // respostas só existem no localStorage do aparelho que comprou, e abrir a
+    // entrega em qualquer outro lugar produz uma leitura genérica.
+    // Best-effort de propósito: uma falha aqui nunca pode impedir a venda.
+    try {
+      const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+      const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      const raw = body.profile as Record<string, unknown> | undefined;
+
+      if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && raw && typeof raw === "object") {
+        const str = (v: unknown, max = 300) =>
+          typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null;
+
+        const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+          auth: { persistSession: false },
+        });
+
+        const { error: profileErr } = await sb.from("funnel_profiles").upsert(
+          {
+            stripe_session_id: session.id,
+            name: str(raw.name, 100),
+            age: str(raw.age, 20),
+            emotional_state: str(raw.emotionalState),
+            main_concern: str(raw.mainConcern),
+            quiz_answers: Array.isArray(raw.quizAnswers) ? raw.quizAnswers.slice(0, 20) : null,
+            energy_type: raw.energyType ?? null,
+            palm_photo_path: str(raw.palmPhotoPath, 300),
+          },
+          { onConflict: "stripe_session_id" },
+        );
+
+        if (profileErr) {
+          console.error("funnel_profile_save_failed", { session_id: session.id, error: profileErr });
+        } else {
+          console.log("funnel_profile_saved", { session_id: session.id });
+        }
+      }
+    } catch (e) {
+      console.error("funnel_profile_save_threw", { error: String(e) });
+    }
 
     if (!session.url) {
       return new Response(JSON.stringify({ error: "Session URL missing" }), {
