@@ -1,119 +1,134 @@
 # Briefing do auditor — validação do pixel TikTok
 
 **Site:** madam-aurora.co
-**Objetivo:** confirmar que os eventos de conversão chegam ao TikTok antes de
-ligar tráfego pago. Sem isso, a campanha não consegue otimizar e o dinheiro é
-gasto às cegas.
+**Painel:** TikTok Events Manager → dataset **MadamAurora_Web_US**
+**Objetivo:** confirmar que os eventos de conversão chegam ao TikTok **pelas duas
+vias** (navegador e servidor) antes de ligar tráfego pago.
 
-**Importante: NÃO é necessário fazer nenhuma compra.** O evento que vamos
-otimizar é o `InitiateCheckout`, que dispara ao abrir o checkout — antes de
-pagar. Percorra o funil até a tela de pagamento do Stripe e **pare ali**.
-
----
-
-## Como o rastreamento funciona neste site
-
-Cada evento é enviado **duas vezes**, de propósito:
-
-1. **Pelo navegador** (pixel `ttq`) — pode ser bloqueado por iOS, adblock etc.
-2. **Pelo servidor** (Events API, via uma função no Supabase) — não é bloqueável
-
-Os dois carregam o mesmo `event_id`, e o TikTok deve **deduplicar**. Uma compra
-tem que aparecer como **1 evento**, não 2.
-
-Os quatro eventos que importam:
-
-| Evento | Dispara quando | Vai pelo servidor? |
-|---|---|---|
-| `Lead` | envio do formulário | sim |
-| `CompleteRegistration` | fim do quiz | sim |
-| `InitiateCheckout` | abre o checkout | sim |
-| `Purchase` | página de sucesso | sim |
+**NÃO é necessário fazer nenhuma compra.** O evento principal a validar é o
+`InitiateCheckout`, que dispara ao abrir o checkout — antes do pagamento.
+Percorra o funil até a tela do Stripe e **pare ali**.
 
 ---
 
-## FASE 1 — Eventos já recebidos (não custa nada)
+## Contexto — o que já se sabe e o que acabou de mudar
 
-Antes de percorrer qualquer coisa, olhe o histórico. Já houve compras de teste
-reais hoje, então deve haver dado.
+Na última verificação, o Events Manager mostrava:
 
-1. Entre no **TikTok Ads Manager → Assets → Events → Web Events**
-2. Abra o pixel **MadamAurora_Web_US**
-3. Veja a aba de **visão geral / atividade dos últimos 7 dias**
+- Setup parado em **"Server events received"** (as três etapas anteriores ok)
+- Diagnóstico crítico: **"Email and phone are missing" em 100% dos eventos**
+- Diagnóstico crítico: **"Content ID is missing"** em 6,25%
 
-**Anote:**
+Causa encontrada no código e **já corrigida e implantada**:
 
-- [ ] O pixel aparece como **Ativo**? Última atividade quando?
-- [ ] Quais eventos aparecem na lista, e com que contagem?
-- [ ] Cada evento mostra a **origem**: Browser (navegador) ou Server (servidor)?
-      Anote a contagem de cada origem separadamente.
-- [ ] Existe algum aviso de **erro, parâmetro faltando ou evento não reconhecido**?
-      Copie o texto exato de qualquer aviso.
+1. O envio server-side usava o endpoint antigo (`/pixel/track/`), que não
+   alimenta mais o "Server events received". Migrado para **Events API 2.0**
+   (`/event/track/`).
+2. O `content_id` não ia dentro de `contents`. Corrigido.
+3. **A causa de tudo ficar invisível:** a API do TikTok responde HTTP 200 mesmo
+   quando rejeita a requisição, colocando o erro num campo `code` no corpo. O
+   código só checava o status HTTP, então toda falha era registrada como
+   sucesso. Agora o corpo é lido e o erro é logado.
 
-**Sinal de problema:** se todos os eventos aparecerem só como "Browser" e nenhum
-como "Server", o envio server-side não está chegando — reporte isso com
-destaque.
+**Sua auditoria é para confirmar se a correção funcionou.** Se ainda falhar,
+existe agora um log com a mensagem exata do TikTok — peça ao dono do projeto.
 
 ---
 
-## FASE 2 — Percurso ao vivo com o Pixel Helper
+## FASE 1 — Estado do dataset (só leitura, 5 min)
 
-1. Instale a extensão **TikTok Pixel Helper** no Chrome
-   (Chrome Web Store, gratuita, oficial do TikTok)
-2. Abra `https://madam-aurora.co` com a extensão ativa
-3. Percorra o funil completo, **parando na tela de pagamento do Stripe**
+Entre no **Events Manager → MadamAurora_Web_US**.
 
-Em cada etapa, abra o Pixel Helper e registre o que aparece:
+### 1.1 Barra de setup
 
-| Etapa | Evento esperado | Apareceu? |
+Na tarefa "Finish setting up your TikTok Pixel + Events API connection",
+registre o estado de cada uma das quatro etapas:
+
+- [ ] Dataset created
+- [ ] Base code installed
+- [ ] Browser events received
+- [ ] **Server events received** ← esta é a que estava falhando
+
+### 1.2 Diagnósticos
+
+Liste **todos** os avisos da seção Diagnostics, com:
+- Título e severidade (Critical / Warning)
+- Percentual de eventos afetados
+- Texto exato da descrição
+
+Compare com o estado anterior descrito acima — melhorou, piorou, ou igual?
+
+### 1.3 Eventos recebidos
+
+Na aba de eventos / atividade dos últimos 7 dias:
+
+- [ ] Quais eventos aparecem e com que contagem?
+- [ ] Cada um mostra a origem **Browser** e/ou **Server**? Anote as duas
+      contagens separadamente para cada evento.
+
+---
+
+## FASE 2 — Percurso ao vivo (15 min)
+
+Instale a extensão **TikTok Pixel Helper** (Chrome Web Store, oficial do
+TikTok). Ela mostra apenas o lado do **navegador** — o lado do servidor só
+aparece no painel, na Fase 3.
+
+Abra `https://madam-aurora.co` e percorra o funil **até a tela do Stripe**.
+
+Registre em cada etapa:
+
+| Etapa | Evento esperado | Apareceu no Pixel Helper? |
 |---|---|---|
 | Abrir a home | `PageView` + `ViewContent` | |
-| Preencher e enviar o formulário | `Lead` | |
+| Enviar o formulário | `Lead` | |
 | Terminar o quiz | `CompleteRegistration` | |
-| Enviar a foto da palma | `PageView` (rota nova) | |
-| Chegar na página de resultado | `PageView` | |
+| Enviar a foto da palma | `PageView` | |
+| Página de resultado | `PageView` | |
 | Clicar no botão de compra | `InitiateCheckout` | |
 
-**Para o `InitiateCheckout`, que é o mais importante, anote também:**
+**No `InitiateCheckout`, abra os detalhes do evento e confirme:**
 
-- [ ] O valor (`value`) está correto? Deve ser **9.90** no plano básico ou
-      **29.90** no completo
-- [ ] A moeda está como **USD**?
-- [ ] Existe um `content_id` ou `contents`? (o TikTok reclama se faltar)
+- [ ] `value` = **9.90** (plano básico) ou **29.90** (completo)
+- [ ] `currency` = **USD**
+- [ ] Existe `contents` com um `content_id`?
 
-**Não pague.** Ao chegar no Stripe, pare e volte.
+**Anote o horário exato** em que disparou o `InitiateCheckout` — você vai
+precisar para achá-lo na Fase 3.
 
----
-
-## FASE 3 — Confirmar que chegou do lado do TikTok
-
-Espere de 10 a 30 minutos após a Fase 2 (o painel do TikTok tem atraso).
-
-1. Volte ao **Web Events** do pixel
-2. Confirme que os eventos do seu percurso apareceram
-
-**Verificar:**
-
-- [ ] O `InitiateCheckout` do seu teste aparece?
-- [ ] Aparece com origem **Browser**, **Server**, ou as duas?
-- [ ] Se aparecer nas duas, a contagem está **duplicada** ou o TikTok
-      deduplicou corretamente?
-
-Duplicação é problema: infla a métrica e ensina o algoritmo errado.
+**Pare no Stripe. Não pague.**
 
 ---
 
-## Limitação conhecida — leia para não perder tempo
+## FASE 3 — Confirmar a chegada dos dois lados (aguardar 15–30 min)
 
-O TikTok tem um recurso de **"Test Events"** que mostra eventos em tempo real.
-Ele exige que o site envie um `test_event_code` junto de cada evento.
+O painel do TikTok tem atraso. Espere pelo menos 15 minutos após a Fase 2.
 
-**Este site não envia esse código.** Então a aba Test Events provavelmente vai
-ficar vazia mesmo com tudo funcionando corretamente.
+Volte ao Events Manager e procure o `InitiateCheckout` do seu percurso.
 
-Use o **Pixel Helper** para o lado do navegador e o **relatório de Web Events**
-para o lado do servidor. Não conclua que está quebrado só porque o Test Events
-não mostra nada.
+- [ ] Ele aparece?
+- [ ] Aparece com origem **Browser**?
+- [ ] Aparece com origem **Server**?
+- [ ] Se aparece nas duas, a contagem está **duplicada** (2 eventos) ou o
+      TikTok deduplicou (1 evento)?
+
+**Este é o item mais importante do relatório.** Os dois envios carregam o mesmo
+`event_id` justamente para o TikTok deduplicar. Se contar em dobro, a métrica
+infla e o algoritmo aprende errado.
+
+Verifique também se a etapa **"Server events received"** da Fase 1 mudou de
+estado depois do seu percurso.
+
+---
+
+## Limitação conhecida — não perca tempo aqui
+
+O TikTok tem uma aba **"Test Events"** com eventos em tempo real. Ela exige que
+o site envie um `test_event_code` em cada evento, e **este site não envia**.
+
+A aba vai ficar vazia mesmo com tudo funcionando. Use o **Pixel Helper** para o
+navegador e o **relatório de eventos** para o servidor. Não conclua que está
+quebrado por causa dela.
 
 ---
 
@@ -121,21 +136,35 @@ não mostra nada.
 
 - Não complete nenhum pagamento
 - Não use o botão "Promover" do app do TikTok
-- Não altere nenhuma configuração dentro do Ads Manager — só leitura
-- Não crie campanha
+- Não crie campanha nem grupo de anúncios
+- Não altere configuração nenhuma dentro do Ads Manager — apenas leitura
+- Não mexa em nada no Supabase
 
 ---
 
 ## Formato do relatório
 
-**1. Veredito:** o pixel está pronto para receber tráfego? SIM / NÃO
+**1. Veredito:** o rastreamento está pronto para receber tráfego pago?
+SIM / NÃO / PARCIAL (explique)
 
-**2. Tabela de eventos:** para cada um dos quatro eventos principais —
-apareceu no navegador? apareceu no servidor? valor e moeda corretos?
+**2. Barra de setup:** estado das 4 etapas, com destaque para
+"Server events received".
 
-**3. Problemas encontrados:** com o texto exato de qualquer aviso do TikTok.
+**3. Tabela por evento:**
 
-**4. Duplicação:** houve evento contado duas vezes?
+| Evento | Browser | Server | value | currency | content_id |
+|---|---|---|---|---|---|
+| Lead | | | | | |
+| CompleteRegistration | | | | | |
+| InitiateCheckout | | | | | |
+| Purchase (histórico) | | | | | |
 
-**5. Prints** do Pixel Helper no momento do `InitiateCheckout` e da tela de
-Web Events do TikTok.
+**4. Duplicação:** algum evento contado duas vezes?
+
+**5. Diagnósticos:** lista atual, comparada com o estado anterior.
+
+**6. Prints:** Pixel Helper no momento do `InitiateCheckout`, barra de setup, e
+a tela de diagnósticos.
+
+Se algo falhar, seja específico: qual evento, qual via, qual mensagem exata.
+"O pixel não funcionou" não permite corrigir nada.
