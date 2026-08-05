@@ -16,9 +16,22 @@ following requirements are met"* numa lista de mercados que inclui explicitament
 os Estados Unidos. Não é proibida (é proibida em ~20 países tipo Argélia, Arábia
 Saudita, Turquia — os EUA não estão na lista).
 
-Prova prática: **Nebula, Hint e Purple Garden rodam anúncios no TikTok hoje**
-(rastreados em ad libraries; case da Hint: CPA ~$30, 1.500+ assinantes pagos; case
-da Nebula: 2M+ views em campanha).
+Prova prática: **Nebula, Hint e Purple Garden rodam anúncios pagos no TikTok**
+(rastreados em spy tools). Sendo preciso sobre a força dessa evidência, porque a
+verificação apertou os números:
+
+- **Nebula:** tem ads de TikTok rastreados, incluindo **um nos EUA** (jun/2024,
+  ~18 mil views, gasto estimado $30-123). O ad de ~2M views (dez/2024) rodou
+  **principalmente em Austrália e Canadá — não nos EUA**.
+- **Hint:** rodou paid mirando Tier 1 com EUA explícito. O CPA de ~$30 com 1.500+
+  assinantes é **autorreportado pela agência, não auditado, e combina TikTok +
+  Meta** — trate como indicativo, não como benchmark.
+- **Purple Garden:** ads de TikTok rastreados + patrocínios ativos de criadores
+  em 2025.
+
+Ou seja: a categoria roda nos EUA e os concorrentes investem nela, mas **não
+existe case público auditado de escala no mercado americano**. A permissão da
+política é a evidência forte; os cases são corroboração.
 
 **Os riscos não estão na categoria — estão no criativo e na landing page.** As
 regras que decidem tudo:
@@ -120,6 +133,15 @@ Palavras banidas em qualquer criativo: *guarantee(d), 100% accurate, prediction,
 will find love, soulmate, destiny, manifest, cure, heal, anxiety, depression,
 before/after* emocional.
 
+> **Nota de honestidade sobre esta tabela.** O par "Meet other Buddhists"
+> (rejeitado) vs "Meet Buddhists near you" (aceito) é exemplo literal da
+> documentação da Meta — verificado. A aplicação dele a zodíaco e leitura de mão
+> é **extrapolação nossa**, não exemplo publicado por nenhuma plataforma. O
+> raciocínio é sólido ("As a Scorpio, you..." assere uma crença; "Your palm shows
+> why YOU are heartbroken" assere estado emocional), mas trate a tabela como
+> regra de prudência, não como texto de política. Na dúvida entre duas
+> formulações, escolha a de 1ª pessoa.
+
 ---
 
 ## 6. Os criativos a produzir
@@ -203,10 +225,30 @@ orçamento por vez (mais que isso reseta o learning).
 **Kill switch:** $120 gastos sem nenhuma venda → pausa e troca de ângulo dos
 criativos (não de orçamento). Teto do teste: $300.
 
-**Meta (futuro):** categoria permitida, mas personal attributes é mais rígida
-(detecção semântica pega forma indireta) e desde jan/2025 anunciantes
-categorizados como "health & wellness" podem ter eventos de fundo de funil
-bloqueados na otimização. Deixar pra depois do TikTok validar criativo.
+### Meta (canal futuro) — quatro coisas a saber antes
+
+A categoria **não é proibida nem restrita** nas Meta Advertising Standards (não
+existe política nomeada de fortune telling — diferente do LinkedIn, que proíbe
+explicitamente em "Occult Pursuits"), e a Meta já negou publicamente banir
+astrologia/tarô. Mas a verificação levantou riscos que valem mais que essa
+permissão:
+
+1. **O vetor de ban nº1 no nicho não é personal attributes — é "Unacceptable
+   Business Practices" (fraude/scam).** Categorias visadas por golpistas sofrem
+   verificação adicional de anunciante. Nosso pagamento único, páginas legais
+   completas e política de reembolso pesam a favor aqui.
+2. **Personal attributes é mais rígida que no TikTok** — a detecção semântica de
+   2026 pega forma indireta ("For people managing X" é tratado igual a "you").
+   Exemplo literal da documentação da Meta: *"Meet Buddhists near you"* passa;
+   *"Meet other Buddhists"* é rejeitado, porque assume que você é budista.
+3. **Targeting por interesse "tarot"/"astrology" foi removido** do detailed
+   targeting em jan/2022. Não conte com ele.
+4. **Desde jan/2025**, contas categorizadas como *health & wellness* **ou
+   religião** perdem eventos de fundo de funil (Purchase/InitiateCheckout via
+   pixel e CAPI) e Custom Audiences. Se a Madam Aurora for enquadrada assim, a
+   otimização por conversão fica bloqueada — risco estrutural, não de criativo.
+
+Deixar Meta pra depois do TikTok validar o criativo.
 
 ---
 
