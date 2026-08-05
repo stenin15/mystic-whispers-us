@@ -35,7 +35,9 @@ const corsHeaders = (origin: string | null) => ({
 const MAX_USER_MESSAGES = 12;
 const MAX_AURORA_MESSAGES = 12;
 const MAX_RESPONSE_CHARS = 450;
-const SESSION_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes — matches client + marketing
+// Sem limite de tempo no servidor: aqui o que protege o custo é a contagem de
+// mensagens acima. O relógio da sessão é do cliente (SessaoAurora.tsx) — mexer
+// nele não exige redeploy desta função.
 
 // ---------------------------------------------------------------------------
 // Types

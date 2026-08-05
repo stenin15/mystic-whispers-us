@@ -31,7 +31,11 @@ import { track } from "@/lib/tracking";
 // ---------------------------------------------------------------------------
 const MAX_USER_MESSAGES = 12; // mirrors server MAX_USER_MESSAGES in aurora-chat Edge Function
 const MAX_TTS = 10;
-const SESSION_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+// O limite que protege o custo é o de mensagens, não o relógio. Com 15 minutos
+// corridos desde a abertura, ouvir os áudios com calma e pensar antes de
+// responder já consumia a sessão em ~5 mensagens das 12 compradas. 45 minutos
+// dão folga para usar tudo; a promessa "up to 15 minutes" continua verdadeira.
+const SESSION_DURATION_MS = 45 * 60 * 1000;
 
 // ---------------------------------------------------------------------------
 // LocalStorage persistence
