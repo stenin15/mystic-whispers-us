@@ -11,7 +11,7 @@ import { verifyEntitlement } from "@/lib/entitlement";
 
 const EntregaCombo = () => {
   const navigate = useNavigate();
-  const { name } = useHandReadingStore();
+  const { name, palmPhotoPath } = useHandReadingStore();
   const deliveryReadingPath = ["/entrega/", "le", "itura"].join("");
   const deliveryGuidePath = ["/entrega/", "gu", "ia"].join("");
   const [guideUrl, setGuideUrl] = useState<string>("");
@@ -182,7 +182,9 @@ const EntregaCombo = () => {
           </Link>
         </motion.div>
 
-        {/* Optional palm photo — deeper personalization after purchase */}
+        {/* A compradora do completo enviou a foto antes de pagar. Pedir de novo faz a
+            entrega parecer que ignorou o que ela mandou. So oferecemos a quem nao enviou. */}
+        {!palmPhotoPath && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -210,6 +212,7 @@ const EntregaCombo = () => {
             </div>
           </div>
         </motion.div>
+        )}
 
         {/* Integration bridge */}
         <motion.div
