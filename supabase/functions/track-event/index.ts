@@ -243,27 +243,36 @@ serve(async (req) => {
       if (email) tiktokUser.email = await sha256Hex(email);
       if (phone) tiktokUser.phone_number = await sha256Hex(phone);
 
+      // Events API 2.0. O endpoint antigo (/pixel/track/ com pixel_code no topo)
+      // não alimenta mais o "Server events received" do Events Manager.
       const payload = {
-        pixel_code: TIKTOK_PIXEL_CODE,
-        event: event_name,
-        event_id,
-        timestamp: event_time,
-        context: {
-          ip,
-          user_agent: ua,
-          page: { url: page_url },
-          ad: ttclid ? { callback: ttclid } : undefined,
-          user: Object.keys(tiktokUser).length ? tiktokUser : undefined,
-        },
-        properties: {
-          currency,
-          value,
-          content_type: "product",
-          content_name: product_code,
-        },
+        event_source: "web",
+        event_source_id: TIKTOK_PIXEL_CODE,
+        data: [
+          {
+            event: event_name,
+            event_time,
+            event_id,
+            user: {
+              ...tiktokUser,
+              ip,
+              user_agent: ua,
+              ...(ttclid ? { ttclid } : {}),
+            },
+            page: page_url ? { url: page_url } : undefined,
+            properties: {
+              currency,
+              value,
+              content_type: "product",
+              ...(product_code
+                ? { contents: [{ content_id: product_code, content_name: product_code }] }
+                : {}),
+            },
+          },
+        ],
       };
 
-      const res = await fetch("https://business-api.tiktok.com/open_api/v1.3/pixel/track/", {
+      const res = await fetch("https://business-api.tiktok.com/open_api/v1.3/event/track/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -271,11 +280,36 @@ serve(async (req) => {
         },
         body: JSON.stringify(payload),
       });
-      tiktokResult.ok = res.ok;
+
+      // A Business API responde 200 mesmo quando rejeita: o erro vem em `code`
+      // no corpo. Checar só `res.ok` fazia toda falha passar por sucesso —
+      // por isso nada aparecia no log enquanto o TikTok não recebia nada.
+      const raw = await res.text();
+      let apiCode: number | undefined;
+      let apiMessage: string | undefined;
+      try {
+        const parsed = JSON.parse(raw) as { code?: number; message?: string };
+        apiCode = parsed.code;
+        apiMessage = parsed.message;
+      } catch {
+        // resposta não-JSON: trata como falha e registra o corpo cru
+      }
+
+      tiktokResult.ok = res.ok && apiCode === 0;
       tiktokResult.status = res.status;
       tiktokResult.skipped = false;
-      if (!res.ok) {
-        console.warn("tiktok_events_failed", { request_id, status: res.status, body: await res.text() });
+
+      if (!tiktokResult.ok) {
+        console.error("tiktok_events_failed", {
+          request_id,
+          event: event_name,
+          http_status: res.status,
+          api_code: apiCode,
+          api_message: apiMessage,
+          body: raw.slice(0, 500),
+        });
+      } else {
+        console.log("tiktok_events_ok", { request_id, event: event_name, event_id });
       }
     }
 
