@@ -129,6 +129,27 @@ const VSL = () => {
     persistAttribution(new URLSearchParams(search));
   }, [search]);
 
+  // O Quiz é lazy, então no clique do CTA o chunk ainda precisa ser baixado — e o
+  // fallback do Suspense é uma tela escura vazia. Em rede móvel isso lê como
+  // travamento, logo no ponto mais caro do funil. Aqui ela está assistindo o
+  // vídeo, então há tempo ocioso de sobra: buscamos o chunk antes, em idle, para
+  // que o clique renderize na hora. Rede lenta apenas volta ao comportamento atual.
+  useEffect(() => {
+    const prefetch = () => {
+      import("./Quiz").catch(() => { /* melhor esforço: o clique ainda funciona */ });
+    };
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(prefetch, { timeout: 2500 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(prefetch, 1500);
+    return () => window.clearTimeout(id);
+  }, []);
+
   useEffect(() => {
     track("ViewContent", {
       event_id: getOrCreateEventId("vsl_view"),

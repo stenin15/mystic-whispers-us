@@ -63,7 +63,30 @@ const markSessionVisit = (): void => {
   }
 };
 
+// Mesma razão do prefetch na VSL: as rotas seguintes são lazy, e o fallback do
+// Suspense é uma tela escura. Enquanto ela responde as perguntas há tempo ocioso
+// de sobra para buscar os próximos chunks, então a transição sai instantânea.
+const usePrefetchNextSteps = () => {
+  useEffect(() => {
+    const prefetch = () => {
+      import("./Foto").catch(() => { /* melhor esforço */ });
+      import("./Analise").catch(() => { /* melhor esforço */ });
+    };
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(prefetch, { timeout: 3000 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(prefetch, 2000);
+    return () => window.clearTimeout(id);
+  }, []);
+};
+
 const Quiz = () => {
+  usePrefetchNextSteps();
   const navigate = useNavigate();
   const {
     name,
