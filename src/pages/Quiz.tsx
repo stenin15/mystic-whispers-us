@@ -362,8 +362,14 @@ const Quiz = () => {
             Aurora will speak to you by name throughout your reading.
           </p>
           <div className="space-y-3">
+            {/* given-name, não name: sem isto o iOS oferece o cartão de contato
+                inteiro e preenche "Sarah Johnson" num campo que quer só "Sarah" —
+                e a Aurora passa a leitura toda chamando a pessoa pelo nome completo,
+                perdendo a intimidade que é o ponto do produto. */}
             <Input
               autoFocus
+              autoComplete="given-name"
+              name="given-name"
               value={nameInput}
               onChange={e => { setNameInput(e.target.value); setNameError(''); }}
               onKeyDown={e => { if (e.key === 'Enter') handleNameSubmit(); }}
