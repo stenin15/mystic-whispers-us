@@ -42,8 +42,6 @@ export const Footer = () => {
           <img src="/Stripe-Trust-Image.png" alt="Safe Checkout — Stripe" className="h-12 w-auto object-contain" loading="lazy" />
           <div className="w-px h-10 bg-white/15 hidden sm:block" />
           <img src="/7day-768x768.png" alt="7-Day Money Back" className="h-12 w-auto object-contain" loading="lazy" />
-          <div className="w-px h-10 bg-white/15 hidden sm:block" />
-          <img src="/FFGSDRR.png" alt="4.9/5 Rating" className="h-12 w-auto object-contain" loading="lazy" />
         </div>
 
         {/* ── Payment logos ── */}

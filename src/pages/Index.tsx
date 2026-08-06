@@ -348,7 +348,7 @@ const Index = () => (
               Ready to see what your palm reveals?
             </h2>
             <p className="text-white/40 text-lg mb-10 max-w-md mx-auto">
-              Join 27,841 people who found clarity through their own hands.
+              One photo. One reading. Yours to keep forever.
             </p>
 
             <Button
@@ -374,8 +374,8 @@ const Index = () => (
             <div className="flex flex-wrap justify-center gap-6 mt-10 pt-8 border-t border-white/[0.05]">
               {[
                 { icon: Lock, text: 'Private & Secure' },
-                { icon: Star, text: '4.9/5 Rating' },
-                { icon: Shield, text: 'Money-back Guarantee' },
+                { icon: Star, text: 'No Subscription' },
+                { icon: Shield, text: '7-Day Money-back Guarantee' },
               ].map((item) => (
                 <div key={item.text} className="flex items-center gap-2 text-sm text-white/30">
                   <item.icon className="w-3.5 h-3.5 text-violet-400/40" />

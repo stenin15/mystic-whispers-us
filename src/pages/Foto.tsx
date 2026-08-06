@@ -82,7 +82,7 @@ const Foto = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
             </span>
-            <span className="text-sm text-primary">Aurora is analyzing 47 readings right now</span>
+            <span className="text-sm text-primary">Your photo is analyzed privately — never shared or sold</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3">
             <span className="gradient-text">One photo away from your answer</span>

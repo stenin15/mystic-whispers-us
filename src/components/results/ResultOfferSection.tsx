@@ -1,18 +1,7 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Play } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { handleCheckout } from '@/lib/resultPersonalization';
 
-const VIDEOS = [
-  { src: '/ugc/ugc-1.mp4', quote: 'It described me perfectly.' },
-  { src: '/ugc/ugc-2.mp4', quote: 'I cried reading it. So accurate.' },
-  { src: '/ugc/ugc-3.mp4', quote: 'Shocked by how accurate this was.' },
-  { src: '/ugc/ugc-4.mp4', quote: "I've never felt so seen before." },
-  { src: '/ugc/ugc-5.mp4', quote: 'It pulled me apart in the best way.' },
-];
-
-// ── Glow CTA button (invisible overlay) ──────────────────────────────────────
 const GlowButton = ({ onClick, gold }: { onClick: () => void; gold?: boolean }) => (
   <motion.button
     onClick={onClick}
@@ -29,148 +18,8 @@ const GlowButton = ({ onClick, gold }: { onClick: () => void; gold?: boolean }) 
   />
 );
 
-// ── Full-screen video modal ───────────────────────────────────────────────────
-const VideoModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
-  const ref = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    v.muted = false;
-    v.play().catch(() => {});
-    return () => { v.pause(); };
-  }, []);
-  return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
-        background: 'rgba(0,0,0,0.93)', backdropFilter: 'blur(16px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
-      }}
-    >
-      <button
-        onClick={onClose}
-        style={{
-          position: 'absolute', top: 20, right: 20, width: 40, height: 40,
-          borderRadius: '50%', background: 'rgba(255,255,255,0.10)',
-          border: '1px solid rgba(255,255,255,0.22)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', color: 'white',
-        }}
-      >
-        <X style={{ width: 18, height: 18 }} />
-      </button>
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{ maxWidth: 360, width: '100%', borderRadius: 18, overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.85)' }}
-      >
-        <video ref={ref} src={src} controls playsInline style={{ width: '100%', display: 'block', background: '#000' }} />
-      </div>
-    </motion.div>
-  );
-};
-
-// ── Individual video cell ─────────────────────────────────────────────────────
-const StripCell = ({
-  src, quote, onClick, delay = 0, rounded = '',
-}: {
-  src: string; quote: string; onClick: () => void; delay?: number; rounded?: string;
-}) => {
-  const ref = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    const attempt = () => v.play().catch(() => setTimeout(() => v.play().catch(() => {}), 900));
-    if (v.readyState >= 3) attempt();
-    else v.addEventListener('canplay', attempt, { once: true });
-  }, [src]);
-
-  return (
-    <motion.div
-      onClick={onClick}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: '-20px' }}
-      transition={{ duration: 0.55, delay }}
-      style={{
-        flex: 1,
-        position: 'relative',
-        overflow: 'hidden',
-        cursor: 'pointer',
-        minWidth: 0,
-        borderRadius: rounded === 'left' ? '10px 0 0 10px' : rounded === 'right' ? '0 10px 10px 0' : 0,
-      }}
-    >
-      <video
-        ref={ref}
-        src={src}
-        muted autoPlay loop playsInline preload="auto"
-        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-      />
-      {/* Gradient overlay */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '45%', background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%)', pointerEvents: 'none' }} />
-      {/* Play icon */}
-      <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%,-50%)', width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.14)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-        <Play style={{ width: 10, height: 10, color: 'white', marginLeft: 2 }} />
-      </div>
-      {/* Quote */}
-      <p style={{ position: 'absolute', bottom: 5, left: 4, right: 4, color: 'white', fontSize: 8.5, fontWeight: 700, textAlign: 'center', lineHeight: 1.3, textShadow: '0 1px 6px rgba(0,0,0,0.95)', pointerEvents: 'none' }}>
-        {quote}
-      </p>
-    </motion.div>
-  );
-};
-
-// ── Mobile carousel ───────────────────────────────────────────────────────────
-// wrapper <div display:flex height:100%> em vez de fragmento <>.
-// Isso dá ao StripCell (flex:1) um pai flex com altura definida → vídeo não colapsa.
-const MobileCarousel = ({ onOpen }: { onOpen: (src: string) => void }) => {
-  const [idx, setIdx] = useState(0);
-  const total = VIDEOS.length;
-  const prev = useCallback(() => setIdx(i => (i - 1 + total) % total), [total]);
-  const next = useCallback(() => setIdx(i => (i + 1) % total), [total]);
-
-  useEffect(() => {
-    const id = setInterval(next, 6000);
-    return () => clearInterval(id);
-  }, [next]);
-
-  return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex' }}>
-      <StripCell
-        src={VIDEOS[idx].src}
-        quote={VIDEOS[idx].quote}
-        onClick={() => onOpen(VIDEOS[idx].src)}
-        rounded="left"
-      />
-      {/* Setas dentro dos limites do container */}
-      <button
-        onClick={prev}
-        style={{ position: 'absolute', left: 6, top: '50%', transform: 'translateY(-50%)', width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', cursor: 'pointer', color: 'white', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 7 }}
-      >‹</button>
-      <button
-        onClick={next}
-        style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', cursor: 'pointer', color: 'white', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 7 }}
-      >›</button>
-      {/* Dots dentro do container */}
-      <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 4, zIndex: 7 }}>
-        {VIDEOS.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setIdx(i)}
-            style={{ width: i === idx ? 12 : 4, height: 4, borderRadius: 2, background: i === idx ? 'rgba(255,200,60,0.9)' : 'rgba(255,255,255,0.30)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// ── Main ──────────────────────────────────────────────────────────────────────
 export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
   const { toast } = useToast();
-  const [modalSrc, setModalSrc] = useState<string | null>(null);
 
   const fallback = () =>
     toast({ title: 'Checkout unavailable', description: 'Please try again in a moment.', variant: 'destructive' });
@@ -209,44 +58,46 @@ export const ResultOfferSection = ({ name: _name }: { name?: string }) => {
 
       </section>
 
-      {/* ── Prova social em vídeo ──────────────────────────────────────────────
-          Ficava sobreposta à arte com um "kill layer" opaco, porque a arte antiga
-          trazia depoimentos pintados que precisavam ser encobertos. A arte nova não
-          tem depoimentos, e seus cards de preço ocupam justamente aquela faixa — o
-          kill layer cobriria os próprios botões. Agora é uma faixa própria, logo
-          abaixo da oferta. */}
       {/* lineHeight explícito: o wrapper da página zera line-height para colar as
-          artes sem gap, e sem isto os dois parágrafos colapsam um sobre o outro. */}
+          artes sem gap, e sem isto os parágrafos colapsam um sobre o outro. */}
+      {/* Prova de produto, não depoimento. A faixa anterior anunciava "real
+          reactions from people who explored their reading" sobre vídeos que não
+          são de compradoras — afirmação falsa, e exatamente o que a moderação de
+          anúncios e a regra da FTC sobre depoimentos punem. Trocada por um trecho
+          real do que o produto gera, que é verdadeiro e prova mais. Quando houver
+          depoimentos reais e autorizados, esta seção é o lugar deles. */}
       <section style={{ background: '#07060f', padding: '28px 0 34px', lineHeight: 1.45 }}>
         <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.92)', fontSize: 15, fontWeight: 600, margin: '0 0 4px', padding: '0 20px' }}>
-          Real reactions from people who explored their reading
+          An excerpt from an actual reading
         </p>
-        <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.42)', fontSize: 11, margin: '0 0 16px', padding: '0 20px' }}>
-          Individual experiences vary. For reflection and entertainment.
+        <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.42)', fontSize: 11, margin: '0 0 18px', padding: '0 20px' }}>
+          Generated from a real palm photo. Yours will read your own lines.
         </p>
 
-        {/* Desktop: três vídeos lado a lado */}
-        <div className="hidden md:flex" style={{ maxWidth: 1100, margin: '0 auto', height: 230, gap: 3, padding: '0 16px' }}>
-          {VIDEOS.map(({ src, quote }, i) => (
-            <StripCell
-              key={src} src={src} quote={quote}
-              onClick={() => setModalSrc(src)}
-              delay={i * 0.07}
-              rounded={i === 0 ? 'left' : i === VIDEOS.length - 1 ? 'right' : ''}
-            />
-          ))}
-        </div>
-
-        {/* Mobile: carrossel */}
-        <div className="block md:hidden" style={{ height: 260, margin: '0 16px', borderRadius: 10, overflow: 'hidden' }}>
-          <MobileCarousel onOpen={setModalSrc} />
+        <div style={{ maxWidth: 620, margin: '0 auto', padding: '0 18px' }}>
+          <div
+            style={{
+              background: 'linear-gradient(160deg, rgba(251,191,36,0.05), rgba(139,62,218,0.05))',
+              border: '1px solid rgba(251,191,36,0.18)',
+              borderRadius: 16,
+              padding: '20px 22px',
+            }}
+          >
+            <p style={{ color: 'rgba(255,255,255,0.88)', fontSize: 15, margin: '0 0 12px', fontStyle: 'italic' }}>
+              “Your palm reveals a heart line that gently curves downward, suggesting a
+              deep sensitivity and an emotional depth that you carry within you.”
+            </p>
+            <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: 14, margin: 0, fontStyle: 'italic' }}>
+              “The relatively straight head line in your palm indicates a logical,
+              analytical mind — yet its gentle curve suggests you may benefit from
+              integrating more intuitive insights.”
+            </p>
+          </div>
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.35)', fontSize: 11, margin: '12px 0 0' }}>
+            For entertainment and self-reflection purposes.
+          </p>
         </div>
       </section>
-
-      {/* Modal de vídeo full-screen — abre ao clicar qualquer UGC */}
-      <AnimatePresence>
-        {modalSrc && <VideoModal src={modalSrc} onClose={() => setModalSrc(null)} />}
-      </AnimatePresence>
     </>
   );
 };
