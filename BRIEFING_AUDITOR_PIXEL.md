@@ -30,8 +30,13 @@ Causa encontrada no código e **já corrigida e implantada**:
    código só checava o status HTTP, então toda falha era registrada como
    sucesso. Agora o corpo é lido e o erro é logado.
 
-**Sua auditoria é para confirmar se a correção funcionou.** Se ainda falhar,
-existe agora um log com a mensagem exata do TikTok — peça ao dono do projeto.
+A correção está **em produção**: a função `track-event` foi verificada na
+**versão 23**, e o código implantado contém o endpoint 2.0, o `event_source_id`
+e a leitura do corpo da resposta.
+
+**Sua auditoria não é exploratória — é para confirmar se essa correção
+específica funcionou.** Se ainda falhar, agora existe um log com a mensagem
+literal do TikTok (ver a última seção deste documento).
 
 ---
 
@@ -132,6 +137,29 @@ quebrado por causa dela.
 
 ---
 
+## Se a Fase 3 falhar — o log tem a resposta
+
+Não tente adivinhar a causa. O envio server-side agora registra o resultado real
+de cada chamada. Peça ao dono do projeto que abra, no Supabase:
+
+**Edge Functions → `track-event` → Logs**, filtrando pela janela de horário do
+seu percurso (o horário que você anotou na Fase 2).
+
+Ele vai encontrar uma destas duas linhas por evento:
+
+- `tiktok_events_ok` — o TikTok aceitou. Se aparecer isso e mesmo assim o painel
+  não mostrar nada, o problema é só atraso ou o dataset errado, não o código.
+- `tiktok_events_failed` — o TikTok rejeitou. Esta linha traz três campos que
+  resolvem o diagnóstico sozinhos:
+  - `api_code` — o código de erro do TikTok
+  - `api_message` — o motivo literal da recusa, em texto
+  - `http_status` — quase sempre 200, porque a API responde 200 mesmo ao recusar
+
+**Peça o `api_code` e o `api_message` copiados na íntegra.** É a diferença entre
+corrigir em minutos e ficar chutando.
+
+---
+
 ## O que NÃO fazer
 
 - Não complete nenhum pagamento
@@ -165,6 +193,9 @@ SIM / NÃO / PARCIAL (explique)
 
 **6. Prints:** Pixel Helper no momento do `InitiateCheckout`, barra de setup, e
 a tela de diagnósticos.
+
+**7. Se o lado Server não chegar:** o `api_code` e o `api_message` do log
+`tiktok_events_failed`, copiados na íntegra.
 
 Se algo falhar, seja específico: qual evento, qual via, qual mensagem exata.
 "O pixel não funcionou" não permite corrigir nada.
