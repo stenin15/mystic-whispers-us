@@ -245,9 +245,16 @@ serve(async (req) => {
 
       // Events API 2.0. O endpoint antigo (/pixel/track/ com pixel_code no topo)
       // não alimenta mais o "Server events received" do Events Manager.
+      // Quando definido, o TikTok desvia estes eventos para a aba "Test events",
+      // onde aparecem em segundos em vez dos 15-30 min do relatório — e não
+      // contaminam as métricas reais. Deixe a variável vazia fora de auditoria:
+      // evento com test_event_code não conta como conversão para o algoritmo.
+      const TIKTOK_TEST_EVENT_CODE = Deno.env.get("TIKTOK_TEST_EVENT_CODE")?.trim();
+
       const payload = {
         event_source: "web",
         event_source_id: TIKTOK_PIXEL_CODE,
+        ...(TIKTOK_TEST_EVENT_CODE ? { test_event_code: TIKTOK_TEST_EVENT_CODE } : {}),
         data: [
           {
             event: event_name,
@@ -309,7 +316,12 @@ serve(async (req) => {
           body: raw.slice(0, 500),
         });
       } else {
-        console.log("tiktok_events_ok", { request_id, event: event_name, event_id });
+        console.log("tiktok_events_ok", {
+          request_id,
+          event: event_name,
+          event_id,
+          test_mode: Boolean(TIKTOK_TEST_EVENT_CODE),
+        });
       }
     }
 
