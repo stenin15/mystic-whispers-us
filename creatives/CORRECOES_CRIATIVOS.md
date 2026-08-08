@@ -130,8 +130,11 @@ Keep "$9.90 • Takes 5 minutes • No subscription" unchanged.
 
 ## CRIATIVOS 3 e 4 — "I let an AI read my palm and it called me out"
 
-São a mesma imagem. Headline em 1ª pessoa é o **padrão-ouro de compliance** —
-manter exatamente.
+Headline em 1ª pessoa é o **padrão-ouro de compliance** — manter exatamente.
+
+> Nota: eu havia registrado aqui que estes dois eram a mesma imagem. Errado — o
+> par duplicado é o **CRIATIVO 1**, confirmado pelo dono do projeto olhando os
+> arquivos. O conjunto real tem **três** criativos distintos, não quatro.
 
 **Trocar:** os quatro cards da tela. Dois deles prometem resultado e são o maior
 risco de reprovação de todo o conjunto.
@@ -180,11 +183,12 @@ Keep "Photo + analysis in minutes", the price bar and the disclaimer unchanged.
 
 ---
 
-## Ordem sugerida
+## Estado atual
 
-1. **Criativo 2** — melhor hook, menor correção
-2. **Criativos 3/4** — headline de melhor compliance, mas exige apagar os quatro cards
-3. **Criativo 1** — mais trabalho de edição, deixar por último
+- **Criativo 2** ("Most people never look at this line") — ✅ corrigido e aprovado
+- **Criativo 3/4** ("I let an AI read my palm") — ✅ corrigido e aprovado
+- **Criativo 1** ("Curious what your palm says about how you love?") — pendente,
+  é o par duplicado; opcional, entra como quarto criativo depois do lançamento
 
 Suba 3 criativos no mesmo ad group junto com o vídeo já produzido
 (`madam-aurora-ai-palm-v1.mp4`), avalie cada um com ~$40 gastos ou 48h, mate o
