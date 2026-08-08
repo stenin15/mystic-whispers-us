@@ -113,7 +113,7 @@ $50/dia**, não antes.
 
 **Anúncio 1:**
 ```
-https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=video_funil
+https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=video_demo
 ```
 **Anúncio 2:**
 ```
@@ -130,8 +130,13 @@ Não adicione `angle` nem `focus` na URL. Round 1 é uma variável de cada vez.
 
 ### Anúncio 1 — vídeo
 
-**Nome:** `AD-video-funil-real`
-**Arquivo:** `madam-aurora-real-funnel-v2.mp4` (9:16 vertical)
+**Nome:** `AD-video-demo`
+**Arquivo:** `creatives/madam-aurora-demo-v3-paid.mp4` (9:16, 12,2s)
+
+⚠️ **NÃO use `madam-aurora-real-funnel-v2.mp4`.** Esse arquivo mostra, em texto
+legível, frases afirmando que a espectadora sente ansiedade — infração direta da
+regra de *personal attributes*. Está no repositório apenas como histórico, até
+ser regravado.
 
 **Antes de subir:** o vídeo precisa de música da **Commercial Music Library** do
 próprio TikTok. Vídeo mudo tem alcance penalizado, e música de fora é o caminho
@@ -139,12 +144,10 @@ mais rápido para strike de direitos autorais.
 
 **Texto principal:**
 ```
-I uploaded one photo of my hand and this is what the AI wrote back.
+One photo of your palm. The AI reads the lines that are actually there and
+writes what it sees. $9.90, one payment, no subscription.
 For entertainment & self-reflection.
 ```
-
-Primeira pessoa é o padrão-ouro de compliance nesta categoria: relata a própria
-experiência em vez de afirmar algo sobre quem assiste.
 
 ---
 
@@ -203,9 +206,13 @@ For entertainment & self-reflection.
 
 - Não publique sem aprovação
 - Não crie mais de um ad group
-- Não suba um quarto criativo. Existe um vídeo `madam-aurora-ai-palm-v1.mp4` no
-  repositório — **não use.** É montagem de frames estáticos e só dividiria
-  orçamento com a gravação real, que é melhor.
+- Não suba um quarto criativo. Na pasta `creatives/` existem outros dois vídeos —
+  **nenhum dos dois pode ser usado:**
+  - `madam-aurora-ai-palm-v1.mp4` — montagem de frames estáticos, fraco demais
+  - `madam-aurora-real-funnel-v2.mp4` — contém texto sobre ansiedade da
+    espectadora, reprova por *personal attributes*
+
+  O único vídeo aprovado é **`madam-aurora-demo-v3-paid.mp4`**.
 - **Cuidado com versões antigas.** De cada estático existem duas versões: a
   antiga mostra um **app escuro** na tela do celular, a aprovada mostra um
   **relatório em pergaminho claro**. Se a tela do celular estiver escura, é a
