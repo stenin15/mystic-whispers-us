@@ -10,6 +10,70 @@ const sha256Hex = async (input: string): Promise<string> => {
     .join("");
 };
 
+// O Purchase do navegador sai da página /sucesso, onde o email vem do
+// localStorage — e o Stripe costuma devolver a compradora numa aba nova, sem
+// store. Resultado: venda registrada sem identificador nenhum. Aqui o email vem
+// do próprio Stripe, então sempre existe. Mesmo `event_id` do navegador, para o
+// TikTok deduplicar em vez de contar dobrado.
+const sendTikTokEvents = async (params: {
+  pixelCode: string;
+  token: string;
+  email?: string | null;
+  value: number;
+  currency: string;
+  productCode: string;
+  sessionId: string;
+}) => {
+  const user: Record<string, unknown> = {};
+  if (params.email) {
+    user.email = await sha256Hex(params.email.trim().toLowerCase());
+  }
+  const payload = {
+    event_source: "web",
+    event_source_id: params.pixelCode,
+    data: [{
+      event: "Purchase",
+      event_time: Math.floor(Date.now() / 1000),
+      event_id: `purchase_wh_${params.sessionId}`,
+      user,
+      page: { url: "https://madam-aurora.co/sucesso" },
+      properties: {
+        currency: params.currency.toUpperCase(),
+        value: params.value,
+        content_type: "product",
+        contents: [{ content_id: params.productCode, content_name: params.productCode }],
+      },
+    }],
+  };
+  const res = await fetch("https://business-api.tiktok.com/open_api/v1.3/event/track/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Access-Token": params.token },
+    body: JSON.stringify(payload),
+  });
+  // A Business API responde 200 mesmo ao recusar: o erro vem em `code` no corpo.
+  const raw = await res.text();
+  let apiCode: number | undefined;
+  let apiMessage: string | undefined;
+  try {
+    const parsed = JSON.parse(raw) as { code?: number; message?: string };
+    apiCode = parsed.code;
+    apiMessage = parsed.message;
+  } catch {
+    // resposta não-JSON: trata como falha e registra o corpo cru
+  }
+  if (res.ok && apiCode === 0) {
+    console.log("stripe-webhook tiktok_ok", { session_id: params.sessionId, has_email: Boolean(params.email) });
+  } else {
+    console.warn("stripe-webhook tiktok_failed", {
+      session_id: params.sessionId,
+      http_status: res.status,
+      api_code: apiCode,
+      api_message: apiMessage,
+      body: raw.slice(0, 500),
+    });
+  }
+};
+
 const sendMetaCapi = async (params: {
   pixelId: string;
   token: string;
@@ -287,6 +351,22 @@ serve(async (req) => {
           await sendMetaCapi({
             pixelId: META_PIXEL_ID,
             token: META_ACCESS_TOKEN,
+            email,
+            value: (session.amount_total ?? 0) / 100,
+            currency: session.currency ?? "usd",
+            productCode: product_code,
+            sessionId,
+          });
+        }
+
+        // Fire TikTok Purchase from the webhook too — same reason as Meta above:
+        // o navegador pode nunca voltar, ou voltar sem o email na store.
+        const TIKTOK_PIXEL_CODE = Deno.env.get("TIKTOK_PIXEL_CODE");
+        const TIKTOK_ACCESS_TOKEN = Deno.env.get("TIKTOK_ACCESS_TOKEN");
+        if (TIKTOK_PIXEL_CODE && TIKTOK_ACCESS_TOKEN) {
+          await sendTikTokEvents({
+            pixelCode: TIKTOK_PIXEL_CODE,
+            token: TIKTOK_ACCESS_TOKEN,
             email,
             value: (session.amount_total ?? 0) / 100,
             currency: session.currency ?? "usd",
