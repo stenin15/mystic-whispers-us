@@ -47,7 +47,8 @@ reprovado:
 `destiny` · `manifest` · `success` · `heal` · `cure` · `anxiety` · `depression`
 
 **Não reescreva nenhum texto deste documento**, nem para "melhorar". Cada frase
-foi checada contra essas regras.
+foi checada contra essas regras e contra o **limite de 100 caracteres** do campo
+de texto do TikTok.
 
 ---
 
@@ -137,9 +138,9 @@ https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&ut
 
 **Texto principal:**
 ```
-I uploaded one photo of my hand and this is what the AI wrote back.
-$9.90, one payment, no subscription. For entertainment & self-reflection.
+One photo of my hand. This is what the AI wrote back. $9.90. For entertainment only.
 ```
+(84 caracteres — o campo do TikTok aceita no máximo **100**)
 
 ## 3.1 — A música (leia inteiro antes de mexer)
 
@@ -191,9 +192,9 @@ https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&ut
 
 **Texto principal:**
 ```
-One photo of your palm. An AI reads the lines that are actually there.
-$9.90, one payment, no subscription. For entertainment & self-reflection.
+One photo of your palm. An AI reads the lines that are there. $9.90. For entertainment only.
 ```
+(92 caracteres)
 
 Estáticos não precisam de música — o TikTok trata sozinho ao converter a imagem
 em anúncio.
@@ -215,10 +216,9 @@ https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&ut
 
 **Texto principal:**
 ```
-One photo of your palm. The AI describes the lines it actually sees, including
-the heart line. $9.90, one payment, no subscription.
-For entertainment & self-reflection.
+One photo of your palm. The AI describes the lines it sees. $9.90. For entertainment only.
 ```
+(90 caracteres)
 
 ---
 
