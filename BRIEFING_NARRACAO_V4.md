@@ -1,19 +1,25 @@
 # Briefing — narração do criativo v4 (ElevenLabs)
 
 **Vídeo:** `creatives/madam-aurora-called-me-out-v4.mp4` — 23,1s, 9:16
-**Entrega:** **7 arquivos de áudio separados**, um por fala
+**Entrega:** **um único arquivo de áudio** com as 7 falas na ordem
 **Uso:** anúncio pago no TikTok, público feminino nos EUA, 25–54 anos
 
 ---
 
-## Por que 7 arquivos e não um só
+## Um arquivo só, com pausas entre as falas
 
-O vídeo tem 7 cortes. Se a narração vier num arquivo contínuo, qualquer variação
-de ritmo desalinha tudo a partir do primeiro segundo e não há como corrigir sem
-regravar. Com 7 arquivos, cada fala é posicionada no corte exato dela.
+Gere tudo numa **única passada**. Assim o ElevenLabs mantém a entonação
+atravessando as frases — sete gerações separadas soariam picotadas, cada uma
+começando com a mesma energia inicial, e isso denuncia que é IA.
 
-**Nomeie exatamente assim:** `01.mp3`, `02.mp3`, `03.mp3`, `04.mp3`, `05.mp3`,
-`06.mp3`, `07.mp3`.
+**O requisito que torna isso possível:** deixe uma **pausa clara de ~0,7 segundo
+entre uma fala e outra**. No campo de texto, separe cada fala por uma **linha em
+branco**. Essas pausas são o que permite fatiar e alinhar o áudio ao vídeo depois.
+
+Sem as pausas, o áudio vira um bloco contínuo e não há como sincronizar com os
+cortes.
+
+**Nome do arquivo:** `narracao-v4.mp3`
 
 ---
 
@@ -109,7 +115,9 @@ Entrega: clara e sem pressa. Nada de tom de vendedor.
 ## Checagem antes de entregar
 
 - [ ] Voz **feminina** e **americana**
-- [ ] 7 arquivos separados, nomeados `01` a `07`
+- [ ] **Um** arquivo, com as 7 falas na ordem
+- [ ] **Pausa audível entre cada fala** (linha em branco entre elas no texto)
+- [ ] Duração total entre **20 e 24 segundos**
 - [ ] Nenhuma fala passou da duração máxima indicada
 - [ ] Nenhuma palavra do roteiro foi alterada
 - [ ] Plano com **licença comercial** ativo
@@ -118,11 +126,14 @@ Entrega: clara e sem pressa. Nada de tom de vendedor.
 Se alguma fala ficar acima do limite, **regenere com a mesma voz** em vez de
 acelerar depois — áudio acelerado fica com timbre metálico e denuncia que é IA.
 
+Se só uma fala sair ruim, dá para regenerar **só ela** e mandar como arquivo
+extra, indicando o número. Não precisa refazer tudo.
+
 ---
 
 ## O que NÃO fazer
 
-- Não gere um arquivo único com as 7 falas
+- Não entregue as falas grudadas, sem pausa entre elas
 - Não use voz masculina
 - Não adicione música — a música entra depois, no editor do TikTok
 - Não adicione efeitos, reverb ou eco
