@@ -121,7 +121,7 @@ https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&ut
 ```
 **Anúncio 3:**
 ```
-https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_calledout
+https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_love
 ```
 
 Não adicione `angle` nem `focus` na URL. Round 1 é uma variável de cada vez.
@@ -163,13 +163,17 @@ $9.90, one payment, no subscription. For entertainment & self-reflection.
 
 ### Anúncio 3 — estático
 
-**Nome:** `AD-static-called-me-out`
-**Arquivo:** o estático "I let an AI read my palm and it called me out" (9:16 vertical)
+**Nome:** `AD-static-how-you-love`
+**Arquivo:** o estático "Curious what your palm says about how you love?" (9:16
+vertical) — **a versão com o relatório em pergaminho e os quatro cards descrevendo
+as linhas.** Existe uma versão antiga com um app escuro na tela; essa não pode ser
+usada.
 
 **Texto principal:**
 ```
-I sent one photo of my hand. It described the lines it saw, not my future.
-$9.90, one payment. For entertainment & self-reflection.
+One photo of your palm. The AI describes the lines it actually sees, including
+the heart line. $9.90, one payment, no subscription.
+For entertainment & self-reflection.
 ```
 
 ---
@@ -202,6 +206,10 @@ $9.90, one payment. For entertainment & self-reflection.
 - Não suba um quarto criativo. Existe um vídeo `madam-aurora-ai-palm-v1.mp4` no
   repositório — **não use.** É montagem de frames estáticos e só dividiria
   orçamento com a gravação real, que é melhor.
+- **Cuidado com versões antigas.** De cada estático existem duas versões: a
+  antiga mostra um **app escuro** na tela do celular, a aprovada mostra um
+  **relatório em pergaminho claro**. Se a tela do celular estiver escura, é a
+  versão errada — não suba. As antigas contêm texto que reprova na moderação.
 - Não use o botão "Promover" do app do TikTok
 - Não mexa em nada no Events Manager
 - Não altere nada no Supabase, na Vercel ou no Stripe
