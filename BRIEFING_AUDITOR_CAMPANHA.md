@@ -113,7 +113,7 @@ $50/dia**, não antes.
 
 **Anúncio 1:**
 ```
-https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=video_demo
+https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=video_calledout
 ```
 **Anúncio 2:**
 ```
@@ -130,13 +130,16 @@ Não adicione `angle` nem `focus` na URL. Round 1 é uma variável de cada vez.
 
 ### Anúncio 1 — vídeo
 
-**Nome:** `AD-video-demo`
-**Arquivo:** `creatives/madam-aurora-demo-v3-paid.mp4` (9:16, 12,2s)
+**Nome:** `AD-video-called-me-out`
+**Arquivo:** `creatives/madam-aurora-called-me-out-v4.mp4` (9:16, 23,1s)
 
 ⚠️ **NÃO use `madam-aurora-real-funnel-v2.mp4`.** Esse arquivo mostra, em texto
 legível, frases afirmando que a espectadora sente ansiedade — infração direta da
-regra de *personal attributes*. Está no repositório apenas como histórico, até
-ser regravado.
+regra de *personal attributes*. Está no repositório apenas como histórico.
+
+**Reserva:** `creatives/madam-aurora-demo-v3-paid.mp4` (12,2s) também está
+aprovado. Não suba os dois de uma vez — entra como substituto do primeiro
+criativo que morrer.
 
 **Antes de subir:** o vídeo precisa de música da **Commercial Music Library** do
 próprio TikTok. Vídeo mudo tem alcance penalizado, e música de fora é o caminho
@@ -144,10 +147,12 @@ mais rápido para strike de direitos autorais.
 
 **Texto principal:**
 ```
-One photo of your palm. The AI reads the lines that are actually there and
-writes what it sees. $9.90, one payment, no subscription.
-For entertainment & self-reflection.
+I uploaded one photo of my hand and this is what the AI wrote back.
+$9.90, one payment, no subscription. For entertainment & self-reflection.
 ```
+
+Primeira pessoa é o padrão-ouro de compliance nesta categoria: relata a própria
+experiência em vez de afirmar algo sobre quem assiste.
 
 ---
 
