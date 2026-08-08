@@ -8,7 +8,7 @@
 O rastreamento já foi auditado e está confirmado funcionando nas duas vias
 (navegador + Events API). **Não mexa em nada dentro do Events Manager.**
 
-Sua tarefa é montar **uma campanha, um ad group, dois anúncios** — e parar antes
+Sua tarefa é montar **uma campanha, um ad group, três anúncios** — e parar antes
 de publicar, para aprovação.
 
 ---
@@ -101,19 +101,15 @@ $50/dia**, não antes.
 
 ---
 
-## NÍVEL 3 — Anúncios (dois)
+## NÍVEL 3 — Anúncios (três)
 
 **Identity:** se existir conta TikTok da marca, use ela. Se não, crie uma
 **Custom Identity** com nome de exibição **Madam Aurora**.
 
-**Botão de CTA nos dois:** **`Learn more`**
+**Botão de CTA nos três:** **`Learn more`**
 (não use "Shop now" — a landing é um vídeo de vendas, não uma loja)
 
-**URL nos dois:**
-```
-https://madam-aurora.co
-```
-Com os parâmetros de rastreamento (campo "URL parameters", ou cole a URL completa):
+**URLs — uma diferente por anúncio**, para dar para separar o desempenho depois:
 
 **Anúncio 1:**
 ```
@@ -122,6 +118,10 @@ https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&ut
 **Anúncio 2:**
 ```
 https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_line
+```
+**Anúncio 3:**
+```
+https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_calledout
 ```
 
 Não adicione `angle` nem `focus` na URL. Round 1 é uma variável de cada vez.
@@ -161,6 +161,19 @@ $9.90, one payment, no subscription. For entertainment & self-reflection.
 
 ---
 
+### Anúncio 3 — estático
+
+**Nome:** `AD-static-called-me-out`
+**Arquivo:** o estático "I let an AI read my palm and it called me out" (9:16 vertical)
+
+**Texto principal:**
+```
+I sent one photo of my hand. It described the lines it saw, not my future.
+$9.90, one payment. For entertainment & self-reflection.
+```
+
+---
+
 ## Checagem antes de publicar
 
 - [ ] Idade **18+** garantida (nenhum bracket abaixo de 25 marcado)
@@ -171,14 +184,14 @@ $9.90, one payment, no subscription. For entertainment & self-reflection.
 - [ ] Orçamento diário = $20 (não lifetime)
 - [ ] Pixel correto selecionado (`MadamAurora_Web_US`)
 - [ ] Nenhuma palavra da lista proibida em nenhum campo
-- [ ] Disclaimer "For entertainment & self-reflection" presente nos dois textos
-- [ ] Os dois criativos são 9:16 vertical
+- [ ] Disclaimer "For entertainment & self-reflection" presente nos três textos
+- [ ] Os três criativos são 9:16 vertical
 - [ ] O vídeo tem música da biblioteca do TikTok
-- [ ] URLs com UTM diferentes por anúncio
+- [ ] URLs com `utm_content` diferente em cada anúncio
 - [ ] Clicou na URL e ela abre a landing certa
 
 **PARE AQUI.** Deixe tudo em rascunho e mande print de cada nível
-(campanha / ad group / os dois anúncios) para aprovação antes de publicar.
+(campanha / ad group / os três anúncios) para aprovação antes de publicar.
 
 ---
 
@@ -186,7 +199,9 @@ $9.90, one payment, no subscription. For entertainment & self-reflection.
 
 - Não publique sem aprovação
 - Não crie mais de um ad group
-- Não suba um terceiro criativo — a $20/dia, três dividem o orçamento fino demais
+- Não suba um quarto criativo. Existe um vídeo `madam-aurora-ai-palm-v1.mp4` no
+  repositório — **não use.** É montagem de frames estáticos e só dividiria
+  orçamento com a gravação real, que é melhor.
 - Não use o botão "Promover" do app do TikTok
 - Não mexa em nada no Events Manager
 - Não altere nada no Supabase, na Vercel ou no Stripe
