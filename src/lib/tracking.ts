@@ -63,7 +63,14 @@ export function track(event: string, params: AnyRecord = {}) {
   }
 
   try {
-    ttqTrack(event, params, getOrCreateEventId(event));
+    // Quando o call site passa event_id, é o MESMO id que ele envia à Events API
+    // pelo track-event. O ttq precisa usar esse id — com ids diferentes o TikTok
+    // não deduplica e o evento conta duas vezes.
+    const paramEventId =
+      typeof params.event_id === "string" && (params.event_id as string).trim()
+        ? (params.event_id as string)
+        : undefined;
+    ttqTrack(event, params, paramEventId ?? getOrCreateEventId(event));
   } catch {
     // ignore
   }
@@ -91,7 +98,9 @@ export function getAdIds(): { fbp?: string; fbc?: string; ttclid?: string } {
     }
   }
 
-  // TikTok click id often arrives as ttclid in URL; persist to sessionStorage.
+  // TikTok click id: a landing salva em localStorage via persistAttribution
+  // (na SPA a URL o perde na primeira navegação). O sessionStorage fica como
+  // leitura de compatibilidade para sessões abertas antes dessa mudança.
   let ttclid: string | undefined;
   try {
     const params = new URLSearchParams(window.location.search);
@@ -100,7 +109,9 @@ export function getAdIds(): { fbp?: string; fbc?: string; ttclid?: string } {
       sessionStorage.setItem("mwus_ttclid", fromQuery);
       ttclid = fromQuery;
     } else {
-      const stored = (sessionStorage.getItem("mwus_ttclid") || "").trim();
+      const stored =
+        (localStorage.getItem("mwus_ttclid") || "").trim() ||
+        (sessionStorage.getItem("mwus_ttclid") || "").trim();
       if (stored) ttclid = stored;
     }
   } catch {

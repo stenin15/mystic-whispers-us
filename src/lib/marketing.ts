@@ -6,6 +6,11 @@ const UTM_STORAGE_KEY = "mwus_utms";
 const FOCUS_STORAGE_KEY = "mwus_focus";
 const ANGLE_STORAGE_KEY = "mwus_angle";
 const FBCLID_STORAGE_KEY = "mwus_fbclid";
+// Mesmo papel do fbclid, lado TikTok: o ttclid chega na URL do clique do anúncio
+// e é a única forma de a Events API atribuir a conversão à campanha. Numa SPA
+// ele some da URL na primeira navegação, então precisa ser persistido aqui, na
+// landing — quando o checkout roda, a URL já não o tem mais.
+const TTCLID_STORAGE_KEY = "mwus_ttclid";
 
 const UTM_FIELDS: UTMKeys[] = [
   "utm_source",
@@ -60,6 +65,15 @@ export function persistAttribution(params: URLSearchParams) {
     const fbclid = (params.get("fbclid") || "").trim();
     if (fbclid) {
       localStorage.setItem(FBCLID_STORAGE_KEY, fbclid);
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    const ttclid = (params.get("ttclid") || "").trim();
+    if (ttclid) {
+      localStorage.setItem(TTCLID_STORAGE_KEY, ttclid);
     }
   } catch {
     // ignore
