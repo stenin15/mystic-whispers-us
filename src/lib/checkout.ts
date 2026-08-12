@@ -25,7 +25,25 @@ const collectProfile = () => {
   }
 };
 
-export async function createCheckoutSessionUrl(
+// Toque duplo no botão de compra disparava duas sessões Stripe com milissegundos
+// de diferença (aconteceu com uma visitante real da primeira campanha). O lock
+// vive aqui, e não nos botões, para cobrir todos os call sites de uma vez —
+// Checkout, Resultado, Upsell e entregas. A segunda chamada recebe a MESMA
+// promise, então o segundo toque só acompanha a sessão já em criação.
+let inFlight: Promise<string> | null = null;
+
+export function createCheckoutSessionUrl(
+  key: CheckoutKey,
+  opts: { email?: string; name?: string } = {},
+): Promise<string> {
+  if (inFlight) return inFlight;
+  inFlight = createCheckoutSessionUrlUnlocked(key, opts).finally(() => {
+    inFlight = null;
+  });
+  return inFlight;
+}
+
+async function createCheckoutSessionUrlUnlocked(
   key: CheckoutKey,
   opts: { email?: string; name?: string } = {},
 ): Promise<string> {

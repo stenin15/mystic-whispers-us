@@ -16,6 +16,7 @@ import {
   persistAttribution,
   getStoredAngle,
   getStoredFocus,
+  getStoredUtm,
 } from "@/lib/marketing";
 
 // ── dataLayer helper ──────────────────────────────────────────────────────────
@@ -64,6 +65,65 @@ const CTAButton = ({
   >
     {children}
   </motion.button>
+);
+
+// ── Entrada rápida para tráfego pago ─────────────────────────────────────────
+// Na primeira campanha, ~90% dos cliques pagos nunca saíram desta página: o
+// anúncio promete "uma foto, a IA lê suas linhas, $9.90" e a visitante caía numa
+// página de vendas longa. Quem chega com utm_medium=paid vê primeiro a promessa
+// do anúncio e o caminho imediato; a página completa segue logo abaixo para quem
+// rolar. O orgânico não vê nada disso, e como a URL não muda, os anúncios já
+// aprovados continuam válidos sem nova moderação.
+const PaidFastHero = ({ onCtaClick }: { onCtaClick: () => void }) => (
+  <section
+    className="relative px-5 pt-10 pb-9 text-center overflow-hidden"
+    style={{ background: "linear-gradient(180deg, #08030f 0%, #0d0518 70%, #030004 100%)" }}
+  >
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{ background: "radial-gradient(ellipse 80% 55% at 50% 0%, rgba(139,62,218,0.16) 0%, transparent 65%)" }}
+    />
+    <div className="relative max-w-xl mx-auto">
+      <p className="text-[11px] font-bold uppercase tracking-[0.35em] text-amber-400/80 mb-4">
+        Madam Aurora
+      </p>
+      <h1 className="font-serif font-bold text-white text-3xl md:text-4xl leading-tight">
+        One photo of your palm.
+        <span className="block text-amber-300 mt-1">A reading of the lines that are actually there.</span>
+      </h1>
+
+      <div className="flex items-stretch justify-center gap-2 mt-7 text-left">
+        {[
+          ["1", "Send one photo of your hand"],
+          ["2", "The AI reads your actual lines"],
+          ["3", "Get your written reading"],
+        ].map(([n, label]) => (
+          <div
+            key={n}
+            className="flex-1 max-w-[150px] rounded-xl px-3 py-3"
+            style={{ border: "1px solid rgba(245,158,11,0.25)", background: "rgba(245,158,11,0.05)" }}
+          >
+            <span className="block text-amber-400 font-black text-sm mb-1">{n}</span>
+            <span className="block text-white/80 text-xs leading-snug">{label}</span>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-6 text-white/90 text-sm">
+        <span className="text-amber-300 font-bold text-lg">$9.90</span>
+        <span className="text-white/40 mx-2">·</span>One payment
+        <span className="text-white/40 mx-2">·</span>No subscription
+      </p>
+
+      <CTAButton onClick={onCtaClick} className="mt-5">
+        Start my reading <ArrowRight className="w-5 h-5" />
+      </CTAButton>
+
+      <p className="mt-4 text-[11px] text-white/40">
+        Takes about 5 minutes · For entertainment &amp; self-reflection
+      </p>
+    </div>
+  </section>
 );
 
 // ── VSL Section 2 — player posicionado SOMENTE dentro do frame dourado à direita ──
@@ -123,6 +183,15 @@ const VSL = () => {
     const params = new URLSearchParams(search);
     const parsedUtm = parseUtm(params);
     return { angle: getAngle(params, parsedUtm), focus: getFocus(params) };
+  }, [search]);
+
+  // utm_medium=paid identifica clique de anúncio (TikTok hoje, qualquer rede
+  // amanhã). O fallback no storage cobre a volta à landing depois de navegar,
+  // quando a URL já perdeu os parâmetros.
+  const isPaidTraffic = useMemo(() => {
+    const fromUrl = (new URLSearchParams(search).get("utm_medium") || "").toLowerCase();
+    if (fromUrl) return fromUrl === "paid";
+    return (getStoredUtm().utm_medium || "").toLowerCase() === "paid";
   }, [search]);
 
   useEffect(() => {
@@ -262,6 +331,9 @@ const VSL = () => {
           </div>
         </div>
       </header>
+
+      {/* ── ENTRADA RÁPIDA (só tráfego pago) ───────────────────────────── */}
+      {isPaidTraffic && <PaidFastHero onCtaClick={() => handleCTA("paid_hero")} />}
 
       {/* ── SECTION 1 — HERO ───────────────────────────────────────────── */}
       <ImageSection
