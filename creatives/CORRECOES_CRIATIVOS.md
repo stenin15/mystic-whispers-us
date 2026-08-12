@@ -185,11 +185,33 @@ Keep "Photo + analysis in minutes", the price bar and the disclaimer unchanged.
 
 ## Estado atual
 
-- **Criativo 2** ("Most people never look at this line") — ✅ corrigido e aprovado
-- **Criativo 3/4** ("I let an AI read my palm") — ✅ corrigido e aprovado
-- **Criativo 1** ("Curious what your palm says about how you love?") — pendente,
-  é o par duplicado; opcional, entra como quarto criativo depois do lançamento
+**No ar (rodada 1):**
 
-Suba 3 criativos no mesmo ad group junto com o vídeo já produzido
-(`madam-aurora-ai-palm-v1.mp4`), avalie cada um com ~$40 gastos ou 48h, mate o
-pior por CTR e reponha com variação do melhor.
+| Criativo | CTR na rodada 1 |
+|---|---|
+| Estático "Curious what your palm says about how you love?" | **1,16%** ← vencedor |
+| Estático "Most people never look at this line" | 0,55% |
+| `madam-aurora-called-me-out-v4-voz.mp4` | 0,62% (amostra pequena) |
+
+**Pronto para a rodada 2:**
+
+- **`madam-aurora-pen-line-v5.mp4`** — 15,5s, com narração. Formato da caneta
+  traçando a palma, montado sobre filmagem do próprio dono do projeto
+  (**procedência confirmada por ele em 11/ago — condição para uso em anúncio
+  pago**). O áudio viral original foi removido; o texto de origem, que previa
+  quantidade e sexo de filhos, foi apagado antes da montagem.
+
+**Não usar em anúncio:**
+
+- `madam-aurora-real-funnel-v2.mp4` — texto afirmando ansiedade da espectadora
+- `madam-aurora-ai-palm-v1.mp4` — montagem de frames, fraco
+- O vídeo viral **original**, com "Best Marriage line / Three Son Lines" — previsão
+  de resultado, reprovação certa na categoria restrita. Serve só para orgânico.
+
+## Regra de rotação
+
+Avalie cada criativo com ~$40 gastos ou 48h. Mate o pior por CTR e reponha com
+variação do melhor — **um criativo por vez**, para a leitura não se misturar.
+
+O v5 entra no lugar do primeiro que morrer, não junto: a rodada atual está
+medindo a landing nova e precisa de uma variável só.
