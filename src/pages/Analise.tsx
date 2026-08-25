@@ -16,6 +16,7 @@ import { PalmIntake, type IntakeAnswer } from '@/components/analysis/PalmIntake'
 // step lets each line land. The hard ceiling below is still 22s.
 const MIN_DISPLAY_MS = 12000;
 const THUMB_KEY = 'mwus_palm_thumb';
+const INTAKE_DONE_KEY = 'mwus_intake_done';
 
 // ── Upload helper ────────────────────────────────────────────────────────────
 async function uploadPalmPhotoToStorage(base64DataUrl: string, sessionKey: string): Promise<string> {
@@ -74,7 +75,7 @@ const Analise = () => {
     name, email, age, emotionalState, mainConcern, handPhotoData, quizAnswers,
     setAnalysisResult, setIsAnalyzing, setAudioUrl, canAccessAnalysis,
     setSessionKey, setPalmPhotoPath, setPreviewReportUrl,
-    setFormData, setQuizAnswer,
+    setFormData, setQuizAnswer, resetQuiz,
   } = useHandReadingStore();
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -83,10 +84,23 @@ const Analise = () => {
   const analysisStarted = useRef(false);
   const navigatedRef = useRef(false);
 
-  // Quem já respondeu (voltou para esta tela) pula direto para o escaneamento.
-  const [phase, setPhase] = useState<'intake' | 'scanning'>(() =>
-    name?.trim() && quizAnswers.length >= fastQuizQuestions.length ? 'scanning' : 'intake',
-  );
+  // Retomada só vale DENTRO da mesma visita — daí sessionStorage e não o store.
+  // O store persiste em localStorage, então quem já percorreu o funil antes
+  // chegava aqui com nome e respostas antigos e pulava a coleta inteira,
+  // silenciosamente. Numa visita nova a coleta sempre acontece; voltar uma tela
+  // dentro da mesma sessão continua não repetindo as perguntas.
+  const [phase, setPhase] = useState<'intake' | 'scanning'>(() => {
+    try {
+      const doneThisVisit = sessionStorage.getItem(INTAKE_DONE_KEY) === '1';
+      if (doneThisVisit && name?.trim() && quizAnswers.length >= fastQuizQuestions.length) {
+        return 'scanning';
+      }
+    } catch {
+      // sessionStorage indisponível (modo restrito): coleta de novo, que é o
+      // comportamento seguro — melhor perguntar duas vezes do que pular.
+    }
+    return 'intake';
+  });
 
   // Track page view
   const hasTrackedRef = useRef(false);
@@ -210,7 +224,18 @@ const Analise = () => {
     answers,
   }: { name: string; concern: string; answers: IntakeAnswer[] }) => {
     setFormData({ name: intakeName, mainConcern: concern });
+
+    // Limpa antes de gravar: sem isto, quem já fez o funil de 7 perguntas ficaria
+    // com 4 respostas velhas misturadas às 3 novas, e a leitura sairia com
+    // contexto de outra visita.
+    resetQuiz();
     answers.forEach((a) => setQuizAnswer(a));
+
+    try {
+      sessionStorage.setItem(INTAKE_DONE_KEY, '1');
+    } catch {
+      // sem sessionStorage a coleta reaparece se ela voltar — aceitável
+    }
 
     const eventId = getOrCreateEventId('complete_registration');
     track('CompleteRegistration', {
