@@ -111,3 +111,30 @@ export const quizQuestions: QuizQuestion[] = [
     ],
   },
 ];
+
+// ── Funil curto (tráfego frio) ────────────────────────────────────────────────
+//
+// O funil original pedia nome, preocupação, 7 perguntas e email ANTES da foto —
+// 12 telas antes de entregar o que o anúncio prometeu ("uma foto da sua palma").
+// Numa campanha de ~$140 isso produziu 1 visitante real no checkout.
+//
+// Aqui ficam só as 3 perguntas que realmente alimentam a leitura. Saem as de
+// elemento da natureza e visão de futuro: para quem clicou num anúncio de
+// leitura de mão, elas soam a questionário genérico.
+export const fastQuizQuestions: QuizQuestion[] = quizQuestions.filter((q) =>
+  [1, 2, 3].includes(q.id),
+);
+
+// A dor que ela escolhe é o que faz a leitura parecer escrita para ela — e é o
+// que a página de resultado usa para personalizar. Vale mais que qualquer uma
+// das perguntas cortadas, então continua no funil curto.
+export const CONCERN_OPTIONS = [
+  { value: "Wrong timing",                label: "Love always feels off-timing for me" },
+  { value: "Emotional confusion",         label: "I can't tell what I really feel" },
+  { value: "Fear of losing someone",      label: "I'm afraid of losing someone I love" },
+  { value: "Repeating the same patterns", label: "I keep attracting the same type" },
+  { value: "Feeling emotionally blocked", label: "Something in me blocks real connection" },
+  { value: "Moving on from someone",      label: "I can't fully let go of someone" },
+  { value: "Overthinking relationships",  label: "I overthink every relationship" },
+  { value: "Fear of ending up alone",     label: "I'm afraid I'll end up alone" },
+] as const;

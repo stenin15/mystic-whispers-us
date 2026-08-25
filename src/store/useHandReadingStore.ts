@@ -222,10 +222,10 @@ export const useHandReadingStore = create<HandReadingState>()(
 
       canAccessQuiz: () => true,
 
-      canAccessAnalysis: () => {
-        const state = get();
-        return !!state.name && state.quizAnswers.length >= 5;
-      },
+      // No funil curto, /analise é quem COLETA nome e respostas — então não pode
+      // exigi-los para deixar entrar. O que protege a rota é ter vindo pela
+      // landing (o CTA marca hasSeenVsl), igual ao VslGate das outras.
+      canAccessAnalysis: () => get().hasSeenVsl,
 
       canAccessResult: () => {
         const state = get();

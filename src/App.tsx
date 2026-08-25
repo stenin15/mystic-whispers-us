@@ -16,7 +16,6 @@ import VSL from "./pages/VSL";
 import { VslGate } from "./components/shared/VslGate";
 
 const Index = lazy(() => import("./pages/Index"));
-const Quiz = lazy(() => import("./pages/Quiz"));
 const Analise = lazy(() => import("./pages/Analise"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const Resultado = lazy(() => import("./pages/Resultado"));
@@ -93,13 +92,13 @@ const App = () => (
             <Route path="/" element={<VSL />} />
           {/* Keep Index as an alternate/legacy entry */}
           <Route path={pathReading} element={<Index />} />
-          {/* Alias for older links */}
+          {/* Alias for older links. O funil curto começa pela foto — o quiz de 7
+              perguntas saiu do caminho, então links antigos caem na landing, que
+              é onde o VslGate é liberado. */}
           <Route path="/vsl" element={<Navigate to="/" replace />} />
-          <Route path="/conexao" element={<Navigate to="/quiz" replace />} />
-          <Route path="/formulario" element={<Navigate to="/quiz" replace />} />
-          {/* Valid direct entry point: ads and organic links land here.
-              Quiz marks the funnel as entered, which unlocks the gated steps below. */}
-          <Route path="/quiz" element={<Quiz />} />
+          <Route path="/conexao" element={<Navigate to="/" replace />} />
+          <Route path="/formulario" element={<Navigate to="/" replace />} />
+          <Route path="/quiz" element={<Navigate to="/" replace />} />
           <Route
             path="/analise"
             element={

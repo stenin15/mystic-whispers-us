@@ -265,7 +265,9 @@ const VSL = () => {
     });
 
     setHasSeenVsl(true);
-    navigate(appendUtmToPath("/quiz", { angle, focus }));
+    // A foto é o primeiro passo: é o que o anúncio promete. O nome, a dor e as
+    // 3 perguntas passaram a ser feitos em /analise, durante o escaneamento.
+    navigate(appendUtmToPath("/foto", { angle, focus }));
   };
 
   return (

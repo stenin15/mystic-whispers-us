@@ -6,6 +6,8 @@ import { processAnalysis, generateVoiceMessage } from '@/lib/api';
 import { getOrCreateEventId, track, getAdIds } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 import { supabase } from '@/integrations/supabase/client';
+import { fastQuizQuestions, CONCERN_OPTIONS } from '@/lib/quizQuestions';
+import { PalmIntake, type IntakeAnswer } from '@/components/analysis/PalmIntake';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 // Minimum time on this screen. Six STEPS share it, so this is also the pace of
@@ -72,6 +74,7 @@ const Analise = () => {
     name, email, age, emotionalState, mainConcern, handPhotoData, quizAnswers,
     setAnalysisResult, setIsAnalyzing, setAudioUrl, canAccessAnalysis,
     setSessionKey, setPalmPhotoPath, setPreviewReportUrl,
+    setFormData, setQuizAnswer,
   } = useHandReadingStore();
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -79,6 +82,11 @@ const Analise = () => {
   const [videoError, setVideoError] = useState(false);
   const analysisStarted = useRef(false);
   const navigatedRef = useRef(false);
+
+  // Quem já respondeu (voltou para esta tela) pula direto para o escaneamento.
+  const [phase, setPhase] = useState<'intake' | 'scanning'>(() =>
+    name?.trim() && quizAnswers.length >= fastQuizQuestions.length ? 'scanning' : 'intake',
+  );
 
   // Track page view
   const hasTrackedRef = useRef(false);
@@ -106,8 +114,11 @@ const Analise = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Step + progress ticker
+  // Step + progress ticker — só começa a correr quando o escaneamento começa.
+  // Se rodasse durante a coleta, a barra chegaria a 95% antes da primeira
+  // resposta e a espera seguinte pareceria travada.
   useEffect(() => {
+    if (phase !== 'scanning') return;
     const stepInterval = MIN_DISPLAY_MS / STEPS.length;
     const progInterval = 80;
     let elapsed = 0;
@@ -121,16 +132,17 @@ const Analise = () => {
     }, progInterval);
 
     return () => clearInterval(progTick);
-  }, []);
+  }, [phase]);
 
   // Save thumbnail immediately (handPhotoData is in memory here)
   useEffect(() => {
     if (handPhotoData) savePalmThumb(handPhotoData);
   }, [handPhotoData]);
 
-  // Main analysis
+  // Main analysis — espera a coleta terminar, porque a leitura usa as respostas.
   useEffect(() => {
-    if (!canAccessAnalysis()) { navigate('/quiz'); return; }
+    if (!canAccessAnalysis()) { navigate('/', { replace: true }); return; }
+    if (phase !== 'scanning') return;
     if (analysisStarted.current) return;
     analysisStarted.current = true;
     setIsAnalyzing(true);
@@ -189,13 +201,52 @@ const Analise = () => {
     setTimeout(runAnalysis, 200);
     return () => clearTimeout(maxTimeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [phase]);
+
+  // Salva o que ela respondeu e libera o escaneamento.
+  const handleIntakeComplete = ({
+    name: intakeName,
+    concern,
+    answers,
+  }: { name: string; concern: string; answers: IntakeAnswer[] }) => {
+    setFormData({ name: intakeName, mainConcern: concern });
+    answers.forEach((a) => setQuizAnswer(a));
+
+    const eventId = getOrCreateEventId('complete_registration');
+    track('CompleteRegistration', {
+      event_id: eventId,
+      page_path: '/analise',
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+    const { fbp, fbc, ttclid } = getAdIds();
+    supabase.functions.invoke('track-event', {
+      body: {
+        event_name: 'CompleteRegistration', event_id: eventId,
+        page_url: window.location.href,
+        user: { email: email || undefined },
+        utm: getAttributionParams(),
+        meta: { fbp, fbc }, tiktok: { ttclid },
+      },
+    }).catch(() => {});
+
+    setPhase('scanning');
+  };
 
   const imageSrc = handPhotoData || undefined;
   const currentStep = STEPS[stepIndex];
 
+  const isIntake = phase === 'intake';
+
   return (
-    <div className="h-screen w-full relative overflow-hidden flex flex-col items-center justify-center">
+    <div
+      className={`w-full relative flex flex-col items-center ${
+        isIntake
+          ? 'min-h-screen overflow-y-auto justify-start py-10'
+          : 'h-screen overflow-hidden justify-center'
+      }`}
+    >
 
       {/* ── Background ── */}
       <div
@@ -242,7 +293,7 @@ const Analise = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-[220px] flex-shrink-0"
+          className={`relative flex-shrink-0 ${isIntake ? 'w-[140px]' : 'w-[220px]'}`}
         >
           {/* Aurora halo */}
           <div
@@ -367,7 +418,19 @@ const Analise = () => {
           </div>
         </motion.div>
 
+        {/* ── Coleta de contexto (palma já escaneando ao fundo) ── */}
+        {isIntake && (
+          <PalmIntake
+            questions={fastQuizQuestions}
+            concernOptions={CONCERN_OPTIONS}
+            initialName={name || ''}
+            onComplete={handleIntakeComplete}
+          />
+        )}
+
         {/* ── Step label ── */}
+        {!isIntake && (
+        <>
         <div className="h-5 flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.p
@@ -424,6 +487,8 @@ const Analise = () => {
             />
           ))}
         </div>
+        </>
+        )}
 
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight } from 'lucide-react';
@@ -11,26 +11,56 @@ import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/mark
 
 const Foto = () => {
   const navigate = useNavigate();
-  const { name, setFormData, canAccessAnalysis, quizAnswers, handPhotoData } = useHandReadingStore();
+  const { name, setFormData, handPhotoData } = useHandReadingStore();
   const [preview, setPreview] = useState(() => handPhotoData || '');
   const [issue, setIssue] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Guard: must have completed quiz first
-  if (quizAnswers.length < 5) {
-    navigate('/quiz', { replace: true });
-    return null;
-  }
+  // A foto virou o PRIMEIRO passo — é o que o anúncio promete. O quiz deixou de
+  // ser pré-requisito: as 3 perguntas que sobraram são feitas em /analise,
+  // enquanto a palma já está sendo escaneada. O acesso continua protegido pelo
+  // VslGate na rota.
+
+  // Marco do funil: quantos dos que clicam na landing chegam de fato aqui. Sem
+  // este evento, "saiu da landing" e "chegou na foto e desistiu" ficam
+  // indistinguíveis — a cegueira que travou o diagnóstico da primeira campanha.
+  const trackedStep = useRef(false);
+  useEffect(() => {
+    if (trackedStep.current) return;
+    trackedStep.current = true;
+    track('PhotoStep', {
+      event_id: getOrCreateEventId('photo_step'),
+      page_path: '/foto',
+      angle: getStoredAngle(),
+      focus: getStoredFocus(),
+      ...getAttributionParams(),
+    });
+  }, []);
 
   const handlePhotoChange = async (url: string) => {
     setPreview(url);
     setIssue('');
     setFormData({ hasHandPhoto: !!url });
+
+    // Instrumentação: sem isto não dá para distinguir "não tentou mandar a foto"
+    // de "tentou e falhou". Foi essa cegueira que impediu a primeira campanha de
+    // localizar o vazamento.
     if (url) {
+      track('PhotoAttempt', {
+        event_id: getOrCreateEventId('photo_attempt'),
+        page_path: '/foto',
+        ...getAttributionParams(),
+      });
       try {
         const compressed = await compressImageForVision(url);
         setFormData({ handPhotoData: compressed });
       } catch {
+        track('PhotoFailed', {
+          event_id: `photo_failed_${Date.now()}`,
+          page_path: '/foto',
+          reason: 'compress_failed',
+          ...getAttributionParams(),
+        });
         setFormData({ handPhotoData: url });
       }
     } else {
