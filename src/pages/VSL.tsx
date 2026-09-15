@@ -135,17 +135,32 @@ const PaidFastHero = ({ onCtaClick }: { onCtaClick: () => void }) => (
 const VSL_DESKTOP_FRAME = { left: "42%", top: "6%", width: "54%", height: "71%" };
 const VSL_MOBILE_FRAME  = { left: "0%",  top: "10%", width: "100%", height: "78%" };
 
+// A altura desta seção vem inteira da imagem, e o player é posicionado em % dela.
+// Sem width/height declarados, a imagem ainda não carregada ocupa zero: a seção
+// colapsa, o player colapsa junto e a VSL some da página — sobra só o balãozinho
+// de áudio boiando no rodapé da seção anterior. Era o que acontecia no tráfego
+// pago, onde a entrada rápida empurra esta seção para baixo e o `loading="lazy"`
+// adiava o download. Daí os atributos de tamanho e o carregamento antecipado:
+// é a segunda tela da página, não há nada a economizar adiando-a.
 const VslSection = () => (
   <section
-    style={{ position: "relative", width: "100%", lineHeight: 0 }}
+    style={{ position: "relative", width: "100%", lineHeight: 0, background: "#030004" }}
   >
     <picture>
-      <source media="(min-width: 768px)" srcSet="/landing/section-2-desktop.webp" type="image/webp" />
+      <source
+        media="(min-width: 768px)"
+        srcSet="/landing/section-2-desktop.webp"
+        type="image/webp"
+        width={1600}
+        height={900}
+      />
       <img
         src="/landing/section-2-mobile.webp"
         alt=""
         aria-hidden
-        loading="lazy"
+        width={800}
+        height={1421}
+        loading="eager"
         decoding="async"
         className="w-full block"
         style={{ height: "auto" }}
@@ -556,6 +571,8 @@ const VSL = () => {
       <ImageSection
         desktopSrc="/landing/section-6-desktop.webp"
         mobileSrc="/landing/section-6-mobile.webp"
+        desktopSize={[1536, 1024]}
+        mobileSize={[800, 1686]}
         alt=""
         ctaAreas={[
           {

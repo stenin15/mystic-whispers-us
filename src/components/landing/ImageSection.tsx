@@ -15,7 +15,19 @@ interface ImageSectionProps {
   ctaAreas?: CtaArea[];
   onCtaClick?: (section: string) => void;
   className?: string;
+  /** Dimensões intrínsecas do arquivo, [largura, altura]. Ver comentário abaixo. */
+  desktopSize?: [number, number];
+  mobileSize?: [number, number];
 }
+
+// Toda a altura destas seções vem da imagem, e os botões do funil são áreas
+// absolutas posicionadas em % dessa altura. Sem width/height declarados, uma
+// imagem que ainda não chegou (ou que falhou) ocupa ZERO — a seção colapsa, o
+// CTA colapsa junto e fica invisível e não-clicável. Com os atributos, o
+// navegador reserva a altura pela proporção antes de baixar o arquivo.
+// Os valores precisam bater com os arquivos em public/landing.
+const DEFAULT_DESKTOP_SIZE: [number, number] = [1600, 900];
+const DEFAULT_MOBILE_SIZE: [number, number] = [800, 1421];
 
 const PULSE = {
   animate: {
@@ -36,20 +48,30 @@ export const ImageSection = ({
   ctaAreas = [],
   onCtaClick,
   className = "",
+  desktopSize = DEFAULT_DESKTOP_SIZE,
+  mobileSize = DEFAULT_MOBILE_SIZE,
 }: ImageSectionProps) => (
   <motion.section
     initial={{ opacity: 0 }}
     whileInView={{ opacity: 1 }}
     viewport={{ once: true, margin: "-60px" }}
     transition={{ duration: 0.8 }}
-    style={{ position: "relative", width: "100%", lineHeight: 0 }}
+    style={{ position: "relative", width: "100%", lineHeight: 0, background: "#030004" }}
     className={className}
   >
     <picture>
-      <source media="(min-width: 768px)" srcSet={desktopSrc} type="image/webp" />
+      <source
+        media="(min-width: 768px)"
+        srcSet={desktopSrc}
+        type="image/webp"
+        width={desktopSize[0]}
+        height={desktopSize[1]}
+      />
       <img
         src={mobileSrc}
         alt={alt}
+        width={mobileSize[0]}
+        height={mobileSize[1]}
         loading={loading}
         decoding="async"
         fetchPriority={loading === "eager" ? "high" : undefined}
