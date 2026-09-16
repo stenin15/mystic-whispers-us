@@ -154,9 +154,9 @@ const EntregaCombo = () => {
             <Link to="/sessao-aurora">
               <Button
                 size="lg"
-                className="w-full bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-lg py-7 rounded-xl shadow-lg shadow-mystic-gold/30 transition-all duration-300 hover:scale-[1.02]"
+                className="w-full h-auto whitespace-normal leading-snug bg-gradient-to-r from-mystic-gold to-mystic-gold/80 hover:from-mystic-gold/90 hover:to-mystic-gold/70 text-mystic-deep font-bold text-base sm:text-lg px-4 py-6 rounded-xl shadow-lg shadow-mystic-gold/30 transition-all duration-300 hover:scale-[1.02]"
               >
-                <Mic className="w-5 h-5 mr-2" />
+                <Mic className="w-5 h-5 mr-2 flex-shrink-0" />
                 Begin my session with Aurora
               </Button>
             </Link>
