@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHandReadingStore } from '@/store/useHandReadingStore';
-import { processAnalysis, generateVoiceMessage } from '@/lib/api';
+import { processAnalysis, generateVoiceMessage, type AnalysisFailureReason } from '@/lib/api';
 import { getOrCreateEventId, track, getAdIds } from '@/lib/tracking';
 import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/marketing';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +17,37 @@ import { PalmIntake, type IntakeAnswer } from '@/components/analysis/PalmIntake'
 const MIN_DISPLAY_MS = 12000;
 const THUMB_KEY = 'mwus_palm_thumb';
 const INTAKE_DONE_KEY = 'mwus_intake_done';
+
+// Teto absoluto da tela. `processAnalysis` já aborta em 25s; isto cobre o caso
+// de a promessa nunca resolver por algum motivo fora dela.
+const ANALYSIS_STALL_MS = 30000;
+
+// ── Registro de sucesso/falha da análise ─────────────────────────────────────
+// Sem isto não havia como saber com que frequência a IA falha em produção: o
+// erro ficava num console.warn no navegador da visitante e sumia. Agora sai um
+// evento por tentativa, com o desfecho, pelo mesmo caminho dos demais (dataLayer
+// + Events API), e o servidor recebe uma cópia durável.
+function reportAnalysis(
+  outcome: 'ok' | AnalysisFailureReason,
+  extra: { has_photo?: boolean; detail?: string } = {},
+) {
+  const eventName = outcome === 'ok' ? 'AnalysisSucceeded' : 'AnalysisFailed';
+  const payload = {
+    event_id: `analysis_${outcome}_${Date.now()}`,
+    page_path: '/analise',
+    analysis_outcome: outcome,
+    has_photo: extra.has_photo ?? false,
+    // `detail` pode trazer mensagem de erro do servidor; nunca dado da visitante.
+    ...(extra.detail ? { failure_detail: extra.detail.slice(0, 200) } : {}),
+    angle: getStoredAngle(),
+    focus: getStoredFocus(),
+    ...getAttributionParams(),
+  };
+  track(eventName, payload);
+  supabase.functions.invoke('track-event', {
+    body: { event_name: eventName, ...payload, ...getAdIds() },
+  }).catch(() => { /* telemetria não pode quebrar a página */ });
+}
 
 // ── Upload helper ────────────────────────────────────────────────────────────
 async function uploadPalmPhotoToStorage(base64DataUrl: string, sessionKey: string): Promise<string> {
@@ -83,6 +114,12 @@ const Analise = () => {
   const [videoError, setVideoError] = useState(false);
   const analysisStarted = useRef(false);
   const navigatedRef = useRef(false);
+
+  // Quando a IA falha, a visitante para AQUI. Ela não avança para o resultado,
+  // porque o que existiria lá seria uma leitura genérica que nunca olhou a foto
+  // dela — e logo abaixo dessa leitura há uma oferta de $9.90.
+  const [failure, setFailure] = useState<AnalysisFailureReason | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   // Retomada só vale DENTRO da mesma visita — daí sessionStorage e não o store.
   // O store persiste em localStorage, então quem já percorreu o funil antes
@@ -170,52 +207,71 @@ const Analise = () => {
       setTimeout(() => navigate('/resultado'), 400);
     };
 
-    const maxTimeout = setTimeout(goToResult, 22000);
+    // Só existe para o caso de a promessa nunca resolver. `processAnalysis` já
+    // aborta em 25s; este é o cinto de segurança, e agora ele para na tela de
+    // erro em vez de empurrar a visitante para uma oferta sem leitura.
+    const stallTimeout = setTimeout(() => {
+      if (navigatedRef.current) return;
+      reportAnalysis('timeout');
+      setIsAnalyzing(false);
+      setFailure('timeout');
+    }, ANALYSIS_STALL_MS);
 
     const runAnalysis = async () => {
       const startTime = Date.now();
-      try {
-        const result = await processAnalysis(
-          { name, age, emotionalState, mainConcern, handPhotoData },
-          quizAnswers,
-        );
-        setAnalysisResult(result);
+      const outcome = await processAnalysis(
+        { name, age, emotionalState, mainConcern, handPhotoData },
+        quizAnswers,
+      );
+      clearTimeout(stallTimeout);
+      if (navigatedRef.current) return;
 
-        generateVoiceMessage(result.spiritualMessage)
-          .then((u) => { if (u) setAudioUrl(u); })
-          .catch(() => {});
+      // Registro de sucesso/falha. Vai para o dataLayer e para a Events API —
+      // sem isto não há como saber com que frequência a IA falha em produção.
+      reportAnalysis(outcome.status === 'ok' ? 'ok' : outcome.reason, {
+        has_photo: Boolean(handPhotoData),
+        detail: outcome.status === 'failed' ? outcome.detail : undefined,
+      });
 
-        if (handPhotoData) {
-          const sk = crypto.randomUUID();
-          setSessionKey(sk);
-          uploadPalmPhotoToStorage(handPhotoData, sk)
-            .then((path) => {
-              setPalmPhotoPath(path);
-              supabase.functions.invoke('generate-palm-report-preview', {
-                body: { session_key: sk, email: email || undefined, palm_photo_path: path },
-              }).then((res) => {
-                const url = (res.data as { preview_url?: string } | null)?.preview_url;
-                if (url) setPreviewReportUrl(url);
-              }).catch(() => {});
-            })
-            .catch(() => {});
-        }
-      } catch {
-        // fallback already handled inside processAnalysis
-      } finally {
-        clearTimeout(maxTimeout);
-        // Ensure minimum display time
-        const elapsed = Date.now() - startTime;
-        const remaining = MIN_DISPLAY_MS - elapsed;
-        if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
-        goToResult();
+      if (outcome.status === 'failed') {
+        setIsAnalyzing(false);
+        setFailure(outcome.reason);
+        return; // NÃO navega: sem leitura real não há oferta
       }
+
+      const { result } = outcome;
+      setAnalysisResult(result);
+
+      generateVoiceMessage(result.spiritualMessage)
+        .then((u) => { if (u) setAudioUrl(u); })
+        .catch(() => {});
+
+      if (handPhotoData) {
+        const sk = crypto.randomUUID();
+        setSessionKey(sk);
+        uploadPalmPhotoToStorage(handPhotoData, sk)
+          .then((path) => {
+            setPalmPhotoPath(path);
+            supabase.functions.invoke('generate-palm-report-preview', {
+              body: { session_key: sk, email: email || undefined, palm_photo_path: path },
+            }).then((res) => {
+              const url = (res.data as { preview_url?: string } | null)?.preview_url;
+              if (url) setPreviewReportUrl(url);
+            }).catch(() => {});
+          })
+          .catch(() => {});
+      }
+
+      // Tempo mínimo de tela, para o escaneamento não piscar.
+      const remaining = MIN_DISPLAY_MS - (Date.now() - startTime);
+      if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
+      goToResult();
     };
 
-    setTimeout(runAnalysis, 200);
-    return () => clearTimeout(maxTimeout);
+    const kickoff = setTimeout(runAnalysis, 200);
+    return () => { clearTimeout(stallTimeout); clearTimeout(kickoff); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
+  }, [phase, retryKey]);
 
   // Salva o que ela respondeu e libera o escaneamento.
   const handleIntakeComplete = ({
@@ -263,6 +319,65 @@ const Analise = () => {
   const currentStep = STEPS[stepIndex];
 
   const isIntake = phase === 'intake';
+
+  const retryAnalysis = () => {
+    setFailure(null);
+    setProgress(0);
+    setStepIndex(0);
+    analysisStarted.current = false;
+    setRetryKey((k) => k + 1);
+  };
+
+  // ── Falha da análise ───────────────────────────────────────────────────────
+  // Nada de leitura genérica e nada de oferta: a visitante fica aqui, sabendo o
+  // que aconteceu, com a foto e as respostas dela preservadas para tentar de novo.
+  if (failure) {
+    const isTimeout = failure === 'timeout';
+    return (
+      <div
+        className="min-h-screen w-full flex items-center justify-center px-5 py-16"
+        style={{ background: 'linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)' }}
+      >
+        <div className="w-full max-w-md text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-amber-400/70 mb-5">
+            Madam Aurora
+          </p>
+          <h1 className="font-serif font-bold text-white text-2xl md:text-3xl leading-snug mb-4">
+            {isTimeout
+              ? "Your reading is taking longer than it should."
+              : "We couldn't complete your reading."}
+          </h1>
+          <p className="text-white/60 text-sm leading-relaxed mb-2">
+            {isTimeout
+              ? "Aurora didn't finish reading your lines in time. Nothing was lost — your photo and your answers are still here."
+              : "Something on our side interrupted the reading. Your photo and your answers are still here."}
+          </p>
+          <p className="text-white/40 text-xs leading-relaxed mb-8">
+            We'd rather tell you this than hand you a reading that didn't look at your hand.
+            You haven't been charged.
+          </p>
+
+          <button
+            onClick={retryAnalysis}
+            className="w-full h-auto whitespace-normal leading-snug rounded-full px-6 py-4 text-base font-black uppercase tracking-wide cursor-pointer border-none bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-gray-900"
+          >
+            Try my reading again
+          </button>
+
+          <button
+            onClick={() => navigate('/foto')}
+            className="block mx-auto mt-5 text-sm text-white/40 hover:text-white/70 underline underline-offset-4 transition-colors bg-transparent border-none cursor-pointer"
+          >
+            Use a different photo →
+          </button>
+
+          <p className="mt-10 text-[11px] text-white/25">
+            For entertainment &amp; self-reflection
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

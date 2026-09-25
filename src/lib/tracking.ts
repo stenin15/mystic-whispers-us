@@ -43,20 +43,27 @@ export function track(event: string, params: AnyRecord = {}) {
     // ignore
   }
 
+  // Meta. O `return` que existia aqui quando o fbq não estava carregado saía da
+  // função `track` INTEIRA, não só deste bloco — e levava junto o envio ao
+  // TikTok, que vem logo abaixo. Ou seja: bloqueador de anúncio, falha de rede
+  // no connect.facebook.net ou simplesmente o snippet ainda não ter carregado
+  // derrubavam o pixel do TikTok também, na plataforma onde o dinheiro está.
+  // Agora cada destino é independente: um falhar não impede o outro.
   try {
-    if (typeof window.fbq !== "function") return;
-    const standardEvents = new Set([
-      "PageView",
-      "ViewContent",
-      "Lead",
-      "CompleteRegistration",
-      "InitiateCheckout",
-      "Purchase",
-    ]);
-    if (standardEvents.has(event)) {
-      window.fbq("track", event, params);
-    } else {
-      window.fbq("trackCustom", event, params);
+    if (typeof window.fbq === "function") {
+      const standardEvents = new Set([
+        "PageView",
+        "ViewContent",
+        "Lead",
+        "CompleteRegistration",
+        "InitiateCheckout",
+        "Purchase",
+      ]);
+      if (standardEvents.has(event)) {
+        window.fbq("track", event, params);
+      } else {
+        window.fbq("trackCustom", event, params);
+      }
     }
   } catch {
     // ignore
