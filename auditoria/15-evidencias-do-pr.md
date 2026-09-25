@@ -65,7 +65,7 @@ olhar o erro. É a diferença entre o PASS e o FAIL do cenário C.
 `node auditoria/testes/02-tracking-hero-e-afirmacoes.mjs`
 
 ```
-PASS  tracking: sem fbq, o TikTok recebe eventos assim mesmo
+PASS  tracking: sem fbq, a perna de navegador do TikTok continua disparando
       fbq presente=false · eventos no ttq=3 [page, ViewContent]
 PASS  hero love: headline continua a promessa do anúncio
       "Curious what your palm says about how you love? One photo. A reading of
@@ -85,23 +85,50 @@ Telas: `hero-love.jpg`, `hero-controle.jpg`, `checkout-sem-afirmacoes.jpg`.
 
 ---
 
-## 3. O bug do `fbq` — antes e depois
+## 3. O bug do `fbq` — antes e depois, com o escopo correto
 
 `node auditoria/testes/03-ttq-sem-fbq.mjs`, com o `connect.facebook.net`
 bloqueado (o que um bloqueador de anúncio faz):
 
-| | Eventos que chegaram ao pixel do TikTok |
+| | Eventos que chegaram ao **pixel do navegador** (`ttq`) |
 |---|---|
 | **Antes** (código original) | **0** |
 | **Depois** (este PR) | **3** |
 
-Esta é, na minha leitura, a correção de maior impacto do PR. O `return` do bloco
-do Meta saía da função `track()` **inteira** e levava junto o envio ao TikTok,
-que vem depois. Qualquer visitante com bloqueador de anúncio, com falha de rede
-no `connect.facebook.net`, ou que clicasse antes de o snippet do Meta carregar,
-**não gerava nenhum evento no TikTok** — a plataforma onde o dinheiro está.
+O `return` do bloco do Meta saía da função `track()` **inteira** e levava junto a
+chamada ao `ttq`, que vem depois. Sem o `fbq`, a **perna de navegador** de todo
+evento do TikTok era perdida.
 
-Não tenho como estimar que fração do tráfego isso representou.
+### ⚠️ Correção de escopo — eu tinha exagerado esta conclusão
+
+Escrevi antes que "nenhum evento chegava ao TikTok". **Isso está errado**, e a
+revisão externa apontou corretamente: parte dos eventos tem **também uma perna
+de servidor** (`supabase.functions.invoke('track-event')`), que é uma chamada
+separada, fora da função `track()`, e portanto **nunca foi afetada por este bug**.
+
+Conferido no código, evento por evento:
+
+| Evento no TikTok | Perna de navegador | Perna de servidor | Estava perdido sem o `fbq`? |
+|---|---|---|---|
+| `PageView` | sim | **não** | **sim, por inteiro** |
+| `ViewContent` (landing e `/resultado`) | sim | **não** | **sim, por inteiro** |
+| `CompleteRegistration` | sim | sim (`Analise.tsx`) | não — chegava pelo servidor |
+| `InitiateCheckout` | sim | sim (`Checkout.tsx`, `resultPersonalization.ts`) | não — chegava pelo servidor |
+| `CompletePayment` (Purchase) | sim | sim (`Sucesso.tsx` **e** webhook da Stripe) | não — duas rotas independentes |
+
+**O que o teste 0 → 3 sustenta:** a correção daquele caminho específico — a perna
+de navegador. Nada além disso.
+
+**O que de fato se perdia:** `PageView` e `ViewContent`, que não têm perna de
+servidor. São os sinais de topo de funil. Mais a cópia de navegador dos demais,
+que é o que dá ao TikTok o par para deduplicar e os parâmetros do cliente.
+
+**O que NÃO se perdia:** conversão. `InitiateCheckout` e `CompletePayment`
+continuavam chegando pelo servidor — e o `Purchase` do webhook da Stripe é
+inteiramente server-side, sem nenhuma dependência do navegador.
+
+Continua valendo que não tenho como estimar a fração de tráfego afetada, e que
+isto **não** foi validado em produção.
 
 ---
 

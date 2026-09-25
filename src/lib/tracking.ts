@@ -44,11 +44,17 @@ export function track(event: string, params: AnyRecord = {}) {
   }
 
   // Meta. O `return` que existia aqui quando o fbq não estava carregado saía da
-  // função `track` INTEIRA, não só deste bloco — e levava junto o envio ao
-  // TikTok, que vem logo abaixo. Ou seja: bloqueador de anúncio, falha de rede
-  // no connect.facebook.net ou simplesmente o snippet ainda não ter carregado
-  // derrubavam o pixel do TikTok também, na plataforma onde o dinheiro está.
-  // Agora cada destino é independente: um falhar não impede o outro.
+  // função `track` INTEIRA, não só deste bloco — e levava junto a chamada ao
+  // ttq, logo abaixo. Bloqueador de anúncio, falha de rede no
+  // connect.facebook.net ou o snippet ainda não carregado derrubavam a PERNA DE
+  // NAVEGADOR de todo evento do TikTok.
+  //
+  // Escopo, para não superestimar: os eventos que também são enviados pelo
+  // servidor (CompleteRegistration, InitiateCheckout, Purchase — este último
+  // com uma rota extra e independente pelo webhook da Stripe) continuavam
+  // chegando. O que se perdia por inteiro eram PageView e ViewContent, que não
+  // têm perna de servidor, mais a cópia de navegador que o TikTok usa para
+  // deduplicar. Agora cada destino é independente: um falhar não impede o outro.
   try {
     if (typeof window.fbq === "function") {
       const standardEvents = new Set([
