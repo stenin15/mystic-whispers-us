@@ -16,13 +16,19 @@ calculada sem inventar o número de cima.
 |---|---|---|---|
 | 1 | **Landing** — a visitante chegou | `PageView` no pixel | ❌ perde bloqueador de anúncio |
 | 2 | **Foto** — chegou em `/foto` | `PhotoStep` no dataLayer | ❌ **ninguém consome o dataLayer** |
-| 3 | **Análise válida** — a IA respondeu de verdade | `AnalysisSucceeded` / `AnalysisFailed` | ✅ **novo, entra neste PR** |
+| 3 | **Análise válida** — a IA respondeu de verdade | `AnalysisSucceeded` / `AnalysisFailed` | ⚠️ **novo neste PR, mas dependente de plataforma** |
 | 4 | **Resultado** — viu a oferta | `ViewContent` | ⚠️ só no pixel |
 | 5 | **Checkout Stripe** — saiu para pagar | `funnel_profiles` + `InitiateCheckout` | ✅ tem linha no banco |
 | 6 | **Compra** | `stripe_purchases` (webhook) | ✅ confiável |
 
-A etapa 3 é a que este PR resolve: até agora uma falha da IA era indistinguível
-de um sucesso, **inclusive no banco**.
+A etapa 3 é a que este PR passa a sinalizar: até agora uma falha da IA era
+indistinguível de um sucesso, **inclusive no banco**.
+
+> ⚠️ **Mas não é registro próprio.** `track-event` **não grava em tabela**: só
+> encaminha para Meta CAPI, Events API do TikTok e UTMify. A contagem de falhas
+> fica dependente dessas plataformas e do que elas aceitam de evento
+> não-padrão. Para ter o número consultável por SQL, é a **Proposta C** abaixo —
+> que não foi implementada.
 
 ---
 
@@ -85,7 +91,14 @@ A tabela nova resolve isso.
 
 **Esforço: ~30 minutos. Exige migração no banco.**
 
-Uma coluna `source text` em `palm_readings` (`'ai'` ou `'fallback'`).
+Duas coisas, na mesma migração:
+
+1. Uma coluna `source text` em `palm_readings` (`'ai'` ou `'fallback'`).
+2. Uma tabela pequena `analysis_attempts` — `outcome` (`ok` · `timeout` ·
+   `server` · `empty` · `network`), `has_photo`, `created_at` — gravada pela
+   Edge Function. **É isto que torna a métrica de falha independente de Meta e
+   TikTok**, e é o que falta para responder "com que frequência a IA falha em
+   produção" por SQL.
 
 Hoje **não consigo dizer quantas das 101 linhas de `palm_readings` vieram da IA
 e quantas vieram do gerador local** — eram gravadas no mesmo formato, sem

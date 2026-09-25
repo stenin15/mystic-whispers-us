@@ -24,16 +24,22 @@ const ANALYSIS_STALL_MS = 30000;
 
 // ── Registro de sucesso/falha da análise ─────────────────────────────────────
 // Sem isto não havia como saber com que frequência a IA falha em produção: o
-// erro ficava num console.warn no navegador da visitante e sumia. Agora sai um
-// evento por tentativa, com o desfecho, pelo mesmo caminho dos demais (dataLayer
-// + Events API), e o servidor recebe uma cópia durável.
+// erro ficava num console.warn no navegador da visitante e sumia.
+//
+// ⚠️ ALCANCE DESTA MÉTRICA — não é persistência própria.
+// A Edge Function `track-event` NÃO grava nada em tabela: ela só encaminha para
+// a Meta CAPI, para a Events API do TikTok e para a UTMify. Ou seja, a contagem
+// de falhas da IA fica **dependente dessas plataformas** e sujeita ao que elas
+// aceitam de evento não-padrão. Um registro próprio, consultável por SQL, exige
+// tabela nova — está proposto em auditoria/14-proposta-medicao.md (Proposta C).
 function reportAnalysis(
   outcome: 'ok' | AnalysisFailureReason,
   extra: { has_photo?: boolean; detail?: string } = {},
 ) {
   const eventName = outcome === 'ok' ? 'AnalysisSucceeded' : 'AnalysisFailed';
+  const eventId = `analysis_${outcome}_${Date.now()}`;
   const payload = {
-    event_id: `analysis_${outcome}_${Date.now()}`,
+    event_id: eventId,
     page_path: '/analise',
     analysis_outcome: outcome,
     has_photo: extra.has_photo ?? false,
@@ -44,8 +50,21 @@ function reportAnalysis(
     ...getAttributionParams(),
   };
   track(eventName, payload);
+
+  // O corpo do track-event é tipado: os identificadores de clique vão em
+  // `meta: { fbp, fbc }` e `tiktok: { ttclid }`. Espalhar o retorno de
+  // getAdIds() no topo, como estava, deixava os três campos em posição que a
+  // função não lê — a chamada ia sem atribuição nenhuma.
+  const { fbp, fbc, ttclid } = getAdIds();
   supabase.functions.invoke('track-event', {
-    body: { event_name: eventName, ...payload, ...getAdIds() },
+    body: {
+      event_name: eventName,
+      event_id: eventId,
+      page_url: typeof window !== 'undefined' ? window.location.href : undefined,
+      utm: getAttributionParams(),
+      meta: { fbp, fbc },
+      tiktok: { ttclid },
+    },
   }).catch(() => { /* telemetria não pode quebrar a página */ });
 }
 
@@ -120,6 +139,9 @@ const Analise = () => {
   // dela — e logo abaixo dessa leitura há uma oferta de $9.90.
   const [failure, setFailure] = useState<AnalysisFailureReason | null>(null);
   const [retryKey, setRetryKey] = useState(0);
+  // Contador de tentativas. Toda escrita vinda de uma chamada assíncrona confere
+  // se ainda pertence à tentativa ativa antes de valer. Ver o efeito principal.
+  const attemptRef = useRef(0);
 
   // Retomada só vale DENTRO da mesma visita — daí sessionStorage e não o store.
   // O store persiste em localStorage, então quem já percorreu o funil antes
@@ -198,6 +220,16 @@ const Analise = () => {
     analysisStarted.current = true;
     setIsAnalyzing(true);
 
+    // Identificador desta tentativa. Uma resposta que chegue depois de a tela de
+    // erro aparecer, ou depois de a visitante clicar em "tentar de novo", é de
+    // uma tentativa que já não é a ativa — e tem que ser descartada inteira.
+    // Sem isto, uma resposta atrasada ainda gravava a leitura, emitia sucesso e
+    // navegava para a oferta por cima da tela de erro; e a tentativa velha podia
+    // atropelar a nova.
+    const attempt = attemptRef.current + 1;
+    attemptRef.current = attempt;
+    const estaAtiva = () => attemptRef.current === attempt && !navigatedRef.current;
+
     const goToResult = () => {
       if (navigatedRef.current) return;
       navigatedRef.current = true;
@@ -210,8 +242,12 @@ const Analise = () => {
     // Só existe para o caso de a promessa nunca resolver. `processAnalysis` já
     // aborta em 25s; este é o cinto de segurança, e agora ele para na tela de
     // erro em vez de empurrar a visitante para uma oferta sem leitura.
+    //
+    // Ao disparar, ele ENCERRA a tentativa (incrementa o contador), para que a
+    // resposta atrasada que venha depois não seja mais aceita por ninguém.
     const stallTimeout = setTimeout(() => {
-      if (navigatedRef.current) return;
+      if (!estaAtiva()) return;
+      attemptRef.current = attempt + 1;
       reportAnalysis('timeout');
       setIsAnalyzing(false);
       setFailure('timeout');
@@ -224,7 +260,11 @@ const Analise = () => {
         quizAnswers,
       );
       clearTimeout(stallTimeout);
-      if (navigatedRef.current) return;
+
+      // Chegou tarde, ou uma nova tentativa já começou: nada desta resposta vale.
+      // Nem o registro do evento — contar aqui inflaria a métrica com desfechos
+      // de tentativas abandonadas.
+      if (!estaAtiva()) return;
 
       // Registro de sucesso/falha. Vai para o dataLayer e para a Events API —
       // sem isto não há como saber com que frequência a IA falha em produção.
@@ -243,7 +283,7 @@ const Analise = () => {
       setAnalysisResult(result);
 
       generateVoiceMessage(result.spiritualMessage)
-        .then((u) => { if (u) setAudioUrl(u); })
+        .then((u) => { if (estaAtiva() && u) setAudioUrl(u); })
         .catch(() => {});
 
       if (handPhotoData) {
@@ -251,20 +291,23 @@ const Analise = () => {
         setSessionKey(sk);
         uploadPalmPhotoToStorage(handPhotoData, sk)
           .then((path) => {
+            if (!estaAtiva()) return;
             setPalmPhotoPath(path);
             supabase.functions.invoke('generate-palm-report-preview', {
               body: { session_key: sk, email: email || undefined, palm_photo_path: path },
             }).then((res) => {
               const url = (res.data as { preview_url?: string } | null)?.preview_url;
-              if (url) setPreviewReportUrl(url);
+              if (estaAtiva() && url) setPreviewReportUrl(url);
             }).catch(() => {});
           })
           .catch(() => {});
       }
 
-      // Tempo mínimo de tela, para o escaneamento não piscar.
+      // Tempo mínimo de tela, para o escaneamento não piscar. A visitante pode
+      // clicar em "tentar de novo" durante essa espera, então confere de novo.
       const remaining = MIN_DISPLAY_MS - (Date.now() - startTime);
       if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
+      if (!estaAtiva()) return;
       goToResult();
     };
 
@@ -321,6 +364,10 @@ const Analise = () => {
   const isIntake = phase === 'intake';
 
   const retryAnalysis = () => {
+    // Encerra a tentativa anterior AQUI, não no efeito: entre o clique e o
+    // efeito rodar existe uma janela em que a resposta antiga ainda chegaria e
+    // se daria por ativa.
+    attemptRef.current += 1;
     setFailure(null);
     setProgress(0);
     setStepIndex(0);

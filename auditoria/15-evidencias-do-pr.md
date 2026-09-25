@@ -7,56 +7,69 @@ o que de fato vai ao ar. Scripts em `auditoria/testes/`, telas em
 
 ---
 
-## 1. Caminhos de erro da análise — 16/16
+## 1. Caminhos de erro da análise — 27/27
 
 `node auditoria/testes/01-caminhos-de-erro-da-analise.mjs`
 
 ```
-════ A) IA responde 500 ════
-PASS  A) NÃO navega para /resultado · ficou em /analise
-PASS  A) mostra a tela de erro com botão de tentar de novo
-PASS  A) NÃO grava leitura no store · analysisResult=false
-PASS  A) registrou AnalysisFailed no servidor · AnalysisFailed:server
-PASS  A) sem erro de JavaScript
+A) IA responde 500 ................ não navega · tela de erro · nada gravado
+                                    AnalysisFailed · event_id=analysis_server_…
+                                    ttclid chega em tiktok.ttclid ✓
+B) 200 com corpo inútil ........... tratado como falha · analysis_empty_…
+C) IA nunca responde .............. para na tela de erro · analysis_timeout_…
+D) IA responde certo .............. /resultado · leitura gravada · AnalysisSucceeded
+E) falha → "tentar de novo" ....... segunda chamada conclui em /resultado
+F) resposta ATRASADA .............. descartada: erro permanece, nada gravado,
+                                    nenhum sucesso emitido, 1 desfecho só
+G) retry com anterior pendente .... tentativa antiga não sobrescreve nem
+                                    redireciona · 1 desfecho por tentativa
 
-════ B) IA responde 200 com corpo inútil ════
-PASS  B) trata 200 inútil como falha · path=/analise
-PASS  B) motivo registrado = empty · AnalysisFailed:empty
-
-════ C) IA nunca responde (timeout real do AbortController) ════
-PASS  C) para na tela de erro em vez de pendurar
-PASS  C) NÃO navega para /resultado · path=/analise
-PASS  C) motivo registrado = timeout · AnalysisFailed:timeout
-
-════ D) IA responde certo ════
-PASS  D) navega para /resultado · path=/resultado
-PASS  D) gravou a leitura no store · analysisResult=true
-PASS  D) registrou AnalysisSucceeded · AnalysisSucceeded:ok
-PASS  D) sem erro de JavaScript
-
-════ E) falha e depois "tentar de novo" com a IA de volta ════
-PASS  E) primeira tentativa parou no erro · path=/analise
-PASS  E) "tentar de novo" refaz a chamada e conclui · chamadas=2 path=/resultado
-
-16/16 passaram
+27/27 passaram
 ```
 
-Telas: `evidencias-pr/A-erro-500.jpg`, `B-corpo-vazio.jpg`, `C-timeout.jpg`,
-`D-sucesso.jpg`, `E-retry.jpg`.
+Telas em `auditoria/evidencias-pr/` (as mesmas são regeradas em
+`auditoria/testes/saida/` a cada execução).
 
-**O cenário C é o que prova o `AbortController`.** A função simplesmente nunca
-responde. Antes, a visitante ficava na tela de escaneamento indefinidamente — o
-`signal` nunca era repassado ao `invoke`, então o abort não cancelava nada.
+### As duas condições de corrida (F e G) — apontadas na revisão
 
-### Uma armadilha que o teste revelou, e que exigiu uma segunda correção
+O cinto de segurança de 30 s mostrava a falha mas **não invalidava a tentativa em
+curso**. Se `processAnalysis()` resolvesse depois, ainda gravava o resultado,
+emitia sucesso e navegava para `/resultado` **por cima da tela de erro**. E uma
+tentativa antiga podia atropelar a nova depois do "tentar de novo".
 
-O `supabase-js` **não relança** o abort: ele captura e devolve
-`{ data: null, error: FunctionsFetchError }`, indistinguível de uma falha comum
-de servidor. Na primeira rodada, o timeout foi contabilizado como
-`AnalysisFailed:server` — a métrica apontaria para o lugar errado.
+A correção é um **identificador por tentativa** (`attemptRef`): toda escrita
+vinda de chamada assíncrona confere se ainda pertence à tentativa ativa. O
+contador é incrementado em três pontos — ao iniciar a tentativa, quando o cinto
+de segurança dispara, e no clique do "tentar de novo" (antes do efeito rodar,
+para fechar a janela entre o clique e a remontagem).
 
-Por isso `processAnalysis` consulta `controller.signal.aborted` **antes** de
-olhar o erro. É a diferença entre o PASS e o FAIL do cenário C.
+**Os testes falham sem a correção** — é o que prova que medem o que dizem:
+
+```
+$ git stash push src/pages/Analise.tsx && npm run build
+$ node auditoria/testes/01-caminhos-de-erro-da-analise.mjs
+
+FAIL  F) a tela de erro aparece e PERMANECE · path=/resultado
+FAIL  F) a resposta atrasada NÃO grava a leitura · analysisResult=true
+FAIL  F) a resposta atrasada NÃO emite sucesso · … AnalysisFailed | AnalysisSucceeded
+FAIL  F) exatamente um desfecho registrado · 2 evento(s)
+FAIL  G) a tentativa 2 conclui normalmente · leitura="TENTATIVA ANTIGA"
+FAIL  G) a tentativa ANTIGA não sobrescreve a leitura · leitura="TENTATIVA ANTIGA"
+FAIL  G) um desfecho por tentativa, sem duplicar · AnalysisFailed | AnalysisSucceeded | AnalysisSucceeded
+FAIL  A) o ttclid chega em tiktok.ttclid · tiktok=null · utm=null
+
+19/27 passaram
+```
+
+Em F, sem a correção, a visitante **era levada à oferta** por uma resposta que
+chegou depois de já terem dito a ela que a leitura falhou. Em G, a leitura da
+tentativa abandonada **sobrescrevia** a da tentativa válida.
+
+Como o abort de 25 s normalmente encerra a chamada antes dos 30 s, os cenários
+neutralizam `AbortController.prototype.abort` para reproduzir o navegador em que
+o cancelamento não surte efeito — que é onde a corrida acontece de verdade.
+
+---
 
 ---
 
@@ -154,6 +167,56 @@ npm run build        → ✓ built
 O `tsconfig.app.json` (mais estrito que o `type-check` do projeto) acusa 17
 erros — **todos pré-existentes**, em componentes de resultado e não tocados
 aqui. Conferido com `git stash`: mesmos 17 antes das alterações.
+
+---
+
+## 6. O alcance da métrica de falha — correção de uma afirmação minha
+
+A versão anterior deste PR descrevia o registro de `AnalysisSucceeded` /
+`AnalysisFailed` como **durável**. **Não é**, e a revisão apontou corretamente.
+
+Conferido no código da Edge Function: `track-event` **não grava em tabela
+nenhuma**. A única leitura de banco que ela faz é em `stripe_purchases`, para o
+anti-spoof do `Purchase`. Fora isso, ela apenas encaminha para a Meta CAPI, para
+a Events API do TikTok e para a UTMify.
+
+**Portanto a contagem de falhas da IA é dependente dessas plataformas** e sujeita
+ao que elas aceitam de evento não-padrão. Persistência própria, consultável por
+SQL, exige tabela nova — está proposta em `14-proposta-medicao.md` (Proposta C) e
+**não** foi implementada aqui.
+
+### E o corpo da chamada estava no formato errado
+
+A revisão também apontou que `reportAnalysis()` espalhava o retorno de
+`getAdIds()` no nível superior do corpo, enquanto o contrato tipado de
+`track-event` lê `meta: { fbp, fbc }` e `tiktok: { ttclid }`. **Os três campos
+iam em posição que a função não lê** — a chamada seguia sem atribuição nenhuma.
+
+Corrigido, e agora com asserção no cenário A:
+
+```
+sem a correção:  tiktok=null · utm=null
+com a correção:  tiktok={"ttclid":"TTCLID_DE_TESTE"} · utm="static_line"
+```
+
+O motivo da falha (`timeout` · `server` · `empty` · `network`) continua
+recuperável no servidor pelo prefixo do `event_id` — `analysis_timeout_…`,
+`analysis_server_…` — já que o contrato não tem campo próprio para ele. Os
+cenários A, B e C conferem isso.
+
+---
+
+## 7. Portabilidade dos scripts
+
+A versão anterior trazia caminhos absolutos deste ambiente (binário do Chromium
+e pasta de capturas), o que tornava a instrução "rode os quatro scripts"
+inexecutável em outra máquina.
+
+Agora: `auditoria/testes/_comum.mjs` centraliza a configuração; o Chromium é o
+padrão do Playwright, com `CHROMIUM_PATH` apenas como escape; a URL vem de
+`BASE_URL` (padrão `http://localhost:5175`); e as capturas saem em
+`auditoria/testes/saida/`, relativo aos scripts e fora do git. Os scripts saem
+com código diferente de zero quando falham, então dá para encadear em CI.
 
 ---
 
