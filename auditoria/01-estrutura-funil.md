@@ -2,7 +2,7 @@
 
 ## Visão geral
 
-O funil foi **encurtado em 05/08/2026**. Antes, a usuária passava por 12 telas
+O funil foi **encurtado em 25/08/2026** (commit `2f23674`). Antes, a usuária passava por 12 telas
 antes de entregar a foto da palma (o que o anúncio prometia). Hoje são **zero**:
 a foto é a primeira coisa pedida.
 

@@ -19,6 +19,12 @@ do Ads Manager.
 
 Fonte: `PROMPT_MIGRACAO_CONTA.md` e `BRIEFING_AUDITOR_CAMPANHA.md`.
 
+> **Atenção às UTMs.** As URLs abaixo são as da campanha que **rodou**
+> (`utm_campaign=cold01`), do briefing `BRIEFING_AUDITOR_CAMPANHA.md`.
+> Existe um segundo briefing no projeto (`PROMPT_MIGRACAO_CONTA.md`) com
+> `cold02` — esse era para uma **segunda conta de anúncios** e **nunca foi ao
+> ar**. Se aparecer `cold02` em algum lugar, não é a campanha real.
+
 Configuração comum aos três:
 - Identity: Madam Aurora · "Only show as ads" marcado
 - CTA: **apenas "Learn more"**
@@ -36,7 +42,7 @@ Configuração comum aos três:
 | Arquivo | `madam-aurora-called-me-out-v4-voz.mp4` — 23,5s, 9:16, **com narração** |
 | Hook | "I let an AI read my palm… and it called me out." |
 | CTA | Learn more |
-| Destino | `https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold02&utm_content=video_calledout` |
+| Destino | `https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=video_calledout` |
 | Texto | `One photo of my hand. This is what the AI wrote back. $9.90. For entertainment only.` |
 | CTR rodada 1 | 0,62% (amostra pequena) |
 

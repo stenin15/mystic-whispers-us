@@ -7,14 +7,27 @@ que mais gerou interesse na rodada 1.
 
 ## Primeiro, o número
 
-| Fonte | CTR |
-|---|---|
-| Registro interno deste projeto (`CORRECOES_CRIATIVOS.md`, commit `c2a79d6`) | **1,16%** |
-| Briefing externo | 1,81% |
+**Número oficial: 1,81% no período 01/05–17/09** (87 cliques / 4.806 impressões),
+conforme o XLSX exportado do TikTok Ads Manager. **É esse que deve ser usado.**
 
-Não consigo confirmar qual está certo — **não tenho acesso ao TikTok Ads
-Manager**. Os dois podem ser reais em janelas de apuração diferentes. Anotei
-1,16% na época a partir de um print da tabela por anúncio.
+| Fonte | CTR | Recorte |
+|---|---|---|
+| **XLSX do TikTok Ads Manager** | **1,81%** | **01/05–17/09, confirmado** |
+| Anotação interna (`CORRECOES_CRIATIVOS.md`, commit `c2a79d6`) | 1,16% | recorte **não confirmado** — ver abaixo |
+
+**De onde veio o 1,16%:** anotei em **12/08/2026 às 02:09 UTC**, a partir de um
+print da tabela por anúncio que o dono do projeto mandou naquele momento. O
+criativo tinha entrado no ar em **08/08** — então é um retrato parcial de
+aproximadamente **quatro dias de veiculação**, não do período inteiro.
+
+Não registrei na época o recorte de datas do print nem o ID do anúncio, e **não
+tenho acesso ao Ads Manager** para conferir agora. Os dois números são
+compatíveis entre si se o CTR subiu depois de 12/08 — o que é o esperado, já
+que o criativo continuou entregando por mais cinco semanas.
+
+**Tratamento recomendado:** 1,81% é o número do XLSX para 01/05–17/09.
+1,16% fica como anotação histórica de 12/08, sem recorte confirmado, e **não
+deve ser usado em comparação**.
 
 O que importa para a auditoria e é igual nos dois casos: **este criativo fez
 cerca de 2× o CTR dos outros dois**, que ficaram em 0,55% e 0,62%.
@@ -49,7 +62,7 @@ cerca de 2× o CTR dos outros dois**, que ficaram em 0,55% e 0,62%.
 ## Página de destino
 
 ```
-https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold02&utm_content=static_love
+https://madam-aurora.co?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_love
 ```
 
 Como tem `utm_medium=paid`, a visitante cai na **versão paga da landing** — o
@@ -66,10 +79,42 @@ O texto que ela vê primeiro, logo depois de clicar:
 > $9.90 · One payment · No subscription
 > [ START MY READING → ]
 
-**Nota importante de cronologia:** esse bloco de tráfego pago entrou em **05/08**.
-Preciso verificar contigo se o "how you love" rodou antes ou depois dessa data —
-se rodou antes, o CTR de 1,16% foi medido mandando tráfego para a **página de
-vendas longa**, não para esta. Isso muda a leitura do gargalo.
+### ⚠️ Cronologia — resolvida, e ela muda a leitura do gargalo
+
+A pergunta era: o "how you love" rodou antes ou depois da landing paga? Resposta,
+com data e commit tirados do `git log`:
+
+| Data (UTC) | Evento | Fonte |
+|---|---|---|
+| 06/08 16:19 | prompts de correção dos estáticos criados | commit `7153f6e` |
+| 08/08 00:42 | criativos aprovados registrados — "how you love" ainda **pendente** | commit `b7e3503` |
+| **08/08 01:23** | **"how you love" entra como terceiro anúncio** | commit `a3303ff` "Swap the third ad for the approved love-angle static" |
+| 08/08 11:38 | textos dos anúncios ajustados ao limite de 100 caracteres | commit `7ce7469` |
+| 12/08 00:56 | correção do `ttclid` | commit `c70b863` |
+| **12/08 01:27** | **entra a landing de tráfego pago (`PaidFastHero`)** | commit `6b1a6e9` |
+| 12/08 02:09 | CTRs da rodada 1 anotados, incluindo o 1,16% | commit `c2a79d6` |
+| 25/08 01:35 | entra o funil curto (foto primeiro) | commit `2f23674` |
+
+**Conclusão: o "how you love" rodou ANTES da landing paga.** Ele entrou em
+08/08; o bloco de tráfego pago só foi publicado em 12/08 às 01:27 — **quarenta
+minutos antes** de eu anotar o CTR de 1,16%.
+
+Na prática: **o CTR de 1,16% foi obtido mandando tráfego para a página de vendas
+longa**, não para a landing curta que existe hoje. E a correção do `ttclid`
+(12/08 00:56) é ainda mais tardia — ou seja, **todo o tráfego desse criativo
+até 12/08 chegou sem atribuição possível**.
+
+Isso também explica, sem precisar de nenhuma outra hipótese, por que o relatório
+do TikTok mostra cliques e **zero conversões atribuídas**: no período em que o
+criativo entregou, a conversão não tinha como ser atribuída.
+
+Para a janela mais ampla do XLSX (01/05–17/09), atenção: ela atravessa **três
+configurações diferentes de funil** — página longa sem `ttclid`, página longa com
+`ttclid`, landing paga, e depois funil curto. Não é uma amostra homogênea.
+
+> Correção: uma versão anterior deste documento datava a landing paga em 05/08 e
+> deixava a cronologia em aberto. A data estava errada; as acima vieram do
+> `git log`.
 
 ---
 

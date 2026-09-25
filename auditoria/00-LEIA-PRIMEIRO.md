@@ -24,6 +24,7 @@ no código para montá-lo, com uma exceção declarada abaixo.
 | `10-criativos.md` | Anúncios preparados, hooks, textos, arquivos |
 | `11-tecnico.md` | Stack, hospedagem, problemas conhecidos |
 | `12-how-you-love.md` | O anúncio de melhor CTR: copy, mídia e página de destino |
+| `13-respostas-25-09.md` | **Respostas às 7 perguntas da auditoria, com fonte de cada uma** |
 | `codigo/` | Arquivos-fonte citados nos documentos |
 | `screenshots/desktop/` e `screenshots/mobile/` | 24 telas cada, cobrindo o funil inteiro |
 
@@ -54,28 +55,29 @@ e não pôde ser lido para reproduzir localmente. Nas capturas, o quadro do víd
 aparece com o placeholder. **Em produção o vídeo toca** — confirmado por
 screenshot do dono do projeto em 16/09.
 
-### 3. Uma divergência de número que preciso apontar
+### 3. Números e datas: o que mudou depois da conferência de 25/09
 
-O briefing externo cita **CTR de 1,81%** para o criativo "how you love". O
-registro interno deste projeto (`creatives/CORRECOES_CRIATIVOS.md`, commit
-`c2a79d6`) anotou **1,16%** para esse criativo na rodada 1.
+Este pacote foi revisado em **25/09** contra o XLSX do TikTok e contra o
+histórico do git. Quatro coisas foram corrigidas:
 
-Não sei qual dos dois é o número certo — os dois podem ser reais em janelas
-diferentes. **O Ads Manager é a fonte da verdade**, não este pacote. Só não
-quero que a auditoria parta de um número que eu não consigo confirmar.
+**CTR do "how you love": use 1,81%.** É o número do XLSX para 01/05–17/09
+(87 cliques / 4.806 impressões). O 1,16% que estava aqui era uma anotação de
+**12/08**, tirada de um print parcial com ~4 dias de veiculação, sem recorte
+registrado. Fica como nota histórica, não como comparação. Ver `12-how-you-love.md`.
 
-O que está registrado aqui, e é o que importa para a comparação:
+**As datas do funil estavam erradas.** A versão anterior datava a landing paga e
+o encurtamento do funil em 05/08. Pelo `git log`: a **landing paga entrou em
+12/08** (`6b1a6e9`) e o **funil curto em 25/08** (`2f23674`).
 
-| Criativo | CTR rodada 1 (registro interno) |
-|---|---|
-| Estático "Curious what your palm says about how you love?" | **1,16%** |
-| Estático "Most people never look at this line" | 0,55% |
-| Vídeo `called-me-out-v4-voz` | 0,62% (amostra pequena) |
+**A cronologia do criativo vencedor foi resolvida.** O "how you love" entrou em
+**08/08**, quatro dias **antes** da landing paga. O CTR dele foi obtido mandando
+tráfego para a **página de vendas longa**, e antes da correção do `ttclid`
+(12/08 00:56). Ver `12-how-you-love.md`.
 
-A **proporção** é a mesma que o briefing descreve: o "how you love" fez cerca de
-**2x** o CTR dos outros dois.
-
----
+**A classificação das compras estava parcialmente errada.** Eu havia escrito que
+as 6 compras reembolsadas eram todas testes do dono. **Cinco eram; uma não.**
+Houve uma compra real de terceiro em 06/08. Verificado por hash de e-mail, sem
+expor o endereço. Ver `09-performance-interna.md`.
 
 ## O que NÃO está neste pacote, de propósito
 

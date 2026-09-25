@@ -139,11 +139,11 @@ O `Button` do shadcn tem `whitespace-nowrap`. Em celular de 360-390px, a oferta
 de upgrade aparecia como `nlock complete reading + live session ($2`. Ficava na
 página de entrega, para quem já tinha pago o básico.
 
-### `ttclid` nunca capturado — corrigido em 05/08 (`c70b863`)
+### `ttclid` nunca capturado — corrigido em 12/08 (`c70b863`)
 
 Ver `07-tracking.md`. A primeira campanha (~$140) rodou sem atribuição.
 
-### Duplo checkout — corrigido em 05/08 (`6b1a6e9`)
+### Duplo checkout — corrigido em 12/08 (`6b1a6e9`)
 
 Uma visitante real criou duas sessões Stripe com milissegundos de diferença.
 

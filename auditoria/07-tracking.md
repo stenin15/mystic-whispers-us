@@ -121,7 +121,7 @@ parâmetros, em vez de gerar um novo — sem isso, o TikTok contaria duas vezes.
 
 ## Atribuição — `ttclid`
 
-Este foi o defeito mais caro do projeto, corrigido em 05/08/2026
+Este foi o defeito mais caro do projeto, corrigido em 12/08/2026
 (commit `c70b863`).
 
 **O problema:** o `ttclid` chega na URL do clique do anúncio. Numa SPA, a URL

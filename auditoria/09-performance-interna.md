@@ -45,9 +45,32 @@ O que dá para reconstruir é o funil **de meio para baixo**, por tabela:
 | Sessões de voz com a Aurora | **1** |
 | Leads capturados | **0** |
 
-**As 6 compras estão todas como `refunded`.** Foram testes do próprio dono,
-reembolsados. **O projeto não tem, hoje, nenhuma venda paga de cliente real
-registrada.**
+**As 6 compras estão todas como `refunded`**, e todas em `livemode: true` com
+`stripe_session_id` começando em `cs_live_` — foram **cobranças reais na Stripe**,
+não modo de teste, depois reembolsadas.
+
+### Quem fez cada uma (verificado, sem expor e-mail)
+
+Comparei o hash MD5 do e-mail de cada compra com o hash do e-mail do dono da
+conta. O e-mail em si não saiu do banco.
+
+| Compras | Hash do e-mail | Identificação |
+|---|---|---|
+| **5 de 6** (29/07 ×2, 31/07, 03/08, 05/08) | `90831c88…` | **bate com o e-mail do dono do projeto** — são testes dele |
+| **1 de 6** (06/08, basic $9.90) | `74a88338…` | **e-mail diferente — é uma pessoa de fora** |
+
+> **Correção de uma afirmação minha anterior.** Na primeira versão deste pacote
+> eu escrevi que as seis eram testes do dono. **Estava errado: cinco eram, uma
+> não.** Houve **uma compra real de terceiro**, em 06/08, de $9.90, depois
+> reembolsada.
+
+**Por que isso não conflita com "zero conversões atribuídas" no relatório do
+TikTok:** as duas coisas medem fatos diferentes. A Stripe registra que houve
+cobrança; o TikTok registra se conseguiu **atribuir** a conversão a um clique de
+anúncio. A correção do `ttclid` só entrou em **12/08 00:56** (commit `c70b863`)
+— ou seja, **todas as seis compras aconteceram antes de existir atribuição
+possível**. Zero conversões atribuídas é o resultado esperado, e não prova que
+não houve compra.
 
 ## Recorte da fase de tráfego pago (25/07 em diante)
 
@@ -106,11 +129,20 @@ pessoa clicando várias vezes — e foi exatamente o que gerou a correção do
 duplo-clique em `src/lib/checkout.ts`. Na apuração feita na época, a maioria
 dessas linhas era teste; **houve 1 pessoa real**.
 
-**3. O funil mudou completamente depois que esses dados foram gerados.**
-O encurtamento (foto primeiro, coleta durante o escaneamento) entrou em
-**05/08**, e a landing de tráfego pago em **05/08** também. Quase todo o volume
-acima é do funil **antigo**, de 12 telas. Como referência de conversão, esses
-números não valem para o funil de hoje.
+**3. O funil mudou duas vezes durante o período destes dados.**
+Datas conferidas no histórico do git (autoridade: `git log`):
+
+| Data | Mudança | Commit |
+|---|---|---|
+| 12/08/2026 01:27 | entra a **landing de tráfego pago** (`PaidFastHero`) | `6b1a6e9` |
+| 25/08/2026 01:35 | entra o **funil curto** (foto primeiro, coleta durante o escaneamento) | `2f23674` |
+
+Ou seja: **quase todo o volume da tabela acima é do funil antigo, de 12 telas,
+mandando tráfego para a página de vendas longa.** Como referência de conversão,
+esses números não valem para o funil de hoje.
+
+> Correção: uma versão anterior deste documento datava as duas mudanças em
+> 05/08. Estava errado. As datas acima vieram do `git log` e são as corretas.
 
 **4. Não existe base para calcular taxa de conversão.**
 Sem sessões registradas no banco e com o `dataLayer` sem consumidor
