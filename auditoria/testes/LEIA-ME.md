@@ -22,6 +22,7 @@ node auditoria/testes/01-caminhos-de-erro-da-analise.mjs    # espera 27/27
 node auditoria/testes/02-tracking-hero-e-afirmacoes.mjs     # espera 8/8
 node auditoria/testes/03-ttq-sem-fbq.mjs                    # 0 antes, 3 depois
 node auditoria/testes/04-chamadas-a-ia-por-visita.mjs       # espera 1
+node auditoria/testes/05-rotas-e-travas.mjs                 # espera 13/13
 ```
 
 Saem com código diferente de zero quando alguma asserção falha, então dá para
@@ -46,6 +47,7 @@ scripts — nada de caminho absoluto.
 | `02` | A perna de navegador do TikTok dispara sem o `fbq`; as variantes do topo por `utm_content`; e que as duas afirmações sem lastro saíram do checkout. |
 | `03` | Medição isolada do bug do `fbq`. |
 | `04` | Uma única chamada à IA por visita. |
+| `05` | Entradas diretas, travas por "tem leitura?" e o player da VSL. Para exercitar o player, construa com `VITE_VSL_VIDEO_URL` apontando para um vídeo; sem ela o teste do player é pulado. |
 
 ## Comparando com o código anterior
 

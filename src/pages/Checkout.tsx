@@ -31,9 +31,13 @@ const Checkout = () => {
   const [checkoutError, setCheckoutError] = useState<"basic" | "complete" | null>(null);
   const preselectedPlan = searchParams.get('plan') as "basic" | "complete" | null;
 
+  // Sem leitura não há o que cobrar. O destino era `/formulario`, tela do funil
+  // de 12 passos que saiu do caminho em 25/08 e hoje só existe como redirect
+  // para `/` — ou seja, a visitante dava dois saltos por uma rota morta. Manda
+  // direto para a landing, que é onde o funil recomeça.
   useEffect(() => {
     if (!canAccessResult()) {
-      navigate('/formulario');
+      navigate('/', { replace: true });
     }
   }, [canAccessResult, navigate]);
 

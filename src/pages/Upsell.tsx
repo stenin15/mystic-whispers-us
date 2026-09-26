@@ -28,9 +28,11 @@ const Upsell = () => {
   const navigate = useNavigate();
   const { name, email, analysisResult, canAccessResult, setPendingPurchase } = useHandReadingStore();
 
+  // Mesma rota morta que estava no /checkout: `/formulario` só existe como
+  // redirect para `/` desde o encurtamento do funil. Vai direto.
   useEffect(() => {
     if (!canAccessResult()) {
-      navigate('/formulario');
+      navigate('/', { replace: true });
     }
   }, [canAccessResult, navigate]);
 
