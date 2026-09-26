@@ -74,7 +74,58 @@ const CTAButton = ({
 // do anúncio e o caminho imediato; a página completa segue logo abaixo para quem
 // rolar. O orgânico não vê nada disso, e como a URL não muda, os anúncios já
 // aprovados continuam válidos sem nova moderação.
-const PaidFastHero = ({ onCtaClick }: { onCtaClick: () => void }) => (
+// ── Variantes do topo, por ângulo do anúncio ─────────────────────────────────
+// A continuidade anúncio→página é a hipótese que a auditoria quer testar: o
+// criativo de maior CTR ("Curious what your palm says about how you love?") fala
+// de COMO ELA AMA, e a primeira tela depois do clique fala de "as linhas que
+// estão de fato lá". São promessas diferentes.
+//
+// A variante é escolhida pelo `utm_content` que o próprio anúncio já carrega —
+// nenhuma URL nova, nenhuma nova moderação. `static_love` recebe o topo do
+// ângulo amor; qualquer outro valor mantém o texto atual, que segue sendo o
+// controle. Nada muda para quem já está no ar sem esse utm_content.
+//
+// As duas versões descrevem o mesmo produto e nenhuma afirma nada sobre a
+// visitante nem promete resultado — a categoria "Horoscope and fortune-telling"
+// do TikTok é restrita e julga a landing junto com o anúncio.
+type HeroAngle = "default" | "love";
+
+const HERO_COPY: Record<HeroAngle, {
+  headline: string;
+  highlight: string;
+  steps: [string, string][];
+}> = {
+  default: {
+    headline: "One photo of your palm.",
+    highlight: "A reading of the lines that are actually there.",
+    steps: [
+      ["1", "Send one photo of your hand"],
+      ["2", "The AI reads your actual lines"],
+      ["3", "Get your written reading"],
+    ],
+  },
+  love: {
+    headline: "Curious what your palm says about how you love?",
+    highlight: "One photo. A reading of the lines that are actually there.",
+    steps: [
+      ["1", "Send one photo of your hand"],
+      ["2", "The AI reads your heart line"],
+      ["3", "Get your written reading"],
+    ],
+  },
+};
+
+function getHeroAngle(search: string): HeroAngle {
+  try {
+    const fromUrl = (new URLSearchParams(search).get("utm_content") || "").toLowerCase();
+    const content = fromUrl || (getStoredUtm().utm_content || "").toLowerCase();
+    return content.includes("love") ? "love" : "default";
+  } catch {
+    return "default";
+  }
+}
+
+const PaidFastHero = ({ onCtaClick, angle = "default" }: { onCtaClick: () => void; angle?: HeroAngle }) => (
   <section
     className="relative px-5 pt-10 pb-9 text-center overflow-hidden"
     style={{ background: "linear-gradient(180deg, #08030f 0%, #0d0518 70%, #030004 100%)" }}
@@ -88,16 +139,12 @@ const PaidFastHero = ({ onCtaClick }: { onCtaClick: () => void }) => (
         Madam Aurora
       </p>
       <h1 className="font-serif font-bold text-white text-3xl md:text-4xl leading-tight">
-        One photo of your palm.
-        <span className="block text-amber-300 mt-1">A reading of the lines that are actually there.</span>
+        {HERO_COPY[angle].headline}
+        <span className="block text-amber-300 mt-1">{HERO_COPY[angle].highlight}</span>
       </h1>
 
       <div className="flex items-stretch justify-center gap-2 mt-7 text-left">
-        {[
-          ["1", "Send one photo of your hand"],
-          ["2", "The AI reads your actual lines"],
-          ["3", "Get your written reading"],
-        ].map(([n, label]) => (
+        {HERO_COPY[angle].steps.map(([n, label]) => (
           <div
             key={n}
             className="flex-1 max-w-[150px] rounded-xl px-3 py-3"
@@ -208,6 +255,9 @@ const VSL = () => {
     if (fromUrl) return fromUrl === "paid";
     return (getStoredUtm().utm_medium || "").toLowerCase() === "paid";
   }, [search]);
+
+  // Qual topo mostrar: o `utm_content` do anúncio decide. Ver HERO_COPY acima.
+  const heroAngle = useMemo(() => getHeroAngle(search), [search]);
 
   useEffect(() => {
     persistAttribution(new URLSearchParams(search));
@@ -350,7 +400,9 @@ const VSL = () => {
       </header>
 
       {/* ── ENTRADA RÁPIDA (só tráfego pago) ───────────────────────────── */}
-      {isPaidTraffic && <PaidFastHero onCtaClick={() => handleCTA("paid_hero")} />}
+      {isPaidTraffic && (
+        <PaidFastHero angle={heroAngle} onCtaClick={() => handleCTA(`paid_hero_${heroAngle}`)} />
+      )}
 
       {/* ── SECTION 1 — HERO ───────────────────────────────────────────── */}
       <ImageSection

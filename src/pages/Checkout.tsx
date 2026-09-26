@@ -228,11 +228,17 @@ const Checkout = () => {
               <div className="flex items-start gap-3">
                 <span className="text-xl flex-shrink-0 mt-0.5">🎙️</span>
                 <div>
+                  {/* O selo "$97 value" saiu daqui. A sessão com a Aurora nunca
+                      foi vendida por $97 — era uma âncora sem lastro, e a
+                      categoria "Horoscope and fortune-telling" do TikTok é
+                      restrita: a página de destino é julgada junto com o anúncio.
+                      No lugar, o que é verdade e dá para sustentar: a sessão só
+                      existe dentro do plano completo. */}
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="text-sm font-bold text-foreground">Private audio session — Aurora speaks your reading</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
                       style={{ background: 'hsl(45 95% 55% / 0.2)', color: 'hsl(45 95% 70%)', border: '1px solid hsl(45 95% 55% / 0.3)' }}>
-                      $97 value
+                      Only in the complete plan
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
@@ -283,18 +289,17 @@ const Checkout = () => {
             </div>
 
 
-            {/* Social proof contextual */}
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="flex -space-x-1.5">
-                {['from-purple-500 to-pink-500','from-pink-500 to-rose-400','from-violet-500 to-purple-400','from-blue-500 to-indigo-400'].map((g, i) => (
-                  <div key={i} className={`w-6 h-6 rounded-full bg-gradient-to-br ${g} border-2 border-background flex items-center justify-center`}>
-                    <span className="text-[7px] font-bold text-white">{'RJMK'[i]}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground/80">
-                <span className="text-foreground/90 font-medium">Women across the US</span> have already heard Aurora speak to them
-              </p>
+            {/* A prova social "Women across the US have already heard Aurora
+                speak to them", com quatro avatares R/J/M/K, saiu daqui. O banco
+                registra 6 compras, todas reembolsadas — a afirmação não tinha
+                lastro, e os avatares sugeriam clientes que não existem.
+                No lugar ficam só fatos verificáveis do próprio produto. */}
+            <div className="flex items-center justify-center gap-4 mb-4 text-[11px] text-muted-foreground/70">
+              <span>One-time payment</span>
+              <span className="text-muted-foreground/30">·</span>
+              <span>No subscription</span>
+              <span className="text-muted-foreground/30">·</span>
+              <span>Delivered instantly</span>
             </div>
 
             {checkoutError && (

@@ -43,20 +43,33 @@ export function track(event: string, params: AnyRecord = {}) {
     // ignore
   }
 
+  // Meta. O `return` que existia aqui quando o fbq não estava carregado saía da
+  // função `track` INTEIRA, não só deste bloco — e levava junto a chamada ao
+  // ttq, logo abaixo. Bloqueador de anúncio, falha de rede no
+  // connect.facebook.net ou o snippet ainda não carregado derrubavam a PERNA DE
+  // NAVEGADOR de todo evento do TikTok.
+  //
+  // Escopo, para não superestimar: os eventos que também são enviados pelo
+  // servidor (CompleteRegistration, InitiateCheckout, Purchase — este último
+  // com uma rota extra e independente pelo webhook da Stripe) continuavam
+  // chegando. O que se perdia por inteiro eram PageView e ViewContent, que não
+  // têm perna de servidor, mais a cópia de navegador que o TikTok usa para
+  // deduplicar. Agora cada destino é independente: um falhar não impede o outro.
   try {
-    if (typeof window.fbq !== "function") return;
-    const standardEvents = new Set([
-      "PageView",
-      "ViewContent",
-      "Lead",
-      "CompleteRegistration",
-      "InitiateCheckout",
-      "Purchase",
-    ]);
-    if (standardEvents.has(event)) {
-      window.fbq("track", event, params);
-    } else {
-      window.fbq("trackCustom", event, params);
+    if (typeof window.fbq === "function") {
+      const standardEvents = new Set([
+        "PageView",
+        "ViewContent",
+        "Lead",
+        "CompleteRegistration",
+        "InitiateCheckout",
+        "Purchase",
+      ]);
+      if (standardEvents.has(event)) {
+        window.fbq("track", event, params);
+      } else {
+        window.fbq("trackCustom", event, params);
+      }
     }
   } catch {
     // ignore

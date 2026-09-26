@@ -148,8 +148,12 @@ export const UpsellModal = ({ open, onUpgrade, onDecline }: Props) => {
                   Unlock <span style={{ color: 'hsl(45 95% 62%)', textShadow: '0 0 24px rgba(255,200,60,0.4)' }}>everything</span><br />
                   for just <span style={{ color: 'hsl(45 95% 62%)' }}>$20 more</span>
                 </h2>
+                {/* Mesma âncora sem lastro que saiu do /checkout: a sessão com a
+                    Aurora nunca foi vendida por $97. Este componente hoje é
+                    código morto (não é importado em lugar nenhum), mas a frase
+                    sai daqui também para não voltar ao ar por descuido. */}
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 8, lineHeight: 1.5 }}>
-                  A $97 experience — included at checkout for $29.90 total.
+                  Reading, audio session and guide — $29.90 total, one payment.
                 </p>
               </div>
 

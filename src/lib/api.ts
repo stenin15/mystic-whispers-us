@@ -1,5 +1,5 @@
 // API module for Madam Aurora spiritual analysis
-import { QuizAnswer, AnalysisResult, EnergyType, Strength, Block } from '@/store/useHandReadingStore';
+import { QuizAnswer, AnalysisResult } from '@/store/useHandReadingStore';
 import { supabase } from "@/integrations/supabase/client";
 
 const errKey = ["er", "ror"].join("");
@@ -14,163 +14,17 @@ interface FormData {
   mainConcern: string;
   handPhotoData?: string | null;
 }
+// O gerador local de leitura (tipos de energia, listas de forças e bloqueios,
+// mensagem 'espiritual' montada por template) foi REMOVIDO daqui.
+//
+// Ele existia para cobrir uma falha da IA, mas o que produzia era uma leitura
+// genérica, montada de listas fixas, sem olhar a foto da palma — e a página
+// seguinte vendia por $9.90 exatamente a promessa de que a IA tinha lido a
+// palma DELA. Manter o código aqui era um convite a religá-lo.
+//
+// Falha da IA agora devolve `status: 'failed'` e a tela de análise mostra erro
+// com opção de tentar de novo. Ver processAnalysis, mais abaixo.
 
-// Energy types based on quiz patterns
-const energyTypes: Record<string, EnergyType> = {
-  lunar: {
-    name: "Lunar Energy",
-    description:
-      "You're naturally intuitive and emotionally aware. Lunar energy tends to show up in people who feel deeply, notice subtleties, and need quiet moments to return to themselves. Your strength is your sensitivity -- when you use it with boundaries, it becomes clear guidance.",
-    icon: "Moon",
-  },
-  solar: {
-    name: "Solar Energy",
-    description:
-      "You carry momentum, warmth, and forward motion. Solar energy often shows up as confidence, vitality, and the ability to lead when things feel uncertain. When you're aligned, your presence helps others feel steadier too.",
-    icon: "Sun",
-  },
-  stellar: {
-    name: "Stellar Energy",
-    description:
-      "You're creative, perceptive, and future‑oriented. Stellar energy often shows up as vision -- seeing patterns, imagining what's possible, and looking for meaning beyond the obvious. Your gift is perspective: you can connect dots others miss.",
-    icon: "Star",
-  },
-};
-
-// Strengths pool
-const strengthsPool: Strength[] = [
-  { title: "Strong intuition", desc: "You tend to sense what's true beneath the surface -- especially in important moments.", icon: "Eye" },
-  { title: "Deep empathy", desc: "You can read emotional nuance and understand people without them explaining much.", icon: "Heart" },
-  { title: "Creative thinking", desc: "Your mind finds new angles and solutions when others get stuck.", icon: "Sparkles" },
-  { title: "Inner resilience", desc: "Even after setbacks, you can regroup and keep moving forward.", icon: "Shield" },
-  { title: "Natural wisdom", desc: "You learn quickly from life, and your perspective tends to be grounded.", icon: "Brain" },
-  { title: "Soothing presence", desc: "People feel calmer around you -- you bring steadiness to tense moments.", icon: "Leaf" },
-  { title: "Personal magnetism", desc: "When you're aligned, opportunities and connections seem to find you.", icon: "Magnet" },
-  { title: "Spiritual curiosity", desc: "You're drawn to meaning, symbolism, and self‑discovery -- in a balanced way.", icon: "Flame" },
-];
-
-// Blocks pool
-const blocksPool: Block[] = [
-  { title: "Heart guarded", desc: "Past experiences may have made you protect your heart, making deep connection feel risky.", icon: "HeartCrack" },
-  { title: "Energetic overload", desc: "You absorb a lot from your environment, which can lead to mental fog or fatigue.", icon: "Bolt" },
-  { title: "Fear of the unknown", desc: "Change may feel uncertain, which can quietly limit growth and opportunities.", icon: "CloudFog" },
-  { title: "Difficulty receiving", desc: "You give a lot, but letting yourself receive support and love can feel uncomfortable.", icon: "Hand" },
-  { title: "Repeating cycles", desc: "A familiar pattern may be repeating until you make one clear choice differently.", icon: "RefreshCw" },
-  { title: "Purpose fog", desc: "Feeling lost can be a sign it's time to reconnect with what matters most to you.", icon: "Compass" },
-];
-
-// Spiritual messages based on energy type, name, and concern
-const generateSpiritualMessage = (name: string, energyType: string, mainConcern?: string, emotionalState?: string): string => {
-  const concern = mainConcern ? mainConcern.toLowerCase() : "";
-  const emotion = emotionalState ? emotionalState.toLowerCase() : "";
-
-  const concernLine = concern
-    ? `What you're feeling around ${concern} isn't confusion — it's a signal that something important is ready to shift.`
-    : `Something in your energy is asking to be acknowledged — not solved, just seen.`;
-
-  const emotionLine = emotion
-    ? `Coming in feeling ${emotion} is not a coincidence. The lines of the palm tend to amplify what the body already knows.`
-    : `Your energy has a particular quality right now — one that comes through in the lines of your palm.`;
-
-  const messages: Record<string, string> = {
-    lunar: `${name}, your lunar energy runs deep right now.
-
-${emotionLine}
-
-${concernLine} Your intuition is your clearest tool in this moment — not certainty, but direction. Trust the pull, even when you can't explain it yet.
-
-For entertainment and self-reflection purposes.`,
-
-    solar: `${name}, there's momentum in your lines — the kind that comes before a clear move.
-
-${concernLine}
-
-${emotionLine} Solar energy at this level asks for conscious choice, not reaction. You already know more than you're admitting to yourself.
-
-For entertainment and self-reflection purposes.`,
-
-    stellar: `${name}, your stellar energy is active — pattern-seeing, future-oriented, searching for meaning.
-
-${emotionLine}
-
-${concernLine} You're in a phase of integration: the pieces are there. What's missing isn't information — it's the decision to act on what you already sense.
-
-For entertainment and self-reflection purposes.`,
-  };
-
-  return messages[energyType] || messages.lunar;
-};
-
-// Calculate dominant energy based on quiz answers
-const calculateDominantEnergy = (answers: QuizAnswer[]): string => {
-  const scores = { lunar: 0, solar: 0, stellar: 0 };
-  
-  answers.forEach(answer => {
-    switch (answer.answerId) {
-      case 'a':
-        scores.solar += 2;
-        scores.stellar += 1;
-        break;
-      case 'b':
-        scores.lunar += 2;
-        scores.stellar += 1;
-        break;
-      case 'c':
-        scores.stellar += 2;
-        scores.lunar += 1;
-        break;
-      case 'd':
-        scores.lunar += 1;
-        scores.solar += 1;
-        break;
-    }
-  });
-
-  const maxScore = Math.max(scores.lunar, scores.solar, scores.stellar);
-  if (scores.lunar === maxScore) return 'lunar';
-  if (scores.solar === maxScore) return 'solar';
-  return 'stellar';
-};
-
-const selectRandom = <T>(arr: T[], count: number): T[] => {
-  const shuffled = [...arr].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
-};
-
-type PoolItem = { title: string; desc: string; icon: string };
-
-const selectByRelevance = <T extends PoolItem>(pool: T[], count: number, mainConcern?: string): T[] => {
-  const concern = (mainConcern || "").toLowerCase();
-  const loveKeywords = ["love", "relationship", "partner", "someone", "alone", "moving on", "pattern"];
-  const purposeKeywords = ["purpose", "career", "direction", "path", "decision"];
-  const emotionKeywords = ["emotion", "blocked", "confusion", "overthinking", "anxiety"];
-
-  const isLove = loveKeywords.some(k => concern.includes(k));
-  const isPurpose = purposeKeywords.some(k => concern.includes(k));
-  const isEmotion = emotionKeywords.some(k => concern.includes(k));
-
-  const loveFirst = ["Deep empathy", "Personal magnetism", "Strong intuition", "Heart guarded", "Repeating cycles", "Difficulty receiving"];
-  const purposeFirst = ["Natural wisdom", "Creative thinking", "Inner resilience", "Purpose fog", "Fear of the unknown", "Energetic overload"];
-  const emotionFirst = ["Strong intuition", "Soothing presence", "Inner resilience", "Energetic overload", "Heart guarded", "Fear of the unknown"];
-
-  let priority: string[] = [];
-  if (isLove) priority = loveFirst;
-  else if (isPurpose) priority = purposeFirst;
-  else if (isEmotion) priority = emotionFirst;
-
-  if (priority.length === 0) return selectRandom(pool, count);
-
-  const sorted = [...pool].sort((a, b) => {
-    const ai = priority.indexOf(a.title);
-    const bi = priority.indexOf(b.title);
-    if (ai === -1 && bi === -1) return 0;
-    if (ai === -1) return 1;
-    if (bi === -1) return -1;
-    return ai - bi;
-  });
-
-  return sorted.slice(0, count);
-};
 
 // Save analysis result to database
 const saveAnalysisToDatabase = async (
@@ -204,84 +58,110 @@ const saveAnalysisToDatabase = async (
   }
 };
 
-// Main analysis function - now using real AI with timeout and retry
+// ── Resultado da análise ──────────────────────────────────────────────────────
+//
+// Antes, quando a IA falhava, esta função montava uma leitura a partir de listas
+// fixas do próprio arquivo e devolvia como se fosse o resultado real. A tela era
+// idêntica, a visitante não tinha como saber, e o funil seguia vendendo por
+// $9.90 uma leitura que nunca olhou a foto dela.
+//
+// Agora a falha é falha: quem chama recebe `status: 'failed'` com o motivo e
+// decide o que mostrar. Não existe mais caminho em que um erro vira leitura.
+export type AnalysisFailureReason =
+  | 'timeout'    // estourou o tempo (o abort de fato cancela a requisição agora)
+  | 'server'     // a função respondeu com erro
+  | 'empty'      // respondeu 200 mas sem leitura utilizável
+  | 'network';   // não chegou a falar com o servidor
+
+export type AnalysisOutcome =
+  | { status: 'ok'; result: AnalysisResult }
+  | { status: 'failed'; reason: AnalysisFailureReason; detail?: string };
+
+const ANALYSIS_TIMEOUT_MS = 25000; // maior que o timeout do servidor
+
+// A leitura só vale se vier com as partes que a página de resultado usa. Um 200
+// com corpo vazio ou truncado é falha, não sucesso.
+const isUsableReading = (value: unknown): value is AnalysisResult => {
+  if (!value || typeof value !== 'object') return false;
+  const r = value as Record<string, unknown>;
+  const energy = r.energyType as Record<string, unknown> | undefined;
+  return Boolean(
+    energy && typeof energy.name === 'string' && energy.name.trim() &&
+    Array.isArray(r.strengths) && r.strengths.length > 0 &&
+    typeof r.spiritualMessage === 'string' && (r.spiritualMessage as string).trim(),
+  );
+};
+
 export const processAnalysis = async (
   formData: FormData,
-  quizAnswers: QuizAnswer[]
-): Promise<AnalysisResult> => {
-  const TIMEOUT_MS = 25000; // 25 seconds (longer than server timeout)
-  
+  quizAnswers: QuizAnswer[],
+): Promise<AnalysisOutcome> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ANALYSIS_TIMEOUT_MS);
+
   try {
-    // Create AbortController for client-side timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-    
-    try {
-      const fnRes = await supabase.functions.invoke('palm-analysis', {
-        body: {
-          formData,
-          quizAnswers,
-          palmImageBase64: formData.handPhotoData ?? null,
-        },
-      });
+    const fnRes = await supabase.functions.invoke('palm-analysis', {
+      body: {
+        formData,
+        quizAnswers,
+        palmImageBase64: formData.handPhotoData ?? null,
+      },
+      // O AbortController já existia, mas o signal nunca era repassado: o abort
+      // disparava e a requisição seguia viva. Na prática não havia timeout —
+      // uma função travada segurava a visitante na tela de escaneamento.
+      signal: controller.signal,
+    });
 
-      clearTimeout(timeoutId);
-
-      const fnRec = fnRes as unknown as Record<string, unknown>;
-      const fnIssue = fnRec[errKey];
-      const data = fnRec.data as unknown;
-      if (fnIssue) {
-        console.warn('Analysis failed:', fnIssue);
-        throw fnIssue;
-      }
-
-      const dataRec = (data && typeof data === "object") ? (data as Record<string, unknown>) : null;
-      if (dataRec && dataRec[errKey]) {
-        throw new ErrCtor(String(dataRec[errKey]));
-      }
-
-      const result = data as AnalysisResult;
-      
-      // Save to database in background (don't await)
-      saveAnalysisToDatabase(formData, quizAnswers, result);
-      
-      return result;
-    } catch (fetchIssue: unknown) {
-      clearTimeout(timeoutId);
-      
-      // If this was a timeout or network abort, fall back
-      const abortName = ["Abort", "Er", "ror"].join("");
-      const fetchRec = (fetchIssue && typeof fetchIssue === "object") ? (fetchIssue as Record<string, unknown>) : null;
-      const name = fetchRec ? String(fetchRec.name ?? "") : "";
-      const msg = fetchRec ? String(fetchRec.message ?? "") : "";
-      if (name === abortName || msg.toLowerCase().includes('timeout')) {
-        console.warn('Analysis timeout, using fallback');
-        throw new ErrCtor('TIMEOUT');
-      }
-      
-      throw fetchIssue;
+    // O supabase-js NÃO relança o abort: ele captura e devolve
+    // `{ data: null, error: FunctionsFetchError }`, indistinguível de uma falha
+    // do servidor. Por isso o estado do signal é consultado antes de olhar o
+    // erro — senão todo timeout seria contabilizado como erro de servidor, e a
+    // métrica de falha apontaria para o lugar errado.
+    if (controller.signal.aborted) {
+      console.error('[analysis] estourou o tempo de', ANALYSIS_TIMEOUT_MS, 'ms');
+      return { status: 'failed', reason: 'timeout' };
     }
-  } catch (err) {
-    console.warn('processAnalysis failed:', err);
-    
-    // Fallback to local analysis if AI fails — uses concern + energy for relevance
-    const dominantEnergy = calculateDominantEnergy(quizAnswers);
-    const energyType = energyTypes[dominantEnergy];
-    const strengths = selectByRelevance(strengthsPool, 3, formData.mainConcern) as Strength[];
-    const blocks = selectByRelevance(blocksPool, 2, formData.mainConcern) as Block[];
-    const spiritualMessage = generateSpiritualMessage(formData.name, dominantEnergy, formData.mainConcern, formData.emotionalState);
 
-    const fallbackResult = {
-      energyType,
-      strengths,
-      blocks,
-      spiritualMessage,
-    };
-    
-    // Save fallback result to database too
-    saveAnalysisToDatabase(formData, quizAnswers, fallbackResult);
-    
-    return fallbackResult;
+    const fnRec = fnRes as unknown as Record<string, unknown>;
+    const fnIssue = fnRec[errKey];
+    if (fnIssue) {
+      const detail = String((fnIssue as { message?: string })?.message ?? fnIssue);
+      console.error('[analysis] função respondeu com erro:', detail);
+      return { status: 'failed', reason: 'server', detail };
+    }
+
+    const data = fnRec.data as unknown;
+    const dataRec = (data && typeof data === 'object') ? (data as Record<string, unknown>) : null;
+    if (dataRec && dataRec[errKey]) {
+      const detail = String(dataRec[errKey]);
+      console.error('[analysis] função devolveu erro no corpo:', detail);
+      return { status: 'failed', reason: 'server', detail };
+    }
+
+    if (!isUsableReading(data)) {
+      console.error('[analysis] resposta sem leitura utilizável');
+      return { status: 'failed', reason: 'empty' };
+    }
+
+    // Grava em segundo plano; falha de gravação não invalida a leitura.
+    saveAnalysisToDatabase(formData, quizAnswers, data);
+
+    return { status: 'ok', result: data };
+  } catch (issue: unknown) {
+    const rec = (issue && typeof issue === 'object') ? (issue as Record<string, unknown>) : null;
+    const name = rec ? String(rec.name ?? '') : '';
+    const detail = rec ? String(rec.message ?? '') : String(issue);
+    const aborted = name === ['Abort', 'Er', 'ror'].join('') || controller.signal.aborted;
+
+    if (aborted) {
+      console.error('[analysis] estourou o tempo de', ANALYSIS_TIMEOUT_MS, 'ms');
+      return { status: 'failed', reason: 'timeout' };
+    }
+
+    console.error('[analysis] falha de rede:', detail);
+    return { status: 'failed', reason: 'network', detail };
+  } finally {
+    clearTimeout(timeoutId);
   }
 };
 
