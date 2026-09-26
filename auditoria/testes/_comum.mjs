@@ -29,6 +29,12 @@ export const CORS = () => ({
   'Content-Type': 'application/json',
 });
 
+// PNG 100x100 sólido, suficiente para o upload e a compressão.
+export const PALMA_MINIMA = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAJUlEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAA4NcAKvgAAdK6L0oAAAAASUVORK5CYII=',
+  'base64',
+);
+
 export const LEITURA = {
   energyType: { name: 'The Quiet Flame', description: 'You feel deeply before you speak.', icon: 'flame' },
   strengths: [{ title: 'Deep intuition', desc: 'You read a room before it speaks.', icon: 'eye' }],
@@ -49,8 +55,12 @@ export async function ateOEscaneamento(page, query = '?utm_source=tiktok&utm_med
   await page.waitForTimeout(1500);
   await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /start my reading/i.test(b.innerText))?.click());
   await page.waitForTimeout(1500);
-  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /skip for now/i.test(b.innerText))?.click());
-  await page.waitForTimeout(1500);
+  // A foto é obrigatória desde 26/09 — não há mais atalho para pular. Envia uma
+  // imagem mínima e segue, que é o caminho real da visitante.
+  await page.setInputFiles('input[type=file]', { name: 'palm.png', mimeType: 'image/png', buffer: PALMA_MINIMA });
+  await page.waitForTimeout(2500);
+  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /start my reading/i.test(b.innerText))?.click());
+  await page.waitForTimeout(2000);
   await page.fill('input', 'Sarah');
   await page.waitForTimeout(300);
   await page.evaluate(() => [...document.querySelectorAll('button')].find((x) => /continue/i.test(x.innerText))?.click());

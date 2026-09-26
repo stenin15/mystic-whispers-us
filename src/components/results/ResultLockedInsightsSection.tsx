@@ -9,31 +9,30 @@ interface Props {
   result?: AnalysisResult | null;
 }
 
-const CARDS = [
-  {
-    label: 'Emotional Loop',
-    teaser: 'A recurring pattern was identified in how you enter and exit emotional connections.',
-    blurred: 'Your heart line shows a specific fork that appears in people who tend to retract emotionally right before a significant opening. This creates a cycle where connection is initiated but completion is delayed — not by circumstance, but by an internal pattern set early in life.',
-    color: 'hsl(350 80% 65%)',
-    border: 'rgba(239,68,68,0.22)',
-    bg: 'rgba(239,68,68,0.07)',
-  },
-  {
-    label: 'Timing Pattern',
-    teaser: 'Your emotional timing appears connected to a specific relational signal.',
-    blurred: 'The fate line in your palm reveals a timing pattern that activates during periods of emotional uncertainty — not readiness. This means you may be most available for love precisely when external conditions feel unstable. Understanding this pattern changes how you interpret your own desires.',
-    color: 'hsl(45 95% 62%)',
-    border: 'rgba(251,191,36,0.22)',
-    bg: 'rgba(251,191,36,0.07)',
-  },
-  {
-    label: 'Attachment Response',
-    teaser: 'The way you attach to others may be rooted in a pattern older than your current relationships.',
-    blurred: 'Your palm reveals an attachment signature that appears in people who learned early to equate love with tension. This doesn\'t mean your relationships are doomed — it means your nervous system learned to recognize love through a specific emotional texture. Naming it is the first step to changing it.',
-    color: 'hsl(280 60% 72%)',
-    border: 'rgba(139,62,218,0.22)',
-    bg: 'rgba(139,62,218,0.07)',
-  },
+// Os três cards bloqueados. O texto borrado ERA fixo e inventado — "Your heart
+// line shows a specific fork…", "The fate line in your palm reveals…" — o mesmo
+// para toda visitante, apresentado como achado dela e como o que ela compraria.
+//
+// Agora o conteúdo borrado vem da análise real: os blocos e forças que o modelo
+// escreveu para ela. É o que de fato está por trás do paywall, e é dela.
+// O fallback não descreve linha nenhuma: diz o que a seção cobre.
+const CARD_ESTILO = [
+  { label: 'Emotional Loop',       color: 'hsl(350 80% 65%)',  border: 'rgba(239,68,68,0.22)',   bg: 'rgba(239,68,68,0.07)' },
+  { label: 'Timing Pattern',       color: 'hsl(45 95% 62%)',   border: 'rgba(251,191,36,0.22)',  bg: 'rgba(251,191,36,0.07)' },
+  { label: 'Attachment Response',  color: 'hsl(280 60% 72%)',  border: 'rgba(139,62,218,0.22)',  bg: 'rgba(139,62,218,0.07)' },
+];
+
+const TEASER_PADRAO = [
+  'A recurring pattern in how you enter and exit emotional connections.',
+  'How your emotional timing connects to what is happening around you.',
+  'The way you attach, and where that pattern started.',
+];
+
+// Sem conteúdo real, não se promete achado: descreve-se o tema.
+const RESERVA = [
+  'This part of your reading describes the pattern Aurora found in how you open and close emotional distance.',
+  'This part of your reading describes when your openness tends to arrive, and what it follows.',
+  'This part of your reading describes how you attach, and what that pattern protects.',
 ];
 
 const fadeUp = (delay = 0) => ({
@@ -55,6 +54,18 @@ export const ResultLockedInsightsSection = ({ firstName, mainConcern, result }: 
     revealedBlock?.desc ||
     result?.spiritualMessage ||
     texts.previewInsightText;
+
+  // Material real da leitura para os cards bloqueados: os blocos seguintes (o
+  // primeiro já é revelado acima) e depois as forças. Nada é inventado aqui.
+  const material = [
+    ...(result?.blocks ?? []).slice(1),
+    ...(result?.strengths ?? []),
+  ];
+  const cards = CARD_ESTILO.map((estilo, i) => ({
+    ...estilo,
+    teaser: material[i]?.title || TEASER_PADRAO[i],
+    blurred: material[i]?.desc || RESERVA[i],
+  }));
 
   const onUnlock = () => {
     pushDL({ event: 'LockedInsightsUnlockClicked' });
@@ -83,15 +94,9 @@ export const ResultLockedInsightsSection = ({ firstName, mainConcern, result }: 
 
           {/* Header */}
           <motion.div {...fadeUp(0)} className="text-center mb-10">
-            {/* Rarity signal — increases perceived value before paywall */}
-            <motion.div
-              {...fadeUp(0)}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.18em] mb-4"
-              style={{ background: 'rgba(139,62,218,0.12)', border: '1px solid rgba(139,62,218,0.28)', color: 'hsl(280 60% 75%)' }}
-            >
-              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: 'hsl(280 60% 65%)', boxShadow: '0 0 6px hsl(280 60% 65%)' }} />
-              Rare pattern detected in your reading
-            </motion.div>
+            {/* O selo "Rare pattern detected in your reading" saiu daqui: era
+                mostrado a toda visitante, sem nada no produto que classifique
+                raridade. Afirmação sem lastro, e a categoria é restrita. */}
             <span
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.22em] mb-6"
               style={{ background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.25)', color: 'hsl(45 95% 65%)' }}
@@ -157,7 +162,7 @@ export const ResultLockedInsightsSection = ({ firstName, mainConcern, result }: 
 
           {/* Cards */}
           <div className="space-y-4 mb-10">
-            {CARDS.map((card, i) => (
+            {cards.map((card, i) => (
               <motion.div
                 key={card.label}
                 {...fadeUp(0.1 + i * 0.1)}

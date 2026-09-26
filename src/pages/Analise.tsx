@@ -215,6 +215,17 @@ const Analise = () => {
   // Main analysis — espera a coleta terminar, porque a leitura usa as respostas.
   useEffect(() => {
     if (!canAccessAnalysis()) { navigate('/', { replace: true }); return; }
+
+    // Sem foto não há leitura de palma — e esta tela inteira, mais o resultado,
+    // o checkout e a entrega, afirmam ter visto as linhas dela.
+    //
+    // Não basta ter tirado o botão "Skip" de /foto: `handPhotoData` NÃO é
+    // persistido (fica de fora do `partialize` do store, por tamanho e por
+    // privacidade). Quem atualiza a página aqui, ou volta pelo histórico, chega
+    // com `hasHandPhoto: true` no storage e a imagem já perdida da memória — e
+    // a análise seguia, sem palma nenhuma, afirmando o contrário. Volta para
+    // /foto para reenviar.
+    if (!handPhotoData) { navigate('/foto', { replace: true }); return; }
     if (phase !== 'scanning') return;
     if (analysisStarted.current) return;
     analysisStarted.current = true;

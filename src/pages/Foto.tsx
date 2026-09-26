@@ -84,16 +84,18 @@ const Foto = () => {
     navigate('/analise');
   };
 
-  const handleSkip = () => {
-    track('PhotoSkipped', {
-      event_id: getOrCreateEventId('photo_skipped'),
-      page_path: '/foto',
-      angle: getStoredAngle(),
-      focus: getStoredFocus(),
-      ...getAttributionParams(),
-    });
-    navigate('/analise');
-  };
+  // O atalho "Skip for now — continue without a photo" foi REMOVIDO.
+  //
+  // O produto é uma leitura de palma: o anúncio promete "uma foto da sua mão, a
+  // IA lê as suas linhas", e todas as telas seguintes — resultado, checkout e
+  // entrega — afirmam ter visto as linhas dela. Sem a foto, essas afirmações
+  // eram falsas, e a visitante pagava $9.90 por uma leitura de três respostas
+  // apresentada como leitura de mão.
+  //
+  // A alternativa seria manter o caminho sem foto com linguagem própria em
+  // ~16 lugares. Não compensa: o banco mostra **zero** sessões sem foto em 49
+  // (nenhuma desde o funil curto), então o atalho não estava sendo usado por
+  // ninguém — só criava a possibilidade de a promessa não se cumprir.
 
   const firstName = name?.trim().split(' ')[0] || 'there';
 
@@ -169,12 +171,9 @@ const Foto = () => {
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
 
-          <button
-            onClick={handleSkip}
-            className="block mx-auto mt-5 text-sm text-muted-foreground/50 hover:text-muted-foreground underline underline-offset-4 transition-colors"
-          >
-            Skip for now — continue without a photo →
-          </button>
+          <p className="mx-auto mt-5 text-xs text-muted-foreground/45 max-w-xs">
+            Aurora reads the lines in your photo. Without it, there is no reading.
+          </p>
         </motion.div>
       </div>
     </div>

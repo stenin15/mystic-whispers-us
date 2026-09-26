@@ -132,6 +132,18 @@ export const ResultHeroSection = ({
   const card1Text = texts.emotionalPatternText;
   const card3Text = texts.innerStrengthText || firstStrength?.desc || 'You are learning to choose yourself without losing your softness.';
 
+  // Frase de abertura. Era fixa — "Your palm reveals emotional patterns tied to
+  // timing, attachment, and how love moves for you" — igual para todo mundo,
+  // apresentada como se fosse observação da mão dela. Agora sai da análise de
+  // verdade: `palmObservations` é o que o modelo escreveu olhando a foto.
+  //
+  // O fallback não afirma nada sobre a palma: se a observação não veio, a frase
+  // fala do que a leitura cobre, não do que teria sido visto.
+  const observation = result.palmObservations?.trim();
+  const openingLine = observation
+    || result.energyType?.description?.trim()
+    || 'Your reading covers emotional patterns tied to timing, attachment, and how love moves for you.';
+
   const LOCKED_ITEMS = ['Compatibility insight', 'Timing window', 'Emotional cycle', 'Future pattern'];
 
   return (
@@ -218,7 +230,7 @@ export const ResultHeroSection = ({
                 </span>
               </h1>
               <p className="text-white/48 text-sm leading-relaxed mt-3 max-w-[270px]">
-                Your palm reveals emotional patterns tied to timing, attachment, and how love moves for you.
+                {openingLine}
               </p>
             </motion.div>
 
@@ -305,7 +317,7 @@ export const ResultHeroSection = ({
                 Your full reading is ready
               </h2>
               <p className="text-sm leading-relaxed max-w-[200px]" style={{ color: 'rgba(255,255,255,0.42)' }}>
-                Unlock the complete emotional pattern hidden in your palm.
+                Unlock the complete reading Aurora wrote from your photo.
               </p>
             </div>
 
@@ -372,7 +384,7 @@ export const ResultHeroSection = ({
               </span>
             </h1>
             <p className="text-white/48 text-sm leading-relaxed max-w-[290px] mx-auto">
-              Your palm reveals patterns tied to timing, attachment, and how you experience love.
+              {openingLine}
             </p>
           </motion.div>
         </div>

@@ -200,26 +200,16 @@ const OfertaGuiaExclusivo = () => {
           </div>
         </motion.div>
 
-        {/* Testimonial */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="glass rounded-2xl p-6 text-center mb-8"
-        >
-          <div className="flex justify-center mb-3">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className="w-5 h-5 text-mystic-gold fill-mystic-gold"
-              />
-            ))}
-          </div>
-          <p className="text-muted-foreground italic mb-3">
-            "The guide helped me understand what kept repeating -- and the steps felt grounded and easy to follow."
-          </p>
-          <p className="text-foreground font-medium">-- Michelle S.</p>
-        </motion.div>
+        {/* DEPOIMENTO REMOVIDO — "Michelle S.", 5 estrelas, sobre o guia.
+            Não existe autorização nem registro verificável de que essa pessoa
+            exista ou tenha dito isso; o banco registra 6 compras, todas
+            reembolsadas, e nenhuma avaliação. Depoimento inventado é o que a
+            regra da FTC sobre endorsements pune, e a categoria "Horoscope and
+            fortune-telling" do TikTok é restrita — a página de destino é
+            julgada junto com o anúncio.
+
+            Quando houver depoimento real, com autorização registrada, é aqui
+            que ele entra. Até lá, a página vende pelo que o produto entrega. */}
 
         {/* Legal Footer */}
         <LegalFooter />
