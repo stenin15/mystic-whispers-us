@@ -44,7 +44,8 @@ p.log('tracking: sem fbq, a perna de navegador do TikTok continua disparando',
   semFbq.ttq.length > 0 && !semFbq.temFbq,
   `fbq presente=${semFbq.temFbq} · eventos no ttq=${semFbq.ttq.length} [${[...new Set(semFbq.ttq)].join(', ')}]`);
 
-// ── 2. variante do topo por utm_content ────────────────────────────────────
+// ── 2. o topo do tráfego pago é UM só ──────────────────────────────────────
+// O teste A/B por utm_content foi retirado: todo clique pago vê a mesma tela.
 async function topo(url) {
   const ctx = await navegador.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   await silenciarTerceiros(ctx);
@@ -62,21 +63,22 @@ async function topo(url) {
   return { page, ctx, h };
 }
 
-const love = await topo('/?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_love');
-p.log('hero love: headline continua a promessa do anúncio', /how you love/i.test(love.h.h1 || ''), love.h.h1);
-p.log('hero love: passo 2 fala da linha do coração', /heart line/i.test(love.h.passo2 || ''), love.h.passo2);
-await love.page.screenshot({ path: path.join(SAIDA, 'hero-love.png') });
-await love.ctx.close();
+const comLove = await topo('/?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_love');
+p.log('anúncio "love": topo com a pergunta sobre como ela ama', /how you love/i.test(comLove.h.h1 || ''), comLove.h.h1);
+p.log('e o passo 2 fala da linha do coração', /heart line/i.test(comLove.h.passo2 || ''), comLove.h.passo2);
+await comLove.page.screenshot({ path: path.join(SAIDA, 'hero-pago.png') });
+await comLove.ctx.close();
 
-const line = await topo('/?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_line');
-p.log('hero controle: os outros anúncios mantêm o texto atual',
-  /one photo of your palm/i.test(line.h.h1 || '') && !/how you love/i.test(line.h.h1 || ''), line.h.h1);
-await line.page.screenshot({ path: path.join(SAIDA, 'hero-controle.png') });
-await line.ctx.close();
+const comLine = await topo('/?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_line');
+p.log('anúncio "line": MESMO topo, sem duplicação', comLine.h.h1 === comLove.h.h1, comLine.h.h1);
+await comLine.ctx.close();
+
+const semContent = await topo('/?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01');
+p.log('anúncio sem utm_content: MESMO topo', semContent.h.h1 === comLove.h.h1, semContent.h.h1);
+await semContent.ctx.close();
 
 const semUtm = await topo('/');
-p.log('orgânico: nenhuma das variantes aparece',
-  !/how you love|A reading of the lines that are actually there/i.test(semUtm.h.h1 || ''), 'h1=' + semUtm.h.h1);
+p.log('orgânico: não vê o topo pago', !/how you love/i.test(semUtm.h.h1 || ''), 'h1=' + (semUtm.h.h1 || 'nenhum (landing é imagem)'));
 await semUtm.ctx.close();
 
 // ── 3. as afirmações sem lastro sumiram do checkout ────────────────────────
