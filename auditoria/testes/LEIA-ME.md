@@ -19,7 +19,7 @@ A porta **5175** importa: é uma das origens aceitas pelas Edge Functions
 
 ```bash
 node auditoria/testes/01-caminhos-de-erro-da-analise.mjs    # espera 27/27
-node auditoria/testes/02-tracking-hero-e-afirmacoes.mjs     # espera 8/8
+node auditoria/testes/02-tracking-hero-e-afirmacoes.mjs     # espera 9/9
 node auditoria/testes/03-ttq-sem-fbq.mjs                    # 0 antes, 3 depois
 node auditoria/testes/04-chamadas-a-ia-por-visita.mjs       # espera 1
 node auditoria/testes/05-rotas-e-travas.mjs                 # espera 13/13
