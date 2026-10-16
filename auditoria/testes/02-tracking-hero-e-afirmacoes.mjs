@@ -32,7 +32,7 @@ async function medirTtq(comFbq) {
   }, comFbq);
   await page.goto(BASE + '/?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_love', { waitUntil: 'load' });
   await page.waitForTimeout(2500);
-  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /start my reading/i.test(b.innerText))?.click());
+  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /read my heart line|start my reading/i.test(b.innerText))?.click());
   await page.waitForTimeout(2000);
   const out = await page.evaluate(() => ({ ttq: window.__ttq || [], temFbq: typeof window.fbq === 'function' }));
   await ctx.close();
@@ -64,7 +64,11 @@ async function topo(url) {
 }
 
 const comLove = await topo('/?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_love');
-p.log('anúncio "love": topo com a pergunta sobre como ela ama', /how you love/i.test(comLove.h.h1 || ''), comLove.h.h1);
+// Versão black (16/10): o topo deixou de ser pergunta e passou a falar da heart
+// line de forma afirmativa. A asserção casa pelo eixo do texto — heart line +
+// love — e não pela frase exata, para não quebrar a cada ajuste de copy.
+p.log('topo pago: fala da heart line e de love',
+  /heart line/i.test(comLove.h.h1 || '') && /love/i.test(comLove.h.h1 || ''), comLove.h.h1);
 p.log('e o passo 2 fala da linha do coração', /heart line/i.test(comLove.h.passo2 || ''), comLove.h.passo2);
 await comLove.page.screenshot({ path: path.join(SAIDA, 'hero-pago.png') });
 await comLove.ctx.close();
@@ -78,7 +82,7 @@ p.log('anúncio sem utm_content: MESMO topo', semContent.h.h1 === comLove.h.h1, 
 await semContent.ctx.close();
 
 const semUtm = await topo('/');
-p.log('orgânico: não vê o topo pago', !/how you love/i.test(semUtm.h.h1 || ''), 'h1=' + (semUtm.h.h1 || 'nenhum (landing é imagem)'));
+p.log('orgânico: não vê o topo pago', !/heart line/i.test(semUtm.h.h1 || ''), 'h1=' + (semUtm.h.h1 || 'nenhum (landing é imagem)'));
 await semUtm.ctx.close();
 
 // ── 3. as afirmações sem lastro sumiram do checkout ────────────────────────
@@ -89,7 +93,7 @@ await semUtm.ctx.close();
   const page = await ctx.newPage();
   await page.goto(BASE + '/?utm_medium=paid', { waitUntil: 'load' });
   await page.waitForTimeout(1200);
-  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /start my reading/i.test(b.innerText))?.click());
+  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /read my heart line|start my reading/i.test(b.innerText))?.click());
   await page.waitForTimeout(1200);
   await page.goto(BASE + '/checkout?plan=complete', { waitUntil: 'load' });
   await page.waitForTimeout(2500);

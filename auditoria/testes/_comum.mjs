@@ -53,13 +53,13 @@ export async function silenciarTerceiros(ctx) {
 export async function ateOEscaneamento(page, query = '?utm_source=tiktok&utm_medium=paid&utm_campaign=cold01&utm_content=static_line') {
   await page.goto(BASE + '/' + query, { waitUntil: 'load' });
   await page.waitForTimeout(1500);
-  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /start my reading/i.test(b.innerText))?.click());
+  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /read my heart line|start my reading/i.test(b.innerText))?.click());
   await page.waitForTimeout(1500);
   // A foto é obrigatória desde 26/09 — não há mais atalho para pular. Envia uma
   // imagem mínima e segue, que é o caminho real da visitante.
   await page.setInputFiles('input[type=file]', { name: 'palm.png', mimeType: 'image/png', buffer: PALMA_MINIMA });
   await page.waitForTimeout(2500);
-  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /start my reading/i.test(b.innerText))?.click());
+  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /read my heart line|start my reading/i.test(b.innerText))?.click());
   await page.waitForTimeout(2000);
   await page.fill('input', 'Sarah');
   await page.waitForTimeout(300);

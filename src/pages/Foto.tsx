@@ -11,7 +11,7 @@ import { getAttributionParams, getStoredAngle, getStoredFocus } from '@/lib/mark
 
 const Foto = () => {
   const navigate = useNavigate();
-  const { name, setFormData, handPhotoData } = useHandReadingStore();
+  const { setFormData, handPhotoData } = useHandReadingStore();
   const [preview, setPreview] = useState(() => handPhotoData || '');
   const [issue, setIssue] = useState('');
   const [loading, setLoading] = useState(false);
@@ -97,8 +97,6 @@ const Foto = () => {
   // (nenhuma desde o funil curto), então o atalho não estava sendo usado por
   // ninguém — só criava a possibilidade de a promessa não se cumprir.
 
-  const firstName = name?.trim().split(' ')[0] || 'there';
-
   return (
     <div className="min-h-screen relative overflow-hidden py-20 px-4" style={{ background: "linear-gradient(170deg, #0a0812 0%, #080810 40%, #06060e 100%)" }}>
 
@@ -117,10 +115,18 @@ const Foto = () => {
             <span className="text-sm text-primary">Your photo is analyzed privately — never shared or sold</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-serif font-bold mb-3">
-            <span className="gradient-text">One photo away from your answer</span>
+            <span className="gradient-text">The line is already there.</span>
           </h1>
+          {/* O texto anterior dizia "{firstName}, the quiz revealed your pattern"
+              — herança do funil de 12 telas. Desde 25/08 a foto vem PRIMEIRO:
+              o quiz ainda não aconteceu e `name` está vazio neste ponto, então
+              a frase era factualmente errada e o nome saía como "there".
+              O texto novo fala do que ela está prestes a fazer, descreve a
+              linha e não afirma nada sobre ela. */}
           <p className="text-muted-foreground/80 max-w-md mx-auto">
-            {firstName}, the quiz revealed your pattern — now Aurora needs to see your specific lines to complete the reading. This is what makes it personal, not generic.
+            One photo of your open hand is all Aurora needs. She reads the heart
+            line — its curve, its breaks, where it ends — and writes what those
+            lines show about how love moves.
           </p>
         </motion.div>
 
@@ -167,7 +173,7 @@ const Foto = () => {
             )}
           >
             <Sparkles className="w-5 h-5 mr-2" />
-            Start my reading
+            Read my heart line
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
 

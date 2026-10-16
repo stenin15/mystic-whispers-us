@@ -27,7 +27,7 @@ await page.addInitScript(() => {
 });
 await page.goto(BASE + '/?utm_medium=paid&utm_content=static_love', { waitUntil: 'load' });
 await page.waitForTimeout(2500);
-await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /start my reading/i.test(b.innerText))?.click());
+await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /read my heart line|start my reading/i.test(b.innerText))?.click());
 await page.waitForTimeout(2000);
 const r = await page.evaluate(() => ({ n: (window.__ttq || []).length, ev: [...new Set(window.__ttq || [])] }));
 console.log(`eventos na perna de navegador do TikTok, sem o fbq: ${r.n}  [${r.ev.join(', ')}]`);

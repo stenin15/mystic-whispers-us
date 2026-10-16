@@ -74,28 +74,47 @@ const CTAButton = ({
 // do anúncio e o caminho imediato; a página completa segue logo abaixo para quem
 // rolar. O orgânico não vê nada disso, e como a URL não muda, os anúncios já
 // aprovados continuam válidos sem nova moderação.
-// ── Topo do tráfego pago — UMA versão só ─────────────────────────────────────
-// Existiu aqui um teste A/B: o topo "how you love" para o anúncio de maior CTR e
-// o texto anterior como controle, escolhidos pelo `utm_content`. Foi retirado a
-// pedido — duas versões da mesma tela significam dois textos para manter, duas
-// leituras para comparar e um resultado que só fecha com volume que não temos.
+// ── Topo do tráfego pago — versão BLACK, uma só ──────────────────────────────
+// Existiu aqui um teste A/B por `utm_content`. Foi retirado em 27/09: duas
+// versões da mesma tela são dois textos para manter e um resultado que só fecha
+// com volume que a campanha não tem.
 //
-// Fica o ângulo do criativo que mais gerou interesse: a pergunta sobre COMO ELA
-// AMA. É a promessa do anúncio repetida na primeira tela depois do clique, que
-// era o ponto de descontinuidade que a auditoria apontou.
+// Em 16/10 o texto virou a versão "black": mais agressivo, centrado na heart
+// line, e com o CTA nomeando a linha em vez do produto.
 //
-// A URL não muda, então os anúncios já aprovados seguem válidos sem nova
-// moderação. O texto não afirma nada sobre a visitante nem promete resultado —
-// a categoria "Horoscope and fortune-telling" do TikTok é restrita e julga a
-// landing junto com o anúncio.
+// ⚠️ LEIA ANTES DE MEXER NESTE TEXTO.
+// A categoria "Horoscope and fortune-telling" do TikTok é restrita e a
+// moderação julga a landing JUNTO com o anúncio. A regra que mantém a conta
+// viva é: **descrever a linha é permitido, afirmar sobre a visitante não é.**
+//
+// A headline anterior era uma pergunta ("Curious what your palm says about how
+// you love?") e é a do criativo de maior CTR — 1,81% no XLSX de 01/05–17/09.
+// A atual é afirmativa e pressupõe que o amor vem dando errado para ela. É uma
+// troca deliberada, decidida pelo dono em 16/10, junto com a decisão de montar
+// contingência de conta. Está registrada aqui para que, se a conta for
+// reprovada, o primeiro lugar a olhar seja este, e o retorno seja barato:
+// voltar à forma de pergunta em HERO_SEGURO abaixo.
 const HERO_COPY = {
-  headline: "Curious what your palm says about how you love?",
-  highlight: "One photo. A reading of the lines that are actually there.",
+  headline: "Your heart line already knows why love keeps going wrong.",
+  highlight: "One photo of your palm. A written reading of the lines that are actually there.",
   steps: [
     ["1", "Send one photo of your hand"],
     ["2", "The AI reads your heart line"],
     ["3", "Get your written reading"],
   ] as [string, string][],
+  cta: "Read my heart line",
+};
+
+// Versão de retorno, em forma de pergunta: nenhuma pressuposição sobre a
+// visitante. É o texto que já passou pela moderação e é o do criativo vencedor.
+// Se a conta for reprovada por *personal attributes*, troque HERO_COPY por este
+// — é uma linha de código e não exige regerar nenhuma arte. Não é exportado de
+// propósito: exportar daqui quebra o fast refresh do Vite.
+const HERO_SEGURO = {
+  headline: "Curious what your palm says about how you love?",
+  highlight: "One photo. A reading of the lines that are actually there.",
+  steps: HERO_COPY.steps,
+  cta: "Start my reading",
 };
 
 const PaidFastHero = ({ onCtaClick }: { onCtaClick: () => void }) => (
@@ -136,7 +155,7 @@ const PaidFastHero = ({ onCtaClick }: { onCtaClick: () => void }) => (
       </p>
 
       <CTAButton onClick={onCtaClick} className="mt-5">
-        Start my reading <ArrowRight className="w-5 h-5" />
+        {HERO_COPY.cta} <ArrowRight className="w-5 h-5" />
       </CTAButton>
 
       <p className="mt-4 text-[11px] text-white/40">

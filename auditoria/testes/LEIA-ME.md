@@ -8,6 +8,11 @@ possa repetir em qualquer máquina.
 
 ```bash
 npm ci
+npm install --no-save playwright   # NÃO é dependência do projeto — e um
+                                   # `npm ci` a remove. Se os scripts falharem
+                                   # com "Cannot find package 'playwright'",
+                                   # é isto.
+npx playwright install chromium    # só na primeira vez
 npm run build
 npx vite preview --port 5175 --host 127.0.0.1
 ```
